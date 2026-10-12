@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cnguyen75.github.io/data/lately.schema.json",
+  "title": "Side D, lately",
+  "description": "The single file a nightly job writes for the Lately section. Every panel is optional; the page shows 'not connected yet' for any panel it cannot draw. Times are ISO 8601 with an offset and are displayed in Pacific time.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "sources"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "generated_at": { "$ref": "#/$defs/timestamp" },
+    "sample": {
+      "type": "boolean",
+      "description": "True for placeholder data. The page also treats data/lately.sample.json as sample regardless of this flag."
+    },
+    "sources": {
+      "type": "object",
+      "description": "One entry per feed, keyed by a short id. Chips are shown in key order.",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/source" }
+    },
+    "fantasy": { "$ref": "#/$defs/fantasy" },
+    "watching": { "$ref": "#/$defs/watching" },
+    "listening": { "$ref": "#/$defs/listening" },
+    "eating": { "$ref": "#/$defs/eating" }
+  },
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "nullableTimestamp": {
+      "anyOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }]
+    },
+    "count": { "type": "integer", "minimum": 0 },
+    "source": {
+      "type": "object",
+      "required": ["label", "status", "schedule", "updated_at", "last_ok_at"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "description": "Display name, e.g. 'last.fm'." },
+        "status": {
+          "enum": ["ok", "error", "stale", "pending", "disabled"],
+          "description": "ok: the last run succeeded. error: the last run failed. stale: no run within the expected schedule. pending: not connected yet (e.g. awaiting API approval). disabled: switched off."
+        },
+        "message": {
+          "type": ["string", "null"],
+          "description": "Short public text shown instead of the status word when not ok, e.g. 'awaiting approval'. Never put error details or secrets here."
+        },
+        "schedule": { "enum": ["nightly", "weekly"] },
+        "updated_at": {
+          "$ref": "#/$defs/nullableTimestamp",
+          "description": "When the job last attempted this source."
+        },
+        "last_ok_at": {
+          "$ref": "#/$defs/nullableTimestamp",
+          "description": "When this source last succeeded. Null means it never has. When status is not ok, the panel data is from this time."
+        }
+      }
+    },
+    "fantasy": {
+      "type": "object",
+      "required": ["season", "week", "sources", "headline", "teams", "top_players"],
+      "additionalProperties": false,
+      "properties": {
+        "season": { "type": "integer" },
+        "week": { "type": "integer", "minimum": 1, "description": "The upcoming or current week. Results cover weeks 1 to week - 1." },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "description": "Source ids contributing to this panel, in display order."
+        },
+        "headline": {
+          "type": "object",
+          "required": ["wins", "losses", "team_count", "wins_above_expected", "favoured", "favoured_of"],
+          "additionalProperties": false,
+          "properties": {
+            "wins": { "$ref": "#/$defs/count" },
+            "losses": { "$ref": "#/$defs/count" },
+            "ties": { "$ref": "#/$defs/count" },
+            "team_count": { "$ref": "#/$defs/count" },
+            "wins_above_expected": { "type": "number", "description": "Actual wins minus all-play expected wins, summed over teams." },
+            "favoured": { "$ref": "#/$defs/count", "description": "Teams favoured this week by projected points." },
+            "favoured_of": { "$ref": "#/$defs/count" }
+          }
+        },
+        "teams": {
+          "type": "array",
+          "description": "Colin's own teams only. Never include other managers' names or team names.",
+          "items": {
+            "type": "object",
+            "required": ["name", "source", "wins", "losses", "results", "luck", "win_probability"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "source": { "type": "string", "description": "Key into sources, e.g. 'espn'." },
+              "league_label": { "type": ["string", "null"], "description": "Shown after the platform, e.g. 'league 1'." },
+              "wins": { "$ref": "#/$defs/count" },
+              "losses": { "$ref": "#/$defs/count" },
+              "ties": { "$ref": "#/$defs/count" },
+              "results": {
+                "type": "array",
+                "items": { "enum": ["W", "L", "T"] },
+                "description": "Weekly results, week 1 first."
+              },
+              "luck": { "type": "number", "description": "Wins versus expected for this team." },
+              "win_probability": { "type": "number", "minimum": 0, "maximum": 1, "description": "Chance to win the current week." }
+            }
+          }
+        },
+        "top_players": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "points_above_replacement"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "points_above_replacement": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "watching": {
+      "type": "object",
+      "required": ["source", "total_hours", "weeks", "recent"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "total_hours": { "type": "number", "minimum": 0, "description": "Hours watched across the weeks shown (unrounded total, so it can differ from the sum of the rounded weekly bars)." },
+        "weeks": {
+          "type": "array",
+          "description": "Hours per week by type, oldest week first; the last entry is this week.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["films", "shows", "anime"],
+            "additionalProperties": false,
+            "properties": {
+              "films": { "type": "number", "minimum": 0 },
+              "shows": { "type": "number", "minimum": 0 },
+              "anime": { "type": "number", "minimum": 0 }
+            }
+          }
+        },
+        "recent": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["title", "type", "url"],
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "type": { "enum": ["film", "show", "anime"] },
+              "season": { "type": ["integer", "null"], "minimum": 1 },
+              "rating": { "type": ["number", "null"], "minimum": 1, "maximum": 10 },
+              "url": { "type": "string", "format": "uri", "pattern": "^https://simkl\\.com/", "description": "The title's Simkl page (required by Simkl's attribution terms)." }
+            }
+          }
+        }
+      }
+    },
+    "listening": {
+      "type": "object",
+      "required": ["source", "plays_this_month", "top_artists", "plays_by_hour"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "plays_this_month": { "$ref": "#/$defs/count" },
+        "top_artists": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "plays"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "plays": { "$ref": "#/$defs/count" }
+            }
+          }
+        },
+        "plays_by_hour": {
+          "type": "array",
+          "description": "Plays this month by local hour of day, 0:00 first.",
+          "items": { "$ref": "#/$defs/count" },
+          "minItems": 24,
+          "maxItems": 24
+        }
+      }
+    },
+    "eating": {
+      "type": "object",
+      "required": ["source", "ranked_count", "top", "cuisines"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "type": "string" },
+        "ranked_count": { "$ref": "#/$defs/count" },
+        "top": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rank", "name", "city", "score"],
+            "additionalProperties": false,
+            "properties": {
+              "rank": { "type": "integer", "minimum": 1 },
+              "name": { "type": "string", "minLength": 1 },
+              "city": { "type": "string" },
+              "score": { "type": "number", "minimum": 0, "maximum": 10 }
+            }
+          }
+        },
+        "cuisines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "count"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "count": { "$ref": "#/$defs/count" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

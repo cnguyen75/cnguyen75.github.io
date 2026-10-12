@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-12T03:12:00-07:00",
+  "sample": true,
+  "sources": {
+    "sleeper": { "label": "sleeper", "status": "ok", "message": null, "schedule": "nightly", "updated_at": "2026-10-12T03:10:00-07:00", "last_ok_at": "2026-10-12T03:10:00-07:00" },
+    "espn": { "label": "espn", "status": "ok", "message": null, "schedule": "nightly", "updated_at": "2026-10-12T03:11:00-07:00", "last_ok_at": "2026-10-12T03:11:00-07:00" },
+    "yahoo": { "label": "yahoo", "status": "pending", "message": "awaiting approval", "schedule": "nightly", "updated_at": null, "last_ok_at": null },
+    "simkl": { "label": "simkl", "status": "ok", "message": null, "schedule": "nightly", "updated_at": "2026-10-12T03:11:00-07:00", "last_ok_at": "2026-10-12T03:11:00-07:00" },
+    "lastfm": { "label": "last.fm", "status": "ok", "message": null, "schedule": "nightly", "updated_at": "2026-10-12T03:12:00-07:00", "last_ok_at": "2026-10-12T03:12:00-07:00" },
+    "beli": { "label": "beli", "status": "ok", "message": null, "schedule": "weekly", "updated_at": "2026-10-11T03:12:00-07:00", "last_ok_at": "2026-10-11T03:12:00-07:00" }
+  },
+  "fantasy": {
+    "season": 2026,
+    "week": 6,
+    "sources": ["sleeper", "yahoo", "espn"],
+    "headline": { "wins": 13, "losses": 7, "ties": 0, "team_count": 4, "wins_above_expected": 1.8, "favoured": 3, "favoured_of": 4 },
+    "teams": [
+      { "name": "[Team name 1]", "source": "sleeper", "league_label": null, "wins": 4, "losses": 1, "ties": 0, "results": ["W", "W", "L", "W", "W"], "luck": 0.9, "win_probability": 0.64 },
+      { "name": "[Team name 2]", "source": "espn", "league_label": "league 1", "wins": 3, "losses": 2, "ties": 0, "results": ["W", "L", "W", "W", "L"], "luck": -0.4, "win_probability": 0.58 },
+      { "name": "[Team name 3]", "source": "espn", "league_label": "league 2", "wins": 4, "losses": 1, "ties": 0, "results": ["W", "W", "W", "L", "W"], "luck": 1.6, "win_probability": 0.71 },
+      { "name": "[Team name 4]", "source": "yahoo", "league_label": null, "wins": 2, "losses": 3, "ties": 0, "results": ["L", "W", "L", "L", "W"], "luck": -0.3, "win_probability": 0.41 }
+    ],
+    "top_players": [
+      { "name": "[Player 1]", "points_above_replacement": 38.4 },
+      { "name": "[Player 2]", "points_above_replacement": 31 },
+      { "name": "[Player 3]", "points_above_replacement": 24.7 },
+      { "name": "[Player 4]", "points_above_replacement": 19.2 },
+      { "name": "[Player 5]", "points_above_replacement": 12.5 }
+    ]
+  },
+  "watching": {
+    "source": "simkl",
+    "total_hours": 61,
+    "weeks": [
+      { "films": 2, "shows": 3, "anime": 0 },
+      { "films": 0, "shows": 4, "anime": 1 },
+      { "films": 2, "shows": 2, "anime": 2 },
+      { "films": 4, "shows": 1, "anime": 0 },
+      { "films": 0, "shows": 5, "anime": 1 },
+      { "films": 2, "shows": 3, "anime": 3 },
+      { "films": 0, "shows": 2, "anime": 2 },
+      { "films": 2, "shows": 4, "anime": 0 },
+      { "films": 4, "shows": 2, "anime": 1 },
+      { "films": 0, "shows": 3, "anime": 2 },
+      { "films": 2, "shows": 1, "anime": 3 },
+      { "films": 2, "shows": 2, "anime": 1 }
+    ],
+    "recent": [
+      { "title": "[Film title]", "type": "film", "season": null, "rating": 9, "url": "https://simkl.com/" },
+      { "title": "[Show title]", "type": "show", "season": 2, "rating": 8, "url": "https://simkl.com/" },
+      { "title": "[Anime title]", "type": "anime", "season": null, "rating": 9, "url": "https://simkl.com/" },
+      { "title": "[Film title]", "type": "film", "season": null, "rating": 7, "url": "https://simkl.com/" }
+    ]
+  },
+  "listening": {
+    "source": "lastfm",
+    "plays_this_month": 842,
+    "top_artists": [
+      { "name": "Kendrick Lamar", "plays": 96 },
+      { "name": "Bruno Mars", "plays": 71 },
+      { "name": "[Artist 3]", "plays": 54 },
+      { "name": "[Artist 4]", "plays": 40 },
+      { "name": "[Artist 5]", "plays": 33 }
+    ],
+    "plays_by_hour": [3, 1, 0, 0, 0, 0, 2, 6, 12, 18, 14, 10, 8, 12, 16, 15, 11, 9, 13, 17, 20, 16, 10, 6]
+  },
+  "eating": {
+    "source": "beli",
+    "ranked_count": 137,
+    "top": [
+      { "rank": 1, "name": "[Restaurant]", "city": "San Francisco", "score": 9.6 },
+      { "rank": 2, "name": "[Restaurant]", "city": "Santa Barbara", "score": 9.4 },
+      { "rank": 3, "name": "[Restaurant]", "city": "New York", "score": 9.3 },
+      { "rank": 4, "name": "[Restaurant]", "city": "San Jose", "score": 9.1 },
+      { "rank": 5, "name": "[Restaurant]", "city": "Oakland", "score": 9.0 }
+    ],
+    "cuisines": [
+      { "name": "[Cuisine 1]", "count": 31 },
+      { "name": "[Cuisine 2]", "count": 24 },
+      { "name": "[Cuisine 3]", "count": 18 },
+      { "name": "[Cuisine 4]", "count": 12 }
+    ]
+  }
+}
