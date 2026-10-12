@@ -232,28 +232,40 @@
         "type": "film",
         "season": null,
         "rating": 9,
-        "url": "https://simkl.com/"
+        "url": "https://simkl.com/",
+        "status": "watched"
       },
       {
         "title": "[Show title]",
         "type": "show",
         "season": 2,
         "rating": 8,
-        "url": "https://simkl.com/"
+        "url": "https://simkl.com/",
+        "status": "watched"
       },
       {
         "title": "[Anime title]",
         "type": "anime",
         "season": null,
         "rating": 9,
-        "url": "https://simkl.com/"
+        "url": "https://simkl.com/",
+        "status": "watched"
       },
       {
         "title": "[Film title]",
         "type": "film",
         "season": null,
         "rating": 7,
-        "url": "https://simkl.com/"
+        "url": "https://simkl.com/",
+        "status": "watched"
+      },
+      {
+        "title": "[Show title]",
+        "type": "show",
+        "season": null,
+        "rating": 8,
+        "url": "https://simkl.com/",
+        "status": "finished"
       }
     ]
   },

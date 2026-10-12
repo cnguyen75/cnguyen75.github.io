@@ -738,6 +738,11 @@ a.track { text-decoration: none; }
 .swatch { width: 10px; height: 10px; flex: none; }
 .item-name { flex: 1; min-width: 0; }
 .item-meta { font-size: 13px; color: var(--text-3); }
+.item-status {
+  font-family: var(--font-label);
+  font-size: 13px;
+  color: var(--text-3);
+}
 .item-score {
   width: 34px;
   text-align: right;

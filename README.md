@@ -42,6 +42,7 @@ Rules the renderer applies to the data:
 
 - **Watching:** the hours total is the sum of the weekly bars. There is no separate total field.
 - **Fantasy:** `win_probability` may be `null`. The page then shows the team's `win_probability_note` in place of the bar, or "not available this week" if there is no note. A note is ignored when `win_probability` is a number. The player chart shows points above replacement **per game played**; negative values draw leftward from a zero line in orange.
+- **Watching:** a recent item may have `status` `"watched"` (the default when the field is missing) or `"finished"` (marked complete in bulk on Simkl, with no watch date or season). Finished items show a small "finished" label instead of a season, keep their Simkl link, and are listed after all watched items whatever their order in the file.
 - **Listening:** the hour-of-day strip covers the last 30 days.
 - **Eating:** the list shows up to ten restaurants ("Current top ten"). Cuisine bars are capped at seven: if `cuisines` has more than seven entries, the six largest are kept and the rest (including any entry named "Other") are summed into one "Other" bar.
 

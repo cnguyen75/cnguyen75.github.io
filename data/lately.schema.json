@@ -354,6 +354,13 @@
                 "format": "uri",
                 "pattern": "^https://simkl\\.com/",
                 "description": "The title's Simkl page (required by Simkl's attribution terms)."
+              },
+              "status": {
+                "enum": [
+                  "watched",
+                  "finished"
+                ],
+                "description": "'finished': marked complete in bulk on Simkl, so there is no watch date or season. Finished items always come after watched ones."
               }
             }
           }

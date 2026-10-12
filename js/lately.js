@@ -312,7 +312,12 @@
     if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     var weeks = arr(w.weeks, "watching.weeks");
     need(weeks.length > 0, "watching.weeks");
-    var recent = arr(w.recent, "watching.recent");
+    // "finished" items (bulk-completed on Simkl) always list after watched ones;
+    // a missing status counts as watched. The sort is stable within each group.
+    var recent = arr(w.recent, "watching.recent").map(function (r, i) {
+      need(isObj(r), "recent item");
+      return { item: r, finished: r.status === "finished", i: i };
+    }).sort(function (a, b) { return (a.finished - b.finished) || (a.i - b.i); });
     var n = weeks.length;
 
     var totals = weeks.map(function (wk) {
@@ -356,14 +361,16 @@
       t.table,
       h("div", { class: "list" },
         h("div", { class: "list-title" }, "Recently"),
-        h("ul", { class: "list-items" }, recent.map(function (r) {
+        h("ul", { class: "list-items" }, recent.map(function (entry) {
+          var r = entry.item;
           need(isObj(r), "recent item");
           var type = types[r.type] || "film";
-          var title = str(r.title, "title") + (typeof r.season === "number" ? ", season " + r.season : "");
+          var title = str(r.title, "title") + (!entry.finished && typeof r.season === "number" ? ", season " + r.season : "");
           var url = safeUrl(r.url);
           return h("li", { class: "list-item" },
             h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
-            h("span", { class: "item-name" }, url ? h("a", { href: url }, title) : title),
+            h("span", { class: "item-name" }, url ? h("a", { href: url }, title) : title,
+              entry.finished ? [" ", h("span", { class: "item-status" }, "finished")] : null),
             h("span", { class: "item-meta" }, type),
             typeof r.rating === "number"
               ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
