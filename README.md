@@ -16,6 +16,7 @@ data/lately.json           live data, written by the pipeline; git-ignored, neve
 fonts/                     self-hosted Archivo, Courier Prime, Caveat (latin woff2) and their OFL licences
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
+resume/                    the two résumé PDFs (web versions, no phone number)
 favicon.svg, favicon-32.png, apple-touch-icon.png
 .nojekyll                  stops GitHub Pages running Jekyll once the site is published
 ```
@@ -69,7 +70,10 @@ python3 -m http.server 8765 --bind 127.0.0.1
 
 When `data/lately.json` exists (the pipeline writes it), the page shows that data; without it you see the sample. The file is in `.gitignore`.
 
+## Résumés
+
+`resume/` holds copies of the web versions built from LaTeX in `~/Personal/site-handoff/resume-latex/web/` (these leave out the phone number). To update, rebuild there and copy both PDFs over the ones in `resume/`. The hero "Résumé (PDF)" link points to the AI Engineer résumé; the footer reads "résumé: engineering · research" and links to both.
+
 ## Open items
 
-- **Résumé PDFs.** The hero "Résumé (PDF)" link points to `resume/Colin_Nguyen_Resume_AI_Engineer.pdf`; the footer reads "résumé: engineering · research", linking to that file and `resume/Colin_Nguyen_Resume_Research.pdf`. LibreOffice is not installed, so those PDFs don't exist yet and the links 404 until they are exported: `soffice --headless --convert-to pdf --outdir resume ~/Personal/site-handoff/*.docx`.
 - The "how this is built" link in Side D and all Lately values are placeholders until the nightly job exists.
