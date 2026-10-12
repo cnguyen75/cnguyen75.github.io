@@ -13,7 +13,7 @@ js/lately.js               draws the Side D panels from data
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
 data/lately.sample.json    sample data matching the approved design's placeholder values
 data/lately.json           live data, written by the pipeline; git-ignored, never committed
-fonts/                     self-hosted Archivo, Courier Prime, Caveat (latin woff2) and their OFL licences
+fonts/                     self-hosted Archivo (latin + vietnamese), Courier Prime, Caveat (latin) woff2 and their OFL licences
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
 resume/                    the two résumé PDFs (web versions, no phone number)
@@ -40,11 +40,11 @@ The page makes no requests to other hosts at runtime. Fonts, images and data are
 
 Rules the renderer applies to the data:
 
-- **Watching:** the hours total is the sum of the weekly bars. There is no separate total field.
-- **Fantasy:** `win_probability` may be `null`. The page then shows the team's `win_probability_note` in place of the bar, or "not available this week" if there is no note. A note is ignored when `win_probability` is a number. The player chart shows points above replacement **per game played**; negative values draw leftward from a zero line in orange.
+- **Watching:** the hours total is the sum of the weekly bars. There is no separate total field. When every week is zero, the chart, legend and table toggle are replaced by "No episodes or films logged in the last 12 weeks"; the Recently list stays. If no recent item has a rating, the score column is dropped.
+- **Fantasy:** `win_probability` may be `null`. The page then shows the team's `win_probability_note` in place of the bar, or "not available this week" if there is no note. A note is ignored when `win_probability` is a number. The player chart shows points above replacement **per game played**; negative values draw leftward from a zero line in orange. The header lists only sources that have at least one team drawn on the page. A team's second line (platform, league, status) is hidden when it would only repeat the platform already named in the team label.
 - **Watching:** a recent item may have `status` `"watched"` (the default when the field is missing) or `"finished"` (marked complete in bulk on Simkl, with no watch date or season). Finished items show a small "finished" label instead of a season, keep their Simkl link, and are listed after all watched items whatever their order in the file.
-- **Listening:** the hour-of-day strip covers the last 30 days.
-- **Eating:** the list shows up to ten restaurants ("Current top ten"). Cuisine bars are capped at seven: if `cuisines` has more than seven entries, the six largest are kept and the rest (including any entry named "Other") are summed into one "Other" bar.
+- **Listening:** "Plays, last 30 days" is the sum of `plays_by_hour`, so it covers the same window as the hour strip (`plays_this_month` is deprecated and ignored). Any hour with at least one play is drawn in the lightest blue or darker, never the zero colour. The top-artists chart stays even with one artist.
+- **Eating:** scores show two decimals. Cuisine bars: at most six named cuisines, scaled to the largest named one. The remainder is a text line under the chart, "plus N across K other cuisines" when the cuisines are listed individually, or "Other: N" when the file gives a lumped "Other" entry.
 
 All text from the data file is inserted with `textContent`, never as HTML, and links are only rendered for `https://` URLs. Watching titles must link to their Simkl page (the schema requires `https://simkl.com/...`).
 

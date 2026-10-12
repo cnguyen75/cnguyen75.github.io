@@ -13,7 +13,7 @@
   var NOT_CONNECTED = "Not connected yet.";
   var BROKEN = "Couldn't draw this panel right now.";
   var NO_CHANCE = "not available this week";
-  var MAX_CUISINES = 7; // six named plus "Other"
+  var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
 
   // ---------- small helpers ----------
 
@@ -177,7 +177,7 @@
       items.map(function (i) { return [i.label, short(i.value)]; }), list);
     return h("div", { class: "chart-block" },
       h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, opts.title), t.button),
-      list, t.table);
+      list, t.table, opts.after || null);
   }
 
   function stat(label, value, note) {
@@ -206,15 +206,17 @@
     var srcKeys = arr(f.sources, "fantasy.sources");
 
     document.getElementById("fantasy-title").textContent = "Fantasy football, week " + week;
-    document.getElementById("fantasy-meta").textContent = srcKeys.map(function (k) {
-      var s = sourceOf(data, k);
-      return s && s.label ? s.label : k;
-    }).join(" + ");
-
     var shown = teams.map(function (t) {
       need(isObj(t), "team");
       return { team: t, src: sourceOf(data, t.source), state: sourceState(sourceOf(data, t.source), true) };
     });
+    // Header names only sources with at least one team drawn from them.
+    document.getElementById("fantasy-meta").textContent = srcKeys.filter(function (k) {
+      return shown.some(function (s) { return s.team.source === k && s.state.show; });
+    }).map(function (k) {
+      var s = sourceOf(data, k);
+      return s && s.label ? s.label : k;
+    }).join(" + ");
     if (!shown.some(function (s) { return s.state.show; })) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
 
     var out = [];
@@ -240,7 +242,8 @@
       var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
       var platform = [srcLabel, t.league_label, isOk(s.src) ? null : (s.src && (s.src.message || s.src.status)) || "unknown"]
         .filter(Boolean).join(" · ");
-      var nameCell = h("div", null, h("div", { class: "team-name" }, name), h("div", { class: "team-platform" }, platform));
+      var repeats = platform === srcLabel && new RegExp("(^|\\W)" + srcLabel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(\\W|$)", "i").test(name);
+      var nameCell = h("div", null, h("div", { class: "team-name" }, name), repeats ? null : h("div", { class: "team-platform" }, platform));
       if (!s.state.show) return h("div", { class: "team-row" }, nameCell, h("div", { class: "team-missing" }, NOT_CONNECTED));
 
       var results = arr(t.results, "team.results");
@@ -353,12 +356,17 @@
     }
     var types = { film: "film", show: "show", anime: "anime" };
 
+    // With no ratings at all, drop the score column instead of leaving a gap.
+    var hasRatings = recent.some(function (e) { return typeof e.item.rating === "number"; });
+    var empty = totalHours === 0;
+
     return [
       state.asOf ? staleNote(state.asOf) : null,
       stat("Hours watched, last " + n + " weeks", short(totalHours)),
-      h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
-      figure,
-      t.table,
+      empty ? h("p", { class: "panel-empty" }, "No episodes or films logged in the last " + n + " weeks") : null,
+      empty ? null : h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
+      empty ? null : figure,
+      empty ? null : t.table,
       h("div", { class: "list" },
         h("div", { class: "list-title" }, "Recently"),
         h("ul", { class: "list-items" }, recent.map(function (entry) {
@@ -375,12 +383,13 @@
             typeof r.rating === "number"
               ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
                   h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
-              : h("span", { class: "item-score" }));
+              : hasRatings ? h("span", { class: "item-score" }) : null);
         })))
     ];
   }
 
-  // Bins plays into the six-step blue scale from the reference.
+  // Bins plays into the six-step blue scale from the reference. Any hour
+  // with a play gets at least the lightest blue, so it never reads as zero.
   function heatLevel(v, max) {
     if (max <= 0 || v <= 0) return 0;
     var r = v / max;
@@ -388,8 +397,7 @@
     if (r >= 0.8) return 4;
     if (r >= 0.6) return 3;
     if (r >= 0.4) return 2;
-    if (r >= 0.25) return 1;
-    return 0;
+    return 1;
   }
 
   function listeningPanel(data) {
@@ -402,6 +410,7 @@
     need(hours.length === 24, "plays_by_hour length");
     hours.forEach(function (v) { num(v, "hour"); });
     var max = Math.max.apply(null, hours);
+    var plays30 = hours.reduce(function (a, b) { return a + b; }, 0);
 
     function hourText(v, i) { return i + ":00, " + plural(v, "play", "plays"); }
     var strip = h("div", { class: "heat", role: "img",
@@ -414,7 +423,7 @@
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
-      stat("Plays this month", String(num(l.plays_this_month, "plays_this_month"))),
+      stat("Plays, last 30 days", String(plays30)),
       barChart({
         title: "Top artists this month",
         labelHeading: "Artist",
@@ -428,17 +437,28 @@
     ];
   }
 
-  // Keeps at most `max` bars: if there are more, the largest max - 1 stay
-  // and the rest (plus any existing "Other") fold into one "Other" bar.
-  function topWithOther(items, max) {
-    if (items.length <= max) return items;
+  // Splits cuisines into at most `max` named bars and an "Other" remainder.
+  // otherCount is how many cuisines the remainder covers, or null when the
+  // data already lumped some into an "Other" entry and the count is unknown.
+  function splitOther(items, max) {
     var isOther = function (i) { return /^other$/i.test(i.label); };
-    var named = items.filter(function (i) { return !isOther(i); })
-      .sort(function (a, b) { return b.value - a.value; });
-    var kept = named.slice(0, max - 1);
-    var rest = named.slice(max - 1).concat(items.filter(isOther))
-      .reduce(function (sum, i) { return sum + i.value; }, 0);
-    return kept.concat([{ label: "Other", value: rest }]);
+    var named = items.filter(function (i) { return !isOther(i); });
+    var lumped = items.filter(isOther);
+    if (named.length > max) named = named.slice().sort(function (a, b) { return b.value - a.value; });
+    var folded = named.slice(max);
+    var sum = function (list) { return list.reduce(function (s, i) { return s + i.value; }, 0); };
+    return {
+      bars: named.slice(0, max),
+      otherTotal: sum(folded) + sum(lumped),
+      otherCount: lumped.length ? null : folded.length
+    };
+  }
+  function otherLine(split) {
+    if (!split.otherTotal) return null;
+    var text = split.otherCount === null
+      ? "Other: " + split.otherTotal
+      : "plus " + split.otherTotal + " across " + plural(split.otherCount, "other cuisine", "other cuisines");
+    return h("p", { class: "chart-foot" }, text);
   }
 
   function eatingPanel(data) {
@@ -447,7 +467,7 @@
     var state = sourceState(sourceOf(data, e.source), true);
     if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     var top = arr(e.top, "eating.top");
-    var cuisines = topWithOther(arr(e.cuisines, "eating.cuisines").map(function (c) {
+    var cuisines = splitOther(arr(e.cuisines, "eating.cuisines").map(function (c) {
       need(isObj(c), "cuisine");
       return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
     }), MAX_CUISINES);
@@ -463,13 +483,14 @@
             h("span", { class: "item-rank" }, num(r.rank, "rank")),
             h("span", { class: "item-name" }, str(r.name, "restaurant name")),
             h("span", { class: "item-meta" }, typeof r.city === "string" ? r.city : ""),
-            h("span", { class: "item-score" }, num(r.score, "score").toFixed(1)));
+            h("span", { class: "item-score item-score--wide" }, num(r.score, "score").toFixed(2)));
         }))),
       barChart({
         title: "What I rank most",
         labelHeading: "Cuisine",
         valueHeading: "Places",
-        items: cuisines,
+        items: cuisines.bars,
+        after: otherLine(cuisines),
         text: function (v) { return plural(v, "place", "places"); }
       })
     ];

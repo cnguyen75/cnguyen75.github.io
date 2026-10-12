@@ -371,7 +371,6 @@
       "type": "object",
       "required": [
         "source",
-        "plays_this_month",
         "top_artists",
         "plays_by_hour"
       ],
@@ -381,7 +380,8 @@
           "type": "string"
         },
         "plays_this_month": {
-          "$ref": "#/$defs/count"
+          "$ref": "#/$defs/count",
+          "description": "Deprecated and ignored. The page shows the sum of plays_by_hour, so the total and the hour chart cover the same last 30 days."
         },
         "top_artists": {
           "type": "array",
@@ -401,11 +401,12 @@
                 "$ref": "#/$defs/count"
               }
             }
-          }
+          },
+          "description": "Top artists this month, most played first."
         },
         "plays_by_hour": {
           "type": "array",
-          "description": "Plays in the last 30 days by local hour of day, 0:00 first.",
+          "description": "Plays in the last 30 days by local hour of day, 0:00 first. Their sum is shown as 'Plays, last 30 days'.",
           "items": {
             "$ref": "#/$defs/count"
           },
@@ -456,7 +457,8 @@
               "score": {
                 "type": "number",
                 "minimum": 0,
-                "maximum": 10
+                "maximum": 10,
+                "description": "Beli score, shown with two decimals."
               }
             }
           },
@@ -482,7 +484,7 @@
               }
             }
           },
-          "description": "Places ranked per cuisine. The page shows at most seven bars: if there are more than seven entries, the six largest are kept and the rest (with any entry named 'Other') are summed into 'Other'."
+          "description": "Places ranked per cuisine. The page draws at most six named cuisines as bars, scaled to the largest named one. Anything beyond six, and any entry named 'Other', becomes a text line under the chart: 'plus N across K other cuisines' when the individual cuisines are listed, or 'Other: N' when the file only gives a lumped 'Other' count."
         }
       }
     }
