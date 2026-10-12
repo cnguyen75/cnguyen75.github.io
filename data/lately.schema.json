@@ -237,7 +237,14 @@
                 ],
                 "minimum": 0,
                 "maximum": 1,
-                "description": "Chance to win the current week. Null when too few weeks have been played to estimate it; the page shows 'too few weeks'."
+                "description": "Chance to win the current week, or null when it can't be estimated. When null the page shows win_probability_note, or 'not available this week' if there is no note."
+              },
+              "win_probability_note": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Optional short public text shown in place of the win-chance bar when win_probability is null (e.g. 'too few weeks'). Ignored when win_probability is a number."
               }
             }
           }
@@ -257,7 +264,8 @@
                 "minLength": 1
               },
               "points_above_replacement": {
-                "type": "number"
+                "type": "number",
+                "description": "Points above a replacement starter per game played. Can be negative."
               }
             }
           }

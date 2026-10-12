@@ -647,6 +647,17 @@ a.track { text-decoration: none; }
   background: var(--blue);
   border-radius: 0 4px 4px 0;
 }
+/* Used when a bar list has negative values: bars grow left or right of 0. */
+.bar-track--diverging { position: relative; }
+.bar-track--diverging .bar-fill { position: absolute; top: 0; }
+.bar-fill--neg { background: var(--orange); border-radius: 4px 0 0 4px; }
+.bar-zero {
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 20px;
+  background: var(--axis);
+}
 .bar-value {
   text-align: right;
   font-size: 14px;

@@ -41,7 +41,7 @@ The page makes no requests to other hosts at runtime. Fonts, images and data are
 Rules the renderer applies to the data:
 
 - **Watching:** the hours total is the sum of the weekly bars. There is no separate total field.
-- **Fantasy:** `win_probability` may be `null` when too few weeks have been played; the page shows "too few weeks" in place of the bar.
+- **Fantasy:** `win_probability` may be `null`. The page then shows the team's `win_probability_note` in place of the bar, or "not available this week" if there is no note. A note is ignored when `win_probability` is a number. The player chart shows points above replacement **per game played**; negative values draw leftward from a zero line in orange.
 - **Listening:** the hour-of-day strip covers the last 30 days.
 - **Eating:** the list shows up to ten restaurants ("Current top ten"). Cuisine bars are capped at seven: if `cuisines` has more than seven entries, the six largest are kept and the rest (including any entry named "Other") are summed into one "Other" bar.
 

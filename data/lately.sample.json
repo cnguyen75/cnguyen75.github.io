@@ -142,23 +142,23 @@
     "top_players": [
       {
         "name": "[Player 1]",
-        "points_above_replacement": 38.4
+        "points_above_replacement": 11.4
       },
       {
         "name": "[Player 2]",
-        "points_above_replacement": 31
+        "points_above_replacement": 9.2
       },
       {
         "name": "[Player 3]",
-        "points_above_replacement": 24.7
+        "points_above_replacement": 7.1
       },
       {
         "name": "[Player 4]",
-        "points_above_replacement": 19.2
+        "points_above_replacement": 5.6
       },
       {
         "name": "[Player 5]",
-        "points_above_replacement": 12.5
+        "points_above_replacement": 3.8
       }
     ]
   },

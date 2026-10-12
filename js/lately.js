@@ -12,7 +12,7 @@
   var TZ = "America/Los_Angeles";
   var NOT_CONNECTED = "Not connected yet.";
   var BROKEN = "Couldn't draw this panel right now.";
-  var TOO_FEW = "too few weeks";
+  var NO_CHANCE = "not available this week";
   var MAX_CUISINES = 7; // six named plus "Other"
 
   // ---------- small helpers ----------
@@ -151,13 +151,26 @@
   // A horizontal bar list with a title, as used for players, artists and cuisines.
   function barChart(opts) {
     var items = opts.items;
-    var max = Math.max.apply(null, items.map(function (i) { return i.value; }).concat(0));
+    var values = items.map(function (i) { return i.value; });
+    var max = Math.max.apply(null, values.concat(0));
+    var min = Math.min.apply(null, values.concat(0));
+    var span = max - min;
+    var zero = span > 0 ? (-min / span) * 100 : 0; // % from the left where 0 sits
+    function fill(v) {
+      if (min >= 0) return h("div", { class: "bar-fill", style: { width: pct(v, max) } });
+      var w = span > 0 ? (Math.abs(v) / span) * 100 : 0;
+      return [
+        h("div", { class: "bar-zero", "aria-hidden": "true", style: { left: zero + "%" } }),
+        h("div", { class: "bar-fill " + (v < 0 ? "bar-fill--neg" : "bar-fill--pos"),
+          style: { left: (v < 0 ? zero - w : zero) + "%", width: w + "%" } })
+      ];
+    }
     var summary = items.map(function (i) { return i.label + " " + opts.text(i.value); }).join("; ");
     var list = h("div", { class: "bar-list" + (opts.wide ? " bar-list--wide" : ""), role: "img", "aria-label": opts.title + ": " + summary },
       items.map(function (i) {
         return h("div", { class: "bar-row", title: i.label + ": " + opts.text(i.value) },
           h("div", { class: "bar-label" }, i.label),
-          h("div", { class: "bar-track" }, h("div", { class: "bar-fill", style: { width: pct(Math.max(i.value, 0), max) } })),
+          h("div", { class: "bar-track" + (min < 0 ? " bar-track--diverging" : "") }, fill(i.value)),
           h("div", { class: "bar-value" }, short(i.value)));
       }));
     var t = tableToggle(opts.title, [{ label: opts.labelHeading }, { label: opts.valueHeading, num: true }],
@@ -175,6 +188,12 @@
   }
 
   // ---------- panels ----------
+
+  // Text shown in place of a null win chance: the team's note, or a default.
+  function winNote(t) {
+    var n = t.win_probability_note;
+    return typeof n === "string" && n.trim() ? n.trim() : NO_CHANCE;
+  }
 
   function fantasyPanel(data) {
     var f = data.fantasy;
@@ -230,8 +249,9 @@
       var p = t.win_probability === null ? null : num(t.win_probability, "team.win_probability");
       var luckText = name + ": " + signed(luck) + " wins versus expected";
       var chance = p === null ? null : Math.round(p * 100);
+      var chanceNote = p === null ? winNote(t) : null;
       var chanceText = p === null
-        ? name + ": " + TOO_FEW + " to estimate week " + week
+        ? name + ", win chance for week " + week + ": " + chanceNote
         : name + ": " + chance + "% to win week " + week;
       var half = Math.min(Math.abs(luck) / luckMax, 1) * 50;
 
@@ -248,7 +268,7 @@
             h("div", { class: "luck-bar " + (luck < 0 ? "luck-bar--neg" : "luck-bar--pos"), style: { left: (luck < 0 ? 50 - half : 50) + "%", width: half + "%" } })),
           h("div", { class: "meter-value" }, signed(luck))),
         chance === null
-          ? h("div", { class: "meter-note", title: chanceText }, TOO_FEW)
+          ? h("div", { class: "meter-note", title: chanceText }, chanceNote)
           : h("div", { class: "meter", title: chanceText },
               h("div", { class: "chance-track", role: "img", "aria-label": chanceText },
                 h("div", { class: "chance-bar", style: { width: chance + "%" } })),
@@ -267,7 +287,7 @@
       var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
       if (!s.state.show) return [t.name, srcLabel, NOT_CONNECTED, "", "", ""];
       return [t.name, [srcLabel, t.league_label].filter(Boolean).join(" · "), record(t.wins, t.losses, t.ties || 0),
-        t.results.join(" "), signed(t.luck), t.win_probability === null ? TOO_FEW : Math.round(t.win_probability * 100) + "%"];
+        t.results.join(" "), signed(t.luck), t.win_probability === null ? winNote(t) : Math.round(t.win_probability * 100) + "%"];
     });
     var t = tableToggle("Fantasy teams, week " + week,
       [{ label: "Team" }, { label: "Platform" }, { label: "Record" }, { label: weeksLabel }, { label: "Luck", num: true }, { label: "Win chance", num: true }],
@@ -275,12 +295,12 @@
     out.push(h("div", { class: "chart-block" }, h("div", { class: "chart-head chart-head--end" }, t.button), grid, t.table));
 
     out.push(barChart({
-      title: "Who is carrying my teams: points above a replacement starter",
+      title: "Who is carrying my teams: points above replacement, per game",
       wide: true,
       labelHeading: "Player",
-      valueHeading: "Points above replacement",
+      valueHeading: "Points above replacement, per game",
       items: players.map(function (p) { return { label: str(p.name, "player"), value: num(p.points_above_replacement, "par") }; }),
-      text: function (v) { return short(v) + " points above replacement"; }
+      text: function (v) { return short(v) + " points above replacement per game"; }
     }));
     return out;
   }
