@@ -777,13 +777,12 @@ a.track { text-decoration: none; }
   width: 18px;
 }
 
-/* Watching: my rankings, three short numbered lists */
+/* My rankings: Films, Shows and Anime side by side; they stack when narrow */
 .rankings {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 20px 28px;
 }
-.rankings > .list-title { padding-bottom: 0; }
 .ranking-head {
   display: flex;
   align-items: center;
@@ -792,10 +791,7 @@ a.track { text-decoration: none; }
   font-weight: 600;
   padding-bottom: 4px;
 }
-.list-items--compact .list-item {
-  align-items: baseline;
-  padding: 6px 0;
-}
+.list-items--numbered .list-item { align-items: baseline; }
 
 /* Listening: plays by hour strip */
 .heat {

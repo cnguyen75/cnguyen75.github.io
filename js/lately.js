@@ -385,8 +385,7 @@
               ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
                   h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
               : hasRatings ? h("span", { class: "item-score" }) : null);
-        }))),
-      myRankings(w.rankings)
+        })))
     ];
   }
 
@@ -422,25 +421,31 @@
       })));
   }
 
+  // Its own full-width card below the three panels. Returns null (card
+  // hidden) when the field is absent or every list is empty, or when Simkl
+  // has never produced good data.
   var RANKINGS = [["films", "Films"], ["shows", "Shows"], ["anime", "Anime"]];
-  function myRankings(r) {
-    if (!isObj(r)) return null;
+  function rankingsPanel(data) {
+    var w = data.watching;
+    if (!isObj(w) || !isObj(w.rankings)) return null;
+    var state = sourceState(sourceOf(data, w.source), true);
+    if (!state.show) return null;
+    var r = w.rankings;
     var groups = RANKINGS.map(function (g) {
       return { key: g[0], label: g[1], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled).slice(0, 5) : [] };
     }).filter(function (g) { return g.items.length; });
     if (!groups.length) return null;
-    return h("div", { class: "rankings" },
-      h("div", { class: "list-title" }, "My rankings"),
+    return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" },
       groups.map(function (g) {
         return h("div", { class: "ranking" },
           h("div", { class: "ranking-head" }, h("span", { class: "legend-swatch fill--" + g.key, "aria-hidden": "true" }), g.label),
-          h("ol", { class: "list-items list-items--compact", "aria-label": "My top " + g.label.toLowerCase() }, g.items.map(function (it, i) {
+          h("ol", { class: "list-items list-items--numbered", "aria-label": "My top " + g.label.toLowerCase() }, g.items.map(function (it, i) {
             return h("li", { class: "list-item" },
               h("span", { class: "item-rank", "aria-hidden": "true" }, i + 1),
               h("span", { class: "item-name" }, titleLink(it)),
               typeof it.year === "number" ? h("span", { class: "item-meta" }, it.year) : null);
           })));
-      }));
+      }))];
   }
 
   // Bins plays into the blue scale from the reference. Any hour with a play
@@ -555,12 +560,25 @@
     ["panel-fantasy", fantasyPanel],
     ["panel-watching", watchingPanel],
     ["panel-listening", listeningPanel],
-    ["panel-eating", eatingPanel]
+    ["panel-eating", eatingPanel],
+    ["panel-rankings", rankingsPanel, { optional: true }]
   ];
 
-  function fill(panelId, build, data) {
+  // Optional panels are hidden, not marked "not connected", when there is
+  // nothing to draw or drawing fails.
+  function fill(panelId, build, data, opts) {
     var panel = document.getElementById(panelId);
     if (!panel) return;
+    if (opts && opts.optional) {
+      while (panel.children.length > 1) panel.removeChild(panel.lastElementChild);
+      var extra = null;
+      try { extra = data ? build(data) : null; } catch (err) {
+        if (window.console) console.warn("lately: " + panelId + " not drawn:", err.message);
+      }
+      panel.hidden = !extra;
+      append(panel, extra);
+      return;
+    }
     // Keep the static heading row; replace everything after it.
     while (panel.children.length > 1) panel.removeChild(panel.lastElementChild);
     var nodes;
@@ -581,7 +599,7 @@
     if (badge) badge.hidden = !sample;
     if (note) note.hidden = !sample;
     try { renderChips(data); } catch (e) { /* chips are decoration */ }
-    PANELS.forEach(function (p) { fill(p[0], p[1], data); });
+    PANELS.forEach(function (p) { fill(p[0], p[1], data, p[2]); });
   }
 
   // The top level must be the right shape; panels validate their own parts.
