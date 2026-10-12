@@ -12,7 +12,7 @@ css/site.css               all styles; colours are CSS variables at the top (:ro
 js/lately.js               draws the Side D panels from data
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
 data/lately.sample.json    sample data matching the approved design's placeholder values
-data/lately.json           live data, written by the nightly job (not present yet)
+data/lately.json           live data, written by the pipeline; git-ignored, never committed
 fonts/                     self-hosted Archivo, Courier Prime, Caveat (latin woff2) and their OFL licences
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
@@ -37,6 +37,13 @@ The page makes no requests to other hosts at runtime. Fonts, images and data are
    - not `ok`, with no `last_ok_at`: the panel (or, for fantasy, that team's row) shows "Not connected yet."
    - The status chips under the intro show each source's state and last update time, in Pacific time. `message` is shown in place of the status word, so keep it short and public (for example "awaiting approval"). Never put error details or secrets in it.
 
+Rules the renderer applies to the data:
+
+- **Watching:** the hours total is the sum of the weekly bars. There is no separate total field.
+- **Fantasy:** `win_probability` may be `null` when too few weeks have been played; the page shows "too few weeks" in place of the bar.
+- **Listening:** the hour-of-day strip covers the last 30 days.
+- **Eating:** the list shows up to ten restaurants ("Current top ten"). Cuisine bars are capped at seven: if `cuisines` has more than seven entries, the six largest are kept and the rest (including any entry named "Other") are summed into one "Other" bar.
+
 All text from the data file is inserted with `textContent`, never as HTML, and links are only rendered for `https://` URLs. Watching titles must link to their Simkl page (the schema requires `https://simkl.com/...`).
 
 To check a data file against the schema, run any draft 2020-12 validator, for example:
@@ -60,9 +67,9 @@ python3 -m http.server 8765 --bind 127.0.0.1
 # open http://127.0.0.1:8765/
 ```
 
-To preview live data, put a file at `data/lately.json`; delete it to go back to the sample.
+When `data/lately.json` exists (the pipeline writes it), the page shows that data; without it you see the sample. The file is in `.gitignore`.
 
 ## Open items
 
-- **Résumé PDFs.** LibreOffice was not installed, so the two résumés in `~/Personal/site-handoff/` were not exported. The hero "Résumé (PDF)" link still points at `#contact` and the footer "Résumé" link at `#`, as in the design. To finish, export both to `resume/` (for example `soffice --headless --convert-to pdf --outdir resume ~/Personal/site-handoff/*.docx`) and update the two links in `index.html`, which are marked with HTML comments. The design has one link in each place, so deciding how to offer two résumés is still open.
+- **Résumé PDFs.** The hero "Résumé (PDF)" link points to `resume/Colin_Nguyen_Resume_AI_Engineer.pdf`; the footer reads "résumé: engineering · research", linking to that file and `resume/Colin_Nguyen_Resume_Research.pdf`. LibreOffice is not installed, so those PDFs don't exist yet and the links 404 until they are exported: `soffice --headless --convert-to pdf --outdir resume ~/Personal/site-handoff/*.docx`.
 - The "how this is built" link in Side D and all Lately values are placeholders until the nightly job exists.

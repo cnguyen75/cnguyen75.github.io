@@ -12,6 +12,8 @@
   var TZ = "America/Los_Angeles";
   var NOT_CONNECTED = "Not connected yet.";
   var BROKEN = "Couldn't draw this panel right now.";
+  var TOO_FEW = "too few weeks";
+  var MAX_CUISINES = 7; // six named plus "Other"
 
   // ---------- small helpers ----------
 
@@ -225,10 +227,12 @@
       var results = arr(t.results, "team.results");
       var words = { W: "win", L: "loss", T: "tie" };
       var luck = num(t.luck, "team.luck");
-      var p = num(t.win_probability, "team.win_probability");
+      var p = t.win_probability === null ? null : num(t.win_probability, "team.win_probability");
       var luckText = name + ": " + signed(luck) + " wins versus expected";
-      var chance = Math.round(p * 100);
-      var chanceText = name + ": " + chance + "% to win week " + week;
+      var chance = p === null ? null : Math.round(p * 100);
+      var chanceText = p === null
+        ? name + ": " + TOO_FEW + " to estimate week " + week
+        : name + ": " + chance + "% to win week " + week;
       var half = Math.min(Math.abs(luck) / luckMax, 1) * 50;
 
       return h("div", { class: "team-row" },
@@ -243,10 +247,12 @@
             h("div", { class: "luck-zero", "aria-hidden": "true" }),
             h("div", { class: "luck-bar " + (luck < 0 ? "luck-bar--neg" : "luck-bar--pos"), style: { left: (luck < 0 ? 50 - half : 50) + "%", width: half + "%" } })),
           h("div", { class: "meter-value" }, signed(luck))),
-        h("div", { class: "meter", title: chanceText },
-          h("div", { class: "chance-track", role: "img", "aria-label": chanceText },
-            h("div", { class: "chance-bar", style: { width: chance + "%" } })),
-          h("div", { class: "meter-value" }, chance + "%")));
+        chance === null
+          ? h("div", { class: "meter-note", title: chanceText }, TOO_FEW)
+          : h("div", { class: "meter", title: chanceText },
+              h("div", { class: "chance-track", role: "img", "aria-label": chanceText },
+                h("div", { class: "chance-bar", style: { width: chance + "%" } })),
+              h("div", { class: "meter-value" }, chance + "%")));
     });
 
     var grid = h("div", { class: "scroll-x", tabindex: "0", role: "region", "aria-label": "Fantasy teams, scrolls sideways" },
@@ -261,7 +267,7 @@
       var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
       if (!s.state.show) return [t.name, srcLabel, NOT_CONNECTED, "", "", ""];
       return [t.name, [srcLabel, t.league_label].filter(Boolean).join(" · "), record(t.wins, t.losses, t.ties || 0),
-        t.results.join(" "), signed(t.luck), Math.round(t.win_probability * 100) + "%"];
+        t.results.join(" "), signed(t.luck), t.win_probability === null ? TOO_FEW : Math.round(t.win_probability * 100) + "%"];
     });
     var t = tableToggle("Fantasy teams, week " + week,
       [{ label: "Team" }, { label: "Platform" }, { label: "Record" }, { label: weeksLabel }, { label: "Luck", num: true }, { label: "Win chance", num: true }],
@@ -293,6 +299,7 @@
       need(isObj(wk), "week");
       return num(wk.films, "films") + num(wk.shows, "shows") + num(wk.anime, "anime");
     });
+    var totalHours = totals.reduce(function (a, b) { return a + b; }, 0);
     var maxTotal = Math.max.apply(null, totals.concat(1));
     var pxPerHour = Math.min(14, 142 / maxTotal); // 150px plot, minus the 2px gaps
     function weekText(wk, i) {
@@ -323,7 +330,7 @@
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
-      stat("Hours watched, last " + n + " weeks", short(num(w.total_hours, "total_hours"))),
+      stat("Hours watched, last " + n + " weeks", short(totalHours)),
       h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
       figure,
       t.table,
@@ -371,10 +378,10 @@
 
     function hourText(v, i) { return i + ":00, " + plural(v, "play", "plays"); }
     var strip = h("div", { class: "heat", role: "img",
-      "aria-label": "Strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
+      "aria-label": "Plays by hour of day over the last 30 days: a strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
       hours.map(function (v, i) { return h("div", { class: "heat-cell heat-" + heatLevel(v, max), title: hourText(v, i) }); }));
     var axis = h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "midnight"), h("span", null, "noon"), h("span", null, "11pm"));
-    var t = tableToggle("Plays this month by hour of day",
+    var t = tableToggle("Plays by hour of day, last 30 days",
       [{ label: "Hour" }, { label: "Plays", num: true }],
       hours.map(function (v, i) { return [i + ":00", String(v)]; }), [strip, axis]);
 
@@ -389,9 +396,22 @@
         text: function (v) { return plural(v, "play", "plays"); }
       }),
       h("div", { class: "chart-block chart-block--hours" },
-        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day"), t.button),
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day, last 30 days"), t.button),
         strip, axis, t.table)
     ];
+  }
+
+  // Keeps at most `max` bars: if there are more, the largest max - 1 stay
+  // and the rest (plus any existing "Other") fold into one "Other" bar.
+  function topWithOther(items, max) {
+    if (items.length <= max) return items;
+    var isOther = function (i) { return /^other$/i.test(i.label); };
+    var named = items.filter(function (i) { return !isOther(i); })
+      .sort(function (a, b) { return b.value - a.value; });
+    var kept = named.slice(0, max - 1);
+    var rest = named.slice(max - 1).concat(items.filter(isOther))
+      .reduce(function (sum, i) { return sum + i.value; }, 0);
+    return kept.concat([{ label: "Other", value: rest }]);
   }
 
   function eatingPanel(data) {
@@ -400,7 +420,10 @@
     var state = sourceState(sourceOf(data, e.source), true);
     if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     var top = arr(e.top, "eating.top");
-    var cuisines = arr(e.cuisines, "eating.cuisines");
+    var cuisines = topWithOther(arr(e.cuisines, "eating.cuisines").map(function (c) {
+      need(isObj(c), "cuisine");
+      return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
+    }), MAX_CUISINES);
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
@@ -419,7 +442,7 @@
         title: "What I rank most",
         labelHeading: "Cuisine",
         valueHeading: "Places",
-        items: cuisines.map(function (c) { return { label: str(c.name, "cuisine"), value: num(c.count, "count") }; }),
+        items: cuisines,
         text: function (v) { return plural(v, "place", "places"); }
       })
     ];
