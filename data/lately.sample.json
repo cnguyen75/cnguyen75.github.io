@@ -323,63 +323,53 @@
   "eating": {
     "source": "beli",
     "ranked_count": 137,
-    "top": [
+    "recent": [
       {
-        "rank": 1,
         "name": "[Restaurant]",
         "city": "San Francisco",
         "score": 9.6
       },
       {
-        "rank": 2,
         "name": "[Restaurant]",
         "city": "Santa Barbara",
         "score": 9.4
       },
       {
-        "rank": 3,
         "name": "[Restaurant]",
         "city": "New York",
         "score": 9.3
       },
       {
-        "rank": 4,
         "name": "[Restaurant]",
         "city": "San Jose",
         "score": 9.1
       },
       {
-        "rank": 5,
         "name": "[Restaurant]",
         "city": "Oakland",
         "score": 9.0
       },
       {
-        "rank": 6,
         "name": "[Restaurant]",
         "city": "[City]",
         "score": 8.9
       },
       {
-        "rank": 7,
         "name": "[Restaurant]",
         "city": "[City]",
         "score": 8.8
       },
       {
-        "rank": 8,
         "name": "[Restaurant]",
         "city": "[City]",
         "score": 8.7
       },
       {
-        "rank": 9,
         "name": "[Restaurant]",
         "city": "[City]",
         "score": 8.6
       },
       {
-        "rank": 10,
         "name": "[Restaurant]",
         "city": "[City]",
         "score": 8.5

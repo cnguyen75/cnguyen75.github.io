@@ -402,7 +402,7 @@
               }
             }
           },
-          "description": "Top artists this month, most played first."
+          "description": "Top artists over the last 30 days, most played first."
         },
         "plays_by_hour": {
           "type": "array",
@@ -420,7 +420,7 @@
       "required": [
         "source",
         "ranked_count",
-        "top",
+        "recent",
         "cuisines"
       ],
       "additionalProperties": false,
@@ -431,22 +431,19 @@
         "ranked_count": {
           "$ref": "#/$defs/count"
         },
-        "top": {
+        "recent": {
           "type": "array",
+          "maxItems": 10,
+          "description": "The ten restaurants most recently ranked on Beli, newest first. No dates or relative times are published; the order is the only signal.",
           "items": {
             "type": "object",
             "required": [
-              "rank",
               "name",
               "city",
               "score"
             ],
             "additionalProperties": false,
             "properties": {
-              "rank": {
-                "type": "integer",
-                "minimum": 1
-              },
               "name": {
                 "type": "string",
                 "minLength": 1
@@ -461,9 +458,7 @@
                 "description": "Beli score, shown with two decimals."
               }
             }
-          },
-          "maxItems": 10,
-          "description": "Current top ten restaurants, best first. Up to 10 entries."
+          }
         },
         "cuisines": {
           "type": "array",

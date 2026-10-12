@@ -362,7 +362,7 @@
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
-      stat("Hours watched, last " + n + " weeks", short(totalHours)),
+      empty ? null : stat("Hours watched, last " + n + " weeks", short(totalHours)),
       empty ? h("p", { class: "panel-empty" }, "No episodes or films logged in the last " + n + " weeks") : null,
       empty ? null : h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
       empty ? null : figure,
@@ -388,16 +388,15 @@
     ];
   }
 
-  // Bins plays into the six-step blue scale from the reference. Any hour
-  // with a play gets at least the lightest blue, so it never reads as zero.
+  // Bins plays into the blue scale from the reference. Any hour with a play
+  // starts at the second shade (heat-2), so it is clearly different from zero.
   function heatLevel(v, max) {
     if (max <= 0 || v <= 0) return 0;
     var r = v / max;
     if (r >= 1) return 5;
     if (r >= 0.8) return 4;
     if (r >= 0.6) return 3;
-    if (r >= 0.4) return 2;
-    return 1;
+    return 2;
   }
 
   function listeningPanel(data) {
@@ -425,7 +424,7 @@
       state.asOf ? staleNote(state.asOf) : null,
       stat("Plays, last 30 days", String(plays30)),
       barChart({
-        title: "Top artists this month",
+        title: "Top artists, last 30 days",
         labelHeading: "Artist",
         valueHeading: "Plays",
         items: artists.map(function (a) { return { label: str(a.name, "artist"), value: num(a.plays, "plays") }; }),
@@ -466,7 +465,7 @@
     need(isObj(e), "eating");
     var state = sourceState(sourceOf(data, e.source), true);
     if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
-    var top = arr(e.top, "eating.top");
+    var recent = arr(e.recent, "eating.recent"); // newest first; order is the only signal
     var cuisines = splitOther(arr(e.cuisines, "eating.cuisines").map(function (c) {
       need(isObj(c), "cuisine");
       return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
@@ -476,11 +475,10 @@
       state.asOf ? staleNote(state.asOf) : null,
       stat("Restaurants ranked", String(num(e.ranked_count, "ranked_count"))),
       h("div", { class: "list" },
-        h("div", { class: "list-title" }, "Current top " + (["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"][top.length] || top.length)),
-        h("ol", { class: "list-items list-items--ranked" }, top.map(function (r) {
+        h("div", { class: "list-title" }, "Recently tried"),
+        h("ul", { class: "list-items list-items--places" }, recent.map(function (r) {
           need(isObj(r), "restaurant");
           return h("li", { class: "list-item" },
-            h("span", { class: "item-rank" }, num(r.rank, "rank")),
             h("span", { class: "item-name" }, str(r.name, "restaurant name")),
             h("span", { class: "item-meta" }, typeof r.city === "string" ? r.city : ""),
             h("span", { class: "item-score item-score--wide" }, num(r.score, "score").toFixed(2)));

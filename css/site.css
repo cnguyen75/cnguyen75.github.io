@@ -744,10 +744,10 @@ a.track { text-decoration: none; }
   padding: 9px 0;
   border-top: 1px solid var(--rule-soft);
 }
-.list-items--ranked .list-item { align-items: baseline; }
+.list-items--places .list-item { align-items: baseline; }
 /* Names keep whole words; the city column wraps instead when space is tight. */
-.list-items--ranked .item-name { min-width: auto; }
-.list-items--ranked .item-meta { text-align: right; }
+.list-items--places .item-name { min-width: auto; }
+.list-items--places .item-meta { text-align: right; }
 .swatch { width: 10px; height: 10px; flex: none; }
 .item-name { flex: 1; min-width: 0; }
 .item-meta { font-size: 13px; color: var(--text-3); }
@@ -769,12 +769,6 @@ a.track { text-decoration: none; }
   font-weight: 600;
 }
 .item-score--wide { width: 48px; } /* two-decimal scores, up to "10.00" */
-.item-rank {
-  font-family: var(--font-label);
-  font-size: 13px;
-  color: var(--text-3);
-  width: 18px;
-}
 
 /* Listening: plays by hour strip */
 .heat {
