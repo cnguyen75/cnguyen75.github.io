@@ -31,7 +31,7 @@ The page makes no requests to other hosts at runtime. Fonts, images and data are
 
 1. It fetches `data/lately.json`.
 2. If that file is missing, is not valid JSON, or does not have `schema_version: 1` and a `sources` object, it loads `data/lately.sample.json` instead and shows a visible **sample data** label, plus the sentence "Sample data shown." in the intro.
-3. Each panel (fantasy, watching, listening, eating) is drawn independently inside its own `try`. If a panel's data is missing it shows "Not connected yet."; if the data is present but malformed it shows "Couldn't draw this panel right now." Other panels and the rest of the page are unaffected.
+3. Each panel (fantasy, watching, listening, eating, lifting) is drawn independently inside its own `try`. If a panel's data is missing it shows "Not connected yet."; if the data is present but malformed it shows "Couldn't draw this panel right now." Other panels and the rest of the page are unaffected.
 4. Each feed has an entry in `sources` with a `status` (`ok`, `error`, `stale`, `pending`, `disabled`) and a `last_ok_at` time:
    - `ok`: the panel draws normally.
    - not `ok`, with `last_ok_at`: the panel draws the data in the file (the job should leave the last good data in place) and says "last good data from <date>".
@@ -46,6 +46,13 @@ Rules the renderer applies to the data:
 - **Watching:** a recent item may have `status` `"watched"` (the default when the field is missing) or `"finished"` (marked complete in bulk on Simkl, with no watch date or season). Finished items show a small "finished" label instead of a season, keep their Simkl link, and are listed after all watched items whatever their order in the file.
 - **Listening:** "Plays, last 30 days" is the sum of `plays_by_hour`; "Top artists, last 30 days" uses the same window, so it covers the same window as the hour strip (`plays_this_month` is deprecated and ignored). Any hour with at least one play starts at the second blue shade, so it is clearly different from the zero colour. The top-artists chart stays even with one artist.
 - **Eating:** "Recently tried" lists `recent`, the ten restaurants most recently ranked on Beli, newest first, with name, city and score. There are no rank numbers, dates or relative times; the order is the only signal. Scores show two decimals. Cuisine bars: at most six named cuisines, scaled to the largest named one. The remainder is a text line under the chart, "plus N across K other cuisines" when the cuisines are listed individually, or "Other: N" when the file gives a lumped "Other" entry.
+- **Lifting:** optional `lifting` (from Hevy) gets its own full-width card below "My rankings". An older file without it still validates, and the card says "Not connected yet." The header reads "hevy · data through <data_through>"; it never says "live", and the source chip says when the job last ran. With `workout_count` 0 the card says "No workouts logged yet."
+  - Stats: workouts logged (since `first_workout`), current streak (`streak_weeks`, "weeks at N+ sessions" from `streak_min_sessions`), and sessions in the last 4 weeks (the last four `weeks`, this week included).
+  - "Estimated one-rep max, main lifts": one small line chart per lift from `history`, each on its own scale, with the latest value at the line end; exercise name, a "machine" tag when `machine` is true, current and best. One Epley note under the group. A lift with one session draws a single dot.
+  - "Sessions and volume, last 12 weeks": bar height is `volume`, the number on each bar is `sessions`; the last (unfinished) week is the lighter blue and labelled "this week". All-zero weeks show "No workouts logged in the last 12 weeks".
+  - "Sets by muscle group, last 4 weeks": the four weeks summed per group, largest first, at most eight named bars plus an "Other" bar (a group Hevy calls `other` goes into it), with the folded group names in a line underneath. Hidden when there are no sets.
+  - "Recent personal records": newest first, at most five; hidden when empty.
+  - "Body weight": a line chart with every measurement marked and the latest labelled; with fewer than three measurements, a short list instead. Hidden when there are none.
 
 All text from the data file is inserted with `textContent`, never as HTML, and links are only rendered for `https://` URLs. Watching titles must link to their Simkl page (the schema requires `https://simkl.com/...`).
 

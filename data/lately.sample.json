@@ -50,6 +50,14 @@
       "schedule": "weekly",
       "updated_at": "2026-10-11T03:12:00-07:00",
       "last_ok_at": "2026-10-11T03:12:00-07:00"
+    },
+    "hevy": {
+      "label": "hevy",
+      "status": "ok",
+      "message": null,
+      "schedule": "nightly",
+      "updated_at": "2026-10-12T03:12:00-07:00",
+      "last_ok_at": "2026-10-12T03:12:00-07:00"
     }
   },
   "fantasy": {
@@ -492,5 +500,517 @@
         "count": 12
       }
     ]
+  },
+  "lifting": {
+    "source": "hevy",
+    "unit": "lb",
+    "data_through": "2026-10-12",
+    "first_workout": "2025-02-03",
+    "workout_count": 137,
+    "main_lifts": [
+      {
+        "name": "[Lift 1]",
+        "exercise": "[Exercise name]",
+        "machine": false,
+        "sessions": 11,
+        "current": {
+          "date": "2026-10-05",
+          "e1rm": 259.5,
+          "weight": 220,
+          "reps": 5
+        },
+        "best": {
+          "date": "2026-09-21",
+          "e1rm": 265.5
+        },
+        "history": [
+          {
+            "date": "2026-05-18",
+            "e1rm": 225.0
+          },
+          {
+            "date": "2026-06-01",
+            "e1rm": 232.5
+          },
+          {
+            "date": "2026-06-15",
+            "e1rm": 234.0
+          },
+          {
+            "date": "2026-06-29",
+            "e1rm": 238.5
+          },
+          {
+            "date": "2026-07-13",
+            "e1rm": 246.0
+          },
+          {
+            "date": "2026-07-27",
+            "e1rm": 247.5
+          },
+          {
+            "date": "2026-08-10",
+            "e1rm": 252.0
+          },
+          {
+            "date": "2026-08-24",
+            "e1rm": 259.5
+          },
+          {
+            "date": "2026-09-07",
+            "e1rm": 261.0
+          },
+          {
+            "date": "2026-09-21",
+            "e1rm": 265.5
+          },
+          {
+            "date": "2026-10-05",
+            "e1rm": 259.5
+          }
+        ]
+      },
+      {
+        "name": "[Lift 2]",
+        "exercise": "[Exercise name]",
+        "machine": false,
+        "sessions": 11,
+        "current": {
+          "date": "2026-10-06",
+          "e1rm": 181.5,
+          "weight": 150,
+          "reps": 6
+        },
+        "best": {
+          "date": "2026-09-21",
+          "e1rm": 187.5
+        },
+        "history": [
+          {
+            "date": "2026-05-18",
+            "e1rm": 165.0
+          },
+          {
+            "date": "2026-06-01",
+            "e1rm": 170.5
+          },
+          {
+            "date": "2026-06-15",
+            "e1rm": 170.0
+          },
+          {
+            "date": "2026-06-29",
+            "e1rm": 172.5
+          },
+          {
+            "date": "2026-07-13",
+            "e1rm": 178.0
+          },
+          {
+            "date": "2026-07-27",
+            "e1rm": 177.5
+          },
+          {
+            "date": "2026-08-10",
+            "e1rm": 180.0
+          },
+          {
+            "date": "2026-08-24",
+            "e1rm": 185.5
+          },
+          {
+            "date": "2026-09-07",
+            "e1rm": 185.0
+          },
+          {
+            "date": "2026-09-21",
+            "e1rm": 187.5
+          },
+          {
+            "date": "2026-10-06",
+            "e1rm": 181.5
+          }
+        ]
+      },
+      {
+        "name": "[Lift 3]",
+        "exercise": "[Exercise name (Machine)]",
+        "machine": true,
+        "sessions": 11,
+        "current": {
+          "date": "2026-10-07",
+          "e1rm": 363,
+          "weight": 285,
+          "reps": 8
+        },
+        "best": {
+          "date": "2026-10-07",
+          "e1rm": 363
+        },
+        "history": [
+          {
+            "date": "2026-05-18",
+            "e1rm": 300
+          },
+          {
+            "date": "2026-06-01",
+            "e1rm": 309
+          },
+          {
+            "date": "2026-06-15",
+            "e1rm": 312
+          },
+          {
+            "date": "2026-06-29",
+            "e1rm": 318
+          },
+          {
+            "date": "2026-07-13",
+            "e1rm": 327
+          },
+          {
+            "date": "2026-07-27",
+            "e1rm": 330
+          },
+          {
+            "date": "2026-08-10",
+            "e1rm": 336
+          },
+          {
+            "date": "2026-08-24",
+            "e1rm": 345
+          },
+          {
+            "date": "2026-09-07",
+            "e1rm": 348
+          },
+          {
+            "date": "2026-09-21",
+            "e1rm": 354
+          },
+          {
+            "date": "2026-10-07",
+            "e1rm": 363
+          }
+        ]
+      },
+      {
+        "name": "[Lift 4]",
+        "exercise": "[Exercise name]",
+        "machine": false,
+        "sessions": 11,
+        "current": {
+          "date": "2026-10-08",
+          "e1rm": 113.0,
+          "weight": 95,
+          "reps": 5
+        },
+        "best": {
+          "date": "2026-10-08",
+          "e1rm": 113.0
+        },
+        "history": [
+          {
+            "date": "2026-05-18",
+            "e1rm": 95.0
+          },
+          {
+            "date": "2026-06-01",
+            "e1rm": 99.5
+          },
+          {
+            "date": "2026-06-15",
+            "e1rm": 98.0
+          },
+          {
+            "date": "2026-06-29",
+            "e1rm": 99.5
+          },
+          {
+            "date": "2026-07-13",
+            "e1rm": 104.0
+          },
+          {
+            "date": "2026-07-27",
+            "e1rm": 102.5
+          },
+          {
+            "date": "2026-08-10",
+            "e1rm": 104.0
+          },
+          {
+            "date": "2026-08-24",
+            "e1rm": 108.5
+          },
+          {
+            "date": "2026-09-07",
+            "e1rm": 107.0
+          },
+          {
+            "date": "2026-09-21",
+            "e1rm": 108.5
+          },
+          {
+            "date": "2026-10-08",
+            "e1rm": 113.0
+          }
+        ]
+      }
+    ],
+    "weeks": [
+      {
+        "week_start": "2026-07-27",
+        "sessions": 3,
+        "volume": 38400
+      },
+      {
+        "week_start": "2026-08-03",
+        "sessions": 2,
+        "volume": 25100
+      },
+      {
+        "week_start": "2026-08-10",
+        "sessions": 3,
+        "volume": 40200
+      },
+      {
+        "week_start": "2026-08-17",
+        "sessions": 4,
+        "volume": 52800
+      },
+      {
+        "week_start": "2026-08-24",
+        "sessions": 3,
+        "volume": 41000
+      },
+      {
+        "week_start": "2026-08-31",
+        "sessions": 0,
+        "volume": 0
+      },
+      {
+        "week_start": "2026-09-07",
+        "sessions": 2,
+        "volume": 27300
+      },
+      {
+        "week_start": "2026-09-14",
+        "sessions": 3,
+        "volume": 39800
+      },
+      {
+        "week_start": "2026-09-21",
+        "sessions": 3,
+        "volume": 41500
+      },
+      {
+        "week_start": "2026-09-28",
+        "sessions": 4,
+        "volume": 55200
+      },
+      {
+        "week_start": "2026-10-05",
+        "sessions": 3,
+        "volume": 43900
+      },
+      {
+        "week_start": "2026-10-12",
+        "sessions": 1,
+        "volume": 12600
+      }
+    ],
+    "streak_weeks": 6,
+    "streak_min_sessions": 2,
+    "recent_prs": [
+      {
+        "date": "2026-10-08",
+        "exercise": "[Exercise name]",
+        "kind": "e1rm",
+        "value": 363,
+        "measure": "lb",
+        "reps": null
+      },
+      {
+        "date": "2026-10-06",
+        "exercise": "[Exercise name]",
+        "kind": "weight",
+        "value": 185,
+        "measure": "lb",
+        "reps": 5
+      },
+      {
+        "date": "2026-10-05",
+        "exercise": "[Exercise name]",
+        "kind": "set_volume",
+        "value": 2400,
+        "measure": "lb",
+        "reps": null
+      },
+      {
+        "date": "2026-09-29",
+        "exercise": "[Exercise name]",
+        "kind": "reps",
+        "value": 15,
+        "measure": "reps",
+        "reps": 15
+      },
+      {
+        "date": "2026-09-24",
+        "exercise": "[Exercise name]",
+        "kind": "duration",
+        "value": 95,
+        "measure": "seconds",
+        "reps": null
+      },
+      {
+        "date": "2026-09-20",
+        "exercise": "[Exercise name]",
+        "kind": "weight",
+        "value": 60,
+        "measure": "lb",
+        "reps": 10
+      }
+    ],
+    "muscle_sets": {
+      "weeks": [
+        "2026-09-21",
+        "2026-09-28",
+        "2026-10-05",
+        "2026-10-12"
+      ],
+      "groups": [
+        {
+          "muscle": "quadriceps",
+          "sets": [
+            9,
+            12,
+            10,
+            4
+          ]
+        },
+        {
+          "muscle": "chest",
+          "sets": [
+            10,
+            11,
+            9,
+            3
+          ]
+        },
+        {
+          "muscle": "upper_back",
+          "sets": [
+            8,
+            10,
+            9,
+            3
+          ]
+        },
+        {
+          "muscle": "lats",
+          "sets": [
+            7,
+            9,
+            8,
+            2
+          ]
+        },
+        {
+          "muscle": "shoulders",
+          "sets": [
+            6,
+            8,
+            6,
+            2
+          ]
+        },
+        {
+          "muscle": "hamstrings",
+          "sets": [
+            5,
+            6,
+            6,
+            1
+          ]
+        },
+        {
+          "muscle": "triceps",
+          "sets": [
+            4,
+            6,
+            4,
+            2
+          ]
+        },
+        {
+          "muscle": "biceps",
+          "sets": [
+            4,
+            5,
+            4,
+            1
+          ]
+        },
+        {
+          "muscle": "glutes",
+          "sets": [
+            3,
+            4,
+            3,
+            0
+          ]
+        },
+        {
+          "muscle": "calves",
+          "sets": [
+            2,
+            3,
+            2,
+            0
+          ]
+        },
+        {
+          "muscle": "abdominals",
+          "sets": [
+            1,
+            2,
+            2,
+            0
+          ]
+        }
+      ]
+    },
+    "body_weight": {
+      "latest": {
+        "date": "2026-10-04",
+        "weight": 171.2
+      },
+      "history": [
+        {
+          "date": "2026-06-07",
+          "weight": 168.4
+        },
+        {
+          "date": "2026-07-05",
+          "weight": 169.6
+        },
+        {
+          "date": "2026-08-02",
+          "weight": 170.1
+        },
+        {
+          "date": "2026-08-30",
+          "weight": 169.8
+        },
+        {
+          "date": "2026-09-13",
+          "weight": 170.9
+        },
+        {
+          "date": "2026-10-04",
+          "weight": 171.2
+        }
+      ]
+    }
   }
 }

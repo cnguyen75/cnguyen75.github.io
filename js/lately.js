@@ -1,5 +1,5 @@
 /*
- * Side D, lately. Draws the four data panels from data/lately.json, falling
+ * Side D, lately. Draws the data panels from data/lately.json, falling
  * back to data/lately.sample.json. Nothing here may break the rest of the
  * page: every failure ends in a "not connected yet" panel, never a throw.
  * Schema: data/lately.schema.json.
@@ -554,6 +554,305 @@
     ];
   }
 
+  // ---------- lifting ----------
+
+  var MAX_MUSCLES = 8; // named bars; the rest are summed into one "Other" bar
+  var MAX_PRS = 5;
+  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var EPLEY_NOTE = "Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are not comparable with barbell lifts.";
+
+  // Calendar dates (YYYY-MM-DD, already Pacific) are read as UTC midnight so
+  // no time zone can move them to another day.
+  function calDate(s, what) {
+    need(typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s), what);
+    var d = new Date(s + "T00:00:00Z");
+    need(!isNaN(d.getTime()), what);
+    return d;
+  }
+  function dateText(d, withYear) {
+    return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + (withYear ? " " + d.getUTCFullYear() : "");
+  }
+  function dayNumber(d) { return d.getTime() / 864e5; }
+  function thousands(n) { return Math.round(n).toLocaleString("en-US"); }
+  // "upper_back" -> "Upper back"
+  function muscleName(s) {
+    var t = String(s).replace(/_/g, " ").trim();
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  function svg(tag, attrs) {
+    var el = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, String(attrs[k])); });
+    return el;
+  }
+
+  // A small line chart over time: points [{date: Date, value, title}], oldest
+  // first. The line is SVG stretched to the box; dots and the end label are
+  // HTML placed in percentages, so they keep their shape at any width.
+  // opts: {label (aria), endText, dots (mark every point), height}
+  function lineChart(points, opts) {
+    var xs = points.map(function (p) { return dayNumber(p.date); });
+    var ys = points.map(function (p) { return p.value; });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs);
+    var lo = Math.min.apply(null, ys), hi = Math.max.apply(null, ys);
+    var pad = hi > lo ? (hi - lo) * 0.12 : Math.max(hi * 0.05, 1);
+    lo -= pad; hi += pad;
+    function x(i) { return x1 > x0 ? ((xs[i] - x0) / (x1 - x0)) * 100 : 100; }
+    function y(i) { return (1 - (ys[i] - lo) / (hi - lo)) * 100; }
+
+    var plot = h("div", { class: "line-plot" });
+    if (points.length > 1) {
+      var line = svg("svg", { class: "line-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none", "aria-hidden": "true", focusable: "false" });
+      line.appendChild(svg("polyline", {
+        points: points.map(function (p, i) { return x(i).toFixed(3) + "," + y(i).toFixed(3); }).join(" "),
+        "vector-effect": "non-scaling-stroke"
+      }));
+      plot.appendChild(line);
+    }
+    points.forEach(function (p, i) {
+      var last = i === points.length - 1;
+      if (!last && !opts.dots) return;
+      plot.appendChild(h("span", { class: "line-dot" + (last ? " line-dot--last" : ""), title: p.title,
+        style: { left: x(i) + "%", top: y(i) + "%" } }));
+    });
+    var end = Math.min(Math.max(y(points.length - 1), 10), 90);
+    return h("div", { class: "line-chart", role: "img", "aria-label": opts.label, style: { height: (opts.height || 64) + "px" } },
+      h("div", { class: "line-area" }, plot),
+      h("div", { class: "line-end", style: { width: (opts.endText.length * 0.62 + 0.4) + "em" } },
+        h("span", { class: "line-end-label", style: { top: end + "%" } }, opts.endText)));
+  }
+
+  function axisDates(first, last) {
+    var withYear = first.getUTCFullYear() !== last.getUTCFullYear();
+    var same = first.getTime() === last.getTime(); // one point: one date, under it
+    return h("div", { class: "axis-labels", "aria-hidden": "true" },
+      h("span", null, same ? "" : dateText(first, withYear)), h("span", null, dateText(last, withYear)));
+  }
+
+  function liftTile(lift, unit) {
+    need(isObj(lift), "main lift");
+    var name = str(lift.name, "lift.name");
+    var exercise = str(lift.exercise, "lift.exercise");
+    var cur = lift.current, best = lift.best;
+    need(isObj(cur) && isObj(best), "lift.current/best");
+    var curDate = calDate(cur.date, "lift.current.date"), bestDate = calDate(best.date, "lift.best.date");
+    var curText = short(num(cur.e1rm, "current.e1rm")) + " " + unit;
+    var bestText = short(num(best.e1rm, "best.e1rm")) + " " + unit;
+    var setText = short(num(cur.weight, "current.weight")) + " " + unit + " × " + num(cur.reps, "current.reps");
+    var points = arr(lift.history, "lift.history").map(function (p) {
+      need(isObj(p), "history point");
+      var d = calDate(p.date, "history.date");
+      return { date: d, value: num(p.e1rm, "history.e1rm"), title: dateText(d, true) + ": " + short(p.e1rm) + " " + unit };
+    });
+
+    var block = null, toggle = null;
+    if (points.length) {
+      var first = points[0], last = points[points.length - 1];
+      var figure = h("div", { class: "lift-figure" },
+        lineChart(points, {
+          endText: short(last.value),
+          label: name + " (" + exercise + "), estimated one-rep max over " + plural(points.length, "session", "sessions") + " from " +
+            dateText(first.date, true) + " to " + dateText(last.date, true) + ": " + short(first.value) + " to " + short(last.value) + " " + unit +
+            "; best " + bestText + " on " + dateText(bestDate, true)
+        }),
+        axisDates(first.date, last.date));
+      var t = tableToggle(name + ", estimated one-rep max by session",
+        [{ label: "Date" }, { label: "Estimated one-rep max (" + unit + ")", num: true }],
+        points.slice().reverse().map(function (p) { return [dateText(p.date, true), short(p.value)]; }), figure);
+      block = [figure, t.table];
+      toggle = t.button;
+    }
+
+    return h("div", { class: "lift" },
+      h("div", { class: "lift-head" }, h("div", { class: "lift-name" }, name), toggle),
+      block,
+      h("div", { class: "lift-exercise" }, exercise, lift.machine === true ? [" ", h("span", { class: "tag" }, "machine")] : null),
+      h("div", { class: "lift-figures" },
+        h("span", { title: "From " + setText + " on " + dateText(curDate, true) }, "current ", h("b", null, curText)),
+        h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText))));
+  }
+
+  function volumeChart(weeks, unit) {
+    var n = weeks.length;
+    var max = Math.max.apply(null, weeks.map(function (w) { return w.volume; }).concat(1));
+    function weekText(w, i) {
+      var when = i === n - 1 ? "This week so far" : "Week of " + dateText(w.start, false);
+      return when + ": " + plural(w.sessions, "session", "sessions") + ", " + thousands(w.volume) + " " + unit;
+    }
+    var chart = h("div", { class: "vol-chart", role: "img",
+      "aria-label": "Bars of weekly training volume over the last " + n + " weeks, oldest first, each labelled with its number of sessions. The last bar is this week, still in progress. " +
+        weeks.map(weekText).join(". ") },
+      weeks.map(function (w, i) {
+        return h("div", { class: "vol-col", title: weekText(w, i) },
+          h("span", { class: "vol-count" }, w.sessions),
+          h("div", { class: "vol-bar" + (i === n - 1 ? " vol-bar--partial" : ""), style: { height: "calc((100% - 15px) * " + (w.volume / max).toFixed(4) + ")" } }));
+      }));
+    var axis = h("div", { class: "axis-labels", "aria-hidden": "true" },
+      h("span", null, "week of " + dateText(weeks[0].start, false)), h("span", null, "this week"));
+    var figure = h("div", { class: "chart-figure chart-figure--tight" }, chart, axis);
+    var t = tableToggle("Sessions and volume per week, last " + n + " weeks",
+      [{ label: "Week" }, { label: "Sessions", num: true }, { label: "Volume (" + unit + ")", num: true }],
+      weeks.map(function (w, i) {
+        return [i === n - 1 ? "this week (so far)" : "week of " + dateText(w.start, true), String(w.sessions), thousands(w.volume)];
+      }), figure);
+    return h("div", { class: "chart-block" },
+      h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Sessions and volume, last " + n + " weeks"), t.button),
+      figure, t.table,
+      h("p", { class: "chart-foot" }, "Bar height is volume (weight × reps over working sets, in " + unit + "); the number on each bar is sessions. The lighter bar is this week, still in progress."));
+  }
+
+  function muscleChart(ms) {
+    if (!isObj(ms) || !Array.isArray(ms.groups)) return null;
+    var groups = ms.groups.filter(function (g) { return isObj(g) && typeof g.muscle === "string" && Array.isArray(g.sets); })
+      .map(function (g) {
+        return { label: muscleName(g.muscle), value: g.sets.reduce(function (a, b) { return a + (typeof b === "number" && isFinite(b) ? b : 0); }, 0) };
+      })
+      .filter(function (g) { return g.value > 0; });
+    if (!groups.length) return null;
+    // Sorted largest first; the "Other" bar always comes last.
+    var split = splitOther(groups, MAX_MUSCLES);
+    var named = split.bars.slice().sort(function (a, b) { return b.value - a.value; });
+    var folded = groups.filter(function (g) { return named.indexOf(g) < 0 && !/^other$/i.test(g.label); });
+    var items = split.otherTotal ? named.concat([{ label: "Other", value: split.otherTotal }]) : named;
+    var foot = folded.length
+      ? h("p", { class: "chart-foot" }, "Other: " + folded.map(function (g) { return g.label.toLowerCase(); }).join(", ") + ".")
+      : null;
+    return barChart({
+      title: "Sets by muscle group, last 4 weeks",
+      labelHeading: "Muscle group",
+      valueHeading: "Working sets",
+      items: items,
+      after: foot,
+      text: function (v) { return plural(v, "set", "sets"); }
+    });
+  }
+
+  var PR_KINDS = { weight: "heaviest weight", e1rm: "best estimated one-rep max", set_volume: "best set volume",
+    reps: "most reps", duration: "longest", distance: "farthest" };
+  function prValue(p) {
+    var v = p.value;
+    if (p.measure === "reps") return plural(v, "rep", "reps");
+    if (p.measure === "seconds") {
+      var m = Math.floor(v / 60), s = Math.round(v % 60);
+      return m ? m + ":" + (s < 10 ? "0" : "") + s : s + " s";
+    }
+    if (p.measure === "metres") return v >= 1000 ? short(v / 1000) + " km" : Math.round(v) + " m";
+    var text = (p.kind === "set_volume" ? thousands(v) : short(v)) + " " + p.measure;
+    return p.kind === "weight" && typeof p.reps === "number" && p.reps > 0 ? text + " × " + p.reps : text;
+  }
+
+  function prList(prs) {
+    if (!Array.isArray(prs)) return null;
+    var items = prs.map(function (p, i) {
+      if (!isObj(p) || typeof p.exercise !== "string" || typeof p.value !== "number" || !PR_KINDS[p.kind]) return null;
+      try { return { pr: p, date: calDate(p.date, "pr.date"), i: i }; } catch (e) { return null; }
+    }).filter(Boolean)
+      .sort(function (a, b) { return (b.date - a.date) || (a.i - b.i); })
+      .slice(0, MAX_PRS);
+    if (!items.length) return null;
+    return h("div", { class: "list" },
+      h("div", { class: "list-title" }, "Recent personal records"),
+      h("ul", { class: "list-items list-items--prs" }, items.map(function (it) {
+        var p = it.pr;
+        return h("li", { class: "list-item" },
+          h("span", { class: "item-name" }, p.exercise,
+            h("span", { class: "item-sub" }, PR_KINDS[p.kind] + " · ", h("span", { class: "nowrap" }, dateText(it.date, false)))),
+          h("span", { class: "item-value" }, prValue(p)));
+      })));
+  }
+
+  function bodyWeight(bw, unit) {
+    if (!isObj(bw)) return null;
+    var points = (Array.isArray(bw.history) ? bw.history : []).map(function (p) {
+      if (!isObj(p) || typeof p.weight !== "number") return null;
+      try { return { date: calDate(p.date, "bw.date"), value: p.weight }; } catch (e) { return null; }
+    }).filter(Boolean);
+    if (!points.length && isObj(bw.latest) && typeof bw.latest.weight === "number") {
+      try { points = [{ date: calDate(bw.latest.date, "bw.latest"), value: bw.latest.weight }]; } catch (e) { /* skip */ }
+    }
+    if (!points.length) return null;
+    points.forEach(function (p) { p.title = dateText(p.date, true) + ": " + short(p.value) + " " + unit; });
+    var title = "Body weight";
+
+    if (points.length < 3) {
+      return h("div", { class: "list" },
+        h("div", { class: "list-title" }, title),
+        h("ul", { class: "list-items list-items--places" }, points.slice().reverse().map(function (p) {
+          return h("li", { class: "list-item" },
+            h("span", { class: "item-name" }, dateText(p.date, true)),
+            h("span", { class: "item-value" }, short(p.value) + " " + unit));
+        })));
+    }
+    var first = points[0], last = points[points.length - 1];
+    var figure = h("div", { class: "lift-figure" },
+      lineChart(points, {
+        dots: true,
+        height: 96,
+        endText: short(last.value) + " " + unit,
+        label: "Body weight, " + plural(points.length, "measurement", "measurements") + " from " + dateText(first.date, true) + " to " +
+          dateText(last.date, true) + ": " + points.map(function (p) { return p.title; }).join("; ")
+      }),
+      axisDates(first.date, last.date));
+    var t = tableToggle("Body weight measurements",
+      [{ label: "Date" }, { label: "Weight (" + unit + ")", num: true }],
+      points.slice().reverse().map(function (p) { return [dateText(p.date, true), short(p.value)]; }), figure);
+    return h("div", { class: "chart-block" },
+      h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, title), t.button),
+      figure, t.table);
+  }
+
+  function liftingPanel(data) {
+    var l = data.lifting;
+    need(isObj(l), "lifting");
+    var src = sourceOf(data, l.source);
+    var srcLabel = src && typeof src.label === "string" && src.label ? src.label : String(l.source);
+    var meta = document.getElementById("lifting-meta");
+    var state = sourceState(src, true);
+    if (meta) meta.textContent = srcLabel;
+    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+
+    var unit = l.unit === "kg" ? "kg" : "lb";
+    var through = l.data_through === null ? null : calDate(l.data_through, "data_through");
+    var count = num(l.workout_count, "workout_count");
+    if (count === 0 && meta && through) meta.textContent = srcLabel + " · data through " + dateText(through, true);
+    if (count === 0) return [state.asOf ? staleNote(state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet.")];
+
+    var firstWorkout = l.first_workout === null ? null : calDate(l.first_workout, "first_workout");
+    var weeks = arr(l.weeks, "lifting.weeks").map(function (w) {
+      need(isObj(w), "lifting week");
+      return { start: calDate(w.week_start, "week_start"), sessions: num(w.sessions, "week.sessions"), volume: num(w.volume, "week.volume") };
+    });
+    need(weeks.length > 0, "lifting.weeks");
+    var recent4 = weeks.slice(-4).reduce(function (a, w) { return a + w.sessions; }, 0);
+    var minSessions = num(l.streak_min_sessions, "streak_min_sessions");
+    var lifts = arr(l.main_lifts, "main_lifts").map(function (lift) { return liftTile(lift, unit); });
+    var active = weeks.some(function (w) { return w.sessions > 0 || w.volume > 0; });
+    // Only once everything above has passed, so a broken panel doesn't claim a date.
+    if (meta && through) meta.textContent = srcLabel + " · data through " + dateText(through, true);
+
+    return [
+      state.asOf ? staleNote(state.asOf) : null,
+      h("div", { class: "stats" },
+        stat("Workouts logged", thousands(count), firstWorkout ? "since " + dateText(firstWorkout, true) : null),
+        stat("Current streak", String(num(l.streak_weeks, "streak_weeks")),
+          minSessions === 1 ? "weeks with a workout" : "weeks at " + minSessions + "+ sessions"),
+        stat("Sessions, last 4 weeks", String(recent4), "including this week so far")),
+      lifts.length ? h("div", { class: "chart-block" },
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, main lifts")),
+        h("div", { class: "lifts" }, lifts),
+        h("p", { class: "chart-foot" }, EPLEY_NOTE)) : null,
+      h("div", { class: "lift-grid" },
+        active ? volumeChart(weeks, unit)
+          : h("div", { class: "chart-block" },
+              h("div", { class: "chart-title" }, "Sessions and volume, last " + weeks.length + " weeks"),
+              h("p", { class: "panel-empty" }, "No workouts logged in the last " + weeks.length + " weeks")),
+        muscleChart(l.muscle_sets),
+        prList(l.recent_prs),
+        bodyWeight(l.body_weight, unit))
+    ];
+  }
+
   // ---------- assembly ----------
 
   var PANELS = [
@@ -561,7 +860,8 @@
     ["panel-watching", watchingPanel],
     ["panel-listening", listeningPanel],
     ["panel-eating", eatingPanel],
-    ["panel-rankings", rankingsPanel, { optional: true }]
+    ["panel-rankings", rankingsPanel, { optional: true }],
+    ["panel-lifting", liftingPanel]
   ];
 
   // Optional panels are hidden, not marked "not connected", when there is
@@ -586,7 +886,7 @@
       nodes = data ? build(data) : [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     } catch (err) {
       if (window.console) console.warn("lately: " + panelId + " not drawn:", err.message);
-      var missing = data && err && /bad (fantasy|watching|listening|eating)$/.test(err.message);
+      var missing = data && err && /bad (fantasy|watching|listening|eating|lifting)$/.test(err.message);
       nodes = [h("p", { class: "panel-empty" }, missing ? NOT_CONNECTED : BROKEN)];
     }
     append(panel, nodes);

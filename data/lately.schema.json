@@ -40,6 +40,9 @@
     },
     "eating": {
       "$ref": "#/$defs/eating"
+    },
+    "lifting": {
+      "$ref": "#/$defs/lifting"
     }
   },
   "$defs": {
@@ -578,6 +581,364 @@
           }
         }
       }
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "A calendar date, YYYY-MM-DD (Pacific)."
+    },
+    "lifting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "unit",
+        "data_through",
+        "first_workout",
+        "workout_count",
+        "main_lifts",
+        "weeks",
+        "streak_weeks",
+        "streak_min_sessions",
+        "recent_prs",
+        "muscle_sets",
+        "body_weight"
+      ],
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "lb",
+            "kg"
+          ],
+          "description": "Unit for every weight and volume in this section."
+        },
+        "data_through": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Date (Pacific) of the newest workout included. Show as 'data through …'."
+        },
+        "first_workout": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Date of the first workout in the history."
+        },
+        "workout_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Workouts in the whole history."
+        },
+        "main_lifts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "exercise",
+              "machine",
+              "sessions",
+              "current",
+              "best",
+              "history"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Movement pattern label, e.g. 'Squat'."
+              },
+              "exercise": {
+                "type": "string",
+                "description": "Hevy exercise name, e.g. 'Hack Squat (Machine)'."
+              },
+              "machine": {
+                "type": "boolean",
+                "description": "True for machine and cable variants, so the site can label them."
+              },
+              "sessions": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "current": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "e1rm",
+                  "weight",
+                  "reps"
+                ],
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/date"
+                  },
+                  "e1rm": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "reps": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10
+                  }
+                },
+                "description": "Estimated one-rep max from the most recent session (Epley, best working set of 1-10 reps), with that set."
+              },
+              "best": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "e1rm"
+                ],
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/date"
+                  },
+                  "e1rm": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "description": "Highest estimated one-rep max in the history."
+              },
+              "history": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "date",
+                    "e1rm"
+                  ],
+                  "properties": {
+                    "date": {
+                      "$ref": "#/$defs/date"
+                    },
+                    "e1rm": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "description": "Estimated one-rep max per session, oldest first, for a sparkline."
+              }
+            }
+          },
+          "description": "One entry per main lift (one exercise per movement pattern), in display order."
+        },
+        "weeks": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "week_start",
+              "sessions",
+              "volume"
+            ],
+            "properties": {
+              "week_start": {
+                "$ref": "#/$defs/date"
+              },
+              "sessions": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "volume": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "description": "The last 12 weeks, oldest first; weeks start on Monday (Pacific). The last one is the current, unfinished week. volume = weight × reps over working sets."
+        },
+        "streak_weeks": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Consecutive weeks with at least streak_min_sessions workouts, counting back from this week; an unfinished week doesn't break it."
+        },
+        "streak_min_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Workouts a week needs to count towards the streak."
+        },
+        "recent_prs": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "date",
+              "exercise",
+              "kind",
+              "value",
+              "measure",
+              "reps"
+            ],
+            "properties": {
+              "date": {
+                "$ref": "#/$defs/date"
+              },
+              "exercise": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "weight",
+                  "e1rm",
+                  "set_volume",
+                  "reps",
+                  "duration",
+                  "distance"
+                ]
+              },
+              "value": {
+                "type": "number",
+                "minimum": 0
+              },
+              "measure": {
+                "enum": [
+                  "lb",
+                  "kg",
+                  "reps",
+                  "seconds",
+                  "metres"
+                ]
+              },
+              "reps": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              }
+            }
+          },
+          "description": "Personal records from the last 30 days, newest first, one per exercise and kind (Hevy's own PR markers). value is in `unit` when measure is the unit, else reps, seconds or metres."
+        },
+        "muscle_sets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "weeks",
+            "groups"
+          ],
+          "properties": {
+            "weeks": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": {
+                "$ref": "#/$defs/date"
+              }
+            },
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "muscle",
+                  "sets"
+                ],
+                "properties": {
+                  "muscle": {
+                    "type": "string"
+                  },
+                  "sets": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Working sets per primary muscle group (Hevy's labels, e.g. upper_back) for the last 4 weeks; sets[i] belongs to weeks[i]. Cardio left out. groups sorted by total, largest first."
+        },
+        "body_weight": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "latest",
+            "history"
+          ],
+          "properties": {
+            "latest": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "date",
+                    "weight"
+                  ],
+                  "properties": {
+                    "date": {
+                      "$ref": "#/$defs/date"
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "date",
+                  "weight"
+                ],
+                "properties": {
+                  "date": {
+                    "$ref": "#/$defs/date"
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          },
+          "description": "Body weight measurements from Hevy, full precision to 0.1, oldest first in history."
+        }
+      },
+      "description": "Strength training from Hevy, collected on my Mac nightly. All weights are in `unit`. The source chip's last_ok_at says when it last updated; data_through is the newest workout's date."
     }
   }
 }
