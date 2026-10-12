@@ -367,6 +367,7 @@
       empty ? null : h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
       empty ? null : figure,
       empty ? null : t.table,
+      watchingNow(w.currently_watching),
       h("div", { class: "list" },
         h("div", { class: "list-title" }, "Recently"),
         h("ul", { class: "list-items" }, recent.map(function (entry) {
@@ -384,8 +385,62 @@
               ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
                   h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
               : hasRatings ? h("span", { class: "item-score" }) : null);
-        })))
+        }))),
+      myRankings(w.rankings)
     ];
+  }
+
+  // Optional extras below are lenient: a malformed entry is skipped, and a
+  // missing or empty field hides its block, without failing the panel.
+  function titled(it) { return isObj(it) && typeof it.title === "string" && it.title !== ""; }
+  function titleLink(it) {
+    var url = safeUrl(it.url);
+    return url ? h("a", { href: url }, it.title) : it.title;
+  }
+
+  // "S2 · E5", "E5" or "S2"; null when neither is known.
+  function progress(c) {
+    var s = typeof c.season === "number", e = typeof c.episode === "number";
+    if (!s && !e) return null;
+    var short = [s ? "S" + c.season : null, e ? "E" + c.episode : null].filter(Boolean).join(" · ");
+    var long = [s ? "season " + c.season : null, e ? "episode " + c.episode : null].filter(Boolean).join(", ");
+    return h("span", { class: "item-meta", title: long.charAt(0).toUpperCase() + long.slice(1) },
+      h("span", { "aria-hidden": "true" }, short), h("span", { class: "sr-only" }, long));
+  }
+
+  function watchingNow(list) {
+    var items = Array.isArray(list) ? list.filter(titled) : [];
+    if (!items.length) return null;
+    return h("div", { class: "list" },
+      h("div", { class: "list-title" }, "Watching now"),
+      h("ul", { class: "list-items" }, items.map(function (c) {
+        var type = c.type === "anime" ? "anime" : "show";
+        return h("li", { class: "list-item" },
+          h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
+          h("span", { class: "item-name" }, titleLink(c)),
+          progress(c));
+      })));
+  }
+
+  var RANKINGS = [["films", "Films"], ["shows", "Shows"], ["anime", "Anime"]];
+  function myRankings(r) {
+    if (!isObj(r)) return null;
+    var groups = RANKINGS.map(function (g) {
+      return { key: g[0], label: g[1], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled).slice(0, 5) : [] };
+    }).filter(function (g) { return g.items.length; });
+    if (!groups.length) return null;
+    return h("div", { class: "rankings" },
+      h("div", { class: "list-title" }, "My rankings"),
+      groups.map(function (g) {
+        return h("div", { class: "ranking" },
+          h("div", { class: "ranking-head" }, h("span", { class: "legend-swatch fill--" + g.key, "aria-hidden": "true" }), g.label),
+          h("ol", { class: "list-items list-items--compact", "aria-label": "My top " + g.label.toLowerCase() }, g.items.map(function (it, i) {
+            return h("li", { class: "list-item" },
+              h("span", { class: "item-rank", "aria-hidden": "true" }, i + 1),
+              h("span", { class: "item-name" }, titleLink(it)),
+              typeof it.year === "number" ? h("span", { class: "item-meta" }, it.year) : null);
+          })));
+      }));
   }
 
   // Bins plays into the blue scale from the reference. Any hour with a play

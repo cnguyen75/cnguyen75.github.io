@@ -364,6 +364,73 @@
               }
             }
           }
+        },
+        "currently_watching": {
+          "type": "array",
+          "maxItems": 10,
+          "description": "Shows and anime with status 'watching', most recent activity first, with the season and episode reached.",
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "type",
+              "url"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "enum": [
+                  "show",
+                  "anime"
+                ]
+              },
+              "season": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "episode": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://simkl\\.com/",
+                "description": "The title's Simkl page."
+              }
+            }
+          }
+        },
+        "rankings": {
+          "type": "object",
+          "description": "My top five of each ranking, best first. Every title links to its Simkl page.",
+          "required": [
+            "films",
+            "shows",
+            "anime"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "films": {
+              "$ref": "#/$defs/ranked_list"
+            },
+            "shows": {
+              "$ref": "#/$defs/ranked_list"
+            },
+            "anime": {
+              "$ref": "#/$defs/ranked_list"
+            }
+          }
         }
       }
     },
@@ -480,6 +547,35 @@
             }
           },
           "description": "Places ranked per cuisine. The page draws at most six named cuisines as bars, scaled to the largest named one. Anything beyond six, and any entry named 'Other', becomes a text line under the chart: 'plus N across K other cuisines' when the individual cuisines are listed, or 'Other: N' when the file only gives a lumped 'Other' count."
+        }
+      }
+    },
+    "ranked_list": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "title",
+          "url"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "year": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://simkl\\.com/"
+          }
         }
       }
     }

@@ -769,6 +769,33 @@ a.track { text-decoration: none; }
   font-weight: 600;
 }
 .item-score--wide { width: 48px; } /* two-decimal scores, up to "10.00" */
+.item-rank {
+  flex: none;
+  font-family: var(--font-label);
+  font-size: 13px;
+  color: var(--text-3);
+  width: 18px;
+}
+
+/* Watching: my rankings, three short numbered lists */
+.rankings {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.rankings > .list-title { padding-bottom: 0; }
+.ranking-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  padding-bottom: 4px;
+}
+.list-items--compact .list-item {
+  align-items: baseline;
+  padding: 6px 0;
+}
 
 /* Listening: plays by hour strip */
 .heat {

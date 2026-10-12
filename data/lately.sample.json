@@ -267,7 +267,106 @@
         "url": "https://simkl.com/",
         "status": "finished"
       }
-    ]
+    ],
+    "currently_watching": [
+      {
+        "title": "[Show title]",
+        "type": "show",
+        "season": 2,
+        "episode": 5,
+        "url": "https://simkl.com/"
+      },
+      {
+        "title": "[Anime title]",
+        "type": "anime",
+        "season": null,
+        "episode": 5,
+        "url": "https://simkl.com/"
+      }
+    ],
+    "rankings": {
+      "films": [
+        {
+          "title": "[Film 1]",
+          "year": 2019,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Film 2]",
+          "year": 2004,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Film 3]",
+          "year": 1994,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Film 4]",
+          "year": 2010,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Film 5]",
+          "year": 2021,
+          "url": "https://simkl.com/"
+        }
+      ],
+      "shows": [
+        {
+          "title": "[Show 1]",
+          "year": 2008,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Show 2]",
+          "year": 2013,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Show 3]",
+          "year": 1999,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Show 4]",
+          "year": 2016,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Show 5]",
+          "year": 2022,
+          "url": "https://simkl.com/"
+        }
+      ],
+      "anime": [
+        {
+          "title": "[Anime 1]",
+          "year": 1998,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Anime 2]",
+          "year": 2006,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Anime 3]",
+          "year": 2017,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Anime 4]",
+          "year": 2011,
+          "url": "https://simkl.com/"
+        },
+        {
+          "title": "[Anime 5]",
+          "year": 2023,
+          "url": "https://simkl.com/"
+        }
+      ]
+    }
   },
   "listening": {
     "source": "lastfm",
