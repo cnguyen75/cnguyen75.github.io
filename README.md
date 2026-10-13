@@ -96,7 +96,7 @@ ready: false              # true only when cleared to publish
 one_line: …               # the lede and the page description
 badge: in progress        # optional, shown as "status: …" in the reading bar (status_label: works too)
 side: c                   # only for a draft whose track is not on the main page yet
-attribution: …            # optional, repeated under the credits
+attribution: …            # optional, repeated under the credits unless they have a data row
 ```
 
 A draft may be for a track that is not on the main page yet. It needs `side:`, sorts after the listed tracks, and says "not on the tracklist yet". A ready page must be on the main page.
@@ -123,7 +123,7 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 | `STATS:` | `value \| label \| note` | stat row |
 | `FIGURE: path.svg` | `CAPTION:` | the SVG as an image (alt text from its `<title>`); below 640px it keeps a readable size and scrolls inside its box |
 | `TABLE:` | a header row, then rows, cells split by `\|` | table; below 640px each row becomes a block with labelled values |
-| `CREDITS:` | `role \| text` | credits, with a bare `https://` value linked; the front matter's `attribution:` is repeated under them |
+| `CREDITS:` | `role \| text` | credits, with a bare `https://` value linked; the front matter's `attribution:` is repeated under them unless a `data` row already credits the data |
 | `DEMO: path.json` | `BEHAVIOUR:` (not shown), `DEMO-CAPTION:`, `ATTRIBUTION:` | demo slot; needs `demo.js` (and optionally `demo.css`) in the asset folder, added to that page only |
 | `AUDIO-PAIR:` | `file \| label [\| synthetic[, failed to stop]]` and `CAPTION:` | audio clips; tags are checked against a `manifest.json` beside the clips when there is one |
 | `AUDIO-GRID: manifest.json` | `BEHAVIOUR:` (not shown), `AUDIO-NOTE:`, `ATTRIBUTION:` | a table of clips, sentences as rows; columns come from `grid-columns.txt` beside the manifest (`system \| label \| real or synthetic`). Only file names, systems and `stop_failure` are read, and the manifest is not published. It takes the section's full width; below 640px it shows one sentence at a time. |

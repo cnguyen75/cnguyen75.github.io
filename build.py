@@ -286,10 +286,13 @@ class Page:
             def value(v):
                 return f'<a href="{esc(v)}">{esc(v)}</a>' if re.fullmatch(r"https://\S+", v) else inline(v)
             items = "".join(f'<div class="tp-credit"><dt>{inline(c[0])}</dt><dd>{value(c[1])}</dd></div>' for c in cells)
-            # The page's attribution line, if any, is repeated with the credits.
-            attribution = f'<p class="tp-attribution">{inline(self.meta["attribution"])}</p>' if self.meta.get("attribution") else ""
+            # The page's attribution line, if any, is repeated with the credits, unless a
+            # "data" row already credits the data.
+            has_data = any(c[0].lower() == "data" for c in cells)
+            attribution = (f'<p class="tp-attribution">{inline(self.meta["attribution"])}</p>'
+                           if self.meta.get("attribution") and not has_data else "")
             return (f'<div class="tp-credits-block"><dl class="tp-credits">{items}</dl>{attribution}</div>',
-                    sum(words(" ".join(c)) for c in cells) + words(self.meta.get("attribution", "")), "text")
+                    sum(words(" ".join(c)) for c in cells) + (words(self.meta["attribution"]) if attribution else 0), "text")
 
         if kind == "TABLE":
             need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")
