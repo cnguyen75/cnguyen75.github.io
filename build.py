@@ -315,7 +315,7 @@ class Page:
             dims = f' width="{size.group(1)}" height="{size.group(2)}"' if size else ""
             src = self.asset(arg)
             return (f'<figure class="tp-figure"><div class="tp-chart" tabindex="0" role="region" aria-label="Figure: {esc(alt)}">'
-                    f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} loading="lazy" decoding="async"></div>{cap}</figure>', 0, "figure")
+                    f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} decoding="async"></div>{cap}</figure>', 0, "figure")
 
         if kind == "DEMO":
             need(arg.endswith(".json") and not rows, "needs a .json path and nothing else on its lines")
