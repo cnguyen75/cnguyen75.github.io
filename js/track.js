@@ -53,7 +53,7 @@
     keys = [{ t: -GLIDE, y: 0 }];
     sections.forEach(function (s, i) {
       var t = starts[i];
-      var blocks = [].slice.call(s.querySelectorAll(".tp-section-body > *"));
+      var blocks = [].slice.call(s.querySelectorAll(".tp-section-body > *, .tp-section-wide > *"));
       var secs = blocks.map(function (b) { return parseFloat(b.getAttribute("data-secs")) || 0; });
       var sum = secs.reduce(function (a, b) { return a + b; }, 0);
       var scale = sum > 0 ? durs[i] / sum : 0; // keep the section on the build's clock exactly
@@ -283,6 +283,38 @@
       if (playing) say("Playing at " + speed + "×.");
     });
   }
+
+  // ---------- audio: one clip at a time ----------
+
+  document.addEventListener("play", function (e) {
+    [].forEach.call(document.querySelectorAll("audio"), function (a) { if (a !== e.target) a.pause(); });
+  }, true);
+
+  // A grid of clips shows one sentence at a time at phone width, with a selector.
+  [].forEach.call(document.querySelectorAll(".tp-grid"), function (grid) {
+    var rows = [].slice.call(grid.querySelectorAll("tbody tr"));
+    if (rows.length < 2) return;
+    var pick = document.createElement("div");
+    pick.className = "tp-grid-pick";
+    pick.setAttribute("role", "group");
+    pick.setAttribute("aria-label", "Show one sentence");
+    function show(k) {
+      rows.forEach(function (r, i) {
+        r.classList.toggle("is-other", i !== k);
+        if (i !== k) [].forEach.call(r.querySelectorAll("audio"), function (a) { a.pause(); });
+      });
+      [].forEach.call(pick.children, function (b, i) { b.setAttribute("aria-pressed", String(i === k)); });
+    }
+    rows.forEach(function (r, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = r.querySelector("th").textContent;
+      b.addEventListener("click", function () { show(i); });
+      pick.appendChild(b);
+    });
+    grid.parentNode.insertBefore(pick, grid);
+    show(0);
+  });
 
   // ---------- start ----------
 

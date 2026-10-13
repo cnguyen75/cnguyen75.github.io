@@ -94,8 +94,12 @@ title: Running coding agents as a team process
 register: plain           # plain (Athena, research) or album (side projects)
 ready: false              # true only when cleared to publish
 one_line: …               # the lede and the page description
-badge: in progress        # optional, shown as "status: …" in the reading bar
+badge: in progress        # optional, shown as "status: …" in the reading bar (status_label: works too)
+side: c                   # only for a draft whose track is not on the main page yet
+attribution: …            # optional, repeated under the credits
 ```
+
+A draft may be for a track that is not on the main page yet. It needs `side:`, sorts after the listed tracks, and says "not on the tracklist yet". A ready page must be on the main page.
 
 The body is `## Section` headings (an `{#id}` after the heading sets its anchor) with paragraphs, `- ` lists, `**bold**`, `*italic*`, `` `code` `` and `[links](https://…)`. A paragraph starting with `> ` is the large lead paragraph. Components are fenced with `::: name` and `:::`:
 
@@ -109,6 +113,22 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 | `::: credits` | `role \| text` rows |
 | `::: audio` | two rows, `real \| label \| file` and `synthetic \| label \| file`, and a `caption:`; players have no autoplay and `preload="none"` |
 | `::: demo data.json demo.js` | fallback text; the script is added to that page only and reads the JSON from the slot's `data-src` |
+
+**Plain-text markers.** Drafts from the handoff folder mark components in plain text instead, and the build reads them as written, so those files are imported unchanged. A marker starts a block that runs to the next blank line. Paths are written as `<slug>/path` and resolve inside the page's asset folder. Captions from markers are used exactly as written, numbering included. On these pages a paragraph that is bold throughout and opens the page becomes the lead.
+
+| Marker | Rows and attached lines | Renders as |
+|---|---|---|
+| `STEPS:` | `1. title \| text` | steps |
+| `EXCERPT:` | the excerpt, then `CAPTION:` | code excerpt |
+| `STATS:` | `value \| label \| note` | stat row |
+| `FIGURE: path.svg` | `CAPTION:` | the SVG as an image (alt text from its `<title>`); below 640px it keeps a readable size and scrolls inside its box |
+| `TABLE:` | a header row, then rows, cells split by `\|` | table; below 640px each row becomes a block with labelled values |
+| `CREDITS:` | `role \| text` | credits, with a bare `https://` value linked; the front matter's `attribution:` is repeated under them |
+| `DEMO: path.json` | `BEHAVIOUR:` (not shown), `DEMO-CAPTION:`, `ATTRIBUTION:` | demo slot; needs `demo.js` (and optionally `demo.css`) in the asset folder, added to that page only |
+| `AUDIO-PAIR:` | `file \| label [\| synthetic[, failed to stop]]` and `CAPTION:` | audio clips; tags are checked against a `manifest.json` beside the clips when there is one |
+| `AUDIO-GRID: manifest.json` | `BEHAVIOUR:` (not shown), `AUDIO-NOTE:`, `ATTRIBUTION:` | a table of clips, sentences as rows; columns come from `grid-columns.txt` beside the manifest (`system \| label \| real or synthetic`). Only file names, systems and `stop_failure` are read, and the manifest is not published. It takes the section's full width; below 640px it shows one sentence at a time. |
+
+Any other capitalised `NAME:` line at the start of a block stops the build. Every audio player has native controls and `preload="none"`, and starting one pauses any other.
 
 **Registers.** `album` pages show reading-time stamps on the sections and a clock in the reading bar; `plain` pages show neither. Both have the reading bar and play control. Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
 

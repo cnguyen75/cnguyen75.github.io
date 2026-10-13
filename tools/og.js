@@ -37,14 +37,18 @@ function frontMatter(text, file) {
   return meta;
 }
 
-// The side label for a track number, as on the main page ("side a. athena").
-function sideOf(indexHtml, number) {
+// The side label for a track number, as on the main page ("side a. athena"). A draft
+// for a track not on the main page yet names its side in front matter ("side: c").
+function sideOf(indexHtml, number, letter) {
   let side = "";
+  const sides = [];
   for (const m of indexHtml.matchAll(/<h2 class="side-label" id="\w+-label">([^<]+)<\/h2>|<span class="track-no">(\d\d)<\/span>/g)) {
-    if (m[1]) side = m[1];
+    if (m[1]) { side = m[1]; sides.push(side); }
     else if (m[2] === number) return side.split(",")[0];
   }
-  throw new Error(`track ${number} is not on the main page`);
+  const named = letter && sides.find(s => s.toLowerCase().startsWith(`side ${letter.toLowerCase()}.`));
+  if (named) return named.split(",")[0];
+  throw new Error(`track ${number} is not on the main page and names no side`);
 }
 
 function card(meta, side) {
@@ -81,7 +85,7 @@ body { margin: 0; width: 1200px; height: 630px; background: var(--paper); displa
       for (const file of fs.readdirSync(dir).filter(f => f.endsWith(".md")).sort()) {
         const meta = frontMatter(fs.readFileSync(path.join(dir, file), "utf8"), file);
         if (only.size && !only.has(meta.slug)) continue;
-        fs.writeFileSync(tmp, card(meta, sideOf(indexHtml, meta.track.padStart(2, "0"))));
+        fs.writeFileSync(tmp, card(meta, sideOf(indexHtml, meta.track.padStart(2, "0"), meta.side)));
         const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
         await page.goto("file://" + tmp, { waitUntil: "load" });
         await page.evaluate(() => document.fonts.ready);

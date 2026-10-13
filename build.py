@@ -31,6 +31,13 @@ REGISTERS = ("album", "plain")
 REQUIRED = ("track", "slug", "title", "register", "ready", "one_line")
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
 
+# Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
+# A marker starts a block that runs to the next blank line; the second group only
+# ever follows one of the first.
+MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
+MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "AUDIO-PAIR", "AUDIO-GRID")
+MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE")
+
 
 class ContentError(Exception):
     pass
@@ -97,8 +104,9 @@ def slugify(s):
 
 
 # ---------- Markdown subset ----------
-# Paragraphs, "> " lead paragraph, "- " lists, **bold**, *italic*, `code`,
-# [text](https://...), and component blocks fenced by "::: name args" ... ":::".
+# Paragraphs, "> " lead paragraph (or a page's opening paragraph if bold throughout), "- " lists,
+# **bold**, *italic*, `code`, [text](https://...), component blocks fenced by
+# "::: name args" ... ":::", and the plain-text markers above.
 
 def inline(s):
     out, last = [], 0
@@ -132,11 +140,15 @@ class Page:
         self.meta = meta
         self.figures = 0
         self.scripts = []   # page-only scripts (demo slots)
+        self.styles = []    # page-only stylesheets (demo.css next to demo.js)
         self.copies = []    # asset files to copy next to the page
 
-    def asset(self, name, inline_svg=False):
-        if "/" in name or name.startswith("."):
-            raise ContentError(f"asset {name!r} must be a plain file name")
+    def asset(self, name, inline_svg=False, copy=True):
+        """A file in the page's asset folder. Marker drafts name it as <slug>/path."""
+        if name.startswith(self.meta["slug"] + "/"):
+            name = name[len(self.meta["slug"]) + 1:]
+        if name.startswith(("/", ".")) or ".." in name.split("/") or "\\" in name:
+            raise ContentError(f"asset {name!r} must be a path inside the page's folder")
         path = self.meta["assets"] / name
         if not path.is_file():
             raise ContentError(f"{self.meta['source'].name}: missing asset {path.relative_to(ROOT)}")
@@ -146,10 +158,11 @@ class Page:
             if not svg.startswith("<svg") or re.search(r"<script|\son\w+=", svg, re.I):
                 raise ContentError(f"{name}: must be a plain <svg> with no scripts")
             return svg
-        self.copies.append(path)
+        if copy and name not in [c[1] for c in self.copies]:
+            self.copies.append((path, name))
         return name
 
-    def blocks(self, lines):
+    def blocks(self, lines, first=False):
         """Returns [(html, words, kind)] for one section; kind marks figures for the play control."""
         out, i = [], 0
         para = []
@@ -157,8 +170,10 @@ class Page:
         def flush():
             if para:
                 text = " ".join(l.strip() for l in para)
-                if text.startswith("> "):
-                    out.append((f'<p class="tp-lead">{inline(text[2:])}</p>', words(text), "text"))
+                bold = first and not out and re.fullmatch(r"\*\*([^*]+)\*\*", text)
+                if text.startswith("> ") or bold:
+                    lead = bold.group(1) if bold else text[2:]
+                    out.append((f'<p class="tp-lead">{inline(lead)}</p>', words(text), "text"))
                 else:
                     out.append((f"<p>{inline(text)}</p>", words(text), "text"))
                 para.clear()
@@ -191,6 +206,13 @@ class Page:
                 out.append((f"<ul>{lis}</ul>", sum(words(t) for t in items), "text"))
             elif line.startswith("DIAGRAM:"):
                 raise ContentError(f"{self.meta['source'].name}: a DIAGRAM: line must be replaced by a ::: figure block")
+            elif MARKER.match(line):
+                flush()
+                j = i
+                while j < len(lines) and lines[j].strip():
+                    j += 1
+                out.append(self.marker(lines[i:j]))
+                i = j
             else:
                 para.append(line)
                 i += 1
@@ -200,6 +222,184 @@ class Page:
     def caption(self, text):
         self.figures += 1
         return f'<figcaption class="tp-caption">fig. {self.figures} · {inline(text)}</figcaption>'
+
+    @staticmethod
+    def given_caption(text):
+        """A caption written in full by the draft, numbering included."""
+        return f'<figcaption class="tp-caption">{inline(text)}</figcaption>' if text else ""
+
+    def marker(self, group):
+        name = self.meta["source"].name
+        head = MARKER.match(group[0])
+        kind, arg = head.group(1), head.group(2).strip()
+        if kind not in MARKER_BLOCKS:
+            where = "must follow a component marker" if kind in MARKER_FIELDS else "is not a known marker"
+            raise ContentError(f"{name}: {kind}: {where}")
+        rows, fields = [], {}
+        for l in group[1:]:
+            m = MARKER.match(l)
+            if m and m.group(1) in MARKER_FIELDS:
+                if m.group(1) in fields:
+                    raise ContentError(f"{name}: two {m.group(1)}: lines in one {kind}: block")
+                fields[m.group(1)] = m.group(2).strip()
+            elif m and m.group(1) in MARKER_BLOCKS:
+                raise ContentError(f"{name}: {m.group(1)}: needs a blank line before it")
+            elif kind != "EXCERPT" and fields:
+                raise ContentError(f"{name}: {kind}: has text after its {', '.join(fields)} line")
+            else:
+                rows.append(l)
+        allowed = {"EXCERPT": {"CAPTION"}, "FIGURE": {"CAPTION"}, "AUDIO-PAIR": {"CAPTION"},
+                   "DEMO": {"BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION"},
+                   "AUDIO-GRID": {"BEHAVIOUR", "AUDIO-NOTE", "ATTRIBUTION", "CAPTION"}}.get(kind, set())
+        extra = set(fields) - allowed
+        if extra:
+            raise ContentError(f"{name}: {kind}: does not take {', '.join(sorted(extra))}:")
+        cells = [[c.strip() for c in r.split("|")] for r in rows]
+        cap = self.given_caption(fields.get("CAPTION"))
+        notes = "".join(f'<p class="tp-{cls}">{inline(fields[f])}</p>'
+                        for f, cls in (("AUDIO-NOTE", "note"), ("ATTRIBUTION", "attribution")) if fields.get(f))
+
+        def need(ok, what):
+            if not ok:
+                raise ContentError(f"{name}: {kind}: {what}")
+
+        if kind == "STEPS":
+            items = ""
+            for c in cells:
+                m = re.match(r"(\d+)\.\s+(.*)$", c[0])
+                need(m and len(c) == 2, "rows are 'N. title | text'")
+                items += (f'<div class="tp-step"><div class="tp-step-no">step {m.group(1)}</div>'
+                          f'<div class="tp-step-title">{inline(m.group(2))}</div><div class="tp-step-text">{inline(c[1])}</div></div>')
+            return (f'<div class="tp-steps">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
+
+        if kind == "STATS":
+            need(cells and all(2 <= len(c) <= 3 for c in cells), "rows are 'value | label | note'")
+            items = "".join(
+                f'<div class="tp-stat"><div class="tp-stat-label">{inline(c[1])}</div>'
+                f'<div class="tp-stat-value">{inline(c[0])}</div>'
+                + (f'<div class="tp-stat-label">{inline(c[2])}</div>' if len(c) > 2 and c[2] else "") + "</div>"
+                for c in cells)
+            return (f'<div class="tp-stats">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
+
+        if kind == "CREDITS":
+            need(cells and all(len(c) == 2 for c in cells), "rows are 'role | name'")
+            def value(v):
+                return f'<a href="{esc(v)}">{esc(v)}</a>' if re.fullmatch(r"https://\S+", v) else inline(v)
+            items = "".join(f'<div class="tp-credit"><dt>{inline(c[0])}</dt><dd>{value(c[1])}</dd></div>' for c in cells)
+            # The page's attribution line, if any, is repeated with the credits.
+            attribution = f'<p class="tp-attribution">{inline(self.meta["attribution"])}</p>' if self.meta.get("attribution") else ""
+            return (f'<div class="tp-credits-block"><dl class="tp-credits">{items}</dl>{attribution}</div>',
+                    sum(words(" ".join(c)) for c in cells) + words(self.meta.get("attribution", "")), "text")
+
+        if kind == "TABLE":
+            need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")
+            head_html = "".join(f'<th scope="col">{inline(c)}</th>' for c in cells[0])
+            body_html = "".join("<tr>" + f'<th scope="row">{inline(c[0])}</th>' + "".join(f'<td data-label="{esc(h)}">{inline(x)}</td>' for h, x in zip(cells[0][1:], c[1:])) + "</tr>"
+                                for c in cells[1:])
+            return (f'<div class="tp-table" role="region" aria-label="Table: {esc(" · ".join(cells[0]))}">'
+                    f'<table><thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
+                    sum(words(" ".join(c)) for c in cells), "figure")
+
+        if kind == "EXCERPT":
+            need(rows, "has no lines")
+            text = "\n".join(rows)
+            return (f'<figure class="tp-figure"><pre class="tp-code" tabindex="0">{esc(text)}</pre>{cap}</figure>', words(text) // 2, "figure")
+
+        if kind == "FIGURE":
+            need(arg.endswith(".svg") and cap, "needs an .svg path and a CAPTION: line")
+            svg = self.asset(arg, inline_svg=True)  # checked as a plain SVG; published as a file
+            title = re.search(r"<title[^>]*>(.*?)</title>", svg, re.S)
+            need(title, f"{arg} has no <title> to use as its text alternative")
+            alt = html.unescape(title.group(1).strip())
+            size = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', svg)
+            dims = f' width="{size.group(1)}" height="{size.group(2)}"' if size else ""
+            src = self.asset(arg)
+            return (f'<figure class="tp-figure"><div class="tp-chart" tabindex="0" role="region" aria-label="Figure: {esc(alt)}">'
+                    f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} loading="lazy" decoding="async"></div>{cap}</figure>', 0, "figure")
+
+        if kind == "DEMO":
+            need(arg.endswith(".json") and not rows, "needs a .json path and nothing else on its lines")
+            data = self.asset(arg)
+            self.scripts.append(self.asset("demo.js"))
+            if (self.meta["assets"] / "demo.css").is_file():
+                self.styles.append(self.asset("demo.css"))
+            dcap = f'<figcaption class="tp-caption">{inline(fields["DEMO-CAPTION"])}</figcaption>' if fields.get("DEMO-CAPTION") else ""
+            return (f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}" aria-live="polite">'
+                    f'<p class="tp-demo-fallback">This demo needs JavaScript.</p></div>{dcap}{notes}</figure>', 0, "figure")
+
+        if kind == "AUDIO-PAIR":
+            need(cells and all(2 <= len(c) <= 3 for c in cells), "rows are 'file | label | tags'")
+            manifest = self.audio_manifest(cells[0][0])
+            clips = ""
+            for c in cells:
+                f, label = self.asset(c[0]), c[1]
+                tags = [t.strip() for t in c[2].split(",")] if len(c) > 2 and c[2] else []
+                bad = set(tags) - {"synthetic", "failed to stop"}
+                need(not bad, f"unknown tag {', '.join(bad)}")
+                if manifest is not None:
+                    entry = manifest.get(Path(f).name)
+                    need(entry is not None, f"{f} is not in the audio manifest")
+                    need(("synthetic" in tags) == (entry["system"] != "ground_truth")
+                         and ("failed to stop" in tags) == bool(entry.get("stop_failure")),
+                         f"the tags for {f} disagree with the audio manifest")
+                clips += self.clip(f, label, tags, label)
+            return (f'<figure class="tp-figure"><div class="tp-clips">{clips}</div>{cap}{notes}</figure>', 0, "figure")
+
+        if kind == "AUDIO-GRID":
+            need(arg.endswith(".json") and not rows, "needs the manifest's path")
+            return (self.audio_grid(arg, cap, notes), 0, "figure")
+
+        raise ContentError(f"{name}: {kind}: has no renderer")  # unreachable: MARKER_BLOCKS is complete
+
+    def clip(self, f, label, tags, aria):
+        kinds = "".join(f'<span class="tp-clip-kind">{esc(t)}</span>' if t == "synthetic" else f'<span class="tp-tag">{esc(t)}</span>' for t in tags)
+        return (f'<div class="tp-clip"><div class="tp-clip-label">{inline(label)}</div>'
+                + (f'<div class="tp-clip-tags">{kinds}</div>' if kinds else "")
+                + f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(", ".join([aria] + tags))}"></audio></div>')
+
+    def audio_manifest(self, any_clip):
+        """{file name: clip} from manifest.json next to the clips, if there is one. Only the
+        fields the page needs are read; the manifest itself is never published."""
+        import json
+        path = self.meta["assets"] / Path(any_clip.split("/", 1)[1] if any_clip.startswith(self.meta["slug"] + "/") else any_clip).parent / "manifest.json"
+        if not path.is_file():
+            return None
+        return {c["file"]: c for c in json.loads(path.read_text(encoding="utf-8"))["clips"]}
+
+    def audio_grid(self, arg, cap, notes):
+        """Sentences as rows, systems as columns. Column labels come from grid-columns.txt
+        next to the manifest: 'system | label | real or synthetic' per line, in order."""
+        import json
+        name = self.meta["source"].name
+        rel = self.asset(arg, copy=False)
+        folder = Path(rel).parent
+        manifest = json.loads((self.meta["assets"] / rel).read_text(encoding="utf-8"))
+        cols_path = self.meta["assets"] / folder / "grid-columns.txt"
+        if not cols_path.is_file():
+            raise ContentError(f"{name}: AUDIO-GRID: needs {cols_path.relative_to(ROOT)}")
+        cols = [[x.strip() for x in l.split("|")] for l in cols_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+        if not all(len(c) == 3 and c[2] in ("real", "synthetic") for c in cols):
+            raise ContentError(f"{name}: grid-columns.txt lines are 'system | label | real or synthetic'")
+        by = {(c["sentence"], c["system"]): c for c in manifest["clips"]}
+        sentences = sorted({c["sentence"] for c in manifest["clips"]})
+        head = '<th scope="col"><span class="sr-only">Sentence</span></th>' + "".join(f'<th scope="col">{esc(c[1])}</th>' for c in cols)
+        body = ""
+        for n in sentences:
+            tds = ""
+            for system, label, kind in cols:
+                c = by.get((n, system))
+                if not c:
+                    raise ContentError(f"{name}: the manifest has no clip for sentence {n}, {system}")
+                tags = (["synthetic"] if kind == "synthetic" else []) + (["failed to stop"] if c.get("stop_failure") else [])
+                f = self.asset(str(folder / c["file"]))
+                kinds = "".join(f'<span class="tp-clip-kind">{esc(t)}</span>' if t == "synthetic" else f'<span class="tp-tag">{esc(t)}</span>' for t in tags)
+                tds += (f'<td><span class="tp-grid-col" aria-hidden="true">{esc(label)}</span>'
+                        f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(", ".join([f"Sentence {n}", label] + tags))}"></audio>'
+                        + (f'<span class="tp-clip-tags">{kinds}</span>' if kinds else "") + "</td>")
+            body += f'<tr data-sentence="{n}"><th scope="row">sentence {n}</th>{tds}</tr>'
+        grid = (f'<div class="tp-grid" role="region" aria-label="Every clip, by sentence" tabindex="0">'
+                f'<table><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>')
+        return f'<figure class="tp-figure tp-figure--wide tp-figure--grid">{grid}{cap}{notes}</figure>'
 
     def component(self, head, body):
         name, _, args = head.partition(" ")
@@ -385,7 +585,15 @@ def clock(seconds):
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
-def render(meta, tracklist, pages_here, drafts_build):
+def side_for(tracklist, letter):
+    """(side label, side id) for a draft's "side: c", for tracks not on the main page yet."""
+    for _, _, label, side_id in tracklist:
+        if label.lower().startswith(f"side {letter.lower()}."):
+            return label, side_id
+    raise ContentError(f"no side {letter!r} on the main page")
+
+
+def render(meta, tracklist, pages_here, drafts_build, listed):
     page = Page(meta)
     album = meta["register"] == "album"
     num = meta["track"]
@@ -393,12 +601,13 @@ def render(meta, tracklist, pages_here, drafts_build):
     if num not in by_no:
         raise ContentError(f"track {num} is not on the main page")
     _, _, side_label, side_id = by_no[num]
+    on_list = num in {t[0] for t in tracklist[:listed]}
     side_short = side_label.split(",")[0]
 
     # sections, their reading time, and the blocks the play control pauses at
     sections, t = [], 0.0
     for s in meta["sections"]:
-        blocks = page.blocks(s["lines"])
+        blocks = page.blocks(s["lines"], first=s is meta["sections"][0])
         timed = []
         for b, w, kind in blocks:
             secs = w / WPM * 60 + (FIGURE_SECS if kind == "figure" else 0)
@@ -416,10 +625,23 @@ def render(meta, tracklist, pages_here, drafts_build):
         seg_html.append(f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" data-secs="{s["secs"]:.1f}">'
                         f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(s["title"].lower())}</span></a>')
         label = (f"{clock(s['start'])} · " if album else "") + esc(s["title"].lower())
-        body = "".join(b for b, _ in s["blocks"])
+        # A wide block (the audio grid) takes the section's full width, label column included;
+        # anything after it continues in a second body.
+        parts, cur = [], []
+        for b, _ in s["blocks"]:
+            if 'tp-figure--wide' in b[:120]:
+                if cur:
+                    parts.append(f'<div class="tp-section-body{" tp-section-body--after" if parts else ""}">{"".join(cur)}</div>')
+                    cur = []
+                parts.append(f'<div class="tp-section-wide">{b}</div>')
+            else:
+                cur.append(b)
+        if cur or not parts:
+            parts.append(f'<div class="tp-section-body{" tp-section-body--after" if parts else ""}">{"".join(cur)}</div>')
+        body = "".join(parts)
         sec_html.append(f'<section class="tp-section{" tp-section--first" if k == 0 else ""}" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
                         f'<h2 class="tp-section-label" id="{s["id"]}-h">{label}</h2>'
-                        f'<div class="tp-section-body">{body}</div></section>')
+                        f'{body}</section>')
 
     # previous and next among pages in this build. Ready pages only ever link ready
     # pages, so they come out the same with or without --drafts.
@@ -444,12 +666,13 @@ def render(meta, tracklist, pages_here, drafts_build):
     url = f"{SITE}tracks/{meta['slug']}/"
     own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
     if own_og:
-        page.copies.append(meta["assets"] / "og.png")
+        page.copies.append((meta["assets"] / "og.png", "og.png"))
     og = f"{url}og.png" if own_og else f"{SITE}images/og-image.png"
     og_alt = f"{title}: track {num} on Colin Nguyen's site" if own_og else "Colin Nguyen's site"
     draft = not meta["ready"]
-    badge = meta.get("badge")
+    badge = meta.get("badge") or meta.get("status_label")
     scripts = "".join(f'\n<script src="{esc(s)}" defer></script>' for s in page.scripts)
+    scripts += "".join(f'\n<link rel="stylesheet" href="{esc(s)}">' for s in page.styles)
 
     doc = f"""<!doctype html>
 <html lang="en">
@@ -493,7 +716,7 @@ def render(meta, tracklist, pages_here, drafts_build):
 </header>
 <main id="main" class="tp-main" data-total="{total:.1f}">
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
-<p class="tp-kicker">{esc(side_short)} · track {num} of {len(tracklist)}</p>
+<p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}</p>
 <div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
 <p class="tp-lede">{inline(meta['one_line'])}</p>
 </section>
@@ -550,6 +773,18 @@ def main():
         if len(set(seen)) != len(seen):
             raise ContentError(f"two content files share a {key}")
 
+    # A draft may be for a track that is not on the main page yet; it sorts after the
+    # listed tracks. A ready page must be on the main page.
+    listed = len(tracklist)
+    on_page = {t[0] for t in tracklist}
+    for m in sorted(metas, key=lambda m: m["track"]):
+        if m["track"] not in on_page:
+            if m["ready"]:
+                raise ContentError(f"track {m['track']} is ready but not on the main page")
+            if not m.get("side"):
+                raise ContentError(f"{m['source'].name}: track {m['track']} is not on the main page, so it needs side:")
+            tracklist.append((m["track"], m["title"], *side_for(tracklist[:listed], m["side"])))
+
     building = [m for m in metas if m["ready"] or args.drafts]
     pages_here = {m["track"]: m for m in building}
     out_root = ROOT / "tracks"
@@ -562,7 +797,7 @@ def main():
             shutil.rmtree(d)
 
     for m in building:
-        doc, copies = render(m, tracklist, pages_here, args.drafts)
+        doc, copies = render(m, tracklist, pages_here, args.drafts, listed)
         out = out_root / m["slug"]
         if out.exists():
             if not (out / OUT_MARK).exists():
@@ -571,8 +806,9 @@ def main():
         out.mkdir()
         (out / OUT_MARK).write_text("")
         (out / "index.html").write_text(doc, encoding="utf-8")
-        for c in copies:
-            shutil.copy2(c, out / c.name)
+        for src, rel in copies:
+            (out / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, out / rel)
 
     ready = sorted((m for m in metas if m["ready"]), key=lambda m: m["track"])
     (out_root / ".gitignore").write_text(
