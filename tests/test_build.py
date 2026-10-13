@@ -97,6 +97,11 @@ class Progress(unittest.TestCase):
                                r'<p class="tp-link"><a href="https://osf\.io/example">pre-registration →</a></p>')
         self.assertIn('<span class="tp-badge">status: manuscript in preparation</span>', doc)
         self.assertNotIn("tp-link", self.render(front={"link": None}))
+        # one_line, when given, is the page description; the hero still shows the with: line.
+        doc = self.render(front={"one_line": "A one-line summary."})
+        self.assertIn('<meta name="description" content="A one-line summary.">', doc)
+        self.assertNotIn('class="tp-lede"', doc)
+        self.assertIn('<meta name="description" content="What is the question?">', self.render())
         with self.assertRaisesRegex(build.ContentError, "link"):
             self.read(front={"link": "https://osf.io/example"})
         for key in ("with", "as_of"):

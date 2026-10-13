@@ -753,9 +753,9 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 
     title = meta["title"]
     if progress:
-        # No one-line summary in this register: the question's opening paragraph describes the page.
+        # one_line: is optional in this register; without it the question's opening paragraph describes the page.
         first = next((l for l in meta["sections"][0]["lines"] if l.strip()), "")
-        desc = meta.get("description") or re.sub(r"<[^>]+>", "", html.unescape(inline(first.strip())))
+        desc = meta.get("description") or meta.get("one_line") or re.sub(r"<[^>]+>", "", html.unescape(inline(first.strip())))
     else:
         desc = meta.get("description") or meta["one_line"]
     if progress:
