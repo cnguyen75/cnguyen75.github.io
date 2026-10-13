@@ -17,6 +17,12 @@ fonts/                     self-hosted Archivo (latin + vietnamese), Courier Pri
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
 resume/                    the two résumé PDFs (web versions, no phone number)
+build.py                   builds the track pages (Python 3 standard library only)
+content/tracks/            one Markdown file per ready track page, plus a folder of its assets
+content/drafts/            the same for drafts; git-ignored, never committed
+tracks/<slug>/             built track pages; only ready ones can be committed (tracks/.gitignore)
+css/track.css, js/track.js the track page template's styles and its reading bar and play control
+sitemap.xml                the main page and ready track pages, written by build.py
 favicon.svg, favicon-32.png, apple-touch-icon.png
 .nojekyll                  stops GitHub Pages running Jekyll once the site is published
 ```
@@ -67,6 +73,63 @@ npx -p ajv-cli@5 -p ajv-formats@3 ajv validate --spec=draft2020 -c ajv-formats \
 
 Charts are HTML and CSS, as in the design. Every mark has a `title` for hover, and each chart container has `role="img"` and an `aria-label` that lists its values. Every chart has a **view as table** button that swaps it for a real `<table>`. Wins and losses use filled versus outlined squares with a W or L, never colour alone.
 
+## Track pages
+
+Each track can have its own page at `/tracks/<slug>/`, built from one Markdown file. Adding a page means adding a file and running the build:
+
+```sh
+python3 build.py            # ready pages only: what gets committed
+python3 build.py --drafts   # also drafts, for local preview
+```
+
+The design source is `~/Personal/site-handoff/design/track-page-reference.html`.
+
+**The content file** is `content/tracks/NN-slug.md` (or `content/drafts/` while it is a draft), with its assets in a folder named after the slug beside it. Front matter:
+
+```
+track: 03                 # the number on the main page; the title and side come from there
+slug: coding-agent-operations
+title: Running coding agents as a team process
+register: plain           # plain (Athena, research) or album (side projects)
+ready: false              # true only when cleared to publish
+one_line: …               # the lede and the page description
+badge: in progress        # optional, shown as "status: …" in the reading bar
+```
+
+The body is `## Section` headings (an `{#id}` after the heading sets its anchor) with paragraphs, `- ` lists, `**bold**`, `*italic*`, `` `code` `` and `[links](https://…)`. A paragraph starting with `> ` is the large lead paragraph. Components are fenced with `::: name` and `:::`:
+
+| Component | Body |
+|---|---|
+| `::: figure a.svg [narrow.svg]` | `caption:`, `alt:` and `description:` lines. The SVG is inlined, so it uses the site's colours through `dg-*` classes. A second file is shown instead below 640px. The `description:` lines become "The diagram as text". |
+| `::: code` | the excerpt as written, plus an optional `caption:` |
+| `::: stats` | `label \| value \| note` rows |
+| `::: bars Title` | `label \| number [\| orange]` rows and a `caption:` |
+| `::: steps` | `step 1 \| title \| text` rows |
+| `::: credits` | `role \| text` rows |
+| `::: audio` | two rows, `real \| label \| file` and `synthetic \| label \| file`, and a `caption:`; players have no autoplay and `preload="none"` |
+| `::: demo data.json demo.js` | fallback text; the script is added to that page only and reads the JSON from the slot's `data-src` |
+
+**Registers.** `album` pages show reading-time stamps on the sections and a clock in the reading bar; `plain` pages show neither. Both have the reading bar and play control. Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
+
+**The reading bar and play control** (`js/track.js`):
+- The bar's segments link to the sections; the one being read is underlined and marked `aria-current`, and the part already read fills in.
+- Once the bar scrolls away, a compact copy is fixed to the top of the window.
+- Play is off until pressed and scrolls at reading pace, holding at figures. Scrolling, tapping, the arrow or page keys, or space pause it, and play resumes from wherever the page is.
+- Speed cycles through 1×, 1.5× and 2×.
+- Play stops when the "next" link is in view and never follows it; pressing play there starts again from the top.
+- With `prefers-reduced-motion` it jumps from section to section instead of gliding.
+- Without JavaScript the play control is hidden and the section links still work.
+
+**Ready and drafts.** A draft lives in `content/drafts/`, which git ignores, so nothing about it reaches the repository. A plain build skips drafts and deletes any draft output left from a `--drafts` build. `--drafts` builds them with a "draft" marker and `noindex`. To publish a page, set `ready: true`, move the file and its folder to `content/tracks/`, and build. The build then:
+- writes the page;
+- adds it to `sitemap.xml`;
+- allows it in `tracks/.gitignore`;
+- points its row on the main page at the page (the row's own link, such as "github →", is kept in data attributes and restored if the page is later unreadied).
+
+Previous and next links follow the tracklist order and skip tracks without a page. A ready page links only to other ready pages, so it builds the same with or without `--drafts`.
+
+**Social preview.** If the page's asset folder has an `og.png` (1200×630), it becomes that page's preview image; otherwise the main page's image is used.
+
 ## Preview locally
 
 `fetch()` doesn't work from `file://`, so serve the folder over HTTP:
@@ -86,3 +149,4 @@ When `data/lately.json` exists (the pipeline writes it), the page shows that dat
 ## Open items
 
 - The "how this is built" link in Side D and all Lately values are placeholders until the nightly job exists.
+- Track page `og.png` cards are rendered with a headless-browser script that is not in this repository yet.

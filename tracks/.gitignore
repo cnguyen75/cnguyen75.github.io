@@ -1,0 +1,4 @@
+# Written by build.py. Only pages marked ready may be committed; drafts stay local.
+*
+!.gitignore
+.built-by-build-py

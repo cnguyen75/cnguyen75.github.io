@@ -1,0 +1,392 @@
+/* Track pages (tracks/<slug>/). Loaded after site.css, which supplies the
+   tokens, fonts, base type and header. Reference: track-page-reference.html. */
+
+.tp-page { gap: 48px; }
+.tp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+.tp-home { padding: 12px 0; text-decoration: none; }
+.tp-back { padding: 12px 0; }
+
+.tp-draft {
+  align-self: flex-start;
+  margin: 0 0 -24px;
+  font-family: var(--font-label);
+  font-size: 13px;
+  line-height: 1.3;
+  border: 1px solid var(--ink);
+  padding: 2px 8px;
+}
+
+/* ---------- Title block ---------- */
+
+.tp-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.tp-kicker,
+.tp-section-label {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--teal);
+}
+.tp-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 28px;
+}
+.tp-no {
+  font-family: var(--font-label);
+  font-size: 56px;
+  line-height: 1;
+  color: var(--text-3);
+}
+.tp-title {
+  margin: 0;
+  flex: 1 1 420px;
+  font-size: clamp(38px, 10vw, 56px);
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.tp-lede {
+  margin: 0;
+  font-size: 21px;
+  color: var(--text-2);
+  max-width: 760px;
+}
+
+/* ---------- Now reading bar and play control ---------- */
+
+.tp-player {
+  background: var(--card);
+  padding: 22px 24px;
+  box-shadow: 0 2px 10px rgba(35, 31, 27, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--text-3);
+}
+.tp-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+}
+.tp-controls-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.tp-help { margin: 0; }
+.tp-badge { align-self: center; }
+
+.tp-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 20px;
+  background: var(--ink);
+  color: var(--card);
+  border: 0;
+  font-family: var(--font-label);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tp-play-icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 12px solid currentColor;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+}
+.tp-play.is-playing .tp-play-icon {
+  width: 12px;
+  height: 14px;
+  border: 0;
+  border-left: 4px solid currentColor;
+  border-right: 4px solid currentColor;
+}
+.tp-clock { color: var(--ink); font-variant-numeric: tabular-nums; }
+.tp-speed {
+  min-height: 44px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--text-3);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.tp-speed:hover { color: var(--ink); }
+
+.tp-segs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 6px;
+}
+.tp-seg {
+  --fill: 0;
+  position: relative;
+  flex: 1 1 120px;
+  border-top: 6px solid var(--rule);
+  padding: 10px 0 4px;
+  color: var(--ink);
+  text-decoration: none;
+}
+/* The part already read, drawn over the top border */
+.tp-seg-fill {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  height: 6px;
+  width: calc(var(--fill) * 100%);
+  background: var(--ink);
+}
+.tp-seg-time { display: block; color: var(--text-3); }
+.tp-seg.is-current .tp-seg-name { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+
+/* Compact bar, fixed to the top once the full bar has scrolled away */
+.tp-mini {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px max(16px, calc((100% - 1120px) / 2));
+  background: var(--card);
+  box-shadow: 0 2px 10px rgba(35, 31, 27, 0.12);
+  font-family: var(--font-label);
+  font-size: 14px;
+}
+.tp-play--mini { min-height: 40px; padding: 0 14px; font-size: 14px; }
+.tp-mini-now {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+.tp-mini-track {
+  position: relative;
+  flex: 1 1 80px;
+  height: 6px;
+  background: var(--rule);
+}
+.tp-mini-fill { position: absolute; inset: 0 auto 0 0; background: var(--ink); }
+.tp-mini-tick {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 12px;
+  margin-left: -1px;
+  background: var(--card);
+}
+
+/* ---------- Sections ---------- */
+
+.tp-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  scroll-margin-top: 64px;
+}
+.tp-section--first { border-top: 2px solid var(--ink); }
+.tp-section-label { flex: 1 1 170px; padding-top: 5px; }
+.tp-section-body {
+  flex: 999 1 480px;
+  min-width: 0;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tp-section-body p { margin: 0; color: var(--text-2); }
+.tp-section-body strong { color: var(--ink); }
+.tp-section-body .tp-lead {
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 600;
+  color: var(--ink);
+}
+.tp-section-body ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tp-section-body code { font-family: var(--font-label); font-size: 0.95em; }
+
+/* ---------- Components ---------- */
+
+.tp-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.tp-caption {
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--text-3);
+}
+
+/* Code or log excerpt */
+.tp-code {
+  margin: 0;
+  background: var(--ink);
+  color: var(--card);
+  padding: 18px 20px;
+  font-family: var(--font-label);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+/* Stat row */
+.tp-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 48px;
+}
+.tp-stat-label { color: var(--text-2); font-size: 15px; }
+.tp-stat-value { font-size: 52px; line-height: 1.05; font-weight: 700; }
+
+/* Simple bar comparison */
+.tp-panel {
+  background: var(--card);
+  padding: 18px 20px;
+}
+.tp-panel-title { font-weight: 700; }
+.tp-bars { display: flex; flex-direction: column; gap: 10px; }
+.tp-bar { display: flex; align-items: center; gap: 12px; }
+.tp-bar-label { flex: 0 0 96px; font-size: 15px; }
+.tp-bar-track { flex: 1; min-width: 0; }
+.tp-bar-fill { display: block; height: 20px; border-radius: 0 4px 4px 0; }
+.tp-bar-fill--blue { background: var(--blue); }
+.tp-bar-fill--orange { background: var(--orange); }
+.tp-bar-value { flex: 0 0 44px; text-align: right; font-weight: 700; }
+
+/* Steps */
+.tp-steps { display: flex; flex-wrap: wrap; gap: 12px; }
+.tp-step { flex: 1 1 200px; background: var(--card); padding: 16px 18px; }
+.tp-step-no { font-family: var(--font-label); font-size: 15px; color: var(--text-3); }
+.tp-step-title { font-weight: 700; }
+.tp-step-text { color: var(--text-2); font-size: 15px; }
+
+/* Credits */
+.tp-credits { margin: 0; display: flex; flex-direction: column; }
+.tp-credit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 24px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.tp-credit:last-child { border-bottom: 0; }
+.tp-credit dt {
+  flex: 0 0 150px;
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--text-3);
+}
+.tp-credit dd { flex: 1 1 240px; margin: 0; }
+
+/* Audio pair: real against synthetic */
+.tp-clips { display: flex; flex-wrap: wrap; gap: 12px; }
+.tp-clip {
+  flex: 1 1 240px;
+  background: var(--card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tp-clip-kind { font-family: var(--font-label); font-size: 15px; font-weight: 700; color: var(--teal); }
+.tp-clip audio { width: 100%; }
+
+/* Demo slot */
+.tp-demo { background: var(--card); padding: 16px 18px; min-width: 0; overflow-x: auto; }
+.tp-demo-fallback { margin: 0; color: var(--text-3); }
+.tp-demo table { border-collapse: collapse; font-family: var(--font-label); font-size: 15px; }
+.tp-demo td { padding: 4px 16px 4px 0; border-bottom: 1px solid var(--rule-soft); white-space: nowrap; }
+
+/* Diagrams (inline SVG). A wide layout and, when given, a narrow one for phones. */
+.tp-svg { display: block; width: 100%; height: auto; max-width: 760px; }
+.tp-svg--narrow { display: none; max-width: 420px; }
+.tp-svg--single { max-width: 440px; }
+@media (max-width: 640px) {
+  .tp-svg--wide { display: none; }
+  .tp-svg--narrow { display: block; }
+}
+.tp-svg .dg-box { fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
+.tp-svg .dg-box--soft { stroke-dasharray: 5 4; }
+.tp-svg .dg-box--strong { fill: var(--ink); }
+.tp-svg .dg-box--group { fill: none; stroke: var(--rule); stroke-width: 1; }
+.tp-svg .dg-text { font-family: var(--font-text); font-size: 13px; fill: var(--ink); }
+.tp-svg .dg-text--small { font-size: 11.5px; fill: var(--text-2); }
+.tp-svg .dg-text--bold { font-weight: 700; }
+.tp-svg .dg-text--inverse { fill: var(--card); }
+.tp-svg .dg-label { font-family: var(--font-label); font-size: 12px; fill: var(--text-3); }
+.tp-svg .dg-arrow { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.tp-svg .dg-arrow--soft { stroke: var(--text-3); stroke-dasharray: 4 3; }
+.tp-svg .dg-head { fill: var(--ink); }
+.tp-svg .dg-bar { fill: var(--teal); }
+.tp-svg .dg-bar-text { font-family: var(--font-label); font-size: 12px; font-weight: 700; fill: var(--card); }
+
+.tp-text-alt { font-size: 15px; color: var(--text-2); }
+.tp-text-alt summary {
+  font-family: var(--font-label);
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.tp-text-alt ol { margin: 6px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 4px; }
+
+/* ---------- Previous and next ---------- */
+
+.tp-other {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px 24px;
+  border-top: 2px solid var(--ink);
+  padding-top: 20px;
+}
+.tp-prev,
+.tp-next { flex: 1 1 280px; text-decoration: none; }
+.tp-next { text-align: right; }
+.tp-prev:only-child { flex-grow: 0; }
+.tp-other-label {
+  display: block;
+  font-family: var(--font-label);
+  font-size: 15px;
+  color: var(--text-3);
+}
+.tp-other-title { display: block; font-weight: 700; font-size: 22px; line-height: 1.25; }
