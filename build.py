@@ -27,8 +27,13 @@ ROOT = Path(__file__).resolve().parent
 SITE = "https://cnguyen75.github.io/"
 WPM = 230  # reading pace for timestamps and the play control
 FIGURE_SECS = 6  # time given to each figure, code excerpt or demo; play holds still for part of it
-REGISTERS = ("album", "plain")
-REQUIRED = ("track", "slug", "title", "register", "ready", "one_line")
+REGISTERS = ("album", "plain", "progress")
+REQUIRED = ("track", "slug", "title", "register", "ready")
+REQUIRED_BY_REGISTER = {"album": ("one_line",), "plain": ("one_line",), "progress": ("with", "as_of")}
+# The progress register (ongoing research) has fixed sections, in this order.
+PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what's next", "log", "my role")
+PROGRESS_OPTIONAL = ("results",)
+MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
 
 # Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
@@ -62,11 +67,11 @@ def read_page(path):
         if not sep:
             raise ContentError(f"{path.name}: bad front matter line {line!r}")
         meta[k.strip()] = v.strip()
-    missing = [k for k in REQUIRED if not meta.get(k)]
+    if meta.get("register") not in REGISTERS:
+        raise ContentError(f"{path.name}: register must be album, plain or progress")
+    missing = [k for k in REQUIRED + REQUIRED_BY_REGISTER[meta["register"]] if not meta.get(k)]
     if missing:
         raise ContentError(f"{path.name}: front matter is missing {', '.join(missing)}")
-    if meta["register"] not in REGISTERS:
-        raise ContentError(f"{path.name}: register must be album or plain")
     if meta["ready"] not in ("true", "false"):
         raise ContentError(f"{path.name}: ready must be true or false")
     if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", meta["slug"]):
@@ -76,7 +81,43 @@ def read_page(path):
     meta["source"] = path
     meta["assets"] = path.parent / meta["slug"]
     meta["sections"] = parse_sections(m.group(2), path.name)
+    if meta["register"] == "progress":
+        check_progress(meta, path.name)
     return meta
+
+
+def check_progress(meta, name):
+    """Front matter and section order for the progress register."""
+    meta["as_of_date"] = parse_date(meta["as_of"], f"{name}: as_of", month_only=False)
+    if meta.get("link"):
+        label, sep, url = meta["link"].partition("|")
+        if not sep or not label.strip() or not re.fullmatch(r"https://\S+", url.strip()):
+            raise ContentError(f"{name}: link must be 'label | https://...'")
+        meta["link_label"], meta["link_url"] = label.strip(), url.strip()
+    titles = [s["title"] for s in meta["sections"]]
+    expected = [t for t in PROGRESS_SECTIONS if t in titles or t not in PROGRESS_OPTIONAL]
+    if titles != expected:
+        raise ContentError(f"{name}: progress sections must be, in order: " + ", ".join(
+            t + (" (optional)" if t in PROGRESS_OPTIONAL else "") for t in PROGRESS_SECTIONS)
+            + f"; found: {', '.join(titles)}")
+
+
+def parse_date(s, what, month_only=True):
+    """(datetime attribute, display text) for YYYY-MM-DD, or YYYY-MM when month_only is allowed."""
+    m = re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", s)
+    if not m or (m.group(3) is None and not month_only):
+        raise ContentError(f"{what} must be YYYY-MM-DD" + (" or YYYY-MM" if month_only else "") + f", not {s!r}")
+    y, mo = int(m.group(1)), int(m.group(2))
+    if not 1 <= mo <= 12:
+        raise ContentError(f"{what}: no month {mo}")
+    if m.group(3) is None:
+        return s, f"{MONTHS[mo - 1]} {y}"
+    import datetime
+    try:
+        datetime.date(y, mo, int(m.group(3)))
+    except ValueError:
+        raise ContentError(f"{what}: {s} is not a date")
+    return s, f"{int(m.group(3))} {MONTHS[mo - 1]} {y}"
 
 
 def parse_sections(body, name):
@@ -142,6 +183,7 @@ class Page:
         self.scripts = []   # page-only scripts (demo slots)
         self.styles = []    # page-only stylesheets (demo.css next to demo.js)
         self.copies = []    # asset files to copy next to the page
+        self.held = 0       # HELD: notes (content waiting on a collaborator); a ready page may have none
 
     def asset(self, name, inline_svg=False, copy=True):
         """A file in the page's asset folder. Marker drafts name it as <slug>/path."""
@@ -170,6 +212,13 @@ class Page:
         def flush():
             if para:
                 text = " ".join(l.strip() for l in para)
+                if " HELD:" in text:
+                    # Held text inside a paragraph: flagged from HELD: to the paragraph's end.
+                    before, _, held = text.partition(" HELD:")
+                    self.held += 1
+                    out.append((f'<p>{inline(before)} {self.held_note(held, "span")}</p>', words(text), "text"))
+                    para.clear()
+                    return
                 bold = first and not out and re.fullmatch(r"\*\*([^*]+)\*\*", text)
                 if text.startswith("> ") or bold:
                     lead = bold.group(1) if bold else text[2:]
@@ -204,6 +253,11 @@ class Page:
                     i += 1
                 lis = "".join(f"<li>{inline(t)}</li>" for t in items)
                 out.append((f"<ul>{lis}</ul>", sum(words(t) for t in items), "text"))
+            elif line.startswith("HELD:"):
+                flush()
+                self.held += 1
+                out.append((f'<p class="tp-held">{self.held_note(line[5:], "span")}</p>', words(line), "text"))
+                i += 1
             elif line.startswith("DIAGRAM:"):
                 raise ContentError(f"{self.meta['source'].name}: a DIAGRAM: line must be replaced by a ::: figure block")
             elif MARKER.match(line):
@@ -218,6 +272,28 @@ class Page:
                 i += 1
         flush()
         return out
+
+    @staticmethod
+    def held_note(text, tag):
+        return (f'<{tag} class="tp-held-note"><span class="tp-held-flag">held: needs a collaborator\'s agreement</span> '
+                f'{inline(text.strip())}</{tag}>')
+
+    def log(self, lines):
+        """A progress page's ## log: 'YYYY-MM-DD | text' or 'YYYY-MM | text' per line, in file order."""
+        name = self.meta["source"].name
+        items, n = "", 0
+        for line in lines:
+            if not line.strip():
+                continue
+            m = re.fullmatch(r"(\d{4}-\d{2}(?:-\d{2})?) \| (\S.*)", line.strip())
+            if not m:
+                raise ContentError(f"{name}: log lines are 'YYYY-MM-DD | text' or 'YYYY-MM | text', not {line.strip()!r}")
+            iso, shown = parse_date(m.group(1), f"{name}: log date")
+            items += f'<li class="tp-log-item"><time class="tp-log-date" datetime="{iso}">{shown}</time><span class="tp-log-text">{inline(m.group(2))}</span></li>'
+            n += words(m.group(2))
+        if not items:
+            raise ContentError(f"{name}: ## log has no entries")
+        return [(f'<ol class="tp-log">{items}</ol>', n, "text")]
 
     def caption(self, text):
         self.figures += 1
@@ -599,6 +675,8 @@ def side_for(tracklist, letter):
 def render(meta, tracklist, pages_here, drafts_build, listed):
     page = Page(meta)
     album = meta["register"] == "album"
+    progress = meta["register"] == "progress"
+    stamped = album or progress  # reading-time stamps and the clock
     num = meta["track"]
     by_no = {t[0]: t for t in tracklist}
     if num not in by_no:
@@ -610,7 +688,10 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     # sections, their reading time, and the blocks the play control pauses at
     sections, t = [], 0.0
     for s in meta["sections"]:
-        blocks = page.blocks(s["lines"], first=s is meta["sections"][0])
+        if progress and s["title"] == "log":
+            blocks = page.log(s["lines"])
+        else:
+            blocks = page.blocks(s["lines"], first=s is meta["sections"][0] and not progress)
         timed = []
         for b, w, kind in blocks:
             secs = w / WPM * 60 + (FIGURE_SECS if kind == "figure" else 0)
@@ -620,14 +701,20 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
         sections.append(dict(s, blocks=timed, start=t, secs=secs))
         t += secs
     total = t
+    if meta["ready"] and page.held:
+        raise ContentError(f"{meta['source'].name}: ready: true but {page.held} HELD: note(s) remain; "
+                           "held content needs a collaborator's agreement before it is published")
 
     seg_html, sec_html = [], []
     for k, s in enumerate(sections):
-        stamp = f'<span class="tp-seg-time">{clock(s["start"])}</span>' if album else ""
+        stamp = f'<span class="tp-seg-time">{clock(s["start"])}</span>' if stamped else ""
         grow = max(1, round(s["secs"] / 20))
         seg_html.append(f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" data-secs="{s["secs"]:.1f}">'
                         f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(s["title"].lower())}</span></a>')
-        label = (f"{clock(s['start'])} · " if album else "") + esc(s["title"].lower())
+        label = (f"{clock(s['start'])} · " if stamped else "") + esc(s["title"].lower())
+        if progress and s["title"] == "where it stands":
+            iso, shown = meta["as_of_date"]
+            label += f' <span class="tp-asof">as of <time datetime="{iso}">{shown}</time></span>'
         # A wide block (the audio grid) takes the section's full width, label column included;
         # anything after it continues in a second body.
         parts, cur = [], []
@@ -665,7 +752,18 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
                    f'<span class="tp-other-title">All tracks</span></a>')
 
     title = meta["title"]
-    desc = meta.get("description") or meta["one_line"]
+    if progress:
+        # No one-line summary in this register: the question's opening paragraph describes the page.
+        first = next((l for l in meta["sections"][0]["lines"] if l.strip()), "")
+        desc = meta.get("description") or re.sub(r"<[^>]+>", "", html.unescape(inline(first.strip())))
+    else:
+        desc = meta.get("description") or meta["one_line"]
+    if progress:
+        lede = f'<p class="tp-with">{inline(meta["with"])}</p>'
+        if meta.get("link_url"):
+            lede += f'\n<p class="tp-link"><a href="{esc(meta["link_url"])}">{esc(meta["link_label"])} →</a></p>'
+    else:
+        lede = f'<p class="tp-lede">{inline(meta["one_line"])}</p>'
     url = f"{SITE}tracks/{meta['slug']}/"
     own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
     if own_og:
@@ -721,13 +819,13 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
 <p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}</p>
 <div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
-<p class="tp-lede">{inline(meta['one_line'])}</p>
+{lede}
 </section>
 <section class="tp-player" aria-label="Now reading">
 <div class="tp-controls" hidden>
 <span class="tp-controls-main">
 <button type="button" class="tp-play" aria-describedby="tp-play-help"><span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
-{f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / {clock(total)}</span>' if album else ''}
+{f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / {clock(total)}</span>' if stamped else ''}
 <button type="button" class="tp-speed" aria-label="Playback speed, 1×">speed 1×</button>
 </span>
 {f'<span class="tp-badge">status: {esc(badge)}</span>' if badge else ''}

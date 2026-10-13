@@ -478,3 +478,52 @@
   color: var(--text-3);
 }
 .tp-other-title { display: block; font-weight: 700; font-size: 22px; line-height: 1.25; }
+
+/* ---------- Progress register (ongoing research) ---------- */
+
+.tp-with { margin: 0; font-size: 21px; color: var(--text-2); max-width: 760px; }
+.tp-link { margin: -8px 0 0; font-family: var(--font-label); font-size: 15px; }
+.tp-asof {
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+.tp-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.tp-log-item {
+  display: grid;
+  grid-template-columns: 8.5em minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule-soft);
+  color: var(--text-2);
+}
+.tp-log-item:first-child { border-top: 0; padding-top: 0; }
+.tp-log-date { font-family: var(--font-label); font-size: 15px; color: var(--text-3); padding-top: 2px; }
+@media (max-width: 480px) {
+  .tp-log-item { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* HELD: content waiting on a collaborator. Only draft builds can contain it. */
+.tp-held-note {
+  background: var(--card);
+  outline: 2px dashed var(--orange);
+  outline-offset: 2px;
+  color: var(--ink);
+}
+p.tp-held { padding: 10px 12px; outline: 2px dashed var(--orange); }
+p.tp-held .tp-held-note { outline: 0; background: none; }
+.tp-held-flag {
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

@@ -7,7 +7,7 @@
  *
  *   cd tools && npm install          # once: playwright-core, no browser download
  *   node tools/og.js                 # every content file
- *   node tools/og.js coding-agent-operations paper-trader   # just these slugs
+ *   node tools/og.js <slug> [<slug> ...]   # just these slugs
  *   python3 build.py                 # then rebuild
  *
  * It drives an installed Chrome. Set CHROME to its executable if it is not at
@@ -69,7 +69,7 @@ body { margin: 0; width: 1200px; height: 630px; background: var(--paper); displa
 </style></head><body><div class="card">
 <div class="kicker">${esc(side)} · track ${no}</div>
 <div class="heading"><span class="no">${no}</span><h1 class="title">${esc(meta.title)}</h1></div>
-<p class="lede">${esc(meta.one_line)}</p>
+<p class="lede">${esc(meta.one_line || meta.with)}</p>
 <div class="site">colin nguyen</div>
 </div></body></html>`;
 }

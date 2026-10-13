@@ -91,13 +91,15 @@ The design source is `~/Personal/site-handoff/design/track-page-reference.html`.
 track: 03                 # the number on the main page; the title and side come from there
 slug: coding-agent-operations
 title: Running coding agents as a team process
-register: plain           # plain (Athena, research) or album (side projects)
+register: plain           # plain (Athena), album (side projects) or progress (ongoing research)
 ready: false              # true only when cleared to publish
-one_line: …               # the lede and the page description
+one_line: …               # the lede and the page description (not used by progress pages)
 badge: in progress        # optional, shown as "status: …" in the reading bar (status_label: works too)
 side: c                   # only for a draft whose track is not on the main page yet
 attribution: …            # optional, repeated under the credits unless they have a data row
 ```
+
+Progress pages take `with:` (one line under the title, in place of `one_line:`), `as_of: YYYY-MM-DD`, an optional `link: label | https://…` (a small link under the `with:` line) and `status_label:`.
 
 A draft may be for a track that is not on the main page yet. It needs `side:`, sorts after the listed tracks, and says "not on the tracklist yet". A ready page must be on the main page.
 
@@ -128,9 +130,11 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 | `AUDIO-PAIR:` | `file \| label [\| synthetic[, failed to stop]]` and `CAPTION:` | audio clips; tags are checked against a `manifest.json` beside the clips when there is one |
 | `AUDIO-GRID: manifest.json` | `BEHAVIOUR:` (not shown), `AUDIO-NOTE:`, `ATTRIBUTION:` | a table of clips, sentences as rows; columns come from `grid-columns.txt` beside the manifest (`system \| label \| real or synthetic`). Only file names, systems and `stop_failure` are read, and the manifest is not published. It takes the section's full width; below 640px it shows one sentence at a time. |
 
-Any other capitalised `NAME:` line at the start of a block stops the build. Every audio player has native controls and `preload="none"`, and starting one pauses any other.
+A `DIAGRAM:` line (a description of a diagram still to be drawn) stops the build; replace it with a `::: figure` block. A line starting `HELD:` marks content that needs a collaborator's agreement: drafts show it with a dashed "held" flag (held text that starts mid-paragraph is flagged from `HELD:` to the paragraph's end), and a page with `ready: true` that still has one stops the build. Any other capitalised `NAME:` line at the start of a block stops the build. Every audio player has native controls and `preload="none"`, and starting one pauses any other.
 
-**Registers.** `album` pages show reading-time stamps on the sections and a clock in the reading bar; `plain` pages show neither. Both have the reading bar and play control. Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
+**Registers.** `album` and `progress` pages show reading-time stamps on the sections and a clock in the reading bar; `plain` pages show neither. All three have the reading bar and play control.
+
+A `progress` page (ongoing research) has these sections, in this order, and the build stops on any other set or order: `## question`, `## approach`, `## where it stands`, `## results` (optional; left out entirely when absent), `## what's next`, `## log`, `## my role`. "where it stands" carries the `as_of:` date next to its heading ("as of 13 Oct 2026"). Each `## log` line is `YYYY-MM-DD | text` or `YYYY-MM | text`, shown as a dated list in file order (a month-only date shows as "May 2026"); any other line stops the build. There is no `one_line:`, so the page description is the question's opening paragraph. Tests: `python3 -m unittest discover tests`. Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
 
 **The reading bar and play control** (`js/track.js`):
 - The bar's segments link to the sections; the one being read is underlined and marked `aria-current`, and the part already read fills in.
@@ -155,7 +159,7 @@ Previous and next links follow the tracklist order and skip tracks without a pag
 
 ```sh
 cd tools && npm install && cd ..        # once
-node tools/og.js                        # all pages, or name slugs: node tools/og.js paper-trader
+node tools/og.js                        # all pages, or name slugs: node tools/og.js <slug> [<slug> ...]
 python3 build.py                        # copies each card next to its page
 ```
 
