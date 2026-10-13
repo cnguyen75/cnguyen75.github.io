@@ -31,7 +31,7 @@ def can_draw():
 
 def fixture():
     """The committed sample with ten films, seven shows, five anime; lift 1 with a best
-    set, lift 2 with two sessions."""
+    set, lift 2 with two sessions, lift 4 with a best set entered by hand."""
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     r = d["watching"]["rankings"]
@@ -41,6 +41,7 @@ def fixture():
     lifts[0]["best"]["best_set"] = {"weight_lb": 185, "reps": 4, "date": "2026-09-26"}
     lifts[1]["sessions"] = 2
     lifts[1]["history"] = lifts[1]["history"][-2:]
+    lifts[3]["best"]["best_set"] = {"weight_lb": 225, "reps": 1, "date": "2026-06-06", "source": "manual"}
     return d
 
 
@@ -115,6 +116,15 @@ class Drawing(unittest.TestCase):
                 self.assertEqual(second["few"], "2 sessions so far")
                 self.assertFalse(second["chart"] or second["toggle"])
                 self.assertTrue(first["chart"] and first["few"] is None)
+
+    # A best set entered by hand carries a "logged by hand" tag after the best-set line; API sets never do.
+    def test_manual_best_set_is_tagged(self):
+        for w in WIDTHS:
+            with self.subTest(width=w):
+                lifts = draw(w)["before"]["lifts"]
+                self.assertEqual(lifts[3]["bestSet"], "best set 225 × 1 · 6 Jun logged by hand")
+                self.assertEqual(lifts[3]["handTag"], "logged by hand")
+                self.assertIsNone(lifts[0]["handTag"])
 
 
 if __name__ == "__main__":

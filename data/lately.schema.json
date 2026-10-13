@@ -738,6 +738,10 @@
                       },
                       "date": {
                         "$ref": "#/$defs/date"
+                      },
+                      "source": {
+                        "const": "manual",
+                        "description": "Optional. Present only when the set was entered by hand rather than coming from Hevy; the page tags it 'logged by hand'."
                       }
                     },
                     "description": "Optional. The set behind the best, in pounds whatever `unit` says. Shown under the best as 'best set 185 × 4 · 26 Sep'."

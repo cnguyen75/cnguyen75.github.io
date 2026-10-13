@@ -30,6 +30,7 @@ const [base, fixture, width] = process.argv.slice(2);
         lifts: [...document.querySelectorAll("#panel-lifting .lift")].map(l => ({
           best: l.querySelector(".lift-best").textContent,
           bestSet: (l.querySelector(".lift-best-set") || {}).textContent || null,
+          handTag: (l.querySelector(".lift-best-set .tag") || {}).textContent || null,
           setUnderBest: !!l.querySelector(".lift-best-set") &&
             l.querySelector(".lift-best-set").getBoundingClientRect().top >= l.querySelector(".lift-best > span").getBoundingClientRect().bottom - 1,
           few: (l.querySelector(".lift-few") || {}).textContent || null,

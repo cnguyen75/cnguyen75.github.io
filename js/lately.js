@@ -667,10 +667,12 @@
       return { date: d, value: num(p.e1rm, "history.e1rm"), title: dateText(d, true) + ": " + short(p.e1rm) + " " + unit };
     });
 
-    var bestSet = null;
+    var bestSet = null, byHand = false;
     if (best.best_set != null) {
       var bs = best.best_set;
       need(isObj(bs), "best.best_set");
+      need(bs.source === undefined || bs.source === "manual", "best_set.source");
+      byHand = bs.source === "manual";
       bestSet = "best set " + short(num(bs.weight_lb, "best_set.weight_lb")) + " × " + num(bs.reps, "best_set.reps") +
         " · " + dateText(calDate(bs.date, "best_set.date"), false);
     }
@@ -705,7 +707,8 @@
         h("span", { title: "From " + setText + " on " + dateText(curDate, true) }, "current ", h("b", null, curText)),
         h("span", { class: "lift-best" },
           h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText)),
-          bestSet ? h("span", { class: "lift-best-set" }, bestSet) : null)));
+          bestSet ? h("span", { class: "lift-best-set" }, bestSet,
+            byHand ? [" ", h("span", { class: "tag" }, "logged by hand")] : null) : null)));
   }
 
   function volumeChart(weeks, unit) {
