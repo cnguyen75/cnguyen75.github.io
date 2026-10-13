@@ -1,0 +1,9 @@
+{
+  "name": "cnguyen75-site-tools",
+  "private": true,
+  "description": "Optional developer tools for the site. The site and build.py never depend on them.",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright-core": "1.48.2"
+  }
+}

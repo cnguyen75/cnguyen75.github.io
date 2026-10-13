@@ -442,8 +442,8 @@ def render(meta, tracklist, pages_here, drafts_build):
     title = meta["title"]
     desc = meta.get("description") or meta["one_line"]
     url = f"{SITE}tracks/{meta['slug']}/"
-    own_og = (ROOT / "tracks" / meta["slug"] / "og.png").is_file() or (meta["assets"] / "og.png").is_file()
-    if (meta["assets"] / "og.png").is_file():
+    own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
+    if own_og:
         page.copies.append(meta["assets"] / "og.png")
     og = f"{url}og.png" if own_og else f"{SITE}images/og-image.png"
     og_alt = f"{title}: track {num} on Colin Nguyen's site" if own_og else "Colin Nguyen's site"

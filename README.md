@@ -23,6 +23,7 @@ content/drafts/            the same for drafts; git-ignored, never committed
 tracks/<slug>/             built track pages; only ready ones can be committed (tracks/.gitignore)
 css/track.css, js/track.js the track page template's styles and its reading bar and play control
 sitemap.xml                the main page and ready track pages, written by build.py
+tools/                     optional developer tools (og.js renders preview cards); nothing depends on them
 favicon.svg, favicon-32.png, apple-touch-icon.png
 .nojekyll                  stops GitHub Pages running Jekyll once the site is published
 ```
@@ -128,7 +129,17 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 
 Previous and next links follow the tracklist order and skip tracks without a page. A ready page links only to other ready pages, so it builds the same with or without `--drafts`.
 
-**Social preview.** If the page's asset folder has an `og.png` (1200×630), it becomes that page's preview image; otherwise the main page's image is used.
+**Social preview.** If the page's asset folder has an `og.png` (1200×630), it becomes that page's preview image; otherwise the main page's image is used. The build never makes or requires these images.
+
+`tools/og.js` is an optional developer tool that renders the cards (number, title and one-line description in the site's type) into each page's content folder. It needs Node and an installed Chrome; `playwright-core` downloads no browser.
+
+```sh
+cd tools && npm install && cd ..        # once
+node tools/og.js                        # all pages, or name slugs: node tools/og.js paper-trader
+python3 build.py                        # copies each card next to its page
+```
+
+Set `CHROME` to Chrome's executable if it isn't at the macOS default path. Cards for ready pages live in `content/tracks/<slug>/` and are committed along with the built page. Cards for drafts stay in the ignored `content/drafts/`.
 
 ## Preview locally
 
@@ -149,4 +160,3 @@ When `data/lately.json` exists (the pipeline writes it), the page shows that dat
 ## Open items
 
 - The "how this is built" link in Side D and all Lately values are placeholders until the nightly job exists.
-- Track page `og.png` cards are rendered with a headless-browser script that is not in this repository yet.
