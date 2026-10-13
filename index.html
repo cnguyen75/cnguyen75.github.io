@@ -122,12 +122,12 @@
 </a>
 <div class="track track--wrap">
 <span class="track-no">10</span>
-<div class="track-body"><h3 class="track-title">Paper Trader</h3><span class="track-desc">An automated ETF-trading system that wrote down its pass and fail criteria before any backtest ran. The first strategy was shelved when a ten-year backtest returned a Sharpe ratio of 0.74 against a required 1.06. Its successor runs on a paper account against a simulated twin: all 26 decisions since its clock started match, as of 12 October 2026, and it has already failed one of its own reliability criteria.</span></div>
+<div class="track-body"><h3 class="track-title">Paper Trader</h3><span class="track-desc">An automated ETF-trading system that wrote down its pass and fail criteria before any backtest ran. The first strategy was shelved when a ten-year backtest returned a Sharpe ratio of 0.74 against a required 1.06. Its successor runs on a paper account against a simulated twin: all 26 decisions since its clock started match, as of 12 October 2026, and it has already failed two of its own criteria.</span></div>
 <span class="track-meta track-meta--status">in progress</span>
 </div>
 <a class="track track--wrap" href="https://github.com/cnguyen75/NBA-Inverse-Shot-Optimization">
 <span class="track-no">11</span>
-<div class="track-body"><h3 class="track-title">Inverse optimization of NBA shot decisions</h3><span class="track-desc">Asks why three NBA players took the shots they did, using 128,069 shots from the 2014–15 season. A PyTorch cost network trained with KKT-condition penalties learns the hidden cost each player seems to minimise. Defender distance ranked as the top factor for all three.</span></div>
+<div class="track-body"><h3 class="track-title">Inverse optimization of NBA shot decisions</h3><span class="track-desc">Asks why LeBron James, Stephen Curry and James Harden took the shots they did, using 128,069 shots from the 2014–15 season. A small network picks the real shot from plausible alternatives about half the time on held-out shots, against under a third by chance. Auditing it a year later, I found the original optimality conditions never touched the learned cost, and a pre-registered attempt to recover each player's cost ended in a negative result: without court position, defender distance is a consequence of the shot, not an input to it.</span></div>
 <span class="track-meta">github →</span>
 </a>
 <a class="track track--wrap" href="https://github.com/cnguyen75/Drug-Target-Interaction-Network">
@@ -140,6 +140,11 @@
 <div class="track-body"><h3 class="track-title">LLM 20 Questions</h3><span class="track-desc">A two-model agent for Kaggle's 20 Questions game from 2024: one 4-bit quantized LLM asks and guesses, another answers. Finished in the top 50.</span></div>
 <span class="track-meta">github →</span>
 </a>
+<div class="track track--wrap">
+<span class="track-no">14</span>
+<div class="track-body"><h3 class="track-title">Which optimizer trains a speech model best?</h3><span class="track-desc">Five optimizers fine-tune a small text-to-speech model to a new voice, five seeds each. Four could not be told apart within the spread across seeds, L-BFGS was clearly worse, and the standard metrics scored 44% of clips that failed to stop as error-free.</span></div>
+<span class="track-meta track-meta--status">rebuilt 2026</span>
+</div>
 </section>
 
 <section class="side" id="previously" aria-labelledby="previously-label">
