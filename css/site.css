@@ -835,6 +835,18 @@ a.track { text-decoration: none; }
   color: var(--text-3);
 }
 .lift-figures b { color: var(--ink); font-weight: 600; }
+.lift-best { display: inline-flex; flex-direction: column; gap: 2px; }
+.lift-best-set { font-family: var(--font-label); font-size: 12px; }
+.lift-few {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 13px;
+  color: var(--text-3);
+  padding: 6px 0;
+  border-top: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ranking-more { margin-top: 4px; }
 .lift-figure { display: flex; flex-direction: column; gap: 4px; }
 .tag {
   font-family: var(--font-label);

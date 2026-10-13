@@ -12,7 +12,8 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 1,
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -416,7 +417,7 @@
         },
         "rankings": {
           "type": "object",
-          "description": "My top five of each ranking, best first. Every title links to its Simkl page.",
+          "description": "My top ten of each ranking, best first. The page shows the first five, with a toggle for the rest. Every title links to its Simkl page.",
           "required": [
             "films",
             "shows",
@@ -555,7 +556,7 @@
     },
     "ranked_list": {
       "type": "array",
-      "maxItems": 5,
+      "maxItems": 10,
       "items": {
         "type": "object",
         "required": [
@@ -671,7 +672,8 @@
               },
               "sessions": {
                 "type": "integer",
-                "minimum": 1
+                "minimum": 1,
+                "description": "Sessions with this lift. Below three, the page shows 'n sessions so far' in place of the trend chart."
               },
               "current": {
                 "type": "object",
@@ -716,6 +718,29 @@
                   "e1rm": {
                     "type": "number",
                     "minimum": 0
+                  },
+                  "best_set": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "weight_lb",
+                      "reps",
+                      "date"
+                    ],
+                    "properties": {
+                      "weight_lb": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "reps": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "date": {
+                        "$ref": "#/$defs/date"
+                      }
+                    },
+                    "description": "Optional. The set behind the best, in pounds whatever `unit` says. Shown under the best as 'best set 185 × 4 · 26 Sep'."
                   }
                 },
                 "description": "Highest estimated one-rep max in the history."

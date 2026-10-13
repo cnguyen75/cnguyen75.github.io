@@ -425,6 +425,36 @@
   // hidden) when the field is absent or every list is empty, or when Simkl
   // has never produced good data.
   var RANKINGS = [["films", "Films"], ["shows", "Shows"], ["anime", "Anime"]];
+  var RANK_SHOWN = 5, RANK_MAX = 10;
+  var NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+
+  // One ranking: the first five, and when there are more, a toggle that shows
+  // the rest in the same list.
+  function ranking(g) {
+    var listId = "lately-ranking-" + g.key;
+    var list = h("ol", { class: "list-items list-items--numbered", id: listId, "aria-label": "My top " + g.label.toLowerCase() },
+      g.items.map(function (it, i) {
+        return h("li", { class: "list-item", hidden: i >= RANK_SHOWN },
+          h("span", { class: "item-rank", "aria-hidden": "true" }, i + 1),
+          h("span", { class: "item-name" }, titleLink(it)),
+          typeof it.year === "number" ? h("span", { class: "item-meta" }, it.year) : null);
+      }));
+    var button = null;
+    if (g.items.length > RANK_SHOWN) {
+      var more = "show all " + NUMBER_WORDS[g.items.length], less = "show top " + NUMBER_WORDS[RANK_SHOWN];
+      button = h("button", { type: "button", class: "table-toggle ranking-more", "aria-controls": listId, "aria-expanded": "false" }, more);
+      button.addEventListener("click", function () {
+        var open = button.getAttribute("aria-expanded") !== "true";
+        Array.prototype.forEach.call(list.children, function (li, i) { if (i >= RANK_SHOWN) li.hidden = !open; });
+        button.setAttribute("aria-expanded", String(open));
+        button.textContent = open ? less : more;
+      });
+    }
+    return h("div", { class: "ranking" },
+      h("div", { class: "ranking-head" }, h("span", { class: "legend-swatch fill--" + g.key, "aria-hidden": "true" }), g.label),
+      list, button);
+  }
+
   function rankingsPanel(data) {
     var w = data.watching;
     if (!isObj(w) || !isObj(w.rankings)) return null;
@@ -432,20 +462,10 @@
     if (!state.show) return null;
     var r = w.rankings;
     var groups = RANKINGS.map(function (g) {
-      return { key: g[0], label: g[1], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled).slice(0, 5) : [] };
+      return { key: g[0], label: g[1], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled).slice(0, RANK_MAX) : [] };
     }).filter(function (g) { return g.items.length; });
     if (!groups.length) return null;
-    return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" },
-      groups.map(function (g) {
-        return h("div", { class: "ranking" },
-          h("div", { class: "ranking-head" }, h("span", { class: "legend-swatch fill--" + g.key, "aria-hidden": "true" }), g.label),
-          h("ol", { class: "list-items list-items--numbered", "aria-label": "My top " + g.label.toLowerCase() }, g.items.map(function (it, i) {
-            return h("li", { class: "list-item" },
-              h("span", { class: "item-rank", "aria-hidden": "true" }, i + 1),
-              h("span", { class: "item-name" }, titleLink(it)),
-              typeof it.year === "number" ? h("span", { class: "item-meta" }, it.year) : null);
-          })));
-      }))];
+    return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" }, groups.map(ranking))];
   }
 
   // Bins plays into the blue scale from the reference. Any hour with a play
@@ -559,6 +579,7 @@
   var MAX_MUSCLES = 8; // named bars; the rest are summed into one "Other" bar
   var MAX_PRS = 5;
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var MIN_TREND_SESSIONS = 3; // fewer than this shows "n sessions so far" instead of a line
   var EPLEY_NOTE = "Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are not comparable with barbell lifts.";
 
   // Calendar dates (YYYY-MM-DD, already Pacific) are read as UTC midnight so
@@ -646,8 +667,20 @@
       return { date: d, value: num(p.e1rm, "history.e1rm"), title: dateText(d, true) + ": " + short(p.e1rm) + " " + unit };
     });
 
+    var bestSet = null;
+    if (best.best_set != null) {
+      var bs = best.best_set;
+      need(isObj(bs), "best.best_set");
+      bestSet = "best set " + short(num(bs.weight_lb, "best_set.weight_lb")) + " × " + num(bs.reps, "best_set.reps") +
+        " · " + dateText(calDate(bs.date, "best_set.date"), false);
+    }
+
+    // Fewer than three sessions make no trend: say how many instead of drawing one or two points.
+    var sessions = num(lift.sessions, "lift.sessions");
     var block = null, toggle = null;
-    if (points.length) {
+    if (sessions < MIN_TREND_SESSIONS) {
+      block = h("p", { class: "lift-few" }, plural(sessions, "session", "sessions") + " so far");
+    } else if (points.length) {
       var first = points[0], last = points[points.length - 1];
       var figure = h("div", { class: "lift-figure" },
         lineChart(points, {
@@ -670,7 +703,9 @@
       h("div", { class: "lift-exercise" }, exercise, lift.machine === true ? [" ", h("span", { class: "tag" }, "machine")] : null),
       h("div", { class: "lift-figures" },
         h("span", { title: "From " + setText + " on " + dateText(curDate, true) }, "current ", h("b", null, curText)),
-        h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText))));
+        h("span", { class: "lift-best" },
+          h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText)),
+          bestSet ? h("span", { class: "lift-best-set" }, bestSet) : null)));
   }
 
   function volumeChart(weeks, unit) {
