@@ -332,7 +332,7 @@
       "n": 6,
       "min_n": 5,
       "as_of": "2026-10-13",
-      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline.",
+      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline. Every add is listed, with the best and worst three by available flagged.",
       "value": 0.5,
       "values": {
        "adds": 6,
@@ -347,6 +347,116 @@
        "net_points_available": 8.48,
        "net_points_captured": -3.24,
        "adds_per_week": 1.2,
+       "all": [
+        {
+         "week": 1,
+         "added": "Player 8",
+         "position": "WR",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 5,
+         "weeks_started": 3,
+         "points_available": 23.5,
+         "points_captured": 7.68,
+         "class": "hit, captured",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 10",
+         "position": "TE",
+         "dropped": "Player 11",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "faab",
+          "amount": 21
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 1,
+         "points_available": -16.85,
+         "points_captured": -8.57,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 3,
+         "added": "Player 12",
+         "position": "WR",
+         "dropped": "Player 13",
+         "dropped_to": "another team",
+         "spent": {
+          "kind": "faab",
+          "amount": 11
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 1,
+         "points_available": -18.2,
+         "points_captured": -9.5,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 4,
+         "added": "Player 14",
+         "position": "RB",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 0,
+         "points_available": 12.88,
+         "points_captured": 0.0,
+         "class": "hit, left on the bench",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 4,
+         "added": "Player 9",
+         "position": "K",
+         "dropped": "Player 15",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "faab",
+          "amount": 1
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": -3.5,
+         "points_captured": -3.5,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 4,
+         "added": "Player 7",
+         "position": "QB",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "faab",
+          "amount": 7
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": 10.65,
+         "points_captured": 10.65,
+         "class": "hit, captured",
+         "best": true,
+         "worst": false
+        }
+       ],
        "best": [
         {
          "week": 1,
@@ -366,7 +476,7 @@
         },
         {
          "week": 4,
-         "added": "Player 10",
+         "added": "Player 14",
          "position": "RB",
          "dropped": null,
          "dropped_to": null,
@@ -400,9 +510,9 @@
        "worst": [
         {
          "week": 3,
-         "added": "Player 11",
+         "added": "Player 12",
          "position": "WR",
-         "dropped": "Player 12",
+         "dropped": "Player 13",
          "dropped_to": "another team",
          "spent": {
           "kind": "faab",
@@ -416,9 +526,9 @@
         },
         {
          "week": 3,
-         "added": "Player 13",
+         "added": "Player 10",
          "position": "TE",
-         "dropped": "Player 14",
+         "dropped": "Player 11",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "faab",
@@ -777,7 +887,7 @@
       "n": 11,
       "min_n": 5,
       "as_of": "2026-10-13",
-      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline.",
+      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline. Every add is listed, with the best and worst three by available flagged.",
       "value": 0.273,
       "values": {
        "adds": 14,
@@ -792,12 +902,266 @@
        "net_points_available": -13.17,
        "net_points_captured": 16.84,
        "adds_per_week": 2.8,
+       "all": [
+        {
+         "week": 1,
+         "added": "Player 25",
+         "position": "WR",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": -6.64,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 2,
+         "added": "Player 26",
+         "position": "WR",
+         "dropped": "Player 25",
+         "dropped_to": "another team",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": -2.9,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 2,
+         "added": "Player 27",
+         "position": "WR",
+         "dropped": "Player 18",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": -3.04,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 28",
+         "position": "WR",
+         "dropped": "Player 27",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 3,
+         "weeks_started": 2,
+         "points_available": 5.38,
+         "points_captured": 2.22,
+         "class": "hit, captured",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 29",
+         "position": "RB",
+         "dropped": "Player 26",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": -8.34,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 3,
+         "added": "Player 30",
+         "position": "K",
+         "dropped": "Player 31",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": -8.0,
+         "points_captured": -8.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 11",
+         "position": "TE",
+         "dropped": "Player 32",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": -9.74,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 4,
+         "added": "Player 33",
+         "position": "DEF",
+         "dropped": "Player 34",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": -5.4,
+         "points_captured": -5.4,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 4,
+         "added": "Player 24",
+         "position": "RB",
+         "dropped": "Player 11",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 2,
+         "points_available": 7.94,
+         "points_captured": 7.94,
+         "class": "hit, captured",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 4,
+         "added": "Player 35",
+         "position": "WR",
+         "dropped": "Player 29",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 0,
+         "weeks_started": 0,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "stash",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 4,
+         "added": "Player 22",
+         "position": "K",
+         "dropped": "Player 30",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 2,
+         "points_available": 17.0,
+         "points_captured": 17.0,
+         "class": "hit, captured",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 4,
+         "added": "Player 36",
+         "position": "QB",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 1,
+         "points_available": -14.05,
+         "points_captured": -4.52,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 5,
+         "added": "Player 14",
+         "position": "RB",
+         "dropped": "Player 37",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 0,
+         "points_available": 7.02,
+         "points_captured": 0.0,
+         "class": "stash",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 5,
+         "added": "Player 38",
+         "position": "DEF",
+         "dropped": "Player 33",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": 7.6,
+         "points_captured": 7.6,
+         "class": "stash",
+         "best": true,
+         "worst": false
+        }
+       ],
        "best": [
         {
          "week": 4,
          "added": "Player 22",
          "position": "K",
-         "dropped": "Player 25",
+         "dropped": "Player 30",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -813,7 +1177,7 @@
          "week": 4,
          "added": "Player 24",
          "position": "RB",
-         "dropped": "Player 14",
+         "dropped": "Player 11",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -827,9 +1191,9 @@
         },
         {
          "week": 5,
-         "added": "Player 26",
+         "added": "Player 38",
          "position": "DEF",
-         "dropped": "Player 27",
+         "dropped": "Player 33",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -845,7 +1209,7 @@
        "worst": [
         {
          "week": 4,
-         "added": "Player 28",
+         "added": "Player 36",
          "position": "QB",
          "dropped": null,
          "dropped_to": null,
@@ -861,9 +1225,9 @@
         },
         {
          "week": 3,
-         "added": "Player 14",
+         "added": "Player 11",
          "position": "TE",
-         "dropped": "Player 29",
+         "dropped": "Player 32",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "free agent",
@@ -877,9 +1241,9 @@
         },
         {
          "week": 3,
-         "added": "Player 30",
+         "added": "Player 29",
          "position": "RB",
-         "dropped": "Player 31",
+         "dropped": "Player 26",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -1035,7 +1399,7 @@
       "values": {
        "best": [
         {
-         "player": "Player 32",
+         "player": "Player 39",
          "position": "RB",
          "pick": 104,
          "ppg_rank": 53,
@@ -1043,7 +1407,7 @@
          "points_per_game": 14.82
         },
         {
-         "player": "Player 33",
+         "player": "Player 40",
          "position": "WR",
          "pick": 97,
          "ppg_rank": 48,
@@ -1051,7 +1415,7 @@
          "points_per_game": 15.66
         },
         {
-         "player": "Player 34",
+         "player": "Player 41",
          "position": "TE",
          "pick": 137,
          "ppg_rank": 106,
@@ -1061,7 +1425,7 @@
        ],
        "worst": [
         {
-         "player": "Player 35",
+         "player": "Player 42",
          "position": "RB",
          "pick": 64,
          "ppg_rank": 150,
@@ -1077,7 +1441,7 @@
          "points_per_game": 5.25
         },
         {
-         "player": "Player 36",
+         "player": "Player 43",
          "position": "DEF",
          "pick": 124,
          "ppg_rank": 147,
@@ -1102,15 +1466,15 @@
        "players": 4,
        "top": [
         {
-         "player": "Player 37",
+         "player": "Player 44",
          "points": 9.0
         },
         {
-         "player": "Player 38",
+         "player": "Player 45",
          "points": 5.5
         },
         {
-         "player": "Player 39",
+         "player": "Player 46",
          "points": 5.0
         }
        ]
@@ -1221,7 +1585,7 @@
       "n": 7,
       "min_n": 5,
       "as_of": "2026-10-13",
-      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline.",
+      "how": "Each add after the draft, judged on all his points while on my roster (started or benched) against the dropped player's per game on another team over the same weeks, or the positional replacement level; then a hit captured (out-produced and started at least half his weeks), a hit left on the bench, a miss, a stash (still rostered, under 2 weeks or on injured reserve) or insurance (a handcuff to my own starter, never started). Hit rate (both kinds of hit over hits and misses) with a 95% Wilson interval. Available is his net points over the baseline across every week he was on my roster; captured is the same net over only the weeks I started him, so captured can exceed available when his benched weeks were below the baseline. Every add is listed, with the best and worst three by available flagged.",
       "value": 0.143,
       "values": {
        "adds": 9,
@@ -1236,12 +1600,176 @@
        "net_points_available": -8.67,
        "net_points_captured": -27.46,
        "adds_per_week": 1.8,
+       "all": [
+        {
+         "week": 1,
+         "added": "Player 47",
+         "position": "WR",
+         "dropped": "Player 48",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 0,
+         "weeks_started": 0,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "stash",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 1,
+         "added": "Player 45",
+         "position": "TE",
+         "dropped": null,
+         "dropped_to": null,
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 5,
+         "weeks_started": 2,
+         "points_available": -0.05,
+         "points_captured": -14.4,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 2,
+         "added": "Player 8",
+         "position": "WR",
+         "dropped": "Player 41",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 0,
+         "weeks_started": 0,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 2,
+         "added": "Player 46",
+         "position": "WR",
+         "dropped": "Player 8",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": -5.48,
+         "points_captured": -5.48,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 3,
+         "added": "Player 29",
+         "position": "RB",
+         "dropped": "Player 46",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 0,
+         "weeks_started": 0,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 49",
+         "position": "WR",
+         "dropped": "Player 29",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 0,
+         "weeks_started": 0,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "miss",
+         "best": false,
+         "worst": false
+        },
+        {
+         "week": 3,
+         "added": "Player 50",
+         "position": "WR",
+         "dropped": "Player 49",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "free agent",
+          "amount": 0
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": -7.58,
+         "points_captured": -7.58,
+         "class": "miss",
+         "best": false,
+         "worst": true
+        },
+        {
+         "week": 4,
+         "added": "Player 51",
+         "position": "RB",
+         "dropped": "Player 50",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 2,
+         "weeks_started": 0,
+         "points_available": 4.44,
+         "points_captured": 0.0,
+         "class": "hit, left on the bench",
+         "best": true,
+         "worst": false
+        },
+        {
+         "week": 5,
+         "added": "Player 44",
+         "position": "K",
+         "dropped": "Player 15",
+         "dropped_to": "unclaimed",
+         "spent": {
+          "kind": "waiver priority",
+          "amount": null
+         },
+         "weeks_on_roster": 1,
+         "weeks_started": 1,
+         "points_available": 0.0,
+         "points_captured": 0.0,
+         "class": "stash",
+         "best": false,
+         "worst": false
+        }
+       ],
        "best": [
         {
          "week": 4,
-         "added": "Player 40",
+         "added": "Player 51",
          "position": "RB",
-         "dropped": "Player 41",
+         "dropped": "Player 50",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -1255,9 +1783,9 @@
         },
         {
          "week": 1,
-         "added": "Player 42",
+         "added": "Player 47",
          "position": "WR",
-         "dropped": "Player 43",
+         "dropped": "Player 48",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "free agent",
@@ -1273,7 +1801,7 @@
          "week": 2,
          "added": "Player 8",
          "position": "WR",
-         "dropped": "Player 34",
+         "dropped": "Player 41",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "waiver priority",
@@ -1289,9 +1817,9 @@
        "worst": [
         {
          "week": 3,
-         "added": "Player 41",
+         "added": "Player 50",
          "position": "WR",
-         "dropped": "Player 44",
+         "dropped": "Player 49",
          "dropped_to": "unclaimed",
          "spent": {
           "kind": "free agent",
@@ -1305,7 +1833,7 @@
         },
         {
          "week": 2,
-         "added": "Player 39",
+         "added": "Player 46",
          "position": "WR",
          "dropped": "Player 8",
          "dropped_to": "unclaimed",
@@ -1321,7 +1849,7 @@
         },
         {
          "week": 1,
-         "added": "Player 38",
+         "added": "Player 45",
          "position": "TE",
          "dropped": null,
          "dropped_to": null,

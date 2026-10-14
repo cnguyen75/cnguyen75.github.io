@@ -202,7 +202,7 @@ The built page is a frame with no numbers in it. In the browser, `js/lately-dept
   - `not available from source` (or `not configured`): one line with what is `missing`.
 - Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`. Charts use the site's blue, orange and purple, each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
 
-The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval, net points available against captured, adds a week, the count in each class, and a table of the adds the file lists (its best and worst three, each marked "▲ best" or "▽ worst"; a dropped player's new team is never shown). "Points left on the bench" adds the line "Hit, left on the bench", waiver adds that beat their baseline but sat on the bench.
+The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval, net points available against captured, adds a week, the count in each class, and a table of every add (`values.all`), the best and worst three marked "▲ best" or "▽ worst" from their flags; a file without `all` shows its best and worst lists and says the rest aren't in it. A dropped player's new team is never shown. "Points left on the bench" adds the line "Hit, left on the bench", waiver adds that beat their baseline but sat on the bench.
 
 "Is the win chance honest?" (the calibration table and Brier score) is on the fantasy page and says "not enough data yet" until `grading.predictions_stored` reaches 20. The cross statistics sit with the feed they describe: the lifting soundtrack and workouts by weekday on lifting, plays by weekday and hour on listening, places ranked by weekday on eating.
 

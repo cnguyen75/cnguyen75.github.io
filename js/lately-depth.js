@@ -422,11 +422,16 @@
       value: function (s) { return [pct(s.value), "hit rate"]; },
       intervalFmt: function (x) { return pct(x); },
       draw: function (v) {
-        // The file lists the best and worst three adds; each is marked in words and by a
-        // filled or outlined triangle, never colour alone. Only players are named: the
-        // team a dropped player went to is never shown.
+        // Every add (values.all, in the file's order), the best and worst three marked by
+        // their flags, in words and by a filled or outlined triangle, never colour alone.
+        // An older file has only the best and worst lists, so those are shown. Only
+        // players are named: the team a dropped player went to is never shown.
         var rows = [], seen = {};
-        [["best", list(v.best)], ["worst", list(v.worst)]].forEach(function (g) {
+        if (Array.isArray(v.all)) {
+          rows = v.all.map(function (a) {
+            return { add: a, marks: [a.best === true ? "best" : null, a.worst === true ? "worst" : null].filter(Boolean) };
+          });
+        } else [["best", list(v.best)], ["worst", list(v.worst)]].forEach(function (g) {
           g[1].forEach(function (a) {
             var key = a.week + "|" + a.added;
             if (seen[key]) { seen[key].marks.push(g[0]); return; }
@@ -439,12 +444,13 @@
           return isObj(sp) && sp.kind === "faab" && isNum(sp.amount) ? "$" + sp.amount : "–";
         }
         function mark(m) {
+          if (!m.length) return null;
           return h("span", { class: "ld-mark ld-mark--" + m[0] }, h("span", { "aria-hidden": "true" }, m[0] === "best" ? "▲ " : "▽ "), m.join(" and "));
         }
         var counts = isObj(v.counts) ? v.counts : {};
         var t = h("div", { class: "data-table ld-table" },
           h("table", null,
-            h("caption", { class: "ld-caption" }, "Adds, best and worst three marked"),
+            h("caption", { class: "ld-caption" }, (Array.isArray(v.all) ? "Every add" : "Adds") + ", best and worst three marked"),
             h("thead", null, h("tr", null, ["Week", "Added", "Dropped", "Bid", "Class"].map(function (c, i) {
               return h("th", { scope: "col", class: i === 0 || i === 3 ? "num" : null }, c);
             }))),
@@ -452,7 +458,7 @@
               var a = r.add;
               return h("tr", null,
                 h("td", { class: "num" }, String(a.week)),
-                h("th", { scope: "row" }, a.added + (a.position ? " (" + a.position + ")" : ""), h("br"), mark(r.marks)),
+                h("th", { scope: "row" }, a.added + (a.position ? " (" + a.position + ")" : ""), r.marks.length ? [h("br"), mark(r.marks)] : null),
                 h("td", null, a.dropped || "–"),
                 h("td", { class: "num" }, bid(a.spent)),
                 h("td", null, String(a["class"])));

@@ -39,6 +39,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
               n: txt(b.querySelector(".ld-n")), wait: txt(b.querySelector(".ld-wait")), note: txt(b.querySelector(".ld-note")),
               charts: b.querySelectorAll(".ld-chart, table, .meter, .ld-records, .ld-facts").length,
               lines: b.querySelectorAll(":scope > p").length, text: txt(b),
+              rows: b.querySelectorAll("table tbody tr").length,
             })),
             hows: [...slot.querySelectorAll(":scope > .ld-how")].map(txt),
             howFont: slot.querySelector(".ld-how") ? getComputedStyle(slot.querySelector(".ld-how")).fontFamily : null,

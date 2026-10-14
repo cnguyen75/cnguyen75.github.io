@@ -134,6 +134,11 @@ def variant(name):
     a["fantasy"]["teams"][0]["playoff_odds"]["values"]["manager_name"] = "Rival Manager"
     a["fantasy"]["teams"][0]["waiver_adds"]["values"]["worst"][0]["dropped_to"] = "Rival Team FC"
     a["fantasy"]["teams"][0]["waiver_adds"]["values"]["worst"][0]["claimed_from"] = "Rival Manager"
+    a["fantasy"]["teams"][0]["waiver_adds"]["values"]["all"][1]["dropped_to"] = "Rival Team FC"
+    a["fantasy"]["teams"][0]["waiver_adds"]["values"]["all"][1]["claimed_from"] = "Rival Manager"
+    if name == "no all list":
+        for team in a["fantasy"]["teams"]:
+            del team["waiver_adds"]["values"]["all"]
     a["eating"]["scores"]["values"]["last_ranked"] = "2026-09-14"
     a["eating"]["home_bias"]["values"]["date"] = "2026-09-14"
     if name == "few predictions":
@@ -239,20 +244,28 @@ class Drawing(unittest.TestCase):
         self.assertEqual((parts["ld-record-l"]["bg"], parts["ld-record-l"]["border"]), (CLEAR, "solid"))
 
     # Waiver adds: hit rate with its interval, net points available against captured, adds a
-    # week, then the adds with the best and worst three marked, and the how-line under it.
+    # week, then every add with the best and worst three marked, and the how-line under it.
     def test_waiver_adds(self):
         d = draw("lately/fantasy/")
-        first = blocks(d, "fantasy.teams[].waiver_adds")[0]
-        wa = ANALYSIS["fantasy"]["teams"][0]["waiver_adds"]
+        teams = ANALYSIS["fantasy"]["teams"]
+        wa = teams[0]["waiver_adds"]
+        first, second = blocks(d, "fantasy.teams[].waiver_adds")[:2]
         self.assertEqual((first["value"], first["interval"]), ("50%", "95% interval 19% to 81%"))
         for bit in ("net points available+8.48", "net points captured−3.24", "adds a week1.2",
-                    "Adds, best and worst three markedWeekAddedDroppedBidClass", "▲ best", "▽ worst", "$11", "hit, left on the bench"):
+                    "Every add, best and worst three markedWeekAddedDroppedBidClass", "$11", "hit, left on the bench"):
             self.assertIn(bit, first["text"])
-        self.assertEqual(first["text"].count("▲ best"), len(wa["values"]["best"]))
-        self.assertEqual(first["text"].count("▽ worst"), len(wa["values"]["worst"]))
+        for b, team in ((first, teams[0]), (second, teams[1])):
+            adds = team["waiver_adds"]["values"]["all"]
+            self.assertEqual(b["rows"], len(adds))  # every add, not only the six
+            self.assertEqual(b["text"].count("▲ best"), sum(a["best"] for a in adds))
+            self.assertEqual(b["text"].count("▽ worst"), sum(a["worst"] for a in adds))
+            self.assertNotIn("aren't in it", b["text"])
+        self.assertEqual(second["rows"], 14)
         self.assertEqual(slot(d, "fantasy.teams[].waiver_adds")["hows"], ["how: " + wa["how"]])
-        second = blocks(d, "fantasy.teams[].waiver_adds")[1]
-        self.assertIn("The data lists the best and worst three of 14 adds; the other 8 aren't in it.", second["text"])
+        # An older file without the full list shows its best and worst three, and says so.
+        old = blocks(draw("lately/fantasy/", name="no all list"), "fantasy.teams[].waiver_adds")[1]
+        self.assertEqual(old["rows"], 6)
+        self.assertIn("The data lists the best and worst three of 14 adds; the other 8 aren't in it.", old["text"])
 
     # Lineup efficiency gains the bench-hit line: waiver hits that sat on my bench.
     def test_bench_hit_line(self):
