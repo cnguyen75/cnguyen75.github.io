@@ -55,8 +55,9 @@ Rules the renderer applies to the data:
 - **Fantasy:** `win_probability` may be `null`. The page then shows the team's `win_probability_note` in place of the bar, or "not available this week" if there is no note. A note is ignored when `win_probability` is a number. The player chart shows points above replacement **per game played**; negative values draw leftward from a zero line in orange. The header lists only sources that have at least one team drawn on the page. A team's second line (platform, league, status) is hidden when it would only repeat the platform already named in the team label.
 - **Watching:** optional `currently_watching` is shown as "Watching now" above Recently: type square, linked title and progress ("S2 · E5", "E5" without a season, title only when both are null). Optional `rankings` gets its own full-width card, "My rankings" (with "data from Simkl"), below the three panels: numbered lists of up to ten for Films, Shows and Anime side by side (stacked on narrow screens), with linked titles and years. Each shows its first five; a longer list gets a "show all ten" button (the word matches the count) that opens the rest in place and becomes "show top five". The card is hidden when the field is absent or all three lists are empty. Each heading has its type colour square plus a text label. Empty lists are hidden, and "Watching now" is hidden when its field is absent or empty.
 - **Watching:** a recent item may have `status` `"watched"` (the default when the field is missing) or `"finished"` (marked complete in bulk on Simkl, with no watch date or season). Finished items show a small "finished" label instead of a season, keep their Simkl link, and are listed after all watched items whatever their order in the file.
-- **Listening:** "Plays, last 30 days" is the sum of `plays_by_hour`; "Top artists, last 30 days" uses the same window, so it covers the same window as the hour strip (`plays_this_month` is deprecated and ignored). Any hour with at least one play starts at the second blue shade, so it is clearly different from the zero colour. The top-artists chart stays even with one artist.
-- **Eating:** "Recently tried" lists `recent`, the ten restaurants most recently ranked on Beli, newest first, with name, city and score. There are no rank numbers, dates or relative times; the order is the only signal. Scores show two decimals. Cuisine bars: at most six named cuisines, scaled to the largest named one. The remainder is a text line under the chart, "plus N across K other cuisines" when the cuisines are listed individually, or "Other: N" when the file gives a lumped "Other" entry.
+- **Listening:** "Plays, last 30 days" is the sum of `plays_by_hour`; "Top artists, last 30 days" uses the same window, so it covers the same window as the hour strip (`plays_this_month` is deprecated and ignored). While the archive is younger than 30 days the three labels say "since 11 Oct" instead: the start is the analysis's `listening.heatmap` as_of date minus its n (days since the first play) plus one.
+- **Watching:** "No episodes or films logged in the last 12 weeks" shows only when nothing is logged: no hours, nothing in "Watching now" and nothing in Recently. Any hour with at least one play starts at the second blue shade, so it is clearly different from the zero colour. The top-artists chart stays even with one artist.
+- **Eating:** "Recently tried" lists `recent`, the ten restaurants most recently ranked on Beli, in alphabetical order with name and score only, so the list carries no date information (no city, no recency order). Cities appear only in the in-depth score-by-city statistic, and the home city is never named ("my most-ranked city"). Scores show two decimals. Cuisine bars: at most six named cuisines, scaled to the largest named one. The remainder is a text line under the chart, "plus N across K other cuisines" when the cuisines are listed individually, or "Other: N" when the file gives a lumped "Other" entry.
 - **Lifting:** optional `lifting` (from Hevy) gets its own full-width card below "My rankings". An older file without it still validates, and the card says "Not connected yet." The header reads "hevy · data through <data_through>"; it never says "live", and the source chip says when the job last ran. With `workout_count` 0 the card says "No workouts logged yet."
   - Stats: workouts logged (since `first_workout`), current streak (`streak_weeks`, "weeks at N+ sessions" from `streak_min_sessions`), and sessions in the last 4 weeks (the last four `weeks`, this week included).
   - "Estimated one-rep max, main lifts": one small line chart per lift from `history`, each on its own scale, with the latest value at the line end; exercise name, a "machine" tag when `machine` is true, current and best. When `best.best_set` is present, "best set 185 × 4 · 26 Sep" sits under the best. A best set with `"source": "manual"` (entered by hand, not from Hevy) carries a "logged by hand" tag after that line. A lift with fewer than three `sessions` shows "n sessions so far" in place of the chart. One Epley note under the group.
@@ -84,7 +85,7 @@ Each track can have its own page at `/tracks/<slug>/`, built from one Markdown f
 
 ```sh
 python3 build.py            # ready pages only: what gets committed
-python3 build.py --drafts   # also drafts, for local preview
+python3 build.py --drafts   # also the whole site, drafts included, in _site-drafts/ for preview
 ```
 
 The design source is `~/Personal/site-handoff/design/track-page-reference.html`.
@@ -154,9 +155,11 @@ A `progress` page (ongoing research) has these sections, in this order, and the 
 - writes the page;
 - adds it to `sitemap.xml`;
 - allows it in `tracks/.gitignore`;
-- makes its row on the main page one link to the page: number, title, description and status together, with a hover and focus state (a faint card background and a teal number). A row without a built page is a plain row with no link, label or hover state. Rows on the main page never link elsewhere; a project's GitHub link goes on its track page, in a `LINKS:` block under the credits ("Code and README").
+- makes its row on the main page one link to the page: number, title, description and status together, with a hover and focus state (a faint card background and a teal number). A row without a page has no hover state.
 
-A `--drafts` build leaves `index.html` linking ready pages only and also writes `index.drafts.html` (git-ignored, deleted by a plain build): the main page with every built page linked, drafts included. Draft pages in that build point their "back to the tracklist" links at it, so open `index.drafts.html` to preview.
+Until its page is ready, a row can carry a small secondary link to the project elsewhere ("github →", "pre-registration →"): a `<span class="track-ext">` with an external `<a>` at the end of the track body. When the page is ready the whole row links to it, so the build keeps that link in `data-ext-*` attributes and puts it back if the page is unreadied; the project's link is then on the track page.
+
+`--drafts` builds the site as usual (ready pages only, in place) and then writes the whole site again to `_site-drafts/` (git-ignored; a plain build deletes it), with every page built, drafts included, and linked from that copy's main page. Nothing about a draft is written outside `_site-drafts/` and `content/drafts/`.
 
 Previous and next links follow the tracklist order and skip tracks without a page. A ready page links only to other ready pages, so it builds the same with or without `--drafts`.
 
@@ -199,9 +202,10 @@ A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes e
 The built page is a frame with no numbers in it. In the browser, `js/lately-depth.js` fills in:
 
 - the source line ("data from Hevy · as of 13 Oct 2026", the block's `as_of`) and a headline row of two or three numbers;
+- the tier-completion table's "Tiered titles" column, from `tier_distribution` (the rankings file's counts), with "Completion covers N of the M tiered titles." when completion covers fewer;
 - for each statistic, by `status`:
   - `ok`: its value and 95% interval where it has them, its chart or table, its n ("n = 20 weigh-ins", plus "as of …" when the statistic's date differs from the block's), and the pipeline's `how` sentence under it in the label face;
-  - `not enough data yet`: that line and the n needed ("0 of 6 sessions needed"), never an empty chart;
+  - `not enough data yet`: not drawn. One line under the contents counts them ("7 more statistics appear as data accrues."); a section left empty is hidden with its contents entry, and no headline tile shows a "–" for one;
   - `not available from source` (or `not configured`): one line with what is `missing`.
 - Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`. Charts use the site's blue, orange and purple, each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
 
@@ -223,13 +227,18 @@ Without an `analysis` block (the sample file has none) the pages say "Not connec
 
 ## Preview locally
 
-`fetch()` doesn't work from `file://`, so serve the folder over HTTP:
+`fetch()` doesn't work from `file://`, so serve the preview over HTTP:
 
 ```sh
 cd ~/Documents/cnguyen75.github.io
-python3 -m http.server 8765 --bind 127.0.0.1
+python3 build.py --drafts
+python3 -m http.server -d _site-drafts 8765 --bind 127.0.0.1
 # open http://127.0.0.1:8765/
 ```
+
+To check exactly what will be published, serve the folder itself instead (`python3 -m http.server 8765 --bind 127.0.0.1` after a plain `python3 build.py`).
+
+**Links.** A link to another site, and the résumé PDFs, open in a new tab with `rel="noopener"` (`new_tab()` in `build.py`, the `h()` helper in `js/lately.js`, and by hand in `index.html`); links within the site stay in the same tab. `tests/test_build.py` checks both rules.
 
 When `data/lately.json` exists (the pipeline writes it), the page shows that data; without it you see the sample. The file is in `.gitignore`.
 
@@ -239,4 +248,4 @@ When `data/lately.json` exists (the pipeline writes it), the page shows that dat
 
 ## Open items
 
-- The "how this is built" link in Side D and all Lately values are placeholders until the nightly job exists.
+- The "how this is built" link in Side D points at `github.com/cnguyen75/lately`, which is planned as a **private** repo: until it is public, that link is a 404 for everyone else.

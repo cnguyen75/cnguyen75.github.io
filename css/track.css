@@ -486,6 +486,7 @@
 /* ---------- Progress register (ongoing research) ---------- */
 
 .tp-with { margin: 0; font-size: 21px; color: var(--text-2); max-width: 760px; }
+.tp-lede + .tp-with { font-size: 17px; }
 .tp-link { margin: -8px 0 0; font-family: var(--font-label); font-size: 15px; }
 .tp-asof {
   display: block;

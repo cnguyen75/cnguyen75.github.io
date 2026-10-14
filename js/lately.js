@@ -28,6 +28,11 @@
         else el.setAttribute(k, v === true ? "" : String(v));
       });
     }
+    // A link to another site opens in a new tab; links within the site stay put.
+    if (tag === "a" && /^https?:\/\//.test(el.getAttribute("href") || "")) {
+      el.setAttribute("target", "_blank");
+      el.setAttribute("rel", "noopener");
+    }
     for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
     return el;
   }
@@ -205,7 +210,9 @@
     var players = arr(f.top_players, "fantasy.top_players");
     var srcKeys = arr(f.sources, "fantasy.sources");
 
-    document.getElementById("fantasy-title").textContent = "Fantasy football, week " + week;
+    // The heading is a link to the page; only its text changes.
+    var ft = document.getElementById("fantasy-title");
+    (ft.querySelector("a") || ft).textContent = "Fantasy football, week " + week;
     var shown = teams.map(function (t) {
       need(isObj(t), "team");
       return { team: t, src: sourceOf(data, t.source), state: sourceState(sourceOf(data, t.source), true) };
@@ -359,11 +366,13 @@
     // With no ratings at all, drop the score column instead of leaving a gap.
     var hasRatings = recent.some(function (e) { return typeof e.item.rating === "number"; });
     var empty = totalHours === 0;
+    // "Nothing logged" only when nothing is: no hours, nothing in progress, nothing recent.
+    var logged = recent.length > 0 || (Array.isArray(w.currently_watching) && w.currently_watching.length > 0);
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
       empty ? null : stat("Hours watched, last " + n + " weeks", short(totalHours)),
-      empty ? h("p", { class: "panel-empty" }, "No episodes or films logged in the last " + n + " weeks") : null,
+      empty && !logged ? h("p", { class: "panel-empty" }, "No episodes or films logged in the last " + n + " weeks") : null,
       empty ? null : h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
       empty ? null : figure,
       empty ? null : t.table,
@@ -479,6 +488,17 @@
     return 2;
   }
 
+  // The listening window's label: "last 30 days", or "since 11 Oct" while the archive is
+  // younger than that. The archive's age comes from the analysis: the heatmap statistic
+  // counts days since the first play (n, in days, up to its as_of date).
+  function listeningWindow(data) {
+    var a = isObj(data.analysis) && isObj(data.analysis.listening) ? data.analysis.listening.heatmap : null;
+    if (!isObj(a) || typeof a.n !== "number" || a.n >= 30 || typeof a.as_of !== "string") return "last 30 days";
+    var end = new Date(a.as_of + "T00:00:00Z");
+    if (isNaN(end.getTime()) || a.n < 1) return "last 30 days";
+    return "since " + dateText(new Date(end.getTime() - (a.n - 1) * 86400000));
+  }
+
   function listeningPanel(data) {
     var l = data.listening;
     need(isObj(l), "listening");
@@ -490,28 +510,29 @@
     hours.forEach(function (v) { num(v, "hour"); });
     var max = Math.max.apply(null, hours);
     var plays30 = hours.reduce(function (a, b) { return a + b; }, 0);
+    var win = listeningWindow(data);
 
     function hourText(v, i) { return i + ":00, " + plural(v, "play", "plays"); }
     var strip = h("div", { class: "heat", role: "img",
-      "aria-label": "Plays by hour of day over the last 30 days: a strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
+      "aria-label": "Plays by hour of day, " + win + ": a strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
       hours.map(function (v, i) { return h("div", { class: "heat-cell heat-" + heatLevel(v, max), title: hourText(v, i) }); }));
     var axis = h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "midnight"), h("span", null, "noon"), h("span", null, "11pm"));
-    var t = tableToggle("Plays by hour of day, last 30 days",
+    var t = tableToggle("Plays by hour of day, " + win,
       [{ label: "Hour" }, { label: "Plays", num: true }],
       hours.map(function (v, i) { return [i + ":00", String(v)]; }), [strip, axis]);
 
     return [
       state.asOf ? staleNote(state.asOf) : null,
-      stat("Plays, last 30 days", String(plays30)),
+      stat("Plays, " + win, String(plays30)),
       barChart({
-        title: "Top artists, last 30 days",
+        title: "Top artists, " + win,
         labelHeading: "Artist",
         valueHeading: "Plays",
         items: artists.map(function (a) { return { label: str(a.name, "artist"), value: num(a.plays, "plays") }; }),
         text: function (v) { return plural(v, "play", "plays"); }
       }),
       h("div", { class: "chart-block chart-block--hours" },
-        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day, last 30 days"), t.button),
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day, " + win), t.button),
         strip, axis, t.table)
     ];
   }
@@ -545,7 +566,11 @@
     need(isObj(e), "eating");
     var state = sourceState(sourceOf(data, e.source), true);
     if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
-    var recent = arr(e.recent, "eating.recent"); // newest first; order is the only signal
+    // Shown in alphabetical order, without cities, so the list carries no date information
+    // (the file lists them newest first). Cities stay in the depth page's score-by-city.
+    var recent = arr(e.recent, "eating.recent").slice().sort(function (a, b) {
+      return String(a && a.name).localeCompare(String(b && b.name), "en", { sensitivity: "base" });
+    });
     var cuisines = splitOther(arr(e.cuisines, "eating.cuisines").map(function (c) {
       need(isObj(c), "cuisine");
       return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
@@ -560,7 +585,6 @@
           need(isObj(r), "restaurant");
           return h("li", { class: "list-item" },
             h("span", { class: "item-name" }, str(r.name, "restaurant name")),
-            h("span", { class: "item-meta" }, typeof r.city === "string" ? r.city : ""),
             h("span", { class: "item-score item-score--wide" }, num(r.score, "score").toFixed(2)));
         }))),
       barChart({

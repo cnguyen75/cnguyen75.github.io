@@ -48,6 +48,7 @@
   /* Design rules (HANDOFF.md) */
   --paper: #E8E2D3;
   --card: #F6F2E8;
+  --lift: #FCFAF5;    /* one step above the card, for hover on card surfaces */
   --ink: #231F1B;
   --text-2: #3D372F;
   --text-3: #4F483E;
@@ -170,6 +171,11 @@ main {
   gap: 48px 72px;
 }
 
+/* The headline comes first in the page (and first on phones); from 600px the portrait
+   sits to its left. */
+@media (min-width: 600px) {
+  .polaroid { order: -1; }
+}
 .polaroid {
   flex: 0 1 340px;
   margin: 0;
@@ -316,6 +322,10 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   max-width: 760px;
   padding-top: 4px;
 }
+/* A row's small secondary link to the project elsewhere, while it has no ready page. */
+.track-ext { display: block; margin-top: 6px; font-family: var(--font-label); font-size: 14px; }
+.track-ext a { display: inline-block; padding: 4px 0; color: var(--text-2); }
+.track-ext a:hover { color: var(--teal); }
 .track-points {
   box-sizing: content-box; /* 760px of text plus the 20px indent, as in the design */
   margin: 10px 0 0;
@@ -449,6 +459,17 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   font-size: 24px;
   font-weight: 700;
 }
+/* A panel's heading links to its Lately page, with the track rows' hover and focus:
+   a slight lift (here one step lighter than the card), the text colour kept, and the
+   arrow in teal. */
+.panel-link { position: relative; isolation: isolate; color: inherit; text-decoration: none; }
+.panel-link::after { content: " →"; font-family: var(--font-label); font-size: 18px; font-weight: 400; color: var(--text-3); }
+.panel-link::before { content: ""; position: absolute; inset: -6px -10px; z-index: -1; border-radius: 2px; }
+.panel-link:hover, .panel-link:focus-visible { color: inherit; }
+.panel-link:hover::before, .panel-link:focus-visible::before { background: var(--lift); }
+.panel-link:hover::after, .panel-link:focus-visible::after { color: var(--teal); }
+.panel-link:focus-visible { outline: none; }
+.panel-link:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .panel-meta,
 .panel-note {
   margin: 0;
@@ -997,6 +1018,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 .ld-title { margin: 0; font-size: clamp(32px, 6vw, 52px); line-height: 1.05; letter-spacing: -0.02em; }
 .ld-source { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.ld-lede { margin: 0; font-size: 18px; color: var(--text-2); max-width: 640px; }
+.ld-waiting { margin: 14px 0 0; font-size: 15px; color: var(--text-2); }
 .ld-headline .stats { margin-top: 8px; }
 .ld-toc ol {
   list-style: none;
@@ -1156,7 +1179,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 
 .ld-line { display: flex; flex-direction: column; gap: 4px; }
 
-.ld-feeds { padding-top: 12px; border-top: 2px solid var(--ink); }
+.ld-feeds { margin-top: -4px; }
 .ld-feeds a { display: inline-block; padding: 4px 0; }
 .ld-feeds a[aria-current="page"] { font-weight: 700; text-decoration: none; }
 

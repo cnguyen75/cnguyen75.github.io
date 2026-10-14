@@ -28,11 +28,19 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         source: txt(document.querySelector(".ld-source")),
         sourceLinks: [...document.querySelectorAll(".ld-source a")].map(a => [a.textContent, a.href]),
         missing: !!document.querySelector(".ld-missing:not([hidden])"),
+        lede: txt(document.querySelector(".ld-lede")),
+        waiting: txt(document.querySelector(".ld-waiting:not([hidden])")),
+        hiddenSections: [...document.querySelectorAll(".ld-section[hidden]")].map(sec => sec.id),
+        hiddenToc: [...document.querySelectorAll(".ld-toc li[hidden] a")].map(a => a.getAttribute("href")),
+        places: [...document.querySelectorAll("#panel-eating .list-items--places .list-item")].map(li =>
+          [txt(li.querySelector(".item-name")), txt(li.querySelector(".item-score")), txt(li.querySelector(".item-meta"))]),
+        watchingEmpty: txt(document.querySelector("#panel-watching .panel-empty")),
+        links: [...document.querySelectorAll("a[href]")].map(a => [a.getAttribute("href"), a.getAttribute("target"), a.getAttribute("rel")]),
         headline: [...document.querySelectorAll(".ld-headline .stat")].map(s => [txt(s.querySelector(".stat-label")), txt(s.querySelector(".stat-value"))]),
         sections: [...document.querySelectorAll(".ld-section")].map(sec => ({
-          id: sec.id, title: txt(sec.querySelector("h2")),
+          id: sec.id, title: txt(sec.querySelector("h2")), hidden: sec.hidden,
           slots: [...sec.querySelectorAll(".ld-stat")].map(slot => ({
-            stat: slot.dataset.stat,
+            stat: slot.dataset.stat, hidden: slot.hidden,
             blocks: [...slot.querySelectorAll(".ld-block")].map(b => ({
               title: txt(b.querySelector(".ld-block-title")), status: b.dataset.status,
               value: txt(b.querySelector(".ld-value-num")), interval: txt(b.querySelector(".ld-interval")),
@@ -40,6 +48,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
               charts: b.querySelectorAll(".ld-chart, table, .meter, .ld-records, .ld-facts").length,
               lines: b.querySelectorAll(":scope > p").length, text: txt(b),
               rows: b.querySelectorAll("table tbody tr").length,
+              cells: [...b.querySelectorAll("table tbody tr")].map(tr => [...tr.children].map(td => txt(td))),
             })),
             hows: [...slot.querySelectorAll(":scope > .ld-how")].map(txt),
             howFont: slot.querySelector(".ld-how") ? getComputedStyle(slot.querySelector(".ld-how")).fontFamily : null,

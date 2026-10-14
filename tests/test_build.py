@@ -1,6 +1,9 @@
 """Tests for build.py's progress register. Run: python3 -m unittest discover tests"""
 
+import json
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -94,13 +97,13 @@ class Progress(unittest.TestCase):
         doc = self.render()
         hero = re.search(r'<section class="tp-hero".*?</section>', doc, re.S).group(0)
         self.assertRegex(hero, r'</h1></div>\n<p class="tp-with">With Dr\. Someone \(Somewhere\)</p>\n'
-                               r'<p class="tp-link"><a href="https://osf\.io/example">pre-registration →</a></p>')
+                               r'<p class="tp-link"><a href="https://osf\.io/example" target="_blank" rel="noopener">pre-registration →</a></p>')
         self.assertIn('<span class="tp-badge">status: manuscript in preparation</span>', doc)
         self.assertNotIn("tp-link", self.render(front={"link": None}))
-        # one_line, when given, is the page description; the hero still shows the with: line.
+        # one_line, when given, is the page description and the hero's first line, above with:.
         doc = self.render(front={"one_line": "A one-line summary."})
         self.assertIn('<meta name="description" content="A one-line summary.">', doc)
-        self.assertNotIn('class="tp-lede"', doc)
+        self.assertIn('</h1></div>\n<p class="tp-lede">A one-line summary.</p>\n<p class="tp-with">', doc)
         self.assertIn('<meta name="description" content="What is the question?">', self.render())
         with self.assertRaisesRegex(build.ContentError, "link"):
             self.read(front={"link": "https://osf.io/example"})
@@ -184,8 +187,8 @@ class Progress(unittest.TestCase):
     # LINKS: rows 'label | https://...' become a short list of links.
     def test_links(self):
         doc = self.render(sections={"my role": "All of it.\n\nLINKS:\nCode | https://example.com/code\nThe record | https://example.com/r"})
-        self.assertRegex(doc, r'<ul data-secs="[\d.]+" class="tp-links"><li><a href="https://example\.com/code">Code →</a></li>'
-                              r'<li><a href="https://example\.com/r">The record →</a></li></ul>')
+        self.assertRegex(doc, r'<ul data-secs="[\d.]+" class="tp-links"><li><a href="https://example\.com/code" target="_blank" rel="noopener">Code →</a></li>'
+                              r'<li><a href="https://example\.com/r" target="_blank" rel="noopener">The record →</a></li></ul>')
         for bad in ("Code | http://example.com", "https://example.com", " | https://example.com"):
             with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "LINKS"):
                 self.render(sections={"my role": "LINKS:\n" + bad})
@@ -206,20 +209,91 @@ class Progress(unittest.TestCase):
         self.assertNotIn("→", linked)
         self.assertEqual(build.link_rows(linked, {"04": "demo-page"}), linked)
         self.assertEqual(build.link_rows(linked, {}), index)
-        with self.assertRaisesRegex(build.ContentError, "LINKS"):
+        # A row's secondary external link shows while it has no page, waits in data
+        # attributes while the row is linked, and comes back unchanged.
+        ext = '<span class="track-ext"><a href="https://github.com/x/y" target="_blank" rel="noopener">github →</a></span>'
+        with_ext = index.replace('<span class="track-desc">About it.</span></div>', '<span class="track-desc">About it.</span>' + ext + '</div>')
+        linked = build.link_rows(with_ext, {"04": "demo-page"})
+        self.assertNotIn("track-ext", linked)
+        self.assertIn('data-page="demo-page" data-ext-href="https://github.com/x/y" data-ext-label="github →">', linked)
+        self.assertEqual(build.link_rows(linked, {}), with_ext)
+        with self.assertRaisesRegex(build.ContentError, "track-ext"):
             build.link_rows(index.replace('<div class="track track--wrap">\n<span class="track-no">05',
                                           '<div class="track track--wrap" href="https://x.example">\n<span class="track-no">05'), {"05": "x"})
 
-    # A draft page in a --drafts build goes back to the preview main page; a ready page,
-    # in either build, to the real one.
-    def test_home_links(self):
-        def home(ready, drafts_build):
-            meta = self.read(front={"ready": "true" if ready else "false"})
-            doc, _ = build.render(meta, list(TRACKLIST), {"04": meta}, drafts_build, len(TRACKLIST))
-            return re.search(r'<a class="tp-back" href="([^"#]*)#', doc).group(1)
-        self.assertEqual(home(False, True), "../../" + build.PREVIEW_INDEX)
-        self.assertEqual(home(True, True), "../../")
-        self.assertEqual(home(True, False), "../../")
+def site_links():
+    """(page, href, attributes) for every link the build writes or the main page holds:
+    the committed index.html, a progress page with every kind of link, and a Lately page."""
+    out = []
+    pages = {"index.html": (build.ROOT / "index.html").read_text(encoding="utf-8")}
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "04-demo-page.md"
+        path.write_text(page_text(sections=dict(SECTIONS, **{
+            "results": "See [the code](https://github.com/x/y), [a section](#log), [another page](track:04) and [mail](mailto:a@b.c).\n\n"
+                       "CREDITS:\nsource | https://github.com/x/y\n\nLINKS:\nCode and README | https://github.com/x/y"})), encoding="utf-8")
+        meta = build.read_page(path)
+        pages["track page"] = build.render(meta, list(TRACKLIST), {"04": meta}, True, len(TRACKLIST))[0]
+    data_meta = build.read_data_page(build.ROOT / "content/lately/watching.md", json.loads((build.ROOT / build.SCHEMA_PATH).read_text()))
+    pages["lately page"] = build.render_data_page(data_meta)
+    for name, doc in pages.items():
+        for m in re.finditer(r"<a\b([^>]*)>", doc):
+            href = re.search(r'href="([^"]*)"', m.group(1))
+            if href:
+                out.append((name, href.group(1), m.group(1)))
+    return out
+
+
+class Links(unittest.TestCase):
+    # A link to another site (or a résumé PDF) opens in a new tab, with rel="noopener".
+    def test_external_links_open_in_a_new_tab(self):
+        ext = [(n, h, a) for n, h, a in site_links() if re.match(r"https?://", h) or h.endswith(".pdf")]
+        self.assertGreater(len({n for n, _, _ in ext}), 2)
+        for name, href, attrs in ext:
+            with self.subTest(page=name, href=href):
+                self.assertIn('target="_blank"', attrs)
+                self.assertRegex(attrs, r'rel="[^"]*\bnoopener\b')
+
+    # A link within the site (relative, #anchor, mailto:) stays in the same tab.
+    def test_internal_links_stay_in_the_same_tab(self):
+        internal = [(n, h, a) for n, h, a in site_links() if not (re.match(r"https?://", h) or h.endswith(".pdf"))]
+        self.assertTrue(any(h.startswith("#") for _, h, _ in internal) and any(h.startswith("../") for _, h, _ in internal))
+        for name, href, attrs in internal:
+            with self.subTest(page=name, href=href):
+                self.assertNotIn("target=", attrs)
+
+
+class Preview(unittest.TestCase):
+    # build.py --drafts writes the whole site to _site-drafts/ with every page built and
+    # linked; the site itself (tracks/, index.html) only ever holds ready pages, and a
+    # plain build removes the preview. Run on a copy of the site, never the real one.
+    def test_drafts_preview(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            site = Path(tmp) / "site"
+            shutil.copytree(build.ROOT, site, ignore=shutil.ignore_patterns(".git", "node_modules", "_site-drafts", "tracks", "drafts"))
+            (site / "tracks").mkdir()
+            drafts = site / "content" / "drafts"
+            drafts.mkdir(parents=True, exist_ok=True)
+            num = build.read_tracklist((site / "index.html").read_text(encoding="utf-8"))[0][0]
+            (drafts / "x-demo-page.md").write_text(page_text(front={"track": num}), encoding="utf-8")
+            index_before = (site / "index.html").read_text(encoding="utf-8")
+
+            def run(*args):
+                r = subprocess.run([sys.executable, str(site / "build.py"), *args], capture_output=True, text=True, timeout=120)
+                self.assertEqual(r.returncode, 0, r.stderr)
+
+            run("--drafts")
+            prev = site / build.PREVIEW_DIR
+            self.assertTrue((prev / "tracks" / "demo-page" / "index.html").is_file())
+            self.assertIn('href="tracks/demo-page/" data-page="demo-page"', (prev / "index.html").read_text(encoding="utf-8"))
+            for part in ("lately/watching/index.html", "css/site.css", "js/lately.js", "sitemap.xml"):
+                self.assertTrue((prev / part).is_file(), part)
+            for part in ("content", "tests", "tools", "build.py", "README.md"):
+                self.assertFalse((prev / part).exists(), part)
+            self.assertFalse((site / "tracks" / "demo-page").exists())
+            self.assertEqual((site / "index.html").read_text(encoding="utf-8"), index_before)
+            self.assertFalse((site / "index.drafts.html").exists())
+            run()
+            self.assertFalse(prev.exists())
 
 
 if __name__ == "__main__":

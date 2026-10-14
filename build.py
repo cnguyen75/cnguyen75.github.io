@@ -41,7 +41,10 @@ PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what
 PROGRESS_OPTIONAL = ("results",)
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
-PREVIEW_INDEX = "index.drafts.html"  # the main page with draft pages linked; --drafts only, git-ignored
+PREVIEW_DIR = "_site-drafts"  # --drafts writes the whole site here, drafts included and linked; git-ignored
+# What isn't part of the site, so isn't copied into the preview.
+PREVIEW_SKIP = {".git", "content", "tests", "tools", PREVIEW_DIR, "build.py", "README.md", ".gitignore",
+                "index.drafts.html"}
 
 # Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
 # A marker starts a block that runs to the next blank line; the second group only
@@ -68,6 +71,12 @@ class ContentError(Exception):
 
 def esc(s):
     return html.escape(str(s), quote=True)
+
+
+def new_tab(url):
+    """Attributes for a link: one to another site opens in a new tab with rel="noopener";
+    a link within the site (relative, #anchor, mailto:, or this site's own URL) stays put."""
+    return ' target="_blank" rel="noopener"' if re.match(r"https?://", url) and not url.startswith(SITE) else ""
 
 
 # ---------- reading content files ----------
@@ -289,7 +298,10 @@ def render_data_page(meta):
     desc = f"{title}: statistics from my {feed} data, drawn from the same nightly file as the Lately section."
     # source_note: optional text after the credit, e.g. how a source's dates are used
     note = f' · <span class="ld-source-note">{esc(meta["source_note"])}</span>' if meta.get("source_note") else ""
-    credit = " and ".join(f'<a href="{esc(u)}">{esc(n)}</a>' for n, u in meta["sources"])
+    credit = " and ".join(f'<a href="{esc(u)}"{new_tab(u)}>{esc(n)}</a>' for n, u in meta["sources"])
+    # The page's first line: whose numbers these are and which apps they come from.
+    apps = " and ".join(esc(n) for n, _ in meta["sources"])
+    lede = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
     nav = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in meta["sections"])
     secs = []
     for s in meta["sections"]:
@@ -334,14 +346,16 @@ def render_data_page(meta):
 <section class="ld-hero" aria-labelledby="ld-title">
 <p class="ld-kicker">side d. lately · in depth</p>
 <h1 class="ld-title" id="ld-title">{esc(title)}</h1>
+<nav class="ld-feeds" aria-label="Lately pages">{others}</nav>
+<p class="ld-lede">{lede}</p>
 <p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
 <div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
 <noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
 <p class="panel-empty ld-missing" hidden>Not connected yet.</p>
 </section>
 <nav class="ld-toc" aria-label="On this page"><ol>{nav}</ol></nav>
+<p class="ld-waiting" hidden></p>
 {"".join(secs)}
-<nav class="ld-feeds" aria-label="Other Lately pages"><span class="ld-feeds-label">in depth:</span> {others}</nav>
 </main>
 </div>
 </div>
@@ -395,7 +409,7 @@ def inline(s):
             continue
         if not re.match(r"(https://|mailto:|#|\.\./)", url):
             raise ContentError(f"link {url!r} must be https://, mailto:, #anchor or relative")
-        out.append(f'<a href="{esc(url)}">{inline_text(m.group(1))}</a>')
+        out.append(f'<a href="{esc(url)}"{new_tab(url)}>{inline_text(m.group(1))}</a>')
     out.append(inline_text(s[last:]))
     return "".join(out)
 
@@ -598,7 +612,7 @@ class Page:
         if kind == "CREDITS":
             need(cells and all(len(c) == 2 for c in cells), "rows are 'role | name'")
             def value(v):
-                return f'<a href="{esc(v)}">{esc(v)}</a>' if re.fullmatch(r"https://\S+", v) else inline(v)
+                return f'<a href="{esc(v)}"{new_tab(v)}>{esc(v)}</a>' if re.fullmatch(r"https://\S+", v) else inline(v)
             items = "".join(f'<div class="tp-credit"><dt>{inline(c[0])}</dt><dd>{value(c[1])}</dd></div>' for c in cells)
             # The page's attribution line, if any, is repeated with the credits, unless a
             # "data" row already credits the data.
@@ -612,7 +626,7 @@ class Page:
             # A short list of labelled links, e.g. under the credits: 'label | https://...' per row.
             need(cells and all(len(c) == 2 and c[0] and re.fullmatch(r"https://\S+", c[1]) for c in cells),
                  "rows are 'label | https://...'")
-            items = "".join(f'<li><a href="{esc(c[1])}">{inline_text(c[0])} →</a></li>' for c in cells)
+            items = "".join(f'<li><a href="{esc(c[1])}"{new_tab(c[1])}>{inline_text(c[0])} →</a></li>' for c in cells)
             return (f'<ul class="tp-links">{items}</ul>', sum(words(c[0]) for c in cells), "text")
 
         if kind == "TABLE":
@@ -871,18 +885,31 @@ def find_close(s, start, tag):
     raise ContentError(f"unclosed <{tag}> in index.html")
 
 
+# A row's secondary external link (e.g. "github →"), shown while it has no ready page.
+EXT_LINK = re.compile(r'<span class="track-ext"><a href="([^"]+)" target="_blank" rel="noopener">([^<]+)</a></span>')
+
+
+def ext_link(href, label):
+    return f'<span class="track-ext"><a href="{href}" target="_blank" rel="noopener">{label}</a></span>'
+
+
 def link_rows(index_html, pages):
     """Makes each track row whose page is built ({number: slug}) one link to that page:
-    number, title, description and status together. Rows without a page are plain and
-    unlinked. Idempotent: it first turns rows it linked earlier (marked with data-page)
-    back into plain rows."""
+    number, title, description and status together. A row's secondary external link
+    (span.track-ext, inside the track body) can't sit inside that link, so it is kept in
+    data attributes while the row is linked and put back when it isn't. Rows without a
+    page are plain. Idempotent: it first undoes its own earlier changes (data-page)."""
     s = index_html
     while True:
-        m = re.search(r'<a class="(track[^"]*)" href="[^"]*" data-page="[^"]*">', s)
+        m = re.search(r'<a class="(track[^"]*)" href="[^"]*" data-page="[^"]*"([^>]*)>', s)
         if not m:
             break
         end = find_close(s, m.start(), "a")
-        s = s[:m.start()] + f'<div class="{m.group(1)}">' + s[m.end():end - len("</a>")] + "</div>" + s[end:]
+        inner = s[m.end():end - len("</a>")]
+        ext = dict(re.findall(r'data-ext-(href|label)="([^"]*)"', m.group(2)))
+        if ext:
+            inner = inner.replace("</div>", ext_link(ext["href"], ext["label"]) + "</div>", 1)
+        s = s[:m.start()] + f'<div class="{m.group(1)}">' + inner + "</div>" + s[end:]
 
     for number, slug in pages.items():
         m = re.search(rf'<(div|a) class="(track[^"]*)"([^>]*)>\s*<span class="track-no">{number}</span>', s)
@@ -890,10 +917,17 @@ def link_rows(index_html, pages):
             raise ContentError(f"track {number} is not on the main page")
         if m.group(1) != "div" or m.group(3).strip():
             raise ContentError(f"track {number}'s row on the main page must be a plain <div class=\"track ...\"> "
-                               "(an external link belongs on the track page, in a LINKS: block)")
+                               "(an external link goes in a span.track-ext inside it, or on the track page)")
         end = find_close(s, m.start(), "div")
         inner = s[s.index(">", m.start()) + 1:end - len("</div>")]
-        s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}">' + inner + "</a>" + s[end:]
+        extra = ""
+        e = EXT_LINK.search(inner)
+        if e:
+            extra = f' data-ext-href="{e.group(1)}" data-ext-label="{e.group(2)}"'
+            inner = inner[:e.start()] + inner[e.end():]
+        if "<a " in inner:
+            raise ContentError(f"track {number}'s row has a link other than its span.track-ext; a linked row can't hold one")
+        s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}"{extra}>' + inner + "</a>" + s[end:]
     return s
 
 
@@ -914,8 +948,7 @@ def side_for(tracklist, letter):
 
 def render(meta, tracklist, pages_here, drafts_build, listed):
     page = Page(meta)
-    # A draft page, previewed with --drafts, goes back to the preview main page.
-    home = f"../../{PREVIEW_INDEX}" if drafts_build and not meta["ready"] else "../../"
+    home = "../../"
     album = meta["register"] == "album"
     progress = meta["register"] == "progress"
     stamped = album or progress  # reading-time stamps and the clock
@@ -1006,9 +1039,11 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     else:
         desc = meta.get("description") or meta["one_line"]
     if progress:
-        lede = f'<p class="tp-with">{inline(meta["with"])}</p>'
+        # A progress page's hero: its one_line (when given), then who it's with, then the link.
+        lede = (f'<p class="tp-lede">{inline(meta["one_line"])}</p>\n' if meta.get("one_line") else "")
+        lede += f'<p class="tp-with">{inline(meta["with"])}</p>'
         if meta.get("link_url"):
-            lede += f'\n<p class="tp-link"><a href="{esc(meta["link_url"])}">{esc(meta["link_label"])} →</a></p>'
+            lede += f'\n<p class="tp-link"><a href="{esc(meta["link_url"])}"{new_tab(meta["link_url"])}>{esc(meta["link_label"])} →</a></p>'
     else:
         lede = f'<p class="tp-lede">{inline(meta["one_line"])}</p>'
     url = f"{SITE}tracks/{meta['slug']}/"
@@ -1096,6 +1131,29 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     return doc, page.copies
 
 
+def write_pages(out_root, metas, tracklist, pages_here, drafts_build, listed):
+    """Writes each page in metas to out_root/<slug>/, removing earlier output there that
+    this build doesn't produce. Only folders build.py made (with OUT_MARK) are touched."""
+    out_root.mkdir(exist_ok=True)
+    keep = {m["slug"] for m in metas}
+    for d in out_root.iterdir():
+        if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
+            shutil.rmtree(d)
+    for m in metas:
+        doc, copies = render(m, tracklist, pages_here, drafts_build, listed)
+        out = out_root / m["slug"]
+        if out.exists():
+            if not (out / OUT_MARK).exists():
+                raise ContentError(f"{out.relative_to(ROOT)} exists but was not made by build.py; not touching it")
+            shutil.rmtree(out)
+        out.mkdir()
+        (out / OUT_MARK).write_text("")
+        (out / "index.html").write_text(doc, encoding="utf-8")
+        for src, rel in copies:
+            (out / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, out / rel)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--drafts", action="store_true", help="also build drafts, for local preview")
@@ -1133,32 +1191,12 @@ def main():
                 raise ContentError(f"{m['source'].name}: track {m['track']} is not on the main page, so it needs side:")
             tracklist.append((m["track"], m["title"], *side_for(tracklist[:listed], m["side"])))
 
-    building = [m for m in metas if m["ready"] or args.drafts]
-    pages_here = {m["track"]: m for m in building}
-    out_root = ROOT / "tracks"
-    out_root.mkdir(exist_ok=True)
-
-    # Remove earlier output that this build does not produce (e.g. drafts after a --drafts build).
-    keep = {m["slug"] for m in building}
-    for d in out_root.iterdir():
-        if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
-            shutil.rmtree(d)
-
-    for m in building:
-        doc, copies = render(m, tracklist, pages_here, args.drafts, listed)
-        out = out_root / m["slug"]
-        if out.exists():
-            if not (out / OUT_MARK).exists():
-                raise ContentError(f"{out.relative_to(ROOT)} exists but was not made by build.py; not touching it")
-            shutil.rmtree(out)
-        out.mkdir()
-        (out / OUT_MARK).write_text("")
-        (out / "index.html").write_text(doc, encoding="utf-8")
-        for src, rel in copies:
-            (out / rel).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, out / rel)
-
     ready = sorted((m for m in metas if m["ready"]), key=lambda m: m["track"])
+    building = [m for m in metas if m["ready"] or args.drafts]
+
+    # The site itself only ever holds ready pages, with or without --drafts.
+    out_root = ROOT / "tracks"
+    write_pages(out_root, ready, tracklist, {m["track"]: m for m in ready}, False, listed)
     (out_root / ".gitignore").write_text(
         "# Written by build.py. Only pages marked ready may be committed; drafts stay local.\n*\n!.gitignore\n"
         + "".join(f"!/{m['slug']}/\n" for m in ready) + f"{OUT_MARK}\n", encoding="utf-8")
@@ -1174,18 +1212,29 @@ def main():
     new_index = link_rows(index_html, {m["track"]: m["slug"] for m in ready})
     if new_index != index_html:
         index_path.write_text(new_index, encoding="utf-8")
-    # A --drafts build also writes a preview of the main page with the draft pages linked
-    # too. It is git-ignored, so the committed index.html only ever links ready pages.
-    preview = ROOT / PREVIEW_INDEX
+    if (ROOT / "index.drafts.html").exists():  # the old preview file
+        (ROOT / "index.drafts.html").unlink()
+
+    # --drafts: the whole site again in _site-drafts/ (git-ignored), with every page built
+    # and linked from its main page. A plain build removes it.
+    preview = ROOT / PREVIEW_DIR
+    if preview.exists():
+        if not (preview / OUT_MARK).exists():
+            raise ContentError(f"{PREVIEW_DIR}/ exists but was not made by build.py; not touching it")
+        shutil.rmtree(preview)
     if args.drafts:
-        preview.write_text(link_rows(new_index, {m["track"]: m["slug"] for m in building}), encoding="utf-8")
-    elif preview.exists():
-        preview.unlink()
+        shutil.copytree(ROOT, preview, ignore=lambda d, names: [
+            n for n in names if (Path(d) == ROOT and n in PREVIEW_SKIP) or n in (".DS_Store", "__pycache__")])
+        (preview / OUT_MARK).write_text("")
+        write_pages(preview / "tracks", building, tracklist, {m["track"]: m for m in building}, True, listed)
+        (preview / "index.html").write_text(link_rows(new_index, {m["track"]: m["slug"] for m in building}), encoding="utf-8")
 
     print(f"built {len(data_pages)} lately page(s): " + ", ".join(m["feed"] for m in data_pages))
     drafts = [m for m in metas if not m["ready"]]
-    print(f"built {len(building)} page(s): " + ", ".join(f"{m['track']} {m['slug']}{' (draft)' if not m['ready'] else ''}" for m in building))
-    if drafts and not args.drafts:
+    print(f"built {len(ready)} page(s): " + ", ".join(f"{m['track']} {m['slug']}" for m in ready))
+    if args.drafts:
+        print(f"preview with {len(drafts)} draft(s) in {PREVIEW_DIR}/: python3 -m http.server -d {PREVIEW_DIR} 8765 --bind 127.0.0.1")
+    elif drafts:
         print(f"skipped {len(drafts)} draft(s); run with --drafts to preview them")
 
 

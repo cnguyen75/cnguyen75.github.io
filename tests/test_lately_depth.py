@@ -57,7 +57,7 @@ class Register(unittest.TestCase):
     def test_page_frame(self):
         doc = build.render_data_page(self.read("fantasy", content("fantasy")))
         self.assertIn('<div class="ld-headline" data-feed="fantasy"', doc)
-        self.assertIn('data from <a href="https://sleeper.com">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/">ESPN</a>', doc)
+        self.assertIn('data from <a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a>', doc)
         self.assertIn('as of <time class="ld-asof-date">', doc)
         self.assertRegex(doc, r'<h2 class="ld-section-title" id="is-the-win-chance-honest-h">Is the win chance honest\?</h2>'
                               r'<div class="ld-stat" data-stat="grading\.win_chance">')
@@ -143,6 +143,23 @@ def variant(name):
     a["eating"]["home_bias"]["values"]["date"] = "2026-09-14"
     if name == "few predictions":
         a["grading"]["predictions_stored"] = 19
+    if name == "young archive":
+        # Three days of listening: everything but the not-available statistic waits for data.
+        for k, st in a["listening"].items():
+            if isinstance(st, dict) and st.get("status") == "ok":
+                st.update(status="not enough data yet", n=3 if k == "heatmap" else 0)
+                st.pop("values", None)
+                st.pop("value", None)
+    if name in ("no hours", "nothing logged"):
+        for wk in d["watching"]["weeks"]:
+            wk.update(films=0, shows=0, anime=0)
+    if name == "nothing logged":
+        d["watching"]["recent"] = []
+        d["watching"]["currently_watching"] = []
+    if name == "places":
+        d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
+                                 {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
+                                 {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
     if name == "kept includes zero":
         for s in a["lifting"]["strength_kept"].values():
             if s["status"] == "ok":
@@ -200,14 +217,68 @@ class Drawing(unittest.TestCase):
         self.assertEqual(sl["hows"], ["how: " + ANALYSIS["lifting"]["body_weight_rate"]["how"]])
         self.assertIn("Courier Prime", sl["howFont"])
 
-    # "not enough data yet": that line and the n needed, never an empty chart.
+    # "not enough data yet": the statistic isn't drawn; one line per page counts them, a
+    # section with nothing else is hidden with its contents entry, and no headline tile
+    # shows a "–" for it.
     def test_not_enough_data(self):
-        d = draw("lately/lifting/")
-        b = next(b for b in blocks(d, "lifting.progress.*") if b["title"] == "Hack squat")
-        self.assertEqual(b["wait"], "not enough data yet · 0 of 6 sessions needed")
-        self.assertEqual((b["charts"], b["value"], b["n"]), (0, None, None))
-        (w,) = blocks(draw("lately/watching/"), "watching.backlog")
-        self.assertEqual(w["wait"], "not enough data yet · 0 of 5 titles needed")
+        for feed in FEEDS:
+            with self.subTest(feed=feed):
+                d = draw(f"lately/{feed}/")
+                self.assertFalse([b for s in d["sections"] for sl in s["slots"] for b in sl["blocks"] if b["status"] == "not enough data yet"])
+                if d["waiting"]:
+                    self.assertRegex(d["waiting"], r"^(1 more statistic appears|\d+ more statistics appear) as data accrues\.$")
+        lifting = draw("lately/lifting/")
+        self.assertNotIn("Hack squat", [b["title"] for b in blocks(lifting, "lifting.progress.*")])  # gated: 0 of 6 sessions
+        self.assertTrue(slot(draw("lately/watching/"), "watching.backlog")["hidden"])
+        young = draw("lately/listening/", name="young archive")
+        self.assertEqual(young["waiting"], "7 more statistics appear as data accrues.")
+        self.assertEqual([s["id"] for s in young["sections"] if not s["hidden"]], [s["id"] for s in young["sections"]
+                         if any(sl["blocks"] for sl in s["slots"])])
+        self.assertTrue(young["hiddenSections"])
+        self.assertEqual(sorted(young["hiddenToc"]), sorted("#" + i for i in young["hiddenSections"]))
+        self.assertEqual(young["headline"], [])
+        listening = next(p for p in draw("index.html", name="young archive")["panels"] if p["id"] == "panel-listening")
+        self.assertEqual(listening["headline"], [])
+
+    # Each page opens with whose numbers these are and which apps they come from.
+    def test_lede(self):
+        want = {"fantasy": "Sleeper and ESPN accounts", "watching": "Simkl account", "listening": "Last.fm account",
+                "eating": "Beli account", "lifting": "Hevy account"}
+        for feed, apps in want.items():
+            self.assertEqual(draw(f"lately/{feed}/")["lede"], f"These are my own numbers, from my {apps}.")
+
+    # A window shorter than its label is labelled by its real start: "since 11 Oct".
+    def test_listening_window(self):
+        young, base = draw("index.html", name="young archive")["bodyText"], draw("index.html")["bodyText"]
+        for label in ("Plays, ", "Top artists, ", "When I listen, by hour of day, "):
+            self.assertIn(label + "since 11 Oct", young)
+            self.assertIn(label + "last 30 days", base)
+        self.assertNotIn("last 30 days", young)
+
+    # "No episodes or films logged" only when nothing is: not beside something being watched.
+    def test_watching_nothing_logged(self):
+        self.assertIsNone(draw("index.html", name="no hours")["watchingEmpty"])
+        self.assertEqual(draw("index.html", name="nothing logged")["watchingEmpty"], "No episodes or films logged in the last 12 weeks")
+
+    # Tier counts are the rankings file's (tier_distribution); completion says what it covers.
+    def test_tier_counts(self):
+        (b,) = blocks(draw("lately/watching/"), "watching.tier_completion_pace")
+        totals = {}
+        for st in ANALYSIS["watching"]["tier_distribution"].values():
+            for t in st["values"]["tiers"]:
+                totals[t["tier"]] = totals.get(t["tier"], 0) + t["titles"]
+        self.assertIn("Tiered titles", b["text"])
+        self.assertEqual({r[0]: int(r[1]) for r in b["cells"]}, totals)
+        self.assertIn(f"Completion covers 273 of the {sum(totals.values())} tiered titles.", b["text"])
+
+    # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
+    # the home city is never named (it's "my most-ranked city").
+    def test_eating_places(self):
+        self.assertEqual(draw("index.html", name="places")["places"], [["alpha Cafe", "9.20", None], ["Mid Grill", "7.00", None], ["Zeta Noodle", "8.10", None]])
+        (hb,) = blocks(draw("lately/eating/"), "eating.home_bias")
+        self.assertNotIn("City 1", hb["text"])
+        eating = next(p for p in draw("index.html")["panels"] if p["id"] == "panel-eating")
+        self.assertNotIn("City 1", " ".join(h[0] for h in eating["headline"]))
 
     # "not available from source": a one-line note, nothing else.
     def test_not_available(self):
@@ -281,9 +352,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual(b["value"], "0.210")
         self.assertIn("Brier score", b["text"])
         self.assertIn("Predicted win chance against how often I won", b["text"])
-        (few,) = blocks(draw("lately/fantasy/", name="few predictions"), "grading.win_chance")
-        self.assertEqual(few["wait"], "not enough data yet · 19 of 20 predictions needed")
-        self.assertEqual(few["charts"], 0)
+        # With fewer than 20 predictions stored the gate holds it back: not drawn, counted.
+        few = draw("lately/fantasy/", name="few predictions")
+        self.assertEqual(blocks(few, "grading.win_chance"), [])
+        self.assertTrue(slot(few, "grading.win_chance")["hidden"])
+        self.assertRegex(few["waiting"], r"more statistics? appears? as data accrues")
 
     # The main page: each panel keeps its content and gains its headline numbers and "more →".
     def test_main_page_panels(self):

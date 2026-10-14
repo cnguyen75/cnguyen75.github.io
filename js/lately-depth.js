@@ -820,12 +820,22 @@
     },
     "watching.tier_completion_pace": {
       n: "titles",
-      draw: function (v) {
-        return table("Completion and pace by tier", [{ label: "Tier" }, { label: "Finished", num: true }, { label: "Dropped", num: true },
-          { label: "Completion", num: true }, { label: "Episodes a week", num: true }],
+      draw: function (v, s, ctx) {
+        // Titles per tier come from tier_distribution, which counts the rankings file's
+        // tiered titles; completion may cover fewer of them, and then says so.
+        var titles = {}, total = 0, dist = ctx.analysis && isObj(ctx.analysis.watching) ? ctx.analysis.watching.tier_distribution : null;
+        if (isObj(dist)) Object.keys(dist).forEach(function (k) {
+          if (!okStat(dist[k])) return;
+          list(dist[k].values.tiers).forEach(function (t) { titles[t.tier] = (titles[t.tier] || 0) + t.titles; total += t.titles; });
+        });
+        var covered = list(v.tiers).reduce(function (a, t) { return a + t.finished + t.dropped; }, 0);
+        return [table("Completion and pace by tier", [{ label: "Tier" }, { label: "Tiered titles", num: true }, { label: "Finished", num: true },
+          { label: "Dropped", num: true }, { label: "Completion", num: true }, { label: "Episodes a week", num: true }],
           list(v.tiers).map(function (t) {
-            return [t.tier, String(t.finished), String(t.dropped), pct(t.completion), isNum(t.episodes_per_week) ? num(t.episodes_per_week, 1) : "–"];
-          }));
+            return [t.tier, t.tier in titles ? String(titles[t.tier]) : "–", String(t.finished), String(t.dropped), pct(t.completion),
+              isNum(t.episodes_per_week) ? num(t.episodes_per_week, 1) : "–"];
+          })),
+          total && covered !== total ? h("p", { class: "ld-note" }, "Completion covers " + covered + " of the " + total + " tiered titles.") : null];
       }
     },
 
@@ -871,7 +881,8 @@
       }
     },
     "eating.home_bias": effect("points at home against away, same cuisine", 2, function (v) {
-      return [["home city", v.home_city], ["places at home", String(v.home_places)], ["places away", String(v.away_places)], ["cuisines in both", String(v.cuisines)]];
+      // The home city is never named: it's "my most-ranked city" in the how line.
+      return [["places at home", String(v.home_places)], ["places away", String(v.away_places)], ["cuisines in both", String(v.cuisines)]];
     }),
     "eating.order_effect": effect("points per 100 places ranked", 3, function (v) {
       return [["places", String(v.places)], ["cuisines", String(v.cuisines)]];
@@ -1009,7 +1020,7 @@
         h("span", { class: "ld-value-unit" }, val[1]),
         ivText ? h("span", { class: "ld-interval" }, ivText) : null));
     }
-    if (spec.draw) append(block, spec.draw(v, s, { label: label, weekdays: ctx.weekdays, typeClass: TYPE_CLASS[entry.key] ? "fill--" + TYPE_CLASS[entry.key] : null }));
+    if (spec.draw) append(block, spec.draw(v, s, { label: label, weekdays: ctx.weekdays, analysis: analysis, typeClass: TYPE_CLASS[entry.key] ? "fill--" + TYPE_CLASS[entry.key] : null }));
     else if (!val) block.appendChild(h("p", { class: "ld-note" }, "Computed, but this page doesn't draw it yet."));
     block.appendChild(h("p", { class: "ld-n" }, "n = " + plural(s.n, spec.n || "") +
       (s.as_of && s.as_of !== analysis.as_of ? " · as of " + dateText(s.as_of) : "")));
@@ -1018,9 +1029,23 @@
 
   // A slot names one or more statistics (space-separated paths, e.g. completion of
   // shows, films and anime); they share one row of blocks and their "how" lines.
+  // The status a statistic is shown with: its own, or its spec's gate's.
+  function shownStatus(e, analysis) {
+    var s = e.stat;
+    if (!isObj(s) || typeof s.status !== "string") return null;
+    try {
+      var gate = e.spec.gate ? e.spec.gate(s, analysis) : null;
+      return gate ? gate.status : s.status;
+    } catch (err) { return s.status; }
+  }
+
+  // Statistics still waiting for data ("not enough data yet") aren't drawn; they're
+  // counted in ctx.waiting for the page's one line, and a slot left with nothing to
+  // show is hidden.
   function fillSlot(slot, analysis, ctx) {
-    var entries = [];
+    var entries = [], found = 0;
     slot.textContent = "";
+    slot.hidden = false;
     slot.getAttribute("data-stat").split(/\s+/).forEach(function (path) {
       var spec = STATS[path], leaf = leafLabel(path);
       if (!spec) return;
@@ -1028,9 +1053,12 @@
         if (leaf) e.label = leaf;
         e.spec = spec;
         e.path = path;
+        found++;
+        if (shownStatus(e, analysis) === "not enough data yet") { ctx.waiting = (ctx.waiting || 0) + 1; return; }
         entries.push(e);
       });
     });
+    if (!entries.length && found) { slot.hidden = true; return; }
     if (!entries.length) { slot.appendChild(h("p", { class: "panel-empty" }, NOT_CONNECTED)); return; }
     // One block, or blocks whose tables need the width: one to a row.
     var one = entries.length === 1 || entries.some(function (e) { return e.spec.wide; });
@@ -1089,7 +1117,7 @@
       out.push(okStat(sc) ? { label: "Median score", value: num(sc.values.overall.median, 2), note: "middle half " + num(sc.values.overall.q1, 2) + " to " + num(sc.values.overall.q3, 2) }
         : waiting("Median score", sc));
       var hb = e.home_bias;
-      out.push(okStat(hb) ? { label: "Home against away", value: signed(hb.value, 2), note: hb.values.home_city + ", same cuisine" }
+      out.push(okStat(hb) ? { label: "Home against away", value: signed(hb.value, 2), note: "most-ranked city against elsewhere, same cuisine" }
         : waiting("Home against away", hb));
     } else if (feed === "lifting" && isObj(a.lifting)) {
       var lf = a.lifting, r = lf.body_weight_rate;
@@ -1106,7 +1134,8 @@
         out.push({ label: kept[0] + ": e1RM kept per lb lost", value: num(ks.value, 2), note: interval(ks.interval, function (x) { return num(x, 2); }) });
       }
     }
-    return out.slice(0, 3);
+    // A number still waiting for data isn't shown as a "–" tile; the page's line counts it.
+    return out.filter(function (i) { return i.note !== "not enough data yet"; }).slice(0, 3);
   }
 
   function headlineRow(items, cls) {
@@ -1138,7 +1167,21 @@
     try { append(row, headlineRow(headline(feed, a))); } catch (e) { /* the sections still draw */ }
     var weekdays = isObj(a.cross) && isObj(a.cross.rhythm) && list(a.cross.rhythm.weekdays).length === 7 ? a.cross.rhythm.weekdays
       : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, { weekdays: weekdays }); });
+    var ctx = { weekdays: weekdays, waiting: 0 };
+    Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
+    // A section whose every statistic is still waiting is hidden, with its contents entry.
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-section"), function (sec) {
+      var open = Array.prototype.some.call(sec.querySelectorAll(".ld-stat"), function (x) { return !x.hidden; });
+      sec.hidden = !open;
+      var link = document.querySelector('.ld-toc a[href="#' + sec.id + '"]');
+      if (link) link.parentNode.hidden = !open;
+    });
+    var more = document.querySelector(".ld-waiting");
+    if (more) {
+      more.hidden = !ctx.waiting;
+      more.textContent = ctx.waiting === 1 ? "1 more statistic appears as data accrues."
+        : ctx.waiting + " more statistics appear as data accrues.";
+    }
   }
 
   function load(url) {
