@@ -10,6 +10,10 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 index.html                 the whole page: header, hero, sides A–C, previously, Side D (lately), footer
 css/site.css               all styles; colours are CSS variables at the top (:root)
 js/lately.js               draws the Side D panels from data
+js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
+content/lately/            one file per Lately feed page (the "data" register)
+lately/<feed>/             built Lately pages: frames only, no data (committed)
+tests/                     python3 -m unittest discover tests; tests/fixtures/analysis.json has placeholder names only
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
 data/lately.sample.json    sample data matching the approved design's placeholder values
 data/lately.json           live data, written by the pipeline; git-ignored, never committed
@@ -164,6 +168,52 @@ python3 build.py                        # copies each card next to its page
 ```
 
 Set `CHROME` to Chrome's executable if it isn't at the macOS default path. Cards for ready pages live in `content/tracks/<slug>/` and are committed along with the built page. Cards for drafts stay in the ignored `content/drafts/`.
+
+## Lately in depth
+
+Five pages, `lately/fantasy/`, `lately/watching/`, `lately/listening/`, `lately/eating/` and `lately/lifting/`, draw the `analysis` block of `data/lately.json`: statistics the pipeline computes from its archive. The block's schema is merged into `data/lately.schema.json` from the pipeline's `analysis.schema.json` (this repository owns the merged copy; the pipeline syncs from it).
+
+Each page comes from `content/lately/<feed>.md` in the **data** register, separate from the track registers:
+
+```
+---
+register: data
+feed: lifting                       one of fantasy, watching, listening, eating, lifting; matches the file name
+title: Lifting, in depth
+source: Hevy | https://www.hevyapp.com     comma-separated "Name | https://" credits
+---
+
+## Body weight since the cut
+STAT: lifting.body_weight_rate
+
+## Strength kept per pound lost
+STAT: lifting.strength_kept.*
+```
+
+A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes every team, `*` every key of a map (one per lift, platform or ranking) or every statistic among fixed keys (`watching.completion.*` is shows, films and anime, shown side by side). A section holds only `STAT:` lines. The build stops when a path names nothing in the schema, when watching, listening, eating or lifting doesn't credit Simkl, Last.fm, Beli or Hevy, or when a statistic in the schema is on no page or on two. The only statistic left out on purpose is listed in `DATA_LEFT_OUT` in `build.py` with its reason (`eating.new_cuisines`: its months come from Beli's ranking dates).
+
+The built page is a frame with no numbers in it. In the browser, `js/lately-depth.js` fills in:
+
+- the source line ("data from Hevy · as of 13 Oct 2026", the block's `as_of`) and a headline row of two or three numbers;
+- for each statistic, by `status`:
+  - `ok`: its value and 95% interval where it has them, its chart or table, its n ("n = 20 weigh-ins", plus "as of …" when the statistic's date differs from the block's), and the pipeline's `how` sentence under it in the label face;
+  - `not enough data yet`: that line and the n needed ("0 of 6 sessions needed"), never an empty chart;
+  - `not available from source` (or `not configured`): one line with what is `missing`.
+- Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`. Charts use the site's blue, orange and purple, each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
+
+"Is the win chance honest?" (the calibration table and Brier score) is on the fantasy page and says "not enough data yet" until `grading.predictions_stored` reaches 20. The cross statistics sit with the feed they describe: the lifting soundtrack and workouts by weekday on lifting, plays by weekday and hour on listening, places ranked by weekday on eating.
+
+On the main page each feed's panel keeps its content and gains its headline numbers under the heading and a "more →" link to its page:
+
+| Panel | Headline |
+| --- | --- |
+| Fantasy | playoff odds, one per team (up to three) |
+| Watching | completion: shows, films, anime |
+| Listening | half-life of this week's most-played album; share of plays by new artists, latest month; first repeat, median |
+| Eating | median score; home against away |
+| Lifting | body-weight rate since the cut; latest body weight; and e1RM kept per lb lost for the first lift whose interval excludes zero, once one does |
+
+Without an `analysis` block (the sample file has none) the pages say "Not connected yet." and the panels show only the link.
 
 ## Preview locally
 

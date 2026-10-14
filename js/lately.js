@@ -928,6 +928,22 @@
       nodes = [h("p", { class: "panel-empty" }, missing ? NOT_CONNECTED : BROKEN)];
     }
     append(panel, nodes);
+    depth(panel, panelId, data);
+  }
+
+  // Each feed's panel gains its headline numbers from the analysis block (drawn by
+  // js/lately-depth.js) under the heading, and a link to its page at the end.
+  var FEEDS = { "panel-fantasy": "fantasy", "panel-watching": "watching", "panel-listening": "listening",
+    "panel-eating": "eating", "panel-lifting": "lifting" };
+  function depth(panel, panelId, data) {
+    var feed = FEEDS[panelId];
+    if (!feed) return;
+    var LD = window.LatelyDepth, items = [];
+    try { items = LD && data ? LD.headline(feed, data.analysis) : []; } catch (err) {
+      if (window.console) console.warn("lately: " + feed + " headline not drawn:", err.message);
+    }
+    if (items.length) panel.insertBefore(LD.headlineRow(items, "ld-stats--panel"), panel.children[1] || null);
+    panel.appendChild(h("a", { class: "ld-more", href: "lately/" + feed + "/" }, "more →"));
   }
 
   function render(data, isSample) {

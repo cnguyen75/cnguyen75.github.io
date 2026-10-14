@@ -13,10 +13,16 @@ with any files the page uses (SVG figures, demo data, audio) in a folder named
 after the slug next to it. Each file becomes tracks/<slug>/index.html. The build
 also writes sitemap.xml, tracks/.gitignore (so only ready pages can be committed)
 and the links from the main page's track rows. See README.md, "Track pages".
+
+The Lately pages use a separate "data" register: content/lately/<feed>.md, one
+per feed, becomes lately/<feed>/index.html. Those files name statistics, not
+numbers; js/lately-depth.js draws them from data/lately.json in the browser, so
+no data is ever written into the built pages. See README.md, "Lately in depth".
 """
 
 import argparse
 import html
+import json
 import math
 import re
 import shutil
@@ -42,6 +48,19 @@ OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
 MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
 MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "AUDIO-PAIR", "AUDIO-GRID")
 MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE")
+
+
+# The data register (content/lately/<feed>.md -> lately/<feed>/)
+DATA_FEEDS = ("fantasy", "watching", "listening", "eating", "lifting")
+DATA_REQUIRED = ("register", "feed", "title", "source")
+# Each page credits its source by name and link; these four require it.
+DATA_ATTRIBUTION = {"watching": "Simkl", "listening": "Last.fm", "eating": "Beli", "lifting": "Hevy"}
+# Statistics in the analysis schema that no page shows, with the reason. Every other
+# statistic must be on exactly one page.
+DATA_LEFT_OUT = {
+    "eating.new_cuisines": "counts by month, and the months come from Beli's ranking dates; held until Colin decides",
+}
+SCHEMA_PATH = "data/lately.schema.json"
 
 
 class ContentError(Exception):
@@ -142,6 +161,212 @@ def parse_sections(body, name):
 
 def slugify(s):
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+
+
+# ---------- the data register ----------
+
+def _schema_node(schema, node):
+    while "$ref" in node:
+        node = schema["$defs"][node["$ref"].split("/")[-1]]
+    return node
+
+
+def stat_paths(schema, pattern=None):
+    """Every statistic under analysis, as paths such as fantasy.teams[].playoff_odds,
+    lifting.progress.* (a map keyed by the data) or watching.completion.show. With a
+    pattern, only the ones it names: "teams[]" steps into a list, and "*" takes a map's
+    keys or every statistic among fixed properties. KeyError if it names nothing."""
+    stat = schema["$defs"]["analysis_stat"]
+    steps = None if pattern is None else [x for part in pattern.split(".")
+                                          for x in ([part[:-2], "[]"] if part.endswith("[]") else [part])]
+    out = []
+
+    def walk(node, path, steps):
+        node = _schema_node(schema, node)
+        if node is stat:
+            if steps:
+                raise KeyError(".".join(path))
+            out.append(".".join(path))
+            return
+        if node.get("type") == "array":
+            if steps is not None and (not steps or steps[0] != "[]"):
+                raise KeyError(".".join(path) + " is a list; write it with []")
+            walk(node["items"], path[:-1] + [path[-1] + "[]"], None if steps is None else steps[1:])
+            return
+        props, extra = node.get("properties", {}), node.get("additionalProperties")
+        if steps is None:  # everything
+            for k, v in props.items():
+                walk(v, path + [k], None)
+            if isinstance(extra, dict):
+                walk(extra, path + ["*"], None)
+            return
+        if not steps:
+            raise KeyError(".".join(path) or "analysis")
+        step, rest = steps[0], steps[1:]
+        if step == "*" and isinstance(extra, dict):
+            walk(extra, path + ["*"], rest)
+        elif step == "*":
+            for k, v in props.items():
+                walk(v, path + [k], rest)
+        elif step in props:
+            walk(props[step], path + [step], rest)
+        else:
+            raise KeyError(".".join(path + [step]))
+
+    walk(schema["properties"]["analysis"], [], steps)
+    return out
+
+
+def read_data_page(path, schema):
+    text = path.read_text(encoding="utf-8")
+    m = re.match(r"---\n(.*?)\n---\n(.*)$", text, re.S)
+    if not m:
+        raise ContentError(f"{path.name}: no front matter")
+    meta = {}
+    for line in m.group(1).splitlines():
+        if line.strip():
+            k, sep, v = line.partition(":")
+            if not sep:
+                raise ContentError(f"{path.name}: bad front matter line {line!r}")
+            meta[k.strip()] = v.strip()
+    missing = [k for k in DATA_REQUIRED if not meta.get(k)]
+    if missing:
+        raise ContentError(f"{path.name}: front matter is missing {', '.join(missing)}")
+    if meta["register"] != "data":
+        raise ContentError(f"{path.name}: content/lately/ pages use register: data")
+    if meta["feed"] not in DATA_FEEDS or path.stem != meta["feed"]:
+        raise ContentError(f"{path.name}: feed must be one of {', '.join(DATA_FEEDS)} and match the file name")
+    sources = []
+    for part in meta["source"].split(","):
+        name, sep, url = part.partition("|")
+        if not sep or not name.strip() or not re.fullmatch(r"https://\S+", url.strip()):
+            raise ContentError(f"{path.name}: source must be 'Name | https://...', comma-separated")
+        sources.append((name.strip(), url.strip()))
+    need = DATA_ATTRIBUTION.get(meta["feed"])
+    if need and need not in [n for n, _ in sources]:
+        raise ContentError(f"{path.name}: the {meta['feed']} page must credit {need}")
+    meta["sources"] = sources
+    meta["source_file"] = path
+    meta["sections"] = parse_sections(m.group(2), path.name)
+    meta["stats"] = []
+    for sec in meta["sections"]:
+        sec["stats"] = []
+        for line in sec["lines"]:
+            if not line.strip():
+                continue
+            mm = re.fullmatch(r"STAT:\s*(\S+)\s*", line)
+            if not mm:
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT: lines are allowed, not {line.strip()!r}")
+            try:
+                leaves = stat_paths(schema, mm.group(1))
+            except KeyError as e:
+                raise ContentError(f"{path.name}: STAT: {mm.group(1)} is not a statistic in {SCHEMA_PATH} ({e.args[0]})")
+            sec["stats"].append(leaves)  # one slot per STAT: line, naming every statistic it covers
+            meta["stats"] += leaves
+        if not sec["stats"]:
+            raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: line")
+    return meta
+
+
+def check_data_coverage(pages, schema):
+    """Every statistic is on exactly one page, or listed in DATA_LEFT_OUT."""
+    seen = {}
+    for meta in pages:
+        for leaf in meta["stats"]:
+            if leaf in seen:
+                raise ContentError(f"{leaf} is on both {seen[leaf]} and {meta['feed']}")
+            seen[leaf] = meta["feed"]
+    for leaf in stat_paths(schema):
+        if leaf in seen and leaf in DATA_LEFT_OUT:
+            raise ContentError(f"{leaf} is in DATA_LEFT_OUT but {seen[leaf]} shows it")
+        if leaf not in seen and leaf not in DATA_LEFT_OUT:
+            raise ContentError(f"{leaf} is in the analysis schema but on no page; add it to a page or to DATA_LEFT_OUT")
+
+
+def render_data_page(meta):
+    feed = meta["feed"]
+    url = f"{SITE}lately/{feed}/"
+    title = meta["title"]
+    desc = f"{title}: statistics from my {feed} data, drawn from the same nightly file as the Lately section."
+    credit = " and ".join(f'<a href="{esc(u)}">{esc(n)}</a>' for n, u in meta["sources"])
+    nav = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in meta["sections"])
+    secs = []
+    for s in meta["sections"]:
+        stats = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(p))}"></div>' for p in s["stats"])
+        secs.append(f'<section class="ld-section" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
+                    f'<h2 class="ld-section-title" id="{s["id"]}-h">{esc(s["title"])}</h2>{stats}</section>')
+    current = ' aria-current="page"'
+    others = " · ".join(f'<a href="../{f}/"{current if f == feed else ""}>{f}</a>' for f in DATA_FEEDS)
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{esc(title)} · Colin Nguyen</title>
+<meta name="description" content="{esc(desc)}">
+<link rel="canonical" href="{url}">
+<meta name="theme-color" content="#E8E2D3">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Colin Nguyen">
+<meta property="og:url" content="{url}">
+<meta property="og:title" content="{esc(title)}">
+<meta property="og:description" content="{esc(desc)}">
+<meta property="og:image" content="{SITE}images/og-image.png">
+<meta property="og:image:alt" content="Colin Nguyen's site">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preload" href="../../fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../fonts/courier-prime-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../css/site.css">
+<script src="../../js/lately-depth.js" defer></script>
+</head>
+<body class="ld-body" data-feed="{feed}" data-root="../../">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="wrap">
+<div class="page ld-page">
+<header class="site-header">
+<a class="site-name ld-home" href="../../">colin nguyen</a>
+<a class="ld-back" href="../../#panel-{feed}">← back to lately</a>
+</header>
+<main id="main" class="ld-main">
+<section class="ld-hero" aria-labelledby="ld-title">
+<p class="ld-kicker">side d. lately · in depth</p>
+<h1 class="ld-title" id="ld-title">{esc(title)}</h1>
+<p class="ld-source">data from {credit} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
+<div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
+<noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
+<p class="panel-empty ld-missing" hidden>Not connected yet.</p>
+</section>
+<nav class="ld-toc" aria-label="On this page"><ol>{nav}</ol></nav>
+{"".join(secs)}
+<nav class="ld-feeds" aria-label="Other Lately pages"><span class="ld-feeds-label">in depth:</span> {others}</nav>
+</main>
+</div>
+</div>
+</body>
+</html>
+"""
+
+
+def build_data_pages(schema):
+    pages = [read_data_page(p, schema) for p in sorted((ROOT / "content" / "lately").glob("*.md"))]
+    check_data_coverage(pages, schema)
+    out_root = ROOT / "lately"
+    out_root.mkdir(exist_ok=True)
+    keep = {m["feed"] for m in pages}
+    for d in out_root.iterdir():
+        if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
+            shutil.rmtree(d)
+    (out_root / ".gitignore").write_text(f"# Written by build.py.\n{OUT_MARK}\n", encoding="utf-8")
+    for m in pages:
+        out = out_root / m["feed"]
+        if out.exists() and not (out / OUT_MARK).exists():
+            raise ContentError(f"{out.relative_to(ROOT)} exists but was not made by build.py; not touching it")
+        out.mkdir(exist_ok=True)
+        (out / OUT_MARK).write_text("")
+        (out / "index.html").write_text(render_data_page(m), encoding="utf-8")
+    return pages
 
 
 # ---------- Markdown subset ----------
@@ -916,7 +1141,10 @@ def main():
         "# Written by build.py. Only pages marked ready may be committed; drafts stay local.\n*\n!.gitignore\n"
         + "".join(f"!/{m['slug']}/\n" for m in ready) + f"{OUT_MARK}\n", encoding="utf-8")
 
-    urls = [SITE] + [f"{SITE}tracks/{m['slug']}/" for m in ready]
+    schema = json.loads((ROOT / SCHEMA_PATH).read_text(encoding="utf-8"))
+    data_pages = build_data_pages(schema)
+
+    urls = [SITE] + [f"{SITE}lately/{m['feed']}/" for m in data_pages] + [f"{SITE}tracks/{m['slug']}/" for m in ready]
     (ROOT / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"<url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
@@ -925,6 +1153,7 @@ def main():
     if new_index != index_html:
         index_path.write_text(new_index, encoding="utf-8")
 
+    print(f"built {len(data_pages)} lately page(s): " + ", ".join(m["feed"] for m in data_pages))
     drafts = [m for m in metas if not m["ready"]]
     print(f"built {len(building)} page(s): " + ", ".join(f"{m['track']} {m['slug']}{' (draft)' if not m['ready'] else ''}" for m in building))
     if drafts and not args.drafts:
