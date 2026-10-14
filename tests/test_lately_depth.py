@@ -132,6 +132,8 @@ def variant(name):
     # Fields the page doesn't know are never drawn: an opponent's name, a Beli date.
     a["fantasy"]["teams"][0]["margins"]["values"]["opponent"] = "Rival Manager"
     a["fantasy"]["teams"][0]["playoff_odds"]["values"]["manager_name"] = "Rival Manager"
+    a["fantasy"]["teams"][0]["waiver_adds"]["values"]["worst"][0]["dropped_to"] = "Rival Team FC"
+    a["fantasy"]["teams"][0]["waiver_adds"]["values"]["worst"][0]["claimed_from"] = "Rival Manager"
     a["eating"]["scores"]["values"]["last_ranked"] = "2026-09-14"
     a["eating"]["home_bias"]["values"]["date"] = "2026-09-14"
     if name == "few predictions":
@@ -236,6 +238,28 @@ class Drawing(unittest.TestCase):
         self.assertEqual(parts["ld-record-w"]["bg"], INK)
         self.assertEqual((parts["ld-record-l"]["bg"], parts["ld-record-l"]["border"]), (CLEAR, "solid"))
 
+    # Waiver adds: hit rate with its interval, net points available against captured, adds a
+    # week, then the adds with the best and worst three marked, and the how-line under it.
+    def test_waiver_adds(self):
+        d = draw("lately/fantasy/")
+        first = blocks(d, "fantasy.teams[].waiver_adds")[0]
+        wa = ANALYSIS["fantasy"]["teams"][0]["waiver_adds"]
+        self.assertEqual((first["value"], first["interval"]), ("50%", "95% interval 19% to 81%"))
+        for bit in ("net points available+8.48", "net points captured−3.24", "adds a week1.2",
+                    "Adds, best and worst three markedWeekAddedDroppedBidClass", "▲ best", "▽ worst", "$11", "hit, left on the bench"):
+            self.assertIn(bit, first["text"])
+        self.assertEqual(first["text"].count("▲ best"), len(wa["values"]["best"]))
+        self.assertEqual(first["text"].count("▽ worst"), len(wa["values"]["worst"]))
+        self.assertEqual(slot(d, "fantasy.teams[].waiver_adds")["hows"], ["how: " + wa["how"]])
+        second = blocks(d, "fantasy.teams[].waiver_adds")[1]
+        self.assertIn("The data lists the best and worst three of 14 adds; the other 8 aren't in it.", second["text"])
+
+    # Lineup efficiency gains the bench-hit line: waiver hits that sat on my bench.
+    def test_bench_hit_line(self):
+        le = blocks(draw("lately/fantasy/"), "fantasy.teams[].lineup_efficiency")
+        self.assertIn("Hit, left on the bench: 1 add, 26.6 points on my bench, +12.88 net points available.", le[0]["text"])
+        self.assertIn("Hit, left on the bench: no waiver adds.", le[1]["text"])
+
     # "Is the win chance honest?" lives on lately/fantasy: the calibration table and Brier
     # score from twenty predictions, "not enough data yet" before that.
     def test_grading(self):
@@ -277,6 +301,7 @@ class Drawing(unittest.TestCase):
     def test_nothing_the_page_does_not_know(self):
         for page in ["index.html"] + [f"lately/{f}/" for f in FEEDS]:
             self.assertNotIn("Rival Manager", draw(page)["bodyText"], page)
+            self.assertNotIn("Rival Team", draw(page)["bodyText"], page)
         eating = draw("lately/eating/")["bodyText"]
         self.assertNotRegex(eating, r"\d{4}-\d{2}")
         self.assertNotRegex(eating, r"14 Sep")  # the injected ranking date, in any form

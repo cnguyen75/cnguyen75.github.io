@@ -35,6 +35,9 @@ STAT: fantasy.teams[].draft_value
 ## Waiver pickups
 STAT: fantasy.teams[].waiver_impact
 
+## Waiver adds
+STAT: fantasy.teams[].waiver_adds
+
 ## Points by position
 STAT: fantasy.teams[].position_share
 

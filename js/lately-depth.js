@@ -67,7 +67,7 @@
   function plural(n, unit) {
     var one = { weeks: "week", plays: "play", sessions: "session", places: "place", titles: "title", films: "film",
       months: "month", albums: "album", tracks: "track", days: "day", years: "year", tiers: "tier", pairs: "pair",
-      predictions: "prediction", seasons: "season", workouts: "workout", "weigh-ins": "weigh-in" }[unit];
+      predictions: "prediction", seasons: "season", workouts: "workout", "weigh-ins": "weigh-in", "adds judged": "add judged" }[unit];
     return big(n) + " " + (n === 1 && one ? one : unit);
   }
   function record(r) {
@@ -363,8 +363,13 @@
       value: function (s) { return [num(s.value, 1), "points left on the bench this season"]; },
       draw: function (v) {
         var slots = isObj(v.regret_by_slot) ? Object.keys(v.regret_by_slot) : [];
+        var hits = isObj(v.waiver_hits_left_on_bench) ? v.waiver_hits_left_on_bench : null;
         return [
           facts([["rank", rankText(v.league_rank, v.league_size, "fewest left on the bench")], ["league average", num(v.league_average, 1)]]),
+          // Apart from the lineup total: adds that beat their baseline but sat on my bench.
+          hits ? h("p", { class: "ld-sentence" }, h("b", null, "Hit, left on the bench: "),
+            hits.adds === 0 ? "no waiver adds." : plural(hits.adds, "adds").replace(/^1 adds$/, "1 add") + ", " + num(hits.benched_points, 1) +
+              " points on my bench, " + signed(hits.points_available, 2) + " net points available.") : null,
           weeklyBench(v),
           slots.length ? bars("Points left on the bench by slot", slots.map(function (k) {
             return { label: k, value: v.regret_by_slot[k], text: num(v.regret_by_slot[k], 1) };
@@ -409,6 +414,59 @@
         return [facts([["share of my starters' points", pct(v.share)], ["players", String(v.players)]]),
           list(v.top).length ? table("Most points from players I didn't draft", [{ label: "Player" }, { label: "Points", num: true }],
             list(v.top).map(function (p) { return [p.player, num(p.points, 1)]; }), { showCaption: true }) : null];
+      }
+    },
+    "fantasy.teams[].waiver_adds": {
+      n: "adds judged",
+      wide: true,
+      value: function (s) { return [pct(s.value), "hit rate"]; },
+      intervalFmt: function (x) { return pct(x); },
+      draw: function (v) {
+        // The file lists the best and worst three adds; each is marked in words and by a
+        // filled or outlined triangle, never colour alone. Only players are named: the
+        // team a dropped player went to is never shown.
+        var rows = [], seen = {};
+        [["best", list(v.best)], ["worst", list(v.worst)]].forEach(function (g) {
+          g[1].forEach(function (a) {
+            var key = a.week + "|" + a.added;
+            if (seen[key]) { seen[key].marks.push(g[0]); return; }
+            seen[key] = { add: a, marks: [g[0]] };
+            rows.push(seen[key]);
+          });
+        });
+        rows.sort(function (a, b) { return a.add.week - b.add.week; });
+        function bid(sp) {
+          return isObj(sp) && sp.kind === "faab" && isNum(sp.amount) ? "$" + sp.amount : "–";
+        }
+        function mark(m) {
+          return h("span", { class: "ld-mark ld-mark--" + m[0] }, h("span", { "aria-hidden": "true" }, m[0] === "best" ? "▲ " : "▽ "), m.join(" and "));
+        }
+        var counts = isObj(v.counts) ? v.counts : {};
+        var t = h("div", { class: "data-table ld-table" },
+          h("table", null,
+            h("caption", { class: "ld-caption" }, "Adds, best and worst three marked"),
+            h("thead", null, h("tr", null, ["Week", "Added", "Dropped", "Bid", "Class"].map(function (c, i) {
+              return h("th", { scope: "col", class: i === 0 || i === 3 ? "num" : null }, c);
+            }))),
+            h("tbody", null, rows.map(function (r) {
+              var a = r.add;
+              return h("tr", null,
+                h("td", { class: "num" }, String(a.week)),
+                h("th", { scope: "row" }, a.added + (a.position ? " (" + a.position + ")" : ""), h("br"), mark(r.marks)),
+                h("td", null, a.dropped || "–"),
+                h("td", { class: "num" }, bid(a.spent)),
+                h("td", null, String(a["class"])));
+            }))));
+        return [
+          facts([["net points available", signed(v.net_points_available, 2)], ["net points captured", signed(v.net_points_captured, 2)],
+            ["adds a week", num(v.adds_per_week, 1)], ["adds", String(v.adds)], ["judged", String(v.judged)]]),
+          facts(["hit, captured", "hit, left on the bench", "miss", "stash", "insurance"].map(function (k) {
+            return [k, isNum(counts[k]) ? String(counts[k]) : null];
+          })),
+          t,
+          isNum(v.adds) && v.adds > rows.length ? h("p", { class: "ld-small" },
+            "The data lists the best and worst three of " + v.adds + " adds; the other " + (v.adds - rows.length) + " aren't in it.") : null
+        ];
       }
     },
     "fantasy.teams[].position_share": {

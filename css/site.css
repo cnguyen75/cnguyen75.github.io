@@ -1049,6 +1049,9 @@ a.track { text-decoration: none; }
 .ld-table .num { text-align: right; white-space: nowrap; }
 .ld-table--wide td { min-width: 6em; }
 
+.ld-sentence { margin: 0; font-size: 14px; }
+.ld-mark { font-family: var(--font-label); font-size: 12px; font-weight: 400; white-space: nowrap; }
+.ld-mark--worst { color: var(--text-3); }
 .ld-callout { display: flex; flex-direction: column; gap: 6px; border-left: 3px solid var(--blue); padding: 4px 0 4px 12px; }
 .ld-callout-title { margin: 0; font-size: 13px; color: var(--text-3); }
 .ld-callout-body { margin: 0; font-size: 16px; }
