@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -44,6 +44,9 @@
     },
     "lifting": {
       "$ref": "#/$defs/lifting"
+    },
+    "analysis": {
+      "$ref": "#/$defs/analysis"
     }
   },
   "$defs": {
@@ -968,6 +971,592 @@
         }
       },
       "description": "Strength training from Hevy, collected on my Mac nightly. All weights are in `unit`. The source chip's last_ok_at says when it last updated; data_through is the newest workout's date."
+    },
+    "analysis_stat": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One statistic. With a status other than \"ok\" there is no value, values or interval: nothing is published but the reason.",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "description": "The statistic's figures; each one's shape is in analysis.sample.json."
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "as_of"
+      ],
+      "properties": {
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "fantasy": {
+          "$ref": "#/$defs/analysis_fantasy"
+        },
+        "listening": {
+          "$ref": "#/$defs/analysis_listening"
+        },
+        "lifting": {
+          "$ref": "#/$defs/analysis_lifting"
+        },
+        "watching": {
+          "$ref": "#/$defs/analysis_watching"
+        },
+        "eating": {
+          "$ref": "#/$defs/analysis_eating"
+        },
+        "cross": {
+          "$ref": "#/$defs/analysis_cross"
+        },
+        "grading": {
+          "$ref": "#/$defs/analysis_grading"
+        }
+      },
+      "description": "Statistics computed from the archive: one block per feed plus cross and grading. Opponents are never named; Beli dates never appear."
+    },
+    "analysis_fantasy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teams",
+        "platforms"
+      ],
+      "properties": {
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/analysis_fantasy_team"
+          }
+        },
+        "platforms": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "projection_accuracy"
+            ],
+            "properties": {
+              "projection_accuracy": {
+                "$ref": "#/$defs/analysis_stat"
+              }
+            }
+          },
+          "description": "Per platform (sleeper, espn), across my teams there."
+        }
+      }
+    },
+    "analysis_fantasy_team": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "platform",
+        "season",
+        "weeks_played",
+        "playoff_odds",
+        "record_vs_median",
+        "lineup_efficiency",
+        "start_sit",
+        "consistency",
+        "strength_of_schedule",
+        "draft_value",
+        "waiver_impact",
+        "position_share",
+        "schedule_what_if",
+        "margins"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Display name by platform and format; never a team name."
+        },
+        "platform": {
+          "type": "string"
+        },
+        "season": {
+          "type": "integer"
+        },
+        "weeks_played": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "playoff_odds": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "record_vs_median": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "lineup_efficiency": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "start_sit": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "consistency": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "strength_of_schedule": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "draft_value": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "waiver_impact": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "position_share": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "schedule_what_if": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "margins": {
+          "$ref": "#/$defs/analysis_stat"
+        }
+      }
+    },
+    "analysis_listening": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plays",
+        "album_half_life",
+        "discovery",
+        "album_listener",
+        "concentration",
+        "heatmap",
+        "genre_mix",
+        "comebacks",
+        "first_repeat"
+      ],
+      "properties": {
+        "plays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "album_half_life": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "discovery": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "album_listener": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "concentration": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "heatmap": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "genre_mix": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "comebacks": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "first_repeat": {
+          "$ref": "#/$defs/analysis_stat"
+        }
+      }
+    },
+    "analysis_lifting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cut_start",
+        "progress",
+        "body_weight_rate",
+        "relative_strength",
+        "strength_kept",
+        "lag_check"
+      ],
+      "properties": {
+        "cut_start": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "progress": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per main lift, by display name."
+        },
+        "body_weight_rate": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "relative_strength": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per main lift, by display name."
+        },
+        "strength_kept": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per main lift, by display name."
+        },
+        "lag_check": {
+          "$ref": "#/$defs/analysis_stat"
+        }
+      }
+    },
+    "analysis_watching": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attribution",
+        "hours_by_month",
+        "genre_mix",
+        "release_decades",
+        "completion",
+        "pace",
+        "countries",
+        "contrarian",
+        "runtime",
+        "backlog",
+        "first_episode_drops",
+        "keeping_up",
+        "tier_distribution",
+        "tier_genres_decades",
+        "tier_contrarian",
+        "tier_completion_pace"
+      ],
+      "properties": {
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "url"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "description": "Title metadata and community ratings are Simkl's; credit them."
+        },
+        "hours_by_month": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "genre_mix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "show",
+            "film",
+            "anime",
+            "by_year"
+          ],
+          "properties": {
+            "show": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "film": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "anime": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "by_year": {
+              "$ref": "#/$defs/analysis_stat"
+            }
+          }
+        },
+        "release_decades": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "completion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "show",
+            "film",
+            "anime"
+          ],
+          "properties": {
+            "show": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "film": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "anime": {
+              "$ref": "#/$defs/analysis_stat"
+            }
+          }
+        },
+        "pace": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "countries": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "show",
+            "film",
+            "anime"
+          ],
+          "properties": {
+            "show": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "film": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "anime": {
+              "$ref": "#/$defs/analysis_stat"
+            }
+          }
+        },
+        "contrarian": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per ranking: films, shows, anime."
+        },
+        "runtime": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "backlog": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "first_episode_drops": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "keeping_up": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "tier_distribution": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per type: films, shows, anime."
+        },
+        "tier_genres_decades": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "tier_contrarian": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per type: films, shows, anime."
+        },
+        "tier_completion_pace": {
+          "$ref": "#/$defs/analysis_stat"
+        }
+      }
+    },
+    "analysis_eating": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "places",
+        "scores",
+        "choice_vs_taste",
+        "order_effect",
+        "contrast_effect",
+        "home_bias",
+        "contrarian",
+        "new_cuisines",
+        "top_ten_churn"
+      ],
+      "properties": {
+        "places": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scores": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "choice_vs_taste": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "order_effect": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "contrast_effect": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "home_bias": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "contrarian": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "new_cuisines": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "top_ten_churn": {
+          "$ref": "#/$defs/analysis_stat"
+        }
+      },
+      "description": "From Beli. Cities may appear; dates never do."
+    },
+    "analysis_cross": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lifting_soundtrack",
+        "rhythm"
+      ],
+      "properties": {
+        "lifting_soundtrack": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "rhythm": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "weekdays",
+            "plays",
+            "workouts",
+            "restaurants"
+          ],
+          "properties": {
+            "weekdays": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 7,
+              "maxItems": 7
+            },
+            "plays": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "workouts": {
+              "$ref": "#/$defs/analysis_stat"
+            },
+            "restaurants": {
+              "$ref": "#/$defs/analysis_stat"
+            }
+          }
+        }
+      }
+    },
+    "analysis_grading": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "win_chance",
+        "predictions_stored",
+        "playoff_odds"
+      ],
+      "properties": {
+        "win_chance": {
+          "$ref": "#/$defs/analysis_stat"
+        },
+        "predictions_stored": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "playoff_odds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "season",
+              "weeks_recorded",
+              "odds_over_time"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "season": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "weeks_recorded": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "odds_over_time": {
+                "$ref": "#/$defs/analysis_stat"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
