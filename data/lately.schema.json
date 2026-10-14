@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
