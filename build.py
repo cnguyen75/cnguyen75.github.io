@@ -41,6 +41,7 @@ PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what
 PROGRESS_OPTIONAL = ("results",)
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
+PREVIEW_INDEX = "index.drafts.html"  # the main page with draft pages linked; --drafts only, git-ignored
 
 # Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
 # A marker starts a block that runs to the next blank line; the second group only
@@ -870,52 +871,29 @@ def find_close(s, start, tag):
     raise ContentError(f"unclosed <{tag}> in index.html")
 
 
-def link_rows(index_html, ready):
-    """Points each track row with a ready page at it; restores rows whose page went away.
-    Idempotent: it first undoes its own earlier changes (marked with data-page)."""
-    def restore(m):
-        attrs = dict(re.findall(r'(data-[\w-]+)="([^"]*)"', m.group(0)))
-        tag = attrs.get("data-orig-tag", "div")
-        href = f' href="{attrs["data-orig-href"]}"' if attrs.get("data-orig-href") else ""
-        cls = m.group(1).replace(" track--wrap", "") if attrs.get("data-orig-class") else m.group(1)
-        return f'<{tag} class="{cls}"{href}>'
-
+def link_rows(index_html, pages):
+    """Makes each track row whose page is built ({number: slug}) one link to that page:
+    number, title, description and status together. Rows without a page are plain and
+    unlinked. Idempotent: it first turns rows it linked earlier (marked with data-page)
+    back into plain rows."""
     s = index_html
     while True:
-        m = re.search(r'<a class="(track[^"]*)" href="[^"]*" data-page="[^"]*"[^>]*>', s)
+        m = re.search(r'<a class="(track[^"]*)" href="[^"]*" data-page="[^"]*">', s)
         if not m:
             break
         end = find_close(s, m.start(), "a")
-        opening = restore(m)
-        tag = re.match(r"<(\w+)", opening).group(1)
-        inner = s[m.end():end - len("</a>")]
-        meta_orig = re.search(r'data-orig-meta="([^"]*)"', m.group(0))
-        if meta_orig:
-            inner = re.sub(r'(<span class="track-meta">)[^<]*(</span>)', lambda x: x.group(1) + meta_orig.group(1) + x.group(2), inner, count=1)
-        else:
-            inner = re.sub(r'\s*<span class="track-meta" data-added>[^<]*</span>', "", inner)
-        s = s[:m.start()] + opening + inner + f"</{tag}>" + s[end:]
+        s = s[:m.start()] + f'<div class="{m.group(1)}">' + s[m.end():end - len("</a>")] + "</div>" + s[end:]
 
-    for number, slug in ready.items():
-        m = re.search(rf'<(div|a) class="(track[^"]*)"( href="([^"]*)")?>\s*<span class="track-no">{number}</span>', s)
+    for number, slug in pages.items():
+        m = re.search(rf'<(div|a) class="(track[^"]*)"([^>]*)>\s*<span class="track-no">{number}</span>', s)
         if not m:
             raise ContentError(f"track {number} is not on the main page")
-        tag, cls, orig_href = m.group(1), m.group(2), m.group(4) or ""
-        end = find_close(s, m.start(), tag)
-        inner = s[s.index(">", m.start()) + 1:end - len(f"</{tag}>")]
-        meta = re.search(r'<span class="track-meta">([^<]*)</span>', inner)
-        extra = ""
-        if meta:
-            extra = f' data-orig-meta="{meta.group(1)}"'
-            inner = inner.replace(meta.group(0), '<span class="track-meta">track page →</span>', 1)
-        else:
-            inner = inner.rstrip("\n") + '\n<span class="track-meta" data-added>track page →</span>\n'
-        if "track--wrap" not in cls:
-            cls += " track--wrap"
-            extra += ' data-orig-class="1"'
-        opening = (f'<a class="{cls}" href="tracks/{slug}/" data-page="{slug}" data-orig-tag="{tag}"'
-                   + (f' data-orig-href="{orig_href}"' if orig_href else "") + extra + ">")
-        s = s[:m.start()] + opening + inner + "</a>" + s[end:]
+        if m.group(1) != "div" or m.group(3).strip():
+            raise ContentError(f"track {number}'s row on the main page must be a plain <div class=\"track ...\"> "
+                               "(an external link belongs on the track page, in a LINKS: block)")
+        end = find_close(s, m.start(), "div")
+        inner = s[s.index(">", m.start()) + 1:end - len("</div>")]
+        s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}">' + inner + "</a>" + s[end:]
     return s
 
 
@@ -936,6 +914,8 @@ def side_for(tracklist, letter):
 
 def render(meta, tracklist, pages_here, drafts_build, listed):
     page = Page(meta)
+    # A draft page, previewed with --drafts, goes back to the preview main page.
+    home = f"../../{PREVIEW_INDEX}" if drafts_build and not meta["ready"] else "../../"
     album = meta["register"] == "album"
     progress = meta["register"] == "progress"
     stamped = album or progress  # reading-time stamps and the clock
@@ -1015,7 +995,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
         nav.append(f'<a class="tp-next" href="../{pages_here[n[0]]["slug"]}/" data-stop><span class="tp-other-label">next · {n[0]} →</span>'
                    f'<span class="tp-other-title">{esc(n[1])}</span></a>')
     else:
-        nav.append(f'<a class="tp-next" href="../../#{side_id}" data-stop><span class="tp-other-label">back to the tracklist →</span>'
+        nav.append(f'<a class="tp-next" href="{home}#{side_id}" data-stop><span class="tp-other-label">back to the tracklist →</span>'
                    f'<span class="tp-other-title">All tracks</span></a>')
 
     title = meta["title"]
@@ -1079,8 +1059,8 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 <div class="wrap">
 <div class="page tp-page">
 <header class="site-header">
-<a class="site-name tp-home" href="../../">colin nguyen</a>
-<a class="tp-back" href="../../#{side_id}">← back to the tracklist</a>
+<a class="site-name tp-home" href="{home}">colin nguyen</a>
+<a class="tp-back" href="{home}#{side_id}">← back to the tracklist</a>
 </header>
 <main id="main" class="tp-main" data-total="{total:.1f}">
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
@@ -1194,6 +1174,13 @@ def main():
     new_index = link_rows(index_html, {m["track"]: m["slug"] for m in ready})
     if new_index != index_html:
         index_path.write_text(new_index, encoding="utf-8")
+    # A --drafts build also writes a preview of the main page with the draft pages linked
+    # too. It is git-ignored, so the committed index.html only ever links ready pages.
+    preview = ROOT / PREVIEW_INDEX
+    if args.drafts:
+        preview.write_text(link_rows(new_index, {m["track"]: m["slug"] for m in building}), encoding="utf-8")
+    elif preview.exists():
+        preview.unlink()
 
     print(f"built {len(data_pages)} lately page(s): " + ", ".join(m["feed"] for m in data_pages))
     drafts = [m for m in metas if not m["ready"]]

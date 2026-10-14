@@ -190,6 +190,37 @@ class Progress(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "LINKS"):
                 self.render(sections={"my role": "LINKS:\n" + bad})
 
+    # Main-page rows: a row whose page is built is one link (number, title, description,
+    # status); others stay plain <div>s with no label. Idempotent; an external-link row
+    # can't be linked to a page.
+    def test_main_page_rows(self):
+        index = ('<div class="track track--wrap">\n<span class="track-no">04</span>\n<div class="track-body">'
+                 '<h3 class="track-title">A study</h3><span class="track-desc">About it.</span></div>\n'
+                 '<span class="track-meta track-meta--status">in progress</span>\n</div>\n'
+                 '<div class="track track--wrap">\n<span class="track-no">05</span>\n<div class="track-body">'
+                 '<h3 class="track-title">Another</h3></div>\n</div>\n')
+        linked = build.link_rows(index, {"04": "demo-page"})
+        self.assertIn('<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page">\n<span class="track-no">04</span>', linked)
+        self.assertIn('<span class="track-meta track-meta--status">in progress</span>\n</a>', linked)
+        self.assertEqual(linked.count("<a "), 1)  # one anchor for the whole row; 05 stays plain
+        self.assertNotIn("→", linked)
+        self.assertEqual(build.link_rows(linked, {"04": "demo-page"}), linked)
+        self.assertEqual(build.link_rows(linked, {}), index)
+        with self.assertRaisesRegex(build.ContentError, "LINKS"):
+            build.link_rows(index.replace('<div class="track track--wrap">\n<span class="track-no">05',
+                                          '<div class="track track--wrap" href="https://x.example">\n<span class="track-no">05'), {"05": "x"})
+
+    # A draft page in a --drafts build goes back to the preview main page; a ready page,
+    # in either build, to the real one.
+    def test_home_links(self):
+        def home(ready, drafts_build):
+            meta = self.read(front={"ready": "true" if ready else "false"})
+            doc, _ = build.render(meta, list(TRACKLIST), {"04": meta}, drafts_build, len(TRACKLIST))
+            return re.search(r'<a class="tp-back" href="([^"#]*)#', doc).group(1)
+        self.assertEqual(home(False, True), "../../" + build.PREVIEW_INDEX)
+        self.assertEqual(home(True, True), "../../")
+        self.assertEqual(home(True, False), "../../")
+
 
 if __name__ == "__main__":
     unittest.main()

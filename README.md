@@ -154,7 +154,9 @@ A `progress` page (ongoing research) has these sections, in this order, and the 
 - writes the page;
 - adds it to `sitemap.xml`;
 - allows it in `tracks/.gitignore`;
-- points its row on the main page at the page (the row's own link, such as "github →", is kept in data attributes and restored if the page is later unreadied).
+- makes its row on the main page one link to the page: number, title, description and status together, with a hover and focus state (a faint card background and a teal number). A row without a built page is a plain row with no link, label or hover state. Rows on the main page never link elsewhere; a project's GitHub link goes on its track page, in a `LINKS:` block under the credits ("Code and README").
+
+A `--drafts` build leaves `index.html` linking ready pages only and also writes `index.drafts.html` (git-ignored, deleted by a plain build): the main page with every built page linked, drafts included. Draft pages in that build point their "back to the tracklist" links at it, so open `index.drafts.html` to preview.
 
 Previous and next links follow the tracklist order and skip tracks without a page. A ready page links only to other ready pages, so it builds the same with or without `--drafts`.
 

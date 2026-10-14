@@ -87,11 +87,10 @@
 
 <section class="side" id="research" aria-labelledby="research-label">
 <h2 class="side-label" id="research-label">side b. research</h2>
-<a class="track track--wrap" href="https://osf.io/vmgzy">
+<div class="track track--wrap">
 <span class="track-no">04</span>
 <div class="track-body"><h3 class="track-title">How receptivity models are evaluated</h3><span class="track-desc">With Dr. Roberto Benzo and Dr. Peter Washington. Models that predict when someone will answer a health prompt are scored with a pooled metric. Across three cohorts of 63, 329 and 351 participants, 99.11 to 99.73% of the scored pairs compare different people, so the metric mostly rewards knowing who tends to respond. Within-person discrimination, the part an intervention needs, is much weaker. Backed by a pre-registered personalisation study.</span></div>
-<span class="track-meta">pre-registration →</span>
-</a>
+</div>
 <div class="track track--wrap">
 <span class="track-no">05</span>
 <div class="track-body"><h3 class="track-title">Efficient training methods</h3><span class="track-desc">With Prof. Eric Suess, CSU East Bay. A measurement study of five memory-saving techniques for fine-tuning small language models on a laptop. Together they raised the trainable step from 8,192 to 131,072 tokens in 71% of the baseline's memory. I also wrote a block-wise 8-bit AdamW from scratch that matched PyTorch's own to the byte and was statistically equivalent to full precision across six seeds.</span></div>
@@ -116,41 +115,37 @@
 
 <section class="side" id="projects" aria-labelledby="projects-label">
 <h2 class="side-label" id="projects-label">side c. side projects</h2>
-<a class="track track--wrap" href="https://github.com/cnguyen75/pokemon-tcg-ai">
+<div class="track track--wrap">
 <span class="track-no">09</span>
 <div class="track-body"><h3 class="track-title">Pokémon TCG agent</h3><span class="track-desc">An agent for Kaggle's Pokémon Trading Card Game AI competition, a hidden-information card game played on a live ranked ladder. A hand-written policy is wrapped in a whole-turn search over sampled hidden states, with a self-play-trained value network scoring positions. It finished 2,166th of 6,807 teams. Re-running identical local tests showed swings of 12 points, so most improvements smaller than that were noise.</span></div>
-<span class="track-meta">github →</span>
-</a>
+</div>
 <div class="track track--wrap">
 <span class="track-no">10</span>
 <div class="track-body"><h3 class="track-title">Paper Trader</h3><span class="track-desc">An automated ETF-trading system that wrote down its pass and fail criteria before any backtest ran. The first strategy was shelved when a ten-year backtest returned a Sharpe ratio of 0.74 against a required 1.06. Its successor runs on a paper account against a simulated twin: all 26 decisions since its clock started match, as of 12 October 2026, and it has already failed two of its own criteria.</span></div>
 <span class="track-meta track-meta--status">in progress</span>
 </div>
-<a class="track track--wrap" href="https://github.com/cnguyen75/NBA-Inverse-Shot-Optimization">
+<div class="track track--wrap">
 <span class="track-no">11</span>
 <div class="track-body"><h3 class="track-title">Why did they take that shot?</h3><span class="track-desc">Asks why LeBron James, Stephen Curry and James Harden took the shots they did, using 128,069 shots from the 2014–15 season. A small network picks the real shot from plausible alternatives about half the time on held-out shots, against under a third by chance. Auditing it a year later, I found the original optimality conditions never touched the learned cost, and a pre-registered attempt to recover each player's cost ended in a negative result: without court position, defender distance is a consequence of the shot, not an input to it.</span></div>
-<span class="track-meta">github →</span>
-</a>
-<a class="track track--wrap" href="https://github.com/cnguyen75/Drug-Target-Interaction-Network">
+</div>
+<div class="track track--wrap">
 <span class="track-no">12</span>
 <div class="track-body"><h3 class="track-title">Drug–target interaction network</h3><span class="track-desc">A dashboard that turns DrugBank into a network of 7,393 drugs, 2,981 human targets and 18,038 interactions, and suggests new drug–target links with the evidence behind each. For a drug the network has never seen, it ranks real targets above untested ones at 0.85 ROC-AUC, against 0.69 for a structural-similarity baseline; about 0.76 is the fairer figure for a genuinely new compound. Rebuilt in 2026 after I found leakage in my own first version.</span></div>
-<span class="track-meta">github →</span>
-</a>
-<a class="track track--wrap" href="https://github.com/cnguyen75/MLProjects">
+</div>
+<div class="track track--wrap">
 <span class="track-no">13</span>
 <div class="track-body"><h3 class="track-title">LLM 20 Questions</h3><span class="track-desc">A two-model agent for Kaggle's LLM 20 Questions competition (2024): one 8-billion-parameter model asks and guesses, another answers, with scripted openings and a fixed list of candidate answers. It finished 495th of 832 teams. Replayed against itself on 12 secret words, it won none, though the secret word was on its list every time; the same agent with a 2025 model won 1 of 12.</span></div>
-<span class="track-meta">github →</span>
-</a>
+</div>
 <div class="track track--wrap">
 <span class="track-no">14</span>
 <div class="track-body"><h3 class="track-title">Which optimizer trains a speech model best?</h3><span class="track-desc">Five optimizers fine-tune a small text-to-speech model to a new voice, five seeds each. Four could not be told apart within the spread across seeds, L-BFGS was clearly worse, and the standard metrics scored 44% of clips that failed to stop as error-free.</span></div>
 <span class="track-meta track-meta--status">rebuilt 2026</span>
 </div>
-<a class="track track--wrap" href="https://github.com/cnguyen75/nba-catch-decisions">
+<div class="track track--wrap">
 <span class="track-no">15</span>
 <div class="track-body"><h3 class="track-title">A foot of space is worth eight seconds</h3><span class="track-desc">Public player tracking from 2015–16 puts the defender before the decision. A foot of space at the catch is worth about eight seconds of shot clock to the league, nearly nine on threes and when trailing, and the defender takes most of it back before the release. Whether shooters are right to want it, the data can't say: three instruments were too weak to value the shots they passed up.</span></div>
 <span class="track-meta track-meta--status">2026</span>
-</a>
+</div>
 </section>
 
 <section class="side" id="previously" aria-labelledby="previously-label">
