@@ -136,6 +136,60 @@ class Progress(unittest.TestCase):
         self.assertRegex(doc, r'<span class="tp-seg-time">0:00</span><span class="tp-seg-name">question</span>')
         self.assertRegex(doc, r'id="approach-h">\d+:\d\d · approach</h2>')
 
+    # [text](track:NN) links another track's page under the previous/next rule: a draft
+    # links any page built with it; a ready page links only ready pages; otherwise text.
+    def test_track_links(self):
+        line = "See [the other page](track:15) for more."
+        other = {"slug": "other-page", "ready": False}
+        def render_with(ready_self, pages):
+            meta = self.read(sections={"what's next": line}, front={"ready": "true" if ready_self else "false"})
+            tl = TRACKLIST + [("15", "Other", "side b. research", "research")]
+            doc, _ = build.render(meta, tl, dict(pages, **{"04": meta}), True, len(tl))
+            return doc
+        self.assertIn('<a href="../other-page/">the other page</a>', render_with(False, {"15": other}))
+        self.assertIn("See the other page for more.", render_with(True, {"15": other}))
+        self.assertIn('<a href="../other-page/">the other page</a>', render_with(True, {"15": dict(other, ready=True)}))
+        self.assertIn("See the other page for more.", render_with(False, {}))  # not built: text only
+
+    # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
+    # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
+    def test_figure_alt_and_overlay(self):
+        assets = self.dir / "demo-page" / "f"
+        assets.mkdir(parents=True)
+        (assets / "plot.svg").write_text('<?xml version="1.0"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"\n  "x.dtd">\n'
+                                         '<svg width="10pt" height="5pt" viewBox="0 0 10 5"><g id="old">old label</g></svg>')
+        (assets / "fix.svg").write_text('<svg viewBox="0 0 10 5"><style>#old { display: none; }</style><text>new label</text></svg>')
+        fig = "FIGURE: demo-page/f/plot.svg\nALT: A plot.\nCAPTION: fig. 1 · a plot."
+        doc = self.render(sections={"results": fig})
+        self.assertIn('<img src="f/plot.svg" alt="A plot." width="10" height="5"', doc)
+        with self.assertRaisesRegex(build.ContentError, "ALT"):
+            self.render(sections={"results": "FIGURE: demo-page/f/plot.svg\nCAPTION: fig. 1 · a plot."})
+        doc = self.render(sections={"results": fig.replace("CAPTION", "OVERLAY: demo-page/f/fix.svg\nCAPTION")})
+        self.assertRegex(doc, r'<svg class="tp-chart-svg" role="img" aria-label="A plot\." focusable="false" viewBox="0 0 10 5">'
+                              r'<g id="old">old label</g><style>#old \{ display: none; \}</style><text>new label</text></svg>')
+        self.assertNotIn("<img", doc.split('id="results"')[1])
+        self.assertIn("old label", (assets / "plot.svg").read_text())  # the file itself is untouched
+
+    # DEMO: takes one or more data files; the first is data-src, the rest data-more.
+    def test_demo_files(self):
+        assets = self.dir / "demo-page"
+        assets.mkdir()
+        for f in ("a.json", "b.json", "demo.js"):
+            (assets / f).write_text("{}")
+        doc = self.render(sections={"results": "DEMO: demo-page/a.json demo-page/b.json\nATTRIBUTION: Data from somewhere."})
+        self.assertIn('<div class="tp-demo" data-src="a.json" data-more="b.json"', doc)
+        self.assertIn('<p class="tp-attribution">Data from somewhere.</p>', doc)
+        self.assertIn('data-src="a.json" aria-live', self.render(sections={"results": "DEMO: demo-page/a.json"}))
+
+    # LINKS: rows 'label | https://...' become a short list of links.
+    def test_links(self):
+        doc = self.render(sections={"my role": "All of it.\n\nLINKS:\nCode | https://example.com/code\nThe record | https://example.com/r"})
+        self.assertRegex(doc, r'<ul data-secs="[\d.]+" class="tp-links"><li><a href="https://example\.com/code">Code →</a></li>'
+                              r'<li><a href="https://example\.com/r">The record →</a></li></ul>')
+        for bad in ("Code | http://example.com", "https://example.com", " | https://example.com"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "LINKS"):
+                self.render(sections={"my role": "LINKS:\n" + bad})
+
 
 if __name__ == "__main__":
     unittest.main()

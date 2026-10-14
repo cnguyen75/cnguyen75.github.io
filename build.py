@@ -46,8 +46,8 @@ OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
 # A marker starts a block that runs to the next blank line; the second group only
 # ever follows one of the first.
 MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
-MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "AUDIO-PAIR", "AUDIO-GRID")
-MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE")
+MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "LINKS", "AUDIO-PAIR", "AUDIO-GRID")
+MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE", "ALT", "OVERLAY")
 
 
 # The data register (content/lately/<feed>.md -> lately/<feed>/)
@@ -374,15 +374,27 @@ def build_data_pages(schema):
 # **bold**, *italic*, `code`, [text](https://...), component blocks fenced by
 # "::: name args" ... ":::", and the plain-text markers above.
 
+# Track pages a [text](track:NN) link may point at from the page being rendered:
+# {number: slug}, set by render() with the same rule as previous and next.
+TRACK_LINKS = {}
+
+
 def inline(s):
     out, last = [], 0
     for m in re.finditer(r"\[([^\]]+)\]\(([^)\s]+)\)", s):
         out.append(inline_text(s[last:m.start()]))
         url = m.group(2)
+        last = m.end()
+        track = re.fullmatch(r"track:(\d+)", url)
+        if track:
+            # Another track's page: a link only when that page is linkable from this one,
+            # otherwise the text alone.
+            slug = TRACK_LINKS.get(track.group(1).zfill(2))
+            out.append(f'<a href="../{slug}/">{inline_text(m.group(1))}</a>' if slug else inline_text(m.group(1)))
+            continue
         if not re.match(r"(https://|mailto:|#|\.\./)", url):
             raise ContentError(f"link {url!r} must be https://, mailto:, #anchor or relative")
         out.append(f'<a href="{esc(url)}">{inline_text(m.group(1))}</a>')
-        last = m.end()
     out.append(inline_text(s[last:]))
     return "".join(out)
 
@@ -421,7 +433,7 @@ class Page:
             raise ContentError(f"{self.meta['source'].name}: missing asset {path.relative_to(ROOT)}")
         if inline_svg:
             svg = path.read_text(encoding="utf-8")
-            svg = re.sub(r"<\?xml[^>]*\?>\s*", "", svg).strip()
+            svg = re.sub(r"<\?xml[^>]*\?>\s*|<!DOCTYPE[^>]*>\s*", "", svg).strip()
             if not svg.startswith("<svg") or re.search(r"<script|\son\w+=", svg, re.I):
                 raise ContentError(f"{name}: must be a plain <svg> with no scripts")
             return svg
@@ -549,7 +561,7 @@ class Page:
                 raise ContentError(f"{name}: {kind}: has text after its {', '.join(fields)} line")
             else:
                 rows.append(l)
-        allowed = {"EXCERPT": {"CAPTION"}, "FIGURE": {"CAPTION"}, "AUDIO-PAIR": {"CAPTION"},
+        allowed = {"EXCERPT": {"CAPTION"}, "FIGURE": {"CAPTION", "ALT", "OVERLAY"}, "AUDIO-PAIR": {"CAPTION"},
                    "DEMO": {"BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION"},
                    "AUDIO-GRID": {"BEHAVIOUR", "AUDIO-NOTE", "ATTRIBUTION", "CAPTION"}}.get(kind, set())
         extra = set(fields) - allowed
@@ -595,6 +607,13 @@ class Page:
             return (f'<div class="tp-credits-block"><dl class="tp-credits">{items}</dl>{attribution}</div>',
                     sum(words(" ".join(c)) for c in cells) + (words(self.meta["attribution"]) if attribution else 0), "text")
 
+        if kind == "LINKS":
+            # A short list of labelled links, e.g. under the credits: 'label | https://...' per row.
+            need(cells and all(len(c) == 2 and c[0] and re.fullmatch(r"https://\S+", c[1]) for c in cells),
+                 "rows are 'label | https://...'")
+            items = "".join(f'<li><a href="{esc(c[1])}">{inline_text(c[0])} →</a></li>' for c in cells)
+            return (f'<ul class="tp-links">{items}</ul>', sum(words(c[0]) for c in cells), "text")
+
         if kind == "TABLE":
             need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")
             head_html = "".join(f'<th scope="col">{inline(c)}</th>' for c in cells[0])
@@ -612,23 +631,41 @@ class Page:
         if kind == "FIGURE":
             need(arg.endswith(".svg") and cap, "needs an .svg path and a CAPTION: line")
             svg = self.asset(arg, inline_svg=True)  # checked as a plain SVG; published as a file
+            # The text alternative is the SVG's <title>, or an ALT: line for a file without one.
             title = re.search(r"<title[^>]*>(.*?)</title>", svg, re.S)
-            need(title, f"{arg} has no <title> to use as its text alternative")
-            alt = html.unescape(title.group(1).strip())
+            need(title or fields.get("ALT"), f"{arg} has no <title>; give its text alternative on an ALT: line")
+            alt = fields.get("ALT") or html.unescape(title.group(1).strip())
             size = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', svg)
             dims = f' width="{size.group(1)}" height="{size.group(2)}"' if size else ""
+            chart = f'<div class="tp-chart" tabindex="0" role="region" aria-label="Figure: {esc(alt)}">'
+            if fields.get("OVERLAY"):
+                # OVERLAY: another SVG whose contents are drawn on top of this one, for a
+                # correction to a label in a figure file that is not edited. The figure is
+                # then inlined (not published as a file) so the overlay's style can hide the
+                # original label; the overlay's own <style> and shapes go in after it.
+                over = self.asset(fields["OVERLAY"], inline_svg=True, copy=False)
+                inner = re.search(r"<svg[^>]*>(.*)</svg>", over, re.S)
+                need(inner, f"{fields['OVERLAY']} is not an SVG")
+                body = re.sub(r"\s(width|height)=\"[^\"]*\"", "", svg[:svg.index(">") + 1], count=2)
+                body = re.sub(r"^<svg", f'<svg class="tp-chart-svg" role="img" aria-label="{esc(alt)}" focusable="false"', body, count=1)
+                svg = body + svg[svg.index(">") + 1:svg.rindex("</svg>")] + inner.group(1) + "</svg>"
+                return (f'<figure class="tp-figure">{chart}{svg}</div>{cap}</figure>', 0, "figure")
             src = self.asset(arg)
-            return (f'<figure class="tp-figure"><div class="tp-chart" tabindex="0" role="region" aria-label="Figure: {esc(alt)}">'
+            return (f'<figure class="tp-figure">{chart}'
                     f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} decoding="async"></div>{cap}</figure>', 0, "figure")
 
         if kind == "DEMO":
-            need(arg.endswith(".json") and not rows, "needs a .json path and nothing else on its lines")
-            data = self.asset(arg)
+            files = arg.split()
+            need(files and all(f.endswith(".json") for f in files) and not rows,
+                 "needs one or more .json paths and nothing else on its lines")
+            data = self.asset(files[0])
+            more = " ".join(self.asset(f) for f in files[1:])
             self.scripts.append(self.asset("demo.js"))
             if (self.meta["assets"] / "demo.css").is_file():
                 self.styles.append(self.asset("demo.css"))
             dcap = f'<figcaption class="tp-caption">{inline(fields["DEMO-CAPTION"])}</figcaption>' if fields.get("DEMO-CAPTION") else ""
-            return (f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}" aria-live="polite">'
+            return (f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}"'
+                    + (f' data-more="{esc(more)}"' if more else "") + ' aria-live="polite">'
                     f'<p class="tp-demo-fallback">This demo needs JavaScript.</p></div>{dcap}{notes}</figure>', 0, "figure")
 
         if kind == "AUDIO-PAIR":
@@ -909,6 +946,11 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     _, _, side_label, side_id = by_no[num]
     on_list = num in {t[0] for t in tracklist[:listed]}
     side_short = side_label.split(",")[0]
+
+    # Links to other track pages follow the previous/next rule below: a ready page links
+    # only ready pages; a draft, in a --drafts build, links any page built with it.
+    TRACK_LINKS.clear()
+    TRACK_LINKS.update({n: m["slug"] for n, m in pages_here.items() if m["ready"] or not meta["ready"]})
 
     # sections, their reading time, and the blocks the play control pauses at
     sections, t = [], 0.0
