@@ -181,6 +181,7 @@ register: data
 feed: lifting                       one of fantasy, watching, listening, eating, lifting; matches the file name
 title: Lifting, in depth
 source: Hevy | https://www.hevyapp.com     comma-separated "Name | https://" credits
+source_note: ...                    optional, shown after the credit
 ---
 
 ## Body weight since the cut
@@ -190,7 +191,7 @@ STAT: lifting.body_weight_rate
 STAT: lifting.strength_kept.*
 ```
 
-A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes every team, `*` every key of a map (one per lift, platform or ranking) or every statistic among fixed keys (`watching.completion.*` is shows, films and anime, shown side by side). A section holds only `STAT:` lines. The build stops when a path names nothing in the schema, when watching, listening, eating or lifting doesn't credit Simkl, Last.fm, Beli or Hevy, or when a statistic in the schema is on no page or on two. The only statistic left out on purpose is listed in `DATA_LEFT_OUT` in `build.py` with its reason (`eating.new_cuisines`: its months come from Beli's ranking dates).
+A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes every team, `*` every key of a map (one per lift, platform or ranking) or every statistic among fixed keys (`watching.completion.*` is shows, films and anime, shown side by side). A section holds only `STAT:` lines. The build stops when a path names nothing in the schema, when watching, listening, eating or lifting doesn't credit Simkl, Last.fm, Beli or Hevy, or when a statistic in the schema is on no page or on two. A statistic can be left out on purpose by listing it in `DATA_LEFT_OUT` in `build.py` with its reason; none is. An optional `source_note:` follows the credit on the source line: the eating page's reads "Beli dates are used only as counts, never tied to a place" (new cuisines are counted by month; no date is shown with a place).
 
 The built page is a frame with no numbers in it. In the browser, `js/lately-depth.js` fills in:
 

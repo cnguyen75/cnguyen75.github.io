@@ -55,11 +55,9 @@ DATA_FEEDS = ("fantasy", "watching", "listening", "eating", "lifting")
 DATA_REQUIRED = ("register", "feed", "title", "source")
 # Each page credits its source by name and link; these four require it.
 DATA_ATTRIBUTION = {"watching": "Simkl", "listening": "Last.fm", "eating": "Beli", "lifting": "Hevy"}
-# Statistics in the analysis schema that no page shows, with the reason. Every other
+# Statistics in the analysis schema that no page shows, as {path: reason}. Every other
 # statistic must be on exactly one page.
-DATA_LEFT_OUT = {
-    "eating.new_cuisines": "counts by month, and the months come from Beli's ranking dates; held until Colin decides",
-}
+DATA_LEFT_OUT = {}
 SCHEMA_PATH = "data/lately.schema.json"
 
 
@@ -288,6 +286,8 @@ def render_data_page(meta):
     url = f"{SITE}lately/{feed}/"
     title = meta["title"]
     desc = f"{title}: statistics from my {feed} data, drawn from the same nightly file as the Lately section."
+    # source_note: optional text after the credit, e.g. how a source's dates are used
+    note = f' · <span class="ld-source-note">{esc(meta["source_note"])}</span>' if meta.get("source_note") else ""
     credit = " and ".join(f'<a href="{esc(u)}">{esc(n)}</a>' for n, u in meta["sources"])
     nav = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in meta["sections"])
     secs = []
@@ -333,7 +333,7 @@ def render_data_page(meta):
 <section class="ld-hero" aria-labelledby="ld-title">
 <p class="ld-kicker">side d. lately · in depth</p>
 <h1 class="ld-title" id="ld-title">{esc(title)}</h1>
-<p class="ld-source">data from {credit} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
+<p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
 <div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
 <noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
 <p class="panel-empty ld-missing" hidden>Not connected yet.</p>

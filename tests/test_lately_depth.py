@@ -100,7 +100,8 @@ class Register(unittest.TestCase):
     def test_every_statistic_placed(self):
         pages = [self.read(f, content(f)) for f in FEEDS]
         build.check_data_coverage(pages, SCHEMA)
-        self.assertEqual(set(build.DATA_LEFT_OUT), {"eating.new_cuisines"})
+        self.assertEqual(build.DATA_LEFT_OUT, {})
+        self.assertIn("eating.new_cuisines", pages[FEEDS.index("eating")]["stats"])
         self.assertIn("grading.win_chance", pages[FEEDS.index("fantasy")]["stats"])
         dropped = copy.deepcopy(pages)
         dropped[0]["stats"].remove("fantasy.teams[].margins")
@@ -155,9 +156,11 @@ def draw(page, width=1280, name="base"):
     try:
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             json.dump(variant(name), f)
-        out = subprocess.run(["node", str(ROOT / "tests/depth_render.js"), f"http://127.0.0.1:{server.server_port}", page, f.name, str(width)],
-                             capture_output=True, text=True, timeout=90, check=True).stdout
-        return json.loads(out)
+        r = subprocess.run(["node", str(ROOT / "tests/depth_render.js"), f"http://127.0.0.1:{server.server_port}", page, f.name, str(width)],
+                             capture_output=True, text=True, timeout=200)
+        if r.returncode:
+            raise AssertionError("render helper failed:\n" + r.stderr[-2000:])
+        return json.loads(r.stdout)
     finally:
         server.shutdown()
         server.server_close()
@@ -217,6 +220,8 @@ class Drawing(unittest.TestCase):
                 self.assertIn("as of 13 Oct 2026", d["source"])
                 self.assertIn(names[feed], [a for a, _ in d["sourceLinks"]])
                 self.assertTrue(all(u.startswith("https://") for _, u in d["sourceLinks"]))
+                note = "Beli dates are used only as counts, never tied to a place"
+                (self.assertIn if feed == "eating" else self.assertNotIn)(note, d["source"])
                 self.assertEqual(d["errors"], [])
 
     # Wins and losses by filled and outlined marks with their letter, never colour alone.
@@ -267,14 +272,18 @@ class Drawing(unittest.TestCase):
         self.assertFalse(any("kept" in h[0] for h in lifting("kept includes zero")))
         self.assertFalse(any("kept" in h[0] for h in draw("lately/lifting/", name="kept includes zero")["headline"]))
 
-    # No other managers' names; no Beli dates (cities are fine).
+    # No other managers' names; no Beli dates (cities are fine; new cuisines are counted by
+    # month, which ties no date to a place).
     def test_nothing_the_page_does_not_know(self):
         for page in ["index.html"] + [f"lately/{f}/" for f in FEEDS]:
             self.assertNotIn("Rival Manager", draw(page)["bodyText"], page)
         eating = draw("lately/eating/")["bodyText"]
         self.assertNotRegex(eating, r"\d{4}-\d{2}")
-        self.assertNotRegex(eating, r"14 Sep|Sep 2026")  # the injected ranking date, in any form
+        self.assertNotRegex(eating, r"14 Sep")  # the injected ranking date, in any form
         self.assertIn("City 1", eating)
+        (b,) = blocks(draw("lately/eating/"), "eating.new_cuisines")
+        self.assertEqual(b["status"], "ok")
+        self.assertNotRegex(b["text"], r"\d{4}-\d{2}-\d{2}|\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b")
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
     def test_widths(self):

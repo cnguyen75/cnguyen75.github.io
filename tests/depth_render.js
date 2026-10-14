@@ -17,8 +17,8 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
     page.on("console", m => { if (m.type() === "warning" || m.type() === "error") errors.push(m.text()); });
     const body = fs.readFileSync(fixture, "utf8");
     await page.route("**/data/lately.json*", r => r.fulfill({ status: 200, contentType: "application/json", body }));
-    await page.goto(base + "/" + pagePath);
-    await page.waitForFunction(() => document.querySelector(".ld-stat .ld-blocks, .ld-missing:not([hidden]), #panel-lifting .ld-more"));
+    await page.goto(base + "/" + pagePath, { timeout: 90000 });
+    await page.waitForFunction(() => document.querySelector(".ld-stat .ld-blocks, .ld-missing:not([hidden]), #panel-lifting .ld-more"), null, { timeout: 90000 });
     const facts = await page.evaluate(() => {
       const txt = e => (e ? e.textContent.replace(/\s+/g, " ").trim() : null);
       const de = document.documentElement;

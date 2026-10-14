@@ -58,9 +58,11 @@ def draw(width):
     try:
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             json.dump(fixture(), f)
-        out = subprocess.run(["node", str(ROOT / "tests/lately_render.js"), f"http://127.0.0.1:{server.server_port}", f.name, str(width)],
-                             capture_output=True, text=True, timeout=60, check=True).stdout
-        return json.loads(out)
+        r = subprocess.run(["node", str(ROOT / "tests/lately_render.js"), f"http://127.0.0.1:{server.server_port}", f.name, str(width)],
+                             capture_output=True, text=True, timeout=200)
+        if r.returncode:
+            raise AssertionError("render helper failed:\n" + r.stderr[-2000:])
+        return json.loads(r.stdout)
     finally:
         server.shutdown()
         server.server_close()

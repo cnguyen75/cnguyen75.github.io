@@ -816,6 +816,15 @@
       return [["pairs", String(v.pairs)], ["cuisines", String(v.cuisines)]];
     }),
     "eating.contrarian": { n: "places" },
+    // Counts by month only; nothing ties a month to a place.
+    "eating.new_cuisines": {
+      n: "months",
+      draw: function (v) {
+        return columns("Cuisines ranked for the first time, by month", list(v.months).map(function (m) {
+          return { label: monthText(m.month, true), title: monthText(m.month), value: m.new_cuisines, text: String(m.new_cuisines) };
+        }), { labelHeading: "Month", valueHeading: "New cuisines" });
+      }
+    },
     "eating.top_ten_churn": { n: WEEKS, value: function (s) { return isNum(s.value) ? [num(s.value, 1), "places entering my top ten a week"] : null; } },
     "cross.rhythm.restaurants": {
       n: "places",

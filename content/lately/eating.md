@@ -3,6 +3,7 @@ register: data
 feed: eating
 title: Eating, in depth
 source: Beli | https://beliapp.com
+source_note: Beli dates are used only as counts, never tied to a place
 ---
 
 ## Scores
@@ -22,6 +23,9 @@ STAT: eating.contrast_effect
 
 ## Top-ten churn
 STAT: eating.top_ten_churn
+
+## New cuisines by month
+STAT: eating.new_cuisines
 
 ## Places ranked by weekday
 STAT: cross.rhythm.restaurants

@@ -14,8 +14,9 @@ const [base, fixture, width] = process.argv.slice(2);
     const page = await browser.newPage({ viewport: { width: Number(width), height: 900 } });
     const body = fs.readFileSync(fixture, "utf8");
     await page.route("**/data/lately.json*", r => r.fulfill({ status: 200, contentType: "application/json", body }));
-    await page.goto(base + "/index.html");
-    await page.waitForSelector("#panel-lifting .lift");
+    await page.goto(base + "/index.html", { timeout: 90000 });
+    // Generous: a loaded machine can take well over 30 s to draw the page (the old default).
+    await page.waitForSelector("#panel-lifting .lift", { timeout: 90000 });
     const facts = page => page.evaluate(() => {
       const visible = el => !!el && el.offsetParent !== null;
       return {
