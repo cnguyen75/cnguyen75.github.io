@@ -104,6 +104,8 @@ side: c                   # only for a draft whose track is not on the main page
 attribution: …            # optional, repeated under the credits unless they have a data row
 ```
 
+A page in a two-part story (tracks 11 and 12, the NBA pages) takes `part: part one · 2014–15 | 12`: the label, then the other part's number. The hero shows the label under the title, with a link to the other part under the same rule as previous and next (a ready page links it only once that part is ready too). On the main page the row carries the same label by hand, as `<span class="track-part">…</span>` after the title.
+
 Progress pages take `with:` (one line under the title, in place of `one_line:`), `as_of: YYYY-MM-DD`, an optional `link: label | https://…` (a small link under the `with:` line) and `status_label:`.
 
 A draft may be for a track that is not on the main page yet. It needs `side:`, sorts after the listed tracks, and says "not on the tracklist yet". A ready page must be on the main page.

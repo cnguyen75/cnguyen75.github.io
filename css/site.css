@@ -322,6 +322,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   max-width: 760px;
   padding-top: 4px;
 }
+/* Which part of a two-part story a row is, under its title. */
+.track-part { display: block; padding-top: 2px; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
 /* A row's small secondary link to the project elsewhere, while it has no ready page. */
 .track-ext { display: block; margin-top: 6px; font-family: var(--font-label); font-size: 14px; }
 .track-ext a { display: inline-block; padding: 4px 0; color: var(--text-2); }

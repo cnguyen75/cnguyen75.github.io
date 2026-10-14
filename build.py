@@ -108,6 +108,12 @@ def read_page(path):
     meta["source"] = path
     meta["assets"] = path.parent / meta["slug"]
     meta["sections"] = parse_sections(m.group(2), path.name)
+    if meta.get("part"):
+        # "part: part one · 2014–15 | 12": a page in a two-part story, and the number of the other part.
+        label, sep, other = (x.strip() for x in meta["part"].partition("|"))
+        if not (label and sep and re.fullmatch(r"\d+", other)):
+            raise ContentError(f"{path.name}: part must be 'label | number of the other part'")
+        meta["part_label"], meta["part_other"] = label, other.zfill(2)
     if meta["register"] == "progress":
         check_progress(meta, path.name)
     return meta
@@ -1046,6 +1052,15 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
             lede += f'\n<p class="tp-link"><a href="{esc(meta["link_url"])}"{new_tab(meta["link_url"])}>{esc(meta["link_label"])} →</a></p>'
     else:
         lede = f'<p class="tp-lede">{inline(meta["one_line"])}</p>'
+    # A two-part story: this page's part, and a link to the other part under the same
+    # rule as previous and next (a ready page links it only once it is ready too).
+    part = ""
+    if meta.get("part_label"):
+        part = esc(meta["part_label"])
+        other = pages_here.get(meta["part_other"])
+        if other and meta["part_other"] in TRACK_LINKS:
+            part += (f' · <a href="../{other["slug"]}/">{esc(other.get("part_label") or other["title"])} →</a>')
+        part = f'<p class="tp-part">{part}</p>\n'
     url = f"{SITE}tracks/{meta['slug']}/"
     own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
     if own_og:
@@ -1101,7 +1116,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
 <p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}</p>
 <div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
-{lede}
+{part}{lede}
 </section>
 <section class="tp-player" aria-label="Now reading">
 <div class="tp-controls" hidden>

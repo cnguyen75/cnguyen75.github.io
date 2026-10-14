@@ -154,6 +154,37 @@ class Progress(unittest.TestCase):
         self.assertIn('<a href="../other-page/">the other page</a>', render_with(True, {"15": dict(other, ready=True)}))
         self.assertIn("See the other page for more.", render_with(False, {}))  # not built: text only
 
+    # part: marks one page of a two-part story. Its hero shows the label and links the
+    # other part under the same rule as previous and next.
+    def test_two_part_story(self):
+        other = {"slug": "other-page", "ready": False, "title": "Other", "part_label": "part two · 2015–16"}
+        def render_with(ready_self, pages):
+            meta = self.read(front={"part": "part one · 2014–15 | 12", "ready": "true" if ready_self else "false"})
+            tl = TRACKLIST + [("12", "Other", "side b. research", "research")]
+            doc, _ = build.render(meta, tl, dict(pages, **{"04": meta}), True, len(tl))
+            return re.search(r'<p class="tp-part">(.*?)</p>', doc).group(1)
+        link = 'part one · 2014–15 · <a href="../other-page/">part two · 2015–16 →</a>'
+        self.assertEqual(render_with(False, {"12": other}), link)
+        self.assertEqual(render_with(True, {"12": other}), "part one · 2014–15")  # other part not ready
+        self.assertEqual(render_with(True, {"12": dict(other, ready=True)}), link)
+        self.assertEqual(render_with(False, {}), "part one · 2014–15")
+        self.assertNotIn("tp-part", self.render())
+        for bad in ("part one", "part one | twelve", " | 12"):
+            with self.assertRaisesRegex(build.ContentError, "part must be"):
+                self.read(front={"part": bad})
+
+    # The two NBA pages sit together on side C, each row labelled with its part.
+    def test_main_page_nba_parts(self):
+        index = (build.ROOT / "index.html").read_text(encoding="utf-8")
+        rows = {n: t for n, t, _, side in build.read_tracklist(index) if side == "projects"}
+        self.assertEqual(list(rows), ["09", "10", "11", "12", "13", "14", "15"])
+        self.assertEqual(rows["11"], "Why did they take that shot?")
+        self.assertEqual(rows["12"], "A foot of space is worth eight seconds")
+        for n, label in (("11", "part one · 2014–15"), ("12", "part two · 2015–16")):
+            self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
+                                    rf'<span class="track-part">{label}</span>')
+        self.assertEqual(index.count('class="track-part"'), 2)
+
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
     def test_figure_alt_and_overlay(self):
