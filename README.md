@@ -13,7 +13,7 @@ js/lately.js               draws the Side D panels from data
 js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
 content/lately/            one file per Lately feed page (the "data" register)
 lately/<feed>/             built Lately pages: frames only, no data (committed)
-tests/                     python3 -m unittest discover tests; tests/fixtures/analysis.json has placeholder names only
+tests/                     python3 tests/run.py (logs to ~/Personal/site-review-<date>/test-logs/); fixtures/analysis.json has placeholder names only
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
 data/lately.sample.json    sample data matching the approved design's placeholder values
 data/lately.json           live data, written by the pipeline; git-ignored, never committed
@@ -138,7 +138,7 @@ A `DIAGRAM:` line (a description of a diagram still to be drawn) stops the build
 
 **Registers.** `album` and `progress` pages show reading-time stamps on the sections and a clock in the reading bar; `plain` pages show neither. All three have the reading bar and play control.
 
-A `progress` page (ongoing research) has these sections, in this order, and the build stops on any other set or order: `## question`, `## approach`, `## where it stands`, `## results` (optional; left out entirely when absent), `## what's next`, `## log`, `## my role`. "where it stands" carries the `as_of:` date next to its heading ("as of 13 Oct 2026"). Each `## log` line is `YYYY-MM-DD | text` or `YYYY-MM | text`, shown as a dated list in file order (a month-only date shows as "May 2026"); any other line stops the build. Its `one_line:` is optional and is used only for the page description and preview card (the `with:` line sits under the title); without one, the description is the question's opening paragraph. Tests: `python3 -m unittest discover tests`. Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
+A `progress` page (ongoing research) has these sections, in this order, and the build stops on any other set or order: `## question`, `## approach`, `## where it stands`, `## results` (optional; left out entirely when absent), `## what's next`, `## log`, `## my role`. "where it stands" carries the `as_of:` date next to its heading ("as of 13 Oct 2026"). Each `## log` line is `YYYY-MM-DD | text` or `YYYY-MM | text`, shown as a dated list in file order (a month-only date shows as "May 2026"); any other line stops the build. Its `one_line:` is optional and is used only for the page description and preview card (the `with:` line sits under the title); without one, the description is the question's opening paragraph. Tests: `python3 tests/run.py`, which writes the full output to `~/Personal/site-review-<date>/test-logs/` (`python3 -m unittest discover tests` also works, without the log). Reading time is 230 words a minute, plus 6 seconds for each figure, excerpt, chart or demo.
 
 **The reading bar and play control** (`js/track.js`):
 - The bar's segments link to the sections; the one being read is underlined and marked `aria-current`, and the part already read fills in.
