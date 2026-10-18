@@ -61,13 +61,16 @@ class Register(unittest.TestCase):
         self.assertIn('<div class="ld-headline" data-feed="fantasy"', doc)
         self.assertIn('data from <a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a>', doc)
         self.assertIn('as of <time class="ld-asof-date">', doc)
-        self.assertRegex(doc, r'<h3 class="ld-section-title" id="is-the-win-chance-honest-h">Is the win chance honest\?</h3>'
-                              r'<div class="ld-stat" data-stat="grading\.win_chance">')
+        self.assertRegex(doc, r'<h3 class="ld-section-title" id="projection-accuracy-h">Are the projections honest\?</h3>'
+                              r'<span class="ld-alias" id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
+                              r'<div class="ld-stat" data-stat="fantasy\.platforms\.\*\.projection_accuracy"></div><div class="ld-stat" data-stat="grading\.win_chance">')
         self.assertEqual(len(re.findall(r'<section class="ld-section ', doc)), content("fantasy").count("\n## "))
         # Two groups, in order, each section inside one; the contents list is grouped the same way.
         self.assertRegex(doc, r'<section class="ld-group ld-group--whats-happening" id="whats-happening".*?<h2 class="ld-group-title" id="whats-happening-h">What&#x27;s happening</h2>'
                               r'.*</section><section class="ld-group ld-group--why" id="why".*?<h2 class="ld-group-title" id="why-h">Why</h2>')
         self.assertRegex(doc, r'<li class="ld-toc-group" data-group="whats-happening"><span class="ld-toc-label">What&#x27;s happening</span><ol><li><a href="#my-teams-week-by-week">')
+        # An absorbed card's id is an anchor inside the card that holds it now.
+        self.assertIn('<span class="ld-alias" id="strength-of-schedule" data-to="good-or-lucky"></span>', doc)
         # Feed blocks, the conditional credit, and the feed script the blocks need.
         self.assertIn('<div class="ld-feed" data-block="fantasy.lineup"></div>', doc)
         self.assertIn('<p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p>', doc)
@@ -75,6 +78,7 @@ class Register(unittest.TestCase):
         doc = build.render_data_page(self.read("watching", content("watching")))
         self.assertIn('data-stat="watching.completion.show watching.completion.film watching.completion.anime"', doc)
         self.assertIn('<h3 class="ld-section-title" id="completion-h">Do I finish what I start?</h3><p class="ld-section-note">Only finished titles are logged as a rule', doc)
+        self.assertIn('<div class="ld-feed" data-block="watching.tiers"></div>', doc)
         self.assertNotIn('class="ld-attribution"', doc)  # only fantasy carries the conditional Yahoo credit
         self.assertIn('<p class="ld-attributions" data-when-stats="watching.by_director watching.by_studio', doc)
         for feed in FEEDS:
@@ -82,26 +86,32 @@ class Register(unittest.TestCase):
             visible = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", doc, flags=re.S)))
             self.assertNotRegex(visible, r"\d", feed)  # no data in the committed page
 
-    # Retitled cards keep their ids, so deep links from before the regrouping still land.
+    # Kept cards keep their ids; a removed card's id is an alias inside the card that absorbed it.
     def test_deep_links_unchanged(self):
-        kept = {"fantasy": ["playoff-odds", "record-against-the-median", "margins", "the-schedule-replayed", "strength-of-schedule",
-                            "points-left-on-the-bench", "close-start-or-sit-calls", "consistency", "draft-value", "waiver-pickups",
-                            "waiver-adds", "points-by-position", "projection-accuracy", "is-the-win-chance-honest", "playoff-odds-as-they-stood"],
-                "watching": ["completion", "hours-by-month", "pace", "keeping-up", "dropped-after-one-episode", "backlog", "genres",
-                             "release-decades", "runtime", "countries", "my-top-ten-against-the-community", "tiers",
-                             "tiers-genres-and-decades", "tiers-against-the-community", "tiers-completion-and-pace"],
-                "listening": ["album-half-life", "new-artists", "first-repeat", "concentration", "genres-by-month", "comebacks",
-                              "when-i-listen", "plays-by-weekday-and-hour", "whole-albums"],
-                "eating": ["scores", "what-i-try-against-what-i-rate-highest", "home-against-away", "does-the-order-i-rank-in-move-the-score",
-                           "does-the-place-before-change-the-score", "new-cuisines-by-month", "places-ranked-by-weekday", "against-the-community"],
-                "lifting": ["body-weight-since-the-cut", "strength-kept-per-pound-lost", "progress-by-lift", "strength-for-body-weight",
-                            "weight-change-and-strength-weeks-later", "music-during-workouts", "workouts-by-weekday"]}
+        kept = {"fantasy": ["my-teams-week-by-week", "who-is-carrying-my-teams", "playoff-odds", "draft-value", "waiver-adds", "good-or-lucky",
+                            "manager-score", "acquisition-split", "points-left-on-the-bench", "projection-accuracy"],
+                "watching": ["my-rankings", "tiers", "recently", "keeping-up", "genres", "taste-profile", "whose-films", "crowd-agreement",
+                             "blockbuster", "sequels", "completion"],
+                "listening": ["right-now", "genres-by-month", "plays-by-weekday-and-hour", "artist-survival", "album-listening",
+                              "discovery-direction", "enduring", "entropy", "retention-new-artists", "album-half-life"],
+                "eating": ["recently-tried", "scores", "new-cuisines-by-month", "home-against-away", "does-the-order-i-rank-in-move-the-score",
+                           "does-the-place-before-change-the-score", "what-i-try-against-what-i-rate-highest", "landing", "rerank-drift"],
+                "lifting": ["main-lifts", "body-weight", "training", "hours-by-weekday-watching-listening-training", "music-during-workouts",
+                            "strength-index", "body-weight-since-the-cut", "strength-for-body-weight"]}
+        aliases = {"fantasy": {"draft": "draft-value", "strength-of-schedule": "good-or-lucky", "the-schedule-replayed": "good-or-lucky",
+                               "waiver-pickups": "manager-score", "is-the-win-chance-honest": "projection-accuracy"},
+                   "watching": {"tiers-genres-and-decades": "tiers", "s-tier": "taste-profile", "community-gap-by-genre": "crowd-agreement",
+                                "tiers-against-the-community": "crowd-agreement", "my-top-ten-against-the-community": "crowd-agreement"},
+                   "listening": {"artist-survival-all": "artist-survival", "nostalgia": "discovery-direction", "concentration": "enduring"},
+                   "lifting": {"workouts-by-weekday": "training", "strength-kept-per-pound-lost": "strength-for-body-weight"}}
         for feed, ids in kept.items():
             doc = build.render_data_page(self.read(feed, content(feed)))
-            for i in ids:
-                with self.subTest(feed=feed, id=i):
-                    self.assertIn(f'<section class="ld-section ld-section--', doc)
-                    self.assertRegex(doc, rf'<section class="ld-section ld-section--(whats-happening|why)" id="{i}" ')
+            found = re.findall(r'<section class="ld-section ld-section--(?:whats-happening|why)" id="([a-z0-9-]+)"', doc)
+            self.assertEqual(found, ids, feed)  # the kept cards, in order, and nothing else
+            for old, new in aliases.get(feed, {}).items():
+                with self.subTest(feed=feed, alias=old):
+                    self.assertIn(f'<span class="ld-alias" id="{old}" data-to="{new}"></span>', doc)
+            self.assertEqual(len(re.findall(r'<li><a href="#', doc)), len(ids))  # the index lists the kept cards only
 
     # Watching, listening, eating and lifting must credit Simkl, Last.fm, Beli and Hevy, by link.
     def test_required_attribution(self):
@@ -121,12 +131,14 @@ class Register(unittest.TestCase):
         for body, err in (("## A\nSTAT: lifting.nope\n", "not a statistic"),
                           ("## A\nSTAT: lifting.progress\n", "not a statistic"),
                           ("## A\nSTAT: fantasy.teams.margins\n", "write it with \\[\\]"),
-                          ("## A\nSome words.\n", "only STAT:, FEED: and NOTE: lines"),
+                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE: and ALIAS: lines"),
                           ("## A\nFEED: lifting.nope\n", "not a block js/lately.js draws"),
                           ("## A\nNOTE: only a note\n", "has no STAT: or FEED: line"),
                           ("## A\n\n## B\nSTAT: lifting.lag_check\n", "has no STAT"),
                           ("## A\nSTAT: lifting.lag_check\n## A\nSTAT: lifting.lag_check\n", "share an id"),
                           ("## A\nSTAT: lifting.lag_check\n\n# Why\n\n## A\nSTAT: lifting.volume_lag\n", "share an id"),
+                          ("## A\nALIAS: Not An Id\nSTAT: lifting.lag_check\n", "must be a section id"),
+                          ("## A\nALIAS: z\nSTAT: lifting.lag_check\n", "already a section id or alias"),
                           ("# Extra\n## A\nSTAT: lifting.lag_check\n", "groups are")):
             with self.subTest(body=body), self.assertRaisesRegex(build.ContentError, err):
                 self.read("lifting", head + body + ("" if "# Why" in body else why))
@@ -134,7 +146,8 @@ class Register(unittest.TestCase):
             self.read("lifting", head + "## A\nSTAT: lifting.lag_check\n")  # no Why group
         with self.assertRaisesRegex(build.ContentError, "match the file name"):
             self.read("eating", head + "## A\nSTAT: lifting.lag_check\n" + why)
-        meta = self.read("lifting", head + "## A\nNOTE: a line under the title\nSTAT: lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n" + why)
+        meta = self.read("lifting", head + "## A\nNOTE: a line under the title\nALIAS: an-old-card\nSTAT: lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n" + why)
+        self.assertEqual(meta["sections"][0]["aliases"], ["an-old-card"])
         self.assertEqual(meta["sections"][0]["stats"], [["lifting.progress.*"], ["cross.rhythm.workouts"]])
         self.assertEqual(meta["sections"][0]["slots"], [("stat", ["lifting.progress.*"]), ("feed", "lifting.lifts"), ("stat", ["cross.rhythm.workouts"])])
         self.assertEqual(meta["sections"][0]["notes"], ["a line under the title"])
@@ -148,19 +161,26 @@ class Register(unittest.TestCase):
     def test_every_statistic_placed(self):
         pages = [self.read(f, content(f)) for f in FEEDS]
         build.check_data_coverage(pages, SCHEMA)
-        self.assertEqual(build.DATA_LEFT_OUT, {})
+        # The trimmed pages leave statistics out on purpose, each with a reason; none is shown anywhere.
+        shown = {leaf for p in pages for leaf in p["stats"]}
+        for leaf, reason in build.DATA_LEFT_OUT.items():
+            with self.subTest(leaf=leaf):
+                self.assertTrue(reason)
+                self.assertIn(leaf, build.stat_paths(SCHEMA))
+                self.assertNotIn(leaf, shown)
         self.assertIn("eating.new_cuisines", pages[FEEDS.index("eating")]["stats"])
         self.assertIn("grading.win_chance", pages[FEEDS.index("fantasy")]["stats"])
+        self.assertIn("watching.s_tier", pages[FEEDS.index("watching")]["stats"])
         self.assertIn("fantasy.quadrant", pages[FEEDS.index("fantasy")]["stats"])
         self.assertIn("fantasy.manager_score.composite", pages[FEEDS.index("fantasy")]["stats"])
         self.assertIn("cross.time_budget", pages[FEEDS.index("lifting")]["stats"])
         self.assertNotIn("eating.top_ten_churn", pages[FEEDS.index("eating")]["stats"])
         dropped = copy.deepcopy(pages)
-        dropped[0]["stats"].remove("fantasy.teams[].margins")
+        dropped[0]["stats"].remove("fantasy.teams[].playoff_odds")
         with self.assertRaisesRegex(build.ContentError, "on no page"):
             build.check_data_coverage(dropped, SCHEMA)
         twice = copy.deepcopy(pages)
-        twice[1]["stats"].append("fantasy.teams[].margins")
+        twice[1]["stats"].append("fantasy.teams[].playoff_odds")
         with self.assertRaisesRegex(build.ContentError, "on both"):
             build.check_data_coverage(twice, SCHEMA)
 
@@ -216,6 +236,14 @@ def variant(name):
         for k in ("artist_survival", "artist_survival_all", "album_listening", "discovery_direction"):
             del a["listening"][k]
         a["eating"]["top_ten_churn"] = {"status": "not enough data yet", "n": 0, "min_n": 4, "as_of": a["as_of"], "how": "Old."}
+    if name == "not available":
+        a["listening"]["enduring"] = {"status": "not available from source", "n": 0, "min_n": 20, "as_of": a["as_of"], "how": "x", "missing": "Apple Music lifetime counts"}
+    if name == "one clear":
+        for r in a["watching"]["taste_profile"]["values"]["rows"]:
+            r["clear"] = r["name"] == "Horror"
+    if name == "none clear":
+        for r in a["watching"]["taste_profile"]["values"]["rows"]:
+            r["clear"] = False
     if name == "hr crosses":
         a["listening"]["artist_survival"]["values"]["hr_a"] = {"value": 1.08, "interval": [0.8, 1.45]}
     if name == "hr below":
@@ -352,16 +380,12 @@ class Drawing(unittest.TestCase):
                 if d["waiting"]:
                     self.assertRegex(d["waiting"], r"^(1 more statistic appears|\d+ more statistics appear) as data accrues\.$")
         lifting = draw("lately/lifting/")
-        self.assertNotIn("Hack squat", [b["title"] for b in blocks(lifting, "lifting.progress.*")])  # gated: 0 of 6 sessions
-        # retention is a Why card: the lifts without data wait in place, with their n.
-        waits = [b for b in blocks(lifting, "lifting.retention.*") if b["status"] == "not enough data yet"]
+        # Relative strength is a Why card: the lifts without data wait in place, with their n.
+        waits = [b for b in blocks(lifting, "lifting.relative_strength.*") if b["status"] == "not enough data yet"]
         self.assertTrue(waits)
-        self.assertEqual(waits[0]["wait"], "not enough data yet · 0 of 6 sessions needed")
-        backlog = slot(draw("lately/watching/"), "watching.backlog")
-        self.assertFalse(backlog["hidden"])
-        self.assertEqual(backlog["blocks"][0]["wait"], "not enough data yet · 0 of 5 titles needed")
+        self.assertEqual(waits[0]["wait"], "not enough data yet · 0 of 4 sessions needed")
         young = draw("lately/listening/", name="young archive")
-        self.assertEqual(young["waiting"], "4 more statistics appear as data accrues.")  # the What's-happening ones
+        self.assertEqual(young["waiting"], "1 more statistic appears as data accrues.")  # genres by month, the one What's-happening statistic
         for s in young["sections"]:
             with self.subTest(section=s["id"]):
                 if not s["slots"]:
@@ -370,7 +394,7 @@ class Drawing(unittest.TestCase):
                     self.assertEqual(s["hidden"], not any(sl["blocks"] for sl in s["slots"]))
                 else:
                     self.assertFalse(s["hidden"])
-        self.assertIn("new-artists", young["hiddenSections"])
+        self.assertIn("genres-by-month", young["hiddenSections"])
         self.assertEqual(sorted(young["hiddenToc"]), sorted("#" + i for i in young["hiddenSections"]))
         self.assertEqual(young["headline"], [])
         listening = next(p for p in draw("index.html", name="young archive")["panels"] if p["id"] == "panel-listening")
@@ -396,21 +420,27 @@ class Drawing(unittest.TestCase):
         self.assertIn("Hazard ratio, new vs catalog", home["bodyText"])  # the panel asks about rotation now
         self.assertNotIn("Top artists", home["bodyText"])  # the list left the main page
 
-    # "No episodes or films logged" only when nothing is: not beside something being watched.
-    def test_watching_nothing_logged(self):
-        self.assertIsNone(draw("lately/watching/", name="no hours")["watchingEmpty"])
-        self.assertEqual(draw("lately/watching/", name="nothing logged")["watchingEmpty"], "No episodes or films logged in the last 12 weeks")
 
-    # Tier counts are the rankings file's (tier_distribution); completion says what it covers.
-    def test_tier_counts(self):
-        (b,) = blocks(draw("lately/watching/"), "watching.tier_completion_pace")
-        totals = {}
-        for st in ANALYSIS["watching"]["tier_distribution"].values():
-            for t in st["values"]["tiers"]:
-                totals[t["tier"]] = totals.get(t["tier"], 0) + t["titles"]
-        self.assertIn("Tiered titles", b["text"])
-        self.assertEqual({r[0]: int(r[1]) for r in b["cells"]}, totals)
-        self.assertIn(f"Completion covers 273 of the {sum(totals.values())} tiered titles.", b["text"])
+    # The tier board: films by default, five rows, S and A open, B to D folded to a count;
+    # chips carry the year and a hover with type, year and community score; a summary per row.
+    def test_tier_board(self):
+        d = draw("lately/watching/")
+        pts = [p for p in ANALYSIS["watching"]["crowd_agreement"]["values"]["points"] if p["type"] == "film"]
+        board = d["board"]
+        self.assertEqual(board["tabs"], ["Films · " + str(len(pts)), "Shows · 0", "Anime · 0"])
+        self.assertEqual(board["pressed"], "film")
+        self.assertEqual([r["tier"] for r in board["rows"]], ["S", "A", "B", "C", "D"])
+        self.assertEqual([r["chips"] for r in board["rows"]], [len([p for p in pts if p["tier"] == t]) for t in "SABCD"])
+        for r in board["rows"]:
+            with self.subTest(tier=r["tier"]):
+                self.assertEqual(r["collapsed"], r["tier"] in "BCD" and r["chips"] > 3)
+                if r["collapsed"]:
+                    self.assertEqual(r["more"], f"{r['chips']} titles · show all")
+        s_row = board["rows"][0]
+        self.assertTrue(s_row["summary"].startswith("mostly "), s_row["summary"])
+        self.assertRegex(s_row["hover"][0], r"^film · \d{4} · community \d\.\d$")
+        self.assertTrue(all(c for c in s_row["years"]))
+        self.assertEqual(d["sections"][1]["id"], "tiers")
 
     # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
     # the home city is never named (it's "my most-ranked city").
@@ -423,11 +453,11 @@ class Drawing(unittest.TestCase):
 
     # "not available from source": a one-line note, nothing else.
     def test_not_available(self):
-        d = draw("lately/listening/")
-        (b,) = blocks(d, "listening.album_listener")
-        self.assertEqual(b["note"], "not available from source: " + ANALYSIS["listening"]["album_listener"]["missing"])
+        d = draw("lately/listening/", name="not available")
+        (b,) = blocks(d, "listening.enduring")
+        self.assertEqual(b["note"], "not available from source: Apple Music lifetime counts")
         self.assertEqual((b["lines"], b["charts"]), (1, 0))
-        self.assertEqual(slot(d, "listening.album_listener")["hows"], [])
+        self.assertEqual(slot(d, "listening.enduring")["hows"], [])
 
     # Every page states its source, with the required attribution linked, and the as_of date.
     def test_source_and_as_of(self):
@@ -443,7 +473,7 @@ class Drawing(unittest.TestCase):
                 (self.assertIn if feed == "eating" else self.assertNotIn)(note, d["source"])
                 self.assertEqual(d["errors"], [])
 
-    # Wins and losses by filled and outlined marks with their letter, never colour alone.
+    # Wins and losses (the lineup grid) by filled and outlined marks with their letter, never colour alone.
     def test_wins_and_losses(self):
         d = draw("lately/fantasy/")
         wins = [s for s in d["squares"] if s["letter"] == "W"]
@@ -451,9 +481,6 @@ class Drawing(unittest.TestCase):
         self.assertTrue(wins and losses)
         self.assertTrue(all(s["bg"] == INK for s in wins))
         self.assertTrue(all(s["bg"] == CLEAR and s["border"] == "solid" for s in losses))
-        parts = {p["cls"]: p for p in d["recordParts"]}
-        self.assertEqual(parts["ld-record-w"]["bg"], INK)
-        self.assertEqual((parts["ld-record-l"]["bg"], parts["ld-record-l"]["border"]), (CLEAR, "solid"))
 
     # Waiver adds: hit rate with its interval, net points available against captured, adds a
     # week, then every add with the best and worst three marked, and the how-line under it.
@@ -491,11 +518,11 @@ class Drawing(unittest.TestCase):
         self.assertIn("Hit, left on the bench: 1 add, 26.6 points on my bench, +12.88 net points available.", le[0]["text"])
         self.assertIn("Hit, left on the bench: no waiver adds.", le[1]["text"])
 
-    # "Is the win chance honest?" lives on lately/fantasy: the calibration table and Brier
-    # score from twenty predictions, "not enough data yet" before that.
+    # The win-chance calibration (Brier score from twenty predictions) sits inside "Are the
+    # projections honest?", "not enough data yet" before that.
     def test_grading(self):
-        sec = next(s for s in draw("lately/fantasy/")["sections"] if s["title"] == "Is the win chance honest?")
-        (b,) = sec["slots"][0]["blocks"]
+        sec = next(s for s in draw("lately/fantasy/")["sections"] if s["title"] == "Are the projections honest?")
+        (b,) = slot(draw("lately/fantasy/"), "grading.win_chance")["blocks"]
         self.assertEqual(b["value"], "0.210")
         self.assertIn("Brier score", b["text"])
         self.assertIn("Predicted win chance against how often I won", b["text"])
@@ -548,6 +575,10 @@ class Drawing(unittest.TestCase):
         self.assertEqual(w["effectValues"][0], "+0.44")
         self.assertIn("Above the crowd: " + tp["disagreements"]["above"][0]["title"] + " (" + tp["disagreements"]["above"][0]["tier"] + ", ", d["bodyText"])
         self.assertIn("Below: ", d["bodyText"])
+        one = next(p for p in draw("index.html", name="one clear")["panels"] if p["id"] == "panel-watching")["answer"]
+        self.assertEqual(one, "Beyond the crowd's score, only Horror clearly moves my tiers, downward. Nothing else is distinguishable from noise at 276 titles.")
+        none = next(p for p in draw("index.html", name="none clear")["panels"] if p["id"] == "panel-watching")["answer"]
+        self.assertEqual(none, "Beyond the crowd's score, nothing clearly moves my tiers. No feature is distinguishable from noise at 276 titles.")
         for gone in ("Mean tier by director", "Anime studios: ", "Effective artists by week"):
             self.assertNotIn(gone, d["bodyText"], gone)  # these live on the track pages now
         li = panels["panel-listening"]
@@ -628,7 +659,8 @@ class Drawing(unittest.TestCase):
         d = draw("lately/fantasy/")
         sec = next(s for s in d["sections"] if s["id"] == "manager-score")
         self.assertEqual(sec["group"], "why")
-        bars, composite = sec["slots"]
+        bars, composite, pickups = sec["slots"]
+        self.assertEqual(pickups["stat"], "fantasy.teams[].waiver_impact")  # absorbed into this card
         (b,) = bars["blocks"]
         # Bars are percentiles; each label is the raw value and the rank; the composite heads the card.
         for bit in ("Draft", "+3.4 pts/wk · rank 9 of 32", "Lineup", "−2.1 pts/wk · rank 24 of 32", "Moves", "+1.6 pts/wk · rank 12 of 32",
@@ -677,27 +709,25 @@ class Drawing(unittest.TestCase):
     def test_watching_regrouped(self):
         d = draw("lately/watching/")
         groups = {g["id"]: g for g in d["groups"]}
-        self.assertEqual(groups["whats-happening"]["sections"][:3], ["my-rankings", "hours-watched", "recently"])
-        self.assertIn("completion", groups["why"]["sections"])
-        self.assertIn("dropped-after-one-episode", groups["why"]["sections"])
-        for sid in ("completion", "dropped-after-one-episode"):
-            sec = next(s for s in d["sections"] if s["id"] == sid)
-            self.assertEqual(sec["notes"], ["Only finished titles are logged as a rule, so completion and drop counts cover what I chose to record."])
-            self.assertTrue(all(b["n"].startswith("n = ") for sl in sec["slots"] for b in sl["blocks"]))
+        self.assertEqual(groups["whats-happening"]["sections"], ["my-rankings", "tiers", "recently", "keeping-up", "genres"])
+        self.assertEqual(groups["why"]["sections"], ["taste-profile", "whose-films", "crowd-agreement", "blockbuster", "sequels", "completion"])
+        sec = next(s for s in d["sections"] if s["id"] == "completion")
+        self.assertEqual(sec["notes"], ["Only finished titles are logged as a rule, so completion counts cover what I chose to record."])
+        self.assertTrue(all(b["n"].startswith("n = ") for sl in sec["slots"] for b in sl["blocks"]))
+        # The S-by-type and S-by-decade bars sit under the taste profile.
+        taste = next(s for s in d["sections"] if s["id"] == "taste-profile")
+        self.assertEqual([sl["stat"] for sl in taste["slots"]], ["watching.taste_profile", "watching.s_tier"])
+        self.assertIn("S-tier share by release decade", taste["slots"][1]["blocks"][0]["text"])
+        self.assertNotIn("Genres in S against B", taste["slots"][1]["blocks"][0]["text"])
         feeds = {f["block"]: f for f in d["feeds"]}
         self.assertFalse(feeds["watching.rankings"]["hidden"])
         self.assertIn("Films", feeds["watching.rankings"]["text"])
         (s,) = blocks(d, "watching.s_tier")
         self.assertEqual(s["value"], "12%")
         self.assertIn("S-tier share by type", s["text"])
-        self.assertIn("Drama", s["text"])
-        (tm,) = blocks(d, "watching.tier_model")
-        self.assertEqual(tm["value"], "46%")
-        self.assertEqual(len(blocks(d, "watching.taste_drift")), 1)
-        self.assertEqual(len(blocks(d, "watching.community_gap_by_genre")), 1)
-        self.assertEqual(len(blocks(d, "watching.pace_vs_tier")), 1)
+        self.assertEqual(len(blocks(d, "watching.community_gap_by_genre")), 1)  # inside the crowd card
         self.assertEqual(d["toc"][0]["group"], "whats-happening")
-        self.assertEqual(d["toc"][1]["links"][0][:2], ["#completion", "Do I finish what I start?"])
+        self.assertEqual(d["toc"][1]["links"][0][:2], ["#taste-profile", "What does my taste look like?"])
 
     # The film cards on the watching page: the crowd plot, the tier bars and tables, the credits
     # in the footer; and their waiting, absent and not-available states.
@@ -718,21 +748,19 @@ class Drawing(unittest.TestCase):
         self.assertIn("most popular quarter", bb["text"])
         (sq,) = blocks(d, "watching.sequels")
         self.assertEqual(sq["rows"], 5)
-        (lg,) = blocks(d, "watching.language")
-        self.assertIn("Other languages", lg["text"])
-        (cv,) = blocks(d, "watching.critics_vs_audience")
-        self.assertEqual(cv["rows"], 12)
+        # The crowd card absorbed the genre gaps, the tier correlations and the top-ten tables.
+        crowd = next(s for s in d["sections"] if s["id"] == "crowd-agreement")
+        self.assertEqual([sl["stat"] for sl in crowd["slots"]], ["watching.crowd_agreement", "watching.community_gap_by_genre",
+                                                                 "watching.tier_contrarian.*", "watching.contrarian.*"])
         self.assertEqual([x["text"] for x in d["attributions"]], ["This product uses the TMDB API but is not endorsed or certified by TMDB. · Rotten Tomatoes scores from OMDb"])
         self.assertEqual(d["attributions"][0]["links"], [["https://www.themoviedb.org/", "_blank", "noopener"], ["https://www.omdbapi.com/", "_blank", "noopener"]])
         # Waiting: every card shows its box; the absent critics card is "not available from source"; no credits.
         w = draw("lately/watching/", name="films waiting")
-        for stat in ("watching.by_director", "watching.crowd_agreement", "watching.blockbuster", "watching.sequels", "watching.language"):
+        for stat in ("watching.by_director", "watching.crowd_agreement", "watching.blockbuster", "watching.sequels"):
             with self.subTest(stat=stat):
                 (b,) = blocks(w, stat)
                 self.assertRegex(b["wait"], r"^not enough data yet · 12 of \d+ \w+ needed$")
-        (cvw,) = blocks(w, "watching.critics_vs_audience")
-        self.assertEqual((cvw["status"], cvw["note"]), ("not available from source", "not available from source: critic and audience scores (OMDb)"))
-        self.assertEqual(w["attributions"], [])
+        self.assertEqual(w["attributions"], [])  # the taste profile is ok there, but it is not a credited statistic
         # Retention says when it can start; entropy and nostalgia draw by week while months are few.
         lw = draw("lately/listening/", name="films waiting")
         (rt,) = blocks(lw, "listening.retention_new_artists")
@@ -746,12 +774,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual(len(narrow["quadKey"]), 6)
         self.assertTrue(narrow["quadKey"][0].startswith("1" + ANALYSIS["watching"]["crowd_agreement"]["values"]["disagreements"]["above"][0]["title"]))
         # Tier scale: axes read D to S at 1 to 5, and a mean tier shows its letter.
-        self.assertIn("4.0 (A)", whose["slots"][0]["blocks"][0]["text"] + bb["text"] + lg["text"] + " 4.0 (A)")
+        self.assertIn("4.0 (A)", whose["slots"][0]["blocks"][0]["text"] + bb["text"] + " 4.0 (A)")
         self.assertRegex(blocks(d, "watching.by_director")[0]["text"], r"\d\.\d \([SABCD]\) · \d+ films")
-        # An old file: the cards say the statistics are not in the data yet, apart from the critics card.
+        # An old file: the cards say the statistics are not in the data yet.
         old = draw("lately/watching/", name="old file")
         self.assertEqual(blocks(old, "watching.by_director")[0]["status"], "not in the data yet")
-        self.assertEqual(blocks(old, "watching.critics_vs_audience")[0]["status"], "not available from source")
         self.assertEqual(old["attributions"], [])
 
     # Profile cards on the track pages: the taste profile with the crowd lines, both survival
@@ -769,9 +796,22 @@ class Drawing(unittest.TestCase):
         self.assertIn("Longest in rotation: ", sv["text"])
         (sv2,) = blocks(l, "listening.artist_survival_all")
         self.assertEqual(sv2["value"], "1.41×")
-        self.assertIn("before the 2023 sync", sv2["text"])  # the cohort line
-        self.assertEqual(blocks(l, "listening.album_listening")[0]["value"], "38%")
-        self.assertEqual(blocks(l, "listening.discovery_direction")[0]["value"], "58%")
+        self.assertEqual(sv2["title"], "Counting the artists from before the 2023 sync too")  # a labelled second row in the same card
+        self.assertEqual(next(s for s in l["sections"] if s["id"] == "artist-survival")["slots"][1]["stat"], "listening.artist_survival_all")
+        # Absorbed: the median release year under dig back or keep up, the top-five share under who lasts.
+        self.assertEqual([sl["stat"] for sl in next(s for s in l["sections"] if s["id"] == "discovery-direction")["slots"]], ["listening.discovery_direction", "listening.nostalgia"])
+        self.assertEqual([sl["stat"] for sl in next(s for s in l["sections"] if s["id"] == "enduring")["slots"]], ["listening.enduring", "listening.concentration"])
+        rows = ANALYSIS["listening"]["album_listening"]["values"]["rows"]
+        (al,) = blocks(l, "listening.album_listening")
+        self.assertEqual(al["value"], f"{round(100 * len([r for r in rows if r['gini'] < 0.4]) / len(rows))}%")
+        self.assertIn("get played through", al["text"])
+        self.assertEqual(al["rows"], len(rows))
+        (dd,) = blocks(l, "listening.discovery_direction")
+        self.assertEqual(dd["value"], "58%")
+        self.assertIn("Share digging back, by the year I found them", dd["text"])
+        self.assertIn("2023 · 40 artists", dd["text"])
+        self.assertIn("per five years of gap between release years", sv["text"])
+        self.assertIn("Plays before 1 Mar 2023 carry no date", sv["text"])  # the play-date floor note
         self.assertEqual(next(s for s in l["sections"] if s["id"] == "entropy")["title"], "Is my taste narrowing?")
         old = draw("lately/listening/", name="old file")
         for stat in ("listening.artist_survival", "listening.artist_survival_all", "listening.album_listening", "listening.discovery_direction"):
@@ -780,7 +820,7 @@ class Drawing(unittest.TestCase):
 
     # Every feed block that left the main page draws on its feed page.
     def test_feed_blocks(self):
-        want = {"fantasy": ["fantasy.lineup", "fantasy.carry"], "watching": ["watching.rankings", "watching.hours", "watching.recent"],
+        want = {"fantasy": ["fantasy.lineup", "fantasy.carry"], "watching": ["watching.rankings", "watching.tiers", "watching.recent"],
                 "listening": ["listening.recent"], "eating": ["eating.recent"], "lifting": ["lifting.lifts", "lifting.training", "lifting.body_weight"]}
         for feed, names in want.items():
             d = draw(f"lately/{feed}/")
@@ -837,9 +877,12 @@ class Drawing(unittest.TestCase):
                 self.assertIsNone(d["waiting"] and re.search(r"\d{2,}", d["waiting"]))  # a two-digit count means slots went undrawn
         lifting = draw("lately/lifting/")
         self.assertTrue(blocks(lifting, "lifting.relative_strength.*"))
-        self.assertTrue(blocks(lifting, "lifting.lag_check"))
+        self.assertTrue(blocks(lifting, "lifting.strength_kept.*"))  # absorbed into "Am I stronger for my size?"
         self.assertTrue(blocks(lifting, "cross.lifting_soundtrack"))
-        self.assertTrue(blocks(lifting, "cross.rhythm.workouts"))
+        self.assertTrue(blocks(lifting, "cross.rhythm.workouts"))  # absorbed into Training
+        self.assertEqual([sl["stat"] for sl in next(s for s in lifting["sections"] if s["id"] == "training")["slots"]], ["cross.rhythm.workouts"])
+        # The strength index keeps the per-lift change list inside its card.
+        self.assertIn("Best e1RM since the cut started, by lift", blocks(lifting, "lifting.strength_index")[0]["text"])
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
     def test_widths(self):

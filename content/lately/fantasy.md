@@ -17,59 +17,36 @@ FEED: fantasy.carry
 ## Playoff odds
 STAT: fantasy.teams[].playoff_odds
 
-## Record against the median
-STAT: fantasy.teams[].record_vs_median
-
-## Margins
-STAT: fantasy.teams[].margins
-
-## Points by position
-STAT: fantasy.teams[].position_share
-
 ## Draft value
+ALIAS: draft
 STAT: fantasy.teams[].draft_value
+STAT: fantasy.teams[].draft
 
 ## Waiver adds
 STAT: fantasy.teams[].waiver_adds
 
-## Playoff odds, as they stood
-STAT: grading.playoff_odds[].odds_over_time
-
 # Why
 
 ## Good, or lucky? {#good-or-lucky}
+ALIAS: strength-of-schedule
+ALIAS: the-schedule-replayed
 STAT: fantasy.quadrant
+STAT: fantasy.teams[].strength_of_schedule
+STAT: fantasy.teams[].schedule_what_if
 
 ## Am I a good manager, or a lucky one? {#manager-score}
+ALIAS: waiver-pickups
 STAT: fantasy.manager_score.components.*
 STAT: fantasy.manager_score.composite
+STAT: fantasy.teams[].waiver_impact
 
 ## Where do my points come from? {#acquisition-split}
 STAT: fantasy.teams[].acquisition_split
 
-## Did I draft well, round by round? {#draft}
-STAT: fantasy.teams[].draft
-
-## Would another schedule have changed my record? {#the-schedule-replayed}
-STAT: fantasy.teams[].schedule_what_if
-
-## Has my schedule been hard? {#strength-of-schedule}
-STAT: fantasy.teams[].strength_of_schedule
-
 ## How many points did I leave on the bench? {#points-left-on-the-bench}
 STAT: fantasy.teams[].lineup_efficiency
 
-## Do I get the close calls right? {#close-start-or-sit-calls}
-STAT: fantasy.teams[].start_sit
-
-## Am I steady week to week? {#consistency}
-STAT: fantasy.teams[].consistency
-
-## How much do my pickups carry? {#waiver-pickups}
-STAT: fantasy.teams[].waiver_impact
-
 ## Are the projections honest? {#projection-accuracy}
+ALIAS: is-the-win-chance-honest
 STAT: fantasy.platforms.*.projection_accuracy
-
-## Is the win chance honest?
 STAT: grading.win_chance

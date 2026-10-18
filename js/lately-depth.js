@@ -603,6 +603,15 @@
     }).join(", "));
   }
   var PRESYNC_NOTE = "artists in the library before the 2023 sync excluded; see the listening page for the version that includes them.";
+  // The play-date floor: values.play_date_floor, else the sentence of the how line that says plays are floored.
+  function floorNote(v, s) {
+    if (isObj(v) && typeof v.play_date_floor === "string") {
+      try { return h("p", { class: "ld-note" }, "Plays before " + dateText(v.play_date_floor) + " carry no date, so an artist's first play is floored there."); } catch (e) { /* fall through */ }
+    }
+    var how = isObj(s) && typeof s.how === "string" ? s.how : "";
+    var sentence = how.split(/(?<=\.)\s+/).filter(function (t) { return /floor/i.test(t); })[0];
+    return sentence ? h("p", { class: "ld-note" }, sentence) : null;
+  }
 
   // The credits in analysis.meta.attributions, as text or links, joined by dots.
   function attributionNodes(attrs) {
@@ -1016,28 +1025,32 @@
       }
     },
     "listening.artist_survival": survivalSpec("Artists first played since the 2023 Apple Music sync"),
-    "listening.artist_survival_all": survivalSpec("Every artist, those in the library before the 2023 sync included"),
+    "listening.artist_survival_all": Object.assign(survivalSpec("Every artist, those in the library before the 2023 sync included"),
+      { label: "Counting the artists from before the 2023 sync too" }),
     "listening.album_listening": {
-      n: "months",
-      value: function (s) { return isNum(s.value) ? [pct(s.value), "of plays sit inside a run of three or more tracks from one album"] : null; },
+      n: "albums",
+      // The share of albums played through: the statistic's value, else from the rows (Gini under 0.4).
+      value: function (s) {
+        var rows = isObj(s.values) ? list(s.values.rows).filter(function (r) { return isObj(r) && isNum(r.gini); }) : [];
+        var share = isNum(s.value) ? s.value : rows.length ? rows.filter(function (r) { return r.gini < 0.4; }).length / rows.length : null;
+        return isNum(share) ? [pct(share), "of my albums get played through (Gini of plays across tracks under 0.4)"] : null;
+      },
       draw: function (v) {
-        var months = list(v.by_month).filter(function (m) { return isObj(m) && isNum(m.share); });
-        return [facts([["album runs", isNum(v.runs) ? big(v.runs) : null], ["median run", isNum(v.median_run_tracks) ? plural(v.median_run_tracks, "tracks") : null]]),
-          months.length ? columns("Share of plays in album runs, by month", months.map(function (m) {
-            return { label: monthText(m.month, true), title: monthText(m.month) + (isNum(m.plays) ? " (" + plural(m.plays, "plays") + ")" : ""), value: m.share, text: pct(m.share) };
-          }), { labelHeading: "Month", valueHeading: "Share in album runs" }) : null];
+        var rows = list(v.rows).filter(function (r) { return isObj(r) && isNum(r.gini) && typeof r.album === "string"; }).slice().sort(function (a, b) { return a.gini - b.gini; });
+        return rows.length ? table("Each album's Gini of plays across its tracks (low: played through; high: one or two tracks)",
+          [{ label: "Album" }, { label: "Artist" }, { label: "Gini", num: true }, { label: "Plays", num: true }],
+          rows.map(function (r) { return [r.album, String(r.artist), num(r.gini, 2), isNum(r.plays) ? big(r.plays) : "–"]; }), { showCaption: true }) : null;
       }
     },
     "listening.discovery_direction": {
-      n: "months",
-      value: function (s) { return isNum(s.value) ? [pct(s.value), "of new artists are digging back (first album over 5 years old)"] : null; },
+      n: "artists",
+      value: function (s) { var share = isNum(s.value) ? s.value : isObj(s.values) && isNum(s.values.share_back) ? s.values.share_back : null; return isNum(share) ? [pct(share), "of the artists I found were over 5 years old at discovery (digging back)"] : null; },
       draw: function (v) {
-        var months = list(v.by_month).filter(function (m) { return isObj(m) && isNum(m.back) && isNum(m.keep_up); });
-        return [facts([["digging back", isNum(v.back) ? plural(v.back, "artists") : null], ["keeping up", isNum(v.keep_up) ? plural(v.keep_up, "artists") : null],
-          ["median gap to the first album", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null]]),
-          months.length ? multiLine("New artists by month: digging back against keeping up", months.map(function (m) { return monthText(m.month); }),
-            [{ name: "digging back", values: months.map(function (m) { return m.back; }) }, { name: "keeping up", values: months.map(function (m) { return m.keep_up; }) }],
-            { fmt: function (x) { return big(x); }, labelHeading: "Month", height: 110 }) : null];
+        var years = list(v.by_year).filter(function (y) { return isObj(y) && isNum(y.share_dig_back); });
+        return [facts([["median gap to the release years", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null]]),
+          years.length ? bars("Share digging back, by the year I found them", years.map(function (y) {
+            return { label: String(y.year) + (isNum(y.n) ? " · " + plural(y.n, "artists") : ""), value: y.share_dig_back, text: pct(y.share_dig_back) };
+          }), { labelHeading: "Year", valueHeading: "Digging back" }) : null];
       }
     },
     "listening.entropy": {
@@ -1136,7 +1149,13 @@
           return null;
         }
         var bw = latest("body_weight"), st = latest("strength");
+        var change = isObj(v.lifts_change) ? Object.keys(v.lifts_change).filter(function (k) { return isObj(v.lifts_change[k]) && isNum(v.lifts_change[k].change_pct); })
+          .sort(function (x, y) { return v.lifts_change[y].change_pct - v.lifts_change[x].change_pct; }) : [];
         return [weeks.length > 1 ? indexedLines(weeks) : null,
+          change.length ? bars("Best e1RM since the cut started, by lift", change.map(function (k) {
+            var c = v.lifts_change[k];
+            return { label: k, value: c.change_pct * 100, text: signed(c.change_pct * 100, 1) + "%" + (isNum(c.start) && isNum(c.latest) ? " (" + num(c.start, 1) + " to " + num(c.latest, 1) + " lb)" : "") };
+          }), { labelHeading: "Lift", valueHeading: "Change" }) : null,
           facts([["cut started", v.cut_start ? dateText(v.cut_start) : null],
             ["body weight", isNum(bw) ? signed(bw - 100, 1) + "%" : null], ["strength", isNum(st) ? signed(st - 100, 1) + "%" : null],
             ["lifts in the index", list(v.lifts).length ? list(v.lifts).join(", ") : null],
@@ -1379,10 +1398,8 @@
       n: "titles",
       value: function (s) { return isNum(s.value) ? [pct(s.value), "of my tiered titles are S"] : null; },
       draw: function (v) {
-        var top = list(v.over_indexed).filter(function (g) { return isObj(g) && isNum(g.ratio); }).slice().sort(function (a, b) { return b.ratio - a.ratio; });
-        return [sTierBars(v),
-          top.length ? table("Genres in S against B", [{ label: "Genre" }, { label: "S share ÷ B share", num: true }, { label: "Titles", num: true }],
-            top.map(function (g) { return [String(g.genre), num(g.ratio, 1) + "×", String(g.n)]; }), { showCaption: true }) : null];
+        // Two small rows under the taste profile: S share by type and by release decade.
+        return sTierBars(v);
       }
     },
     "watching.by_director": {
@@ -1667,13 +1684,14 @@
       wide: true,
       value: function (s) { return isNum(s.value) ? [num(s.value, 2) + "×", "hazard ratio: how much faster new artists leave rotation than catalog ones"] : null; },
       intervalFmt: function (x) { return num(x, 2); },
-      draw: function (v) {
+      draw: function (v, s) {
         var n = isObj(v.n) ? v.n : {}, med = isObj(v.medians) ? v.medians : {};
         return [h("p", { class: "ld-sentence" }, hazardSentence(v.hr_a, med) || who + "."),
+          floorNote(v, s),
           list(v.curves).length ? survivalChart("Share of artists still in rotation, by months since first play", v.curves) : null,
           facts([["who is counted", typeof v.cohort === "string" ? v.cohort : who],
             ["median rotation, overall", isNum(med.overall) ? plural(med.overall, "months") : null],
-            ["adjusted for first-month plays", isObj(v.hr_b) && isNum(v.hr_b.value) ? num(v.hr_b.value, 2) + "×" + (interval(v.hr_b.interval, function (x) { return num(x, 2); }) ? " (" + interval(v.hr_b.interval, function (x) { return num(x, 2); }) + ")" : "") : null],
+            ["per five years of gap between release years and the year I added them", isObj(v.hr_b) && isNum(v.hr_b.value) ? num(v.hr_b.value, 2) + "×" + (interval(v.hr_b.interval, function (x) { return num(x, 2); }) ? " (" + interval(v.hr_b.interval, function (x) { return num(x, 2); }) + ")" : "") : null],
             ["log-rank", isObj(v.logrank) && isNum(v.logrank.p) ? "p = " + num(v.logrank.p, 3) : null],
             ["share of discoveries that are catalog", isNum(v.share_catalog) ? pct(v.share_catalog) : null],
             ["artists", isNum(n.total) ? big(n.total) + " (" + big(n.catalog) + " catalog, " + big(n.new) + " new)" : null]]),
@@ -2108,8 +2126,22 @@
     });
   }
 
+  // #old-id (a card absorbed into another) becomes #new-id, scrolled to.
+  function redirectAlias() {
+    var id = (location.hash || "").slice(1);
+    if (!id) return;
+    var el = document.getElementById(id);
+    if (!el || !el.classList.contains("ld-alias")) return;
+    var to = el.getAttribute("data-to");
+    if (to && document.getElementById(to)) {
+      if (history.replaceState) history.replaceState(null, "", "#" + to);
+      document.getElementById(to).scrollIntoView();
+    }
+  }
+
   function start() {
     if (!document.body.classList.contains("ld-body") || !window.fetch) return;
+    redirectAlias();
     var root = document.body.getAttribute("data-root") || "";
     load(root + "data/lately.json")
       .then(function (d) { draw(d, false); })

@@ -63,13 +63,51 @@ DATA_REQUIRED = ("register", "feed", "title", "source")
 DATA_GROUPS = ("What's happening", "Why")
 DATA_GROUP_IDS = {"What's happening": "whats-happening", "Why": "why"}
 # Blocks of the feed itself (not the analysis) that js/lately.js draws into a FEED: slot.
-FEED_BLOCKS = ("fantasy.lineup", "fantasy.carry", "watching.hours", "watching.recent", "watching.rankings",
+FEED_BLOCKS = ("fantasy.lineup", "fantasy.carry", "watching.hours", "watching.recent", "watching.rankings", "watching.tiers",
                "listening.recent", "eating.recent", "lifting.lifts", "lifting.training", "lifting.body_weight")
 # Each page credits its source by name and link; these four require it.
 DATA_ATTRIBUTION = {"watching": "Simkl", "listening": "Last.fm", "eating": "Beli", "lifting": "Hevy"}
 # Statistics in the analysis schema that no page shows, as {path: reason}. Every other
-# statistic must be on exactly one page.
-DATA_LEFT_OUT = {}
+# statistic must be on exactly one page. 2026-10-18: the pages were trimmed to the cards
+# that have data or a dated arrival and answer something no other card does; the pipeline
+# keeps computing these.
+DATA_LEFT_OUT = {
+    "fantasy.teams[].record_vs_median": "the quadrant's all-play share says it",
+    "fantasy.teams[].margins": "week-by-week results are in the lineup grid",
+    "fantasy.teams[].position_share": "no question of its own",
+    "fantasy.teams[].start_sit": "no question of its own",
+    "fantasy.teams[].consistency": "no question of its own",
+    "grading.playoff_odds[].odds_over_time": "the playoff-odds card shows the current odds",
+    "watching.hours_by_month": "no question of its own",
+    "watching.release_decades": "the S-by-decade bars under the taste profile say it",
+    "watching.runtime": "no question of its own",
+    "watching.countries.show": "no question of its own",
+    "watching.countries.film": "no question of its own",
+    "watching.countries.anime": "no question of its own",
+    "watching.tier_distribution.*": "the tier board shows every tiered title",
+    "watching.tier_genres_decades": "drawn as the tier board's row summaries",
+    "watching.tier_model": "the taste profile's accuracy says it",
+    "watching.language": "too few non-English films to answer",
+    "watching.critics_vs_audience": "not available from the source",
+    "watching.taste_drift": "no dated arrival",
+    "watching.first_episode_drops": "completion answers it",
+    "watching.pace": "no question of its own",
+    "watching.pace_vs_tier": "no dated arrival",
+    "watching.tier_completion_pace": "completion answers it",
+    "watching.backlog": "no dated arrival",
+    "listening.discovery": "dig back or keep up answers it",
+    "listening.comebacks": "no question of its own",
+    "listening.heatmap": "plays by weekday and hour says it (its n still dates the archive)",
+    "listening.first_repeat": "no dated arrival",
+    "listening.album_listener": "not available from the source",
+    "lifting.progress.*": "the strength index's per-lift list says it",
+    "lifting.retention.*": "the strength index's per-lift list says it",
+    "lifting.lag_check": "no dated arrival",
+    "lifting.volume_lag": "no question of its own",
+    "lifting.consistency": "no question of its own",
+    "cross.rhythm.restaurants": "no question of its own",
+    "eating.contrarian": "not available from the source",
+}
 SCHEMA_PATH = "data/lately.schema.json"
 
 
@@ -298,16 +336,22 @@ def read_data_page(path, schema):
     meta["sections"] = [s for g in meta["groups"] for s in g["sections"]]
     meta["stats"] = []
     for sec in meta["sections"]:
-        sec["stats"], sec["slots"], sec["notes"] = [], [], []
+        sec["stats"], sec["slots"], sec["notes"], sec["aliases"] = [], [], [], []
         for line in sec["lines"]:
             if not line.strip():
                 continue
-            mm = re.fullmatch(r"(STAT|FEED|NOTE):\s*(\S.*?)\s*", line)
+            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS):\s*(\S.*?)\s*", line)
             if not mm:
-                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED: and NOTE: lines are allowed, not {line.strip()!r}")
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE: and ALIAS: lines are allowed, not {line.strip()!r}")
             kind, arg = mm.group(1), mm.group(2)
             if kind == "NOTE":
                 sec["notes"].append(arg)
+                continue
+            if kind == "ALIAS":
+                # The id of a card this one absorbed: a deep link to it lands here.
+                if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", arg):
+                    raise ContentError(f"{path.name}: ALIAS: {arg} must be a section id (lowercase words joined by hyphens)")
+                sec["aliases"].append(arg)
                 continue
             if kind == "FEED":
                 if arg not in FEED_BLOCKS:
@@ -323,6 +367,7 @@ def read_data_page(path, schema):
             meta["stats"] += leaves
         if not sec["slots"]:
             raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: or FEED: line")
+    check_aliases(meta)
     return meta
 
 
@@ -353,6 +398,17 @@ def parse_data_body(body, name):
                 raise ContentError(f"{name}: two sections share an id")
             ids.add(s["id"])
     return groups
+
+
+def check_aliases(meta):
+    """An alias never repeats a section id or another alias."""
+    ids = {s["id"] for s in meta["sections"]}
+    seen = set()
+    for s in meta["sections"]:
+        for a in s["aliases"]:
+            if a in ids or a in seen:
+                raise ContentError(f"{meta['source_file'].name}: ALIAS: {a} is already a section id or alias")
+            seen.add(a)
 
 
 def check_data_coverage(pages, schema):
@@ -388,6 +444,7 @@ def render_data_page(meta):
         secs = []
         for s in g["sections"]:
             notes = "".join(f'<p class="ld-section-note">{inline(n)}</p>' for n in s["notes"])
+            notes = "".join(f'<span class="ld-alias" id="{a}" data-to="{s["id"]}"></span>' for a in s["aliases"]) + notes
             slots = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
                             else f'<div class="ld-feed" data-block="{esc(arg)}"></div>' for kind, arg in s["slots"])
             secs.append(f'<section class="ld-section ld-section--{g["id"]}" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'

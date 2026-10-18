@@ -73,7 +73,21 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
             howFont: slot.querySelector(".ld-how") ? getComputedStyle(slot.querySelector(".ld-how")).fontFamily : null,
           })),
         })),
-        squares: [...document.querySelectorAll(".ld-margins .result")].map(e => ({
+        board: (() => {
+          const b = document.querySelector(".tier-board");
+          if (!b) return null;
+          return {
+            tabs: [...b.querySelectorAll(".tier-tab")].map(txt),
+            pressed: (b.querySelector('.tier-tab[aria-pressed="true"]') || {}).dataset ? b.querySelector('.tier-tab[aria-pressed="true"]').dataset.type : null,
+            rows: [...b.querySelectorAll(".tier-row")].map(r => ({
+              tier: r.dataset.tier, chips: r.querySelectorAll(".tier-chip").length, collapsed: r.classList.contains("tier-row--collapsed"),
+              more: txt(r.querySelector(".tier-more")), summary: txt(r.querySelector(".tier-summary")),
+              hover: [...r.querySelectorAll(".tier-chip")].map(c => c.getAttribute("title")), years: [...r.querySelectorAll(".tier-chip-year")].map(txt),
+            })),
+          };
+        })(),
+        aliases: [...document.querySelectorAll(".ld-alias")].map(e => [e.id, e.dataset.to]),
+        squares: [...document.querySelectorAll(".results .result")].map(e => ({
           letter: e.textContent, bg: getComputedStyle(e).backgroundColor, border: getComputedStyle(e).borderTopStyle })),
         recordParts: [...document.querySelectorAll(".ld-record-bar > span")].map(e => ({
           cls: e.className, bg: getComputedStyle(e).backgroundColor, border: getComputedStyle(e).borderTopStyle })),

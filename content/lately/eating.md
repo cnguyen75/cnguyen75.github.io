@@ -17,9 +17,6 @@ STAT: eating.scores
 ## New cuisines by month
 STAT: eating.new_cuisines
 
-## Places ranked by weekday
-STAT: cross.rhythm.restaurants
-
 # Why
 
 ## Does home score higher? {#home-against-away}
@@ -39,6 +36,3 @@ STAT: eating.landing
 
 ## Do scores drift when I re-rank? {#rerank-drift}
 STAT: eating.rerank_drift
-
-## Do I disagree with the crowd? {#against-the-community}
-STAT: eating.contrarian
