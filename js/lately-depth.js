@@ -1037,9 +1037,10 @@
       },
       draw: function (v) {
         var rows = list(v.rows).filter(function (r) { return isObj(r) && isNum(r.gini) && typeof r.album === "string"; }).slice().sort(function (a, b) { return a.gini - b.gini; });
-        return rows.length ? table("Each album's Gini of plays across its tracks (low: played through; high: one or two tracks)",
-          [{ label: "Album" }, { label: "Artist" }, { label: "Gini", num: true }, { label: "Plays", num: true }],
-          rows.map(function (r) { return [r.album, String(r.artist), num(r.gini, 2), isNum(r.plays) ? big(r.plays) : "–"]; }), { showCaption: true }) : null;
+        return [facts([["albums", isNum(v.albums) ? big(v.albums) : null], ["played through (Gini under 0.4)", isNum(v.even) ? big(v.even) : null], ["median Gini", isNum(v.median_gini) ? num(v.median_gini, 2) : null]]),
+          rows.length ? table("Each album's Gini of plays across its tracks (low: played through; high: one or two tracks)",
+            [{ label: "Album" }, { label: "Artist" }, { label: "Gini", num: true }, { label: "Plays", num: true }],
+            rows.map(function (r) { return [r.album, String(r.artist), num(r.gini, 2), isNum(r.plays) ? big(r.plays) : "–"]; }), { showCaption: true }) : null];
       }
     },
     "listening.discovery_direction": {
@@ -1047,7 +1048,9 @@
       value: function (s) { var share = isNum(s.value) ? s.value : isObj(s.values) && isNum(s.values.share_back) ? s.values.share_back : null; return isNum(share) ? [pct(share), "of the artists I found were over 5 years old at discovery (digging back)"] : null; },
       draw: function (v) {
         var years = list(v.by_year).filter(function (y) { return isObj(y) && isNum(y.share_dig_back); });
-        return [facts([["median gap to the release years", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null]]),
+        return [facts([["digging back", isNum(v.back) ? plural(v.back, "artists") : null], ["keeping up", isNum(v.keep_up) ? plural(v.keep_up, "artists") : null],
+          ["median gap to the release years", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null],
+          ["left out: added by the sync, not found", isNum(v.sync_additions_left_out) ? big(v.sync_additions_left_out) : null]]),
           years.length ? bars("Share digging back, by the year I found them", years.map(function (y) {
             return { label: String(y.year) + (isNum(y.n) ? " · " + plural(y.n, "artists") : ""), value: y.share_dig_back, text: pct(y.share_dig_back) };
           }), { labelHeading: "Year", valueHeading: "Digging back" }) : null];
@@ -1694,7 +1697,7 @@
             ["per five years of gap between release years and the year I added them", isObj(v.hr_b) && isNum(v.hr_b.value) ? num(v.hr_b.value, 2) + "×" + (interval(v.hr_b.interval, function (x) { return num(x, 2); }) ? " (" + interval(v.hr_b.interval, function (x) { return num(x, 2); }) + ")" : "") : null],
             ["log-rank", isObj(v.logrank) && isNum(v.logrank.p) ? "p = " + num(v.logrank.p, 3) : null],
             ["share of discoveries that are catalog", isNum(v.share_catalog) ? pct(v.share_catalog) : null],
-            ["artists", isNum(n.total) ? big(n.total) + " (" + big(n.catalog) + " catalog, " + big(n.new) + " new)" : null]]),
+            ["artists", isNum(n.total) ? big(n.total) + " (" + big(n.catalog) + " catalog, " + (isNum(n.mid) ? big(n.mid) + " in between, " : "") + big(n.new) + " new)" : null]]),
           longestLine(v.longest_lived)];
       }
     };
