@@ -1,8 +1,11 @@
 /*
- * Side D, lately. Draws the data panels from data/lately.json, falling
- * back to data/lately.sample.json. Nothing here may break the rest of the
+ * Side D, lately. Draws the main page's five panels from data/lately.json, falling
+ * back to data/lately.sample.json, and the feed blocks (lineup grid, recent lists,
+ * lift tiles, rankings...) that the lately/<feed>/ pages hold under "What's happening",
+ * through window.LatelyFeed.block(name, data). Nothing here may break the rest of the
  * page: every failure ends in a "not connected yet" panel, never a throw.
- * Schema: data/lately.schema.json.
+ * Schema: data/lately.schema.json. Charts and number formats shared with the pages
+ * come from js/lately-depth.js (window.LatelyDepth).
  */
 (function () {
   "use strict";
@@ -14,6 +17,7 @@
   var BROKEN = "Couldn't draw this panel right now.";
   var NO_CHANCE = "not available this week";
   var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
+  var MIN_CUISINE_PLACES = 15; // a cuisine's median is compared with the overall median from this many places
 
   // ---------- small helpers ----------
 
@@ -43,10 +47,12 @@
   }
 
   function isObj(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
+  function isNum(v) { return typeof v === "number" && isFinite(v); }
   function need(cond, what) { if (!cond) throw new Error("lately: bad " + what); }
-  function num(v, what) { need(typeof v === "number" && isFinite(v), what); return v; }
+  function num(v, what) { need(isNum(v), what); return v; }
   function str(v, what) { need(typeof v === "string", what); return v; }
   function arr(v, what) { need(Array.isArray(v), what); return v; }
+  function list(v) { return Array.isArray(v) ? v : []; }
 
   function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
   // 31 -> "31", 38.4 -> "38.4", 12.25 -> "12.3"
@@ -74,6 +80,16 @@
   function safeUrl(u) {
     return typeof u === "string" && /^https:\/\//i.test(u) ? u : null;
   }
+
+  // The shared chart kit and number formats (js/lately-depth.js), when it loaded.
+  function LD() { return isObj(window.LatelyDepth) ? window.LatelyDepth : null; }
+  function F() { var d = LD(); return d && d.fmt ? d.fmt : null; }
+  // Formats with a real minus sign and the data's precision, falling back to the local ones.
+  function fnum(x, dp) { var f = F(); return f ? f.num(x, dp) : (dp === undefined ? String(x) : x.toFixed(dp)); }
+  function fsigned(x, dp) { var f = F(); return f ? f.signed(x, dp) : (x > 0 ? "+" : "") + (dp === undefined ? String(x) : x.toFixed(dp)); }
+  function fpct(x) { var f = F(); return f ? f.pct(x) : Math.round(x * 100) + "%"; }
+  function okStat(s) { return isObj(s) && s.status === "ok"; }
+  function analysisOf(data) { return isObj(data) && isObj(data.analysis) ? data.analysis : null; }
 
   // ---------- source status ----------
 
@@ -192,7 +208,7 @@
       note ? h("div", { class: "stat-note" }, note) : null);
   }
 
-  // ---------- panels ----------
+  // ---------- feed blocks: fantasy ----------
 
   // Text shown in place of a null win chance: the team's note, or a default.
   function winNote(t) {
@@ -200,45 +216,43 @@
     return typeof n === "string" && n.trim() ? n.trim() : NO_CHANCE;
   }
 
-  function fantasyPanel(data) {
+  // The teams with their source state; the panel's heading and source line are set when
+  // the page has them (the main page), so a feed page can call this too.
+  function fantasyTeams(data) {
     var f = data.fantasy;
     need(isObj(f), "fantasy");
     var week = num(f.week, "fantasy.week");
-    var hl = f.headline;
-    need(isObj(hl), "fantasy.headline");
     var teams = arr(f.teams, "fantasy.teams");
-    var players = arr(f.top_players, "fantasy.top_players");
     var srcKeys = arr(f.sources, "fantasy.sources");
-
-    // The heading is a link to the page; only its text changes.
-    var ft = document.getElementById("fantasy-title");
-    (ft.querySelector("a") || ft).textContent = "Fantasy football, week " + week;
     var shown = teams.map(function (t) {
       need(isObj(t), "team");
       return { team: t, src: sourceOf(data, t.source), state: sourceState(sourceOf(data, t.source), true) };
     });
+    var ft = document.getElementById("fantasy-title");
+    if (ft) (ft.querySelector("a") || ft).textContent = "Fantasy football, week " + week;
+    var meta = document.getElementById("fantasy-meta");
     // Header names only sources with at least one team drawn from them.
-    document.getElementById("fantasy-meta").textContent = srcKeys.filter(function (k) {
+    if (meta) meta.textContent = srcKeys.filter(function (k) {
       return shown.some(function (s) { return s.team.source === k && s.state.show; });
     }).map(function (k) {
       var s = sourceOf(data, k);
       return s && s.label ? s.label : k;
     }).join(" + ");
-    if (!shown.some(function (s) { return s.state.show; })) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    return { f: f, week: week, teams: teams, shown: shown, any: shown.some(function (s) { return s.state.show; }) };
+  }
 
-    var out = [];
+  function fantasyStale(shown) {
     var stale = shown.filter(function (s) { return s.state.show && s.state.asOf; });
-    if (stale.length) {
-      var oldest = stale.reduce(function (a, s) { return s.state.asOf < a ? s.state.asOf : a; }, stale[0].state.asOf);
-      out.push(staleNote(oldest));
-    }
+    if (!stale.length) return null;
+    var oldest = stale.reduce(function (a, s) { return s.state.asOf < a ? s.state.asOf : a; }, stale[0].state.asOf);
+    return staleNote(oldest);
+  }
 
-    var teamWord = num(hl.team_count, "team_count") === 1 ? "team" : "teams";
-    out.push(h("div", { class: "stats" },
-      stat("Combined record", record(num(hl.wins, "wins"), num(hl.losses, "losses"), hl.ties || 0), "across " + hl.team_count + " " + teamWord),
-      stat("Wins above expected", signed(num(hl.wins_above_expected, "wae")), "actual wins minus all-play wins"),
-      stat("Favoured this week", num(hl.favoured, "favoured") + " of " + num(hl.favoured_of, "favoured_of"), "by projected points")));
-
+  // My teams, week by week: record, results, luck and this week's win chance, with its table.
+  function fantasyLineup(data) {
+    var ctx = fantasyTeams(data);
+    if (!ctx.any) return null;
+    var week = ctx.week, teams = ctx.teams, shown = ctx.shown;
     var played = week - 1;
     var weeksLabel = played > 1 ? "Weeks 1 to " + played : "Week 1";
     var luckMax = Math.max(2, Math.max.apply(null, teams.map(function (t) { return Math.abs(t.luck) || 0; })));
@@ -302,34 +316,44 @@
     var t = tableToggle("Fantasy teams, week " + week,
       [{ label: "Team" }, { label: "Platform" }, { label: "Record" }, { label: weeksLabel }, { label: "Luck", num: true }, { label: "Win chance", num: true }],
       tableRows, grid);
-    out.push(h("div", { class: "chart-block" }, h("div", { class: "chart-head chart-head--end" }, t.button), grid, t.table));
+    return [fantasyStale(shown), h("div", { class: "chart-block" }, h("div", { class: "chart-head chart-head--end" }, t.button), grid, t.table)];
+  }
 
-    out.push(barChart({
+  // Who is carrying my teams: points above replacement per game.
+  function fantasyCarry(data) {
+    var ctx = fantasyTeams(data);
+    if (!ctx.any) return null;
+    var players = arr(ctx.f.top_players, "fantasy.top_players");
+    if (!players.length) return null;
+    return barChart({
       title: "Who is carrying my teams: points above replacement, per game",
       wide: true,
       labelHeading: "Player",
       valueHeading: "Points above replacement, per game",
       items: players.map(function (p) { return { label: str(p.name, "player"), value: num(p.points_above_replacement, "par") }; }),
       text: function (v) { return short(v) + " points above replacement per game"; }
-    }));
-    return out;
+    });
   }
 
-  function watchingPanel(data) {
+  // ---------- feed blocks: watching ----------
+
+  function watchingState(data) {
     var w = data.watching;
     need(isObj(w), "watching");
-    var state = sourceState(sourceOf(data, w.source), true);
-    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    return { w: w, state: sourceState(sourceOf(data, w.source), true) };
+  }
+
+  function legendItem(cls, label) {
+    return h("span", { class: "legend-item" }, h("span", { class: "legend-swatch " + cls, "aria-hidden": "true" }), label);
+  }
+
+  // Hours watched a week as stacked bars, and what I'm watching now.
+  function watchingHours(data) {
+    var ws = watchingState(data), w = ws.w, state = ws.state;
+    if (!state.show) return null;
     var weeks = arr(w.weeks, "watching.weeks");
     need(weeks.length > 0, "watching.weeks");
-    // "finished" items (bulk-completed on Simkl) always list after watched ones;
-    // a missing status counts as watched. The sort is stable within each group.
-    var recent = arr(w.recent, "watching.recent").map(function (r, i) {
-      need(isObj(r), "recent item");
-      return { item: r, finished: r.status === "finished", i: i };
-    }).sort(function (a, b) { return (a.finished - b.finished) || (a.i - b.i); });
     var n = weeks.length;
-
     var totals = weeks.map(function (wk) {
       need(isObj(wk), "week");
       return num(wk.films, "films") + num(wk.shows, "shows") + num(wk.anime, "anime");
@@ -340,7 +364,6 @@
     function weekText(wk, i) {
       return "Week " + (i + 1) + ": films " + short(wk.films) + "h, shows " + short(wk.shows) + "h, anime " + short(wk.anime) + "h";
     }
-
     var chart = h("div", { class: "stack-chart", role: "img",
       "aria-label": "Stacked bars of weekly hours watched over the last " + n + " weeks, oldest first, split into films, shows and anime. " + weeks.map(weekText).join(". ") },
       weeks.map(function (wk, i) {
@@ -357,18 +380,10 @@
         var ago = n - 1 - i;
         return [ago === 0 ? "this week" : plural(ago, "week ago", "weeks ago"), short(wk.films), short(wk.shows), short(wk.anime)];
       }), figure);
-
-    function legendItem(cls, label) {
-      return h("span", { class: "legend-item" }, h("span", { class: "legend-swatch " + cls, "aria-hidden": "true" }), label);
-    }
-    var types = { film: "film", show: "show", anime: "anime" };
-
-    // With no ratings at all, drop the score column instead of leaving a gap.
-    var hasRatings = recent.some(function (e) { return typeof e.item.rating === "number"; });
     var empty = totalHours === 0;
+    var recent = list(w.recent);
     // "Nothing logged" only when nothing is: no hours, nothing in progress, nothing recent.
     var logged = recent.length > 0 || (Array.isArray(w.currently_watching) && w.currently_watching.length > 0);
-
     return [
       state.asOf ? staleNote(state.asOf) : null,
       empty ? null : stat("Hours watched, last " + n + " weeks", short(totalHours)),
@@ -376,26 +391,41 @@
       empty ? null : h("div", { class: "legend" }, legendItem("fill--films", "Films"), legendItem("fill--shows", "Shows"), legendItem("fill--anime", "Anime"), t.button),
       empty ? null : figure,
       empty ? null : t.table,
-      watchingNow(w.currently_watching),
-      h("div", { class: "list" },
-        h("div", { class: "list-title" }, "Recently"),
-        h("ul", { class: "list-items" }, recent.map(function (entry) {
-          var r = entry.item;
-          need(isObj(r), "recent item");
-          var type = types[r.type] || "film";
-          var title = str(r.title, "title") + (!entry.finished && typeof r.season === "number" ? ", season " + r.season : "");
-          var url = safeUrl(r.url);
-          return h("li", { class: "list-item" },
-            h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
-            h("span", { class: "item-name" }, url ? h("a", { href: url }, title) : title,
-              entry.finished ? [" ", h("span", { class: "item-status" }, "finished")] : null),
-            h("span", { class: "item-meta" }, type),
-            typeof r.rating === "number"
-              ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
-                  h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
-              : hasRatings ? h("span", { class: "item-score" }) : null);
-        })))
+      watchingNow(w.currently_watching)
     ];
+  }
+
+  // Recently: finished and watched titles.
+  function watchingRecent(data) {
+    var ws = watchingState(data), w = ws.w, state = ws.state;
+    if (!state.show) return null;
+    // "finished" items (bulk-completed on Simkl) always list after watched ones;
+    // a missing status counts as watched. The sort is stable within each group.
+    var recent = arr(w.recent, "watching.recent").map(function (r, i) {
+      need(isObj(r), "recent item");
+      return { item: r, finished: r.status === "finished", i: i };
+    }).sort(function (a, b) { return (a.finished - b.finished) || (a.i - b.i); });
+    if (!recent.length) return null;
+    var types = { film: "film", show: "show", anime: "anime" };
+    // With no ratings at all, drop the score column instead of leaving a gap.
+    var hasRatings = recent.some(function (e) { return typeof e.item.rating === "number"; });
+    return h("div", { class: "list" },
+      h("div", { class: "list-title" }, "Recently"),
+      h("ul", { class: "list-items" }, recent.map(function (entry) {
+        var r = entry.item;
+        var type = types[r.type] || "film";
+        var title = str(r.title, "title") + (!entry.finished && typeof r.season === "number" ? ", season " + r.season : "");
+        var url = safeUrl(r.url);
+        return h("li", { class: "list-item" },
+          h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
+          h("span", { class: "item-name" }, url ? h("a", { href: url }, title) : title,
+            entry.finished ? [" ", h("span", { class: "item-status" }, "finished")] : null),
+          h("span", { class: "item-meta" }, type),
+          typeof r.rating === "number"
+            ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
+                h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
+            : hasRatings ? h("span", { class: "item-score" }) : null);
+      })));
   }
 
   // Optional extras below are lenient: a malformed entry is skipped, and a
@@ -430,15 +460,11 @@
       })));
   }
 
-  // Its own full-width card below the three panels. Returns null (card
-  // hidden) when the field is absent or every list is empty, or when Simkl
-  // has never produced good data.
+  // My rankings: Films, Shows and Anime, the first five with a toggle for the rest.
   var RANKINGS = [["films", "Films"], ["shows", "Shows"], ["anime", "Anime"]];
   var RANK_SHOWN = 5, RANK_MAX = 10;
   var NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 
-  // One ranking: the first five, and when there are more, a toggle that shows
-  // the rest in the same list.
   function ranking(g) {
     var listId = "lately-ranking-" + g.key;
     var list = h("ol", { class: "list-items list-items--numbered", id: listId, "aria-label": "My top " + g.label.toLowerCase() },
@@ -464,7 +490,7 @@
       list, button);
   }
 
-  function rankingsPanel(data) {
+  function watchingRankings(data) {
     var w = data.watching;
     if (!isObj(w) || !isObj(w.rankings)) return null;
     var state = sourceState(sourceOf(data, w.source), true);
@@ -476,6 +502,8 @@
     if (!groups.length) return null;
     return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" }, groups.map(ranking))];
   }
+
+  // ---------- feed blocks: listening ----------
 
   // Bins plays into the blue scale from the reference. Any hour with a play
   // starts at the second shade (heat-2), so it is clearly different from zero.
@@ -498,20 +526,31 @@
     if (isNaN(end.getTime()) || a.n < 1) return "last 30 days";
     return "since " + dateText(new Date(end.getTime() - (a.n - 1) * 86400000));
   }
+  // The archive's first and last day, from the same statistic, or null.
+  function listeningRange(data) {
+    var a = isObj(data.analysis) && isObj(data.analysis.listening) ? data.analysis.listening.heatmap : null;
+    if (!isObj(a) || !isNum(a.n) || a.n < 1 || typeof a.as_of !== "string") return null;
+    var end = new Date(a.as_of + "T00:00:00Z");
+    if (isNaN(end.getTime())) return null;
+    return { days: a.n, from: dateText(new Date(end.getTime() - (a.n - 1) * 86400000)), to: dateText(end) };
+  }
 
-  function listeningPanel(data) {
+  function listeningBasics(data) {
     var l = data.listening;
     need(isObj(l), "listening");
     var state = sourceState(sourceOf(data, l.source), true);
-    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
-    var artists = arr(l.top_artists, "top_artists");
     var hours = arr(l.plays_by_hour, "plays_by_hour");
     need(hours.length === 24, "plays_by_hour length");
     hours.forEach(function (v) { num(v, "hour"); });
-    var max = Math.max.apply(null, hours);
-    var plays30 = hours.reduce(function (a, b) { return a + b; }, 0);
-    var win = listeningWindow(data);
+    return { l: l, state: state, hours: hours, plays: hours.reduce(function (a, b) { return a + b; }, 0), win: listeningWindow(data) };
+  }
 
+  // Plays, top artists and the by-hour strip for the window.
+  function listeningRecent(data) {
+    var b = listeningBasics(data);
+    if (!b.state.show) return null;
+    var artists = arr(b.l.top_artists, "top_artists");
+    var hours = b.hours, max = Math.max.apply(null, hours), win = b.win;
     function hourText(v, i) { return i + ":00, " + plural(v, "play", "plays"); }
     var strip = h("div", { class: "heat", role: "img",
       "aria-label": "Plays by hour of day, " + win + ": a strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
@@ -520,10 +559,9 @@
     var t = tableToggle("Plays by hour of day, " + win,
       [{ label: "Hour" }, { label: "Plays", num: true }],
       hours.map(function (v, i) { return [i + ":00", String(v)]; }), [strip, axis]);
-
     return [
-      state.asOf ? staleNote(state.asOf) : null,
-      stat("Plays, " + win, String(plays30)),
+      b.state.asOf ? staleNote(b.state.asOf) : null,
+      stat("Plays, " + win, String(b.plays)),
       barChart({
         title: "Top artists, " + win,
         labelHeading: "Artist",
@@ -536,6 +574,8 @@
         strip, axis, t.table)
     ];
   }
+
+  // ---------- feed blocks: eating ----------
 
   // Splits cuisines into at most `max` named bars and an "Other" remainder.
   // otherCount is how many cuisines the remainder covers, or null when the
@@ -561,11 +601,12 @@
     return h("p", { class: "chart-foot" }, text);
   }
 
-  function eatingPanel(data) {
+  // Restaurants ranked, recently tried (alphabetical, no cities) and what I rank most.
+  function eatingRecent(data) {
     var e = data.eating;
     need(isObj(e), "eating");
     var state = sourceState(sourceOf(data, e.source), true);
-    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    if (!state.show) return null;
     // Shown in alphabetical order, without cities, so the list carries no date information
     // (the file lists them newest first). Cities stay in the depth page's score-by-city.
     var recent = arr(e.recent, "eating.recent").slice().sort(function (a, b) {
@@ -575,7 +616,6 @@
       need(isObj(c), "cuisine");
       return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
     }), MAX_CUISINES);
-
     return [
       state.asOf ? staleNote(state.asOf) : null,
       stat("Restaurants ranked", String(num(e.ranked_count, "ranked_count"))),
@@ -598,7 +638,7 @@
     ];
   }
 
-  // ---------- lifting ----------
+  // ---------- feed blocks: lifting ----------
 
   var MAX_MUSCLES = 8; // named bars; the rest are summed into one "Other" bar
   var MAX_PRS = 5;
@@ -864,7 +904,8 @@
       figure, t.table);
   }
 
-  function liftingPanel(data) {
+  // The lifting feed's source and unit; sets the panel's source line when the page has it.
+  function liftingBasics(data) {
     var l = data.lifting;
     need(isObj(l), "lifting");
     var src = sourceOf(data, l.source);
@@ -872,47 +913,329 @@
     var meta = document.getElementById("lifting-meta");
     var state = sourceState(src, true);
     if (meta) meta.textContent = srcLabel;
-    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
-
     var unit = l.unit === "kg" ? "kg" : "lb";
-    var through = l.data_through === null ? null : calDate(l.data_through, "data_through");
+    var through = l.data_through === null || l.data_through === undefined ? null : calDate(l.data_through, "data_through");
     var count = num(l.workout_count, "workout_count");
-    if (count === 0 && meta && through) meta.textContent = srcLabel + " · data through " + dateText(through, true);
-    if (count === 0) return [state.asOf ? staleNote(state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet.")];
+    if (meta && through && state.show) meta.textContent = srcLabel + " · data through " + dateText(through, true);
+    return { l: l, state: state, unit: unit, through: through, count: count, src: src };
+  }
 
+  // Workouts logged, streak, sessions, and the main lifts' tiles.
+  function liftingLifts(data) {
+    var b = liftingBasics(data), l = b.l;
+    if (!b.state.show) return null;
+    if (b.count === 0) return [b.state.asOf ? staleNote(b.state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet.")];
     var firstWorkout = l.first_workout === null ? null : calDate(l.first_workout, "first_workout");
-    var weeks = arr(l.weeks, "lifting.weeks").map(function (w) {
-      need(isObj(w), "lifting week");
-      return { start: calDate(w.week_start, "week_start"), sessions: num(w.sessions, "week.sessions"), volume: num(w.volume, "week.volume") };
-    });
-    need(weeks.length > 0, "lifting.weeks");
-    var recent4 = weeks.slice(-4).reduce(function (a, w) { return a + w.sessions; }, 0);
+    var weeks = arr(l.weeks, "lifting.weeks");
+    var recent4 = weeks.slice(-4).reduce(function (a, w) { need(isObj(w), "lifting week"); return a + num(w.sessions, "week.sessions"); }, 0);
     var minSessions = num(l.streak_min_sessions, "streak_min_sessions");
-    var lifts = arr(l.main_lifts, "main_lifts").map(function (lift) { return liftTile(lift, unit); });
-    var active = weeks.some(function (w) { return w.sessions > 0 || w.volume > 0; });
-    // Only once everything above has passed, so a broken panel doesn't claim a date.
-    if (meta && through) meta.textContent = srcLabel + " · data through " + dateText(through, true);
-
+    var lifts = arr(l.main_lifts, "main_lifts").map(function (lift) { return liftTile(lift, b.unit); });
     return [
-      state.asOf ? staleNote(state.asOf) : null,
+      b.state.asOf ? staleNote(b.state.asOf) : null,
       h("div", { class: "stats" },
-        stat("Workouts logged", thousands(count), firstWorkout ? "since " + dateText(firstWorkout, true) : null),
+        stat("Workouts logged", thousands(b.count), firstWorkout ? "since " + dateText(firstWorkout, true) : null),
         stat("Current streak", String(num(l.streak_weeks, "streak_weeks")),
           minSessions === 1 ? "weeks with a workout" : "weeks at " + minSessions + "+ sessions"),
         stat("Sessions, last 4 weeks", String(recent4), "including this week so far")),
       lifts.length ? h("div", { class: "chart-block" },
         h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, main lifts")),
         h("div", { class: "lifts" }, lifts),
-        h("p", { class: "chart-foot" }, EPLEY_NOTE)) : null,
-      h("div", { class: "lift-grid" },
-        active ? volumeChart(weeks, unit)
-          : h("div", { class: "chart-block" },
-              h("div", { class: "chart-title" }, "Sessions and volume, last " + weeks.length + " weeks"),
-              h("p", { class: "panel-empty" }, "No workouts logged in the last " + weeks.length + " weeks")),
-        muscleChart(l.muscle_sets),
-        prList(l.recent_prs),
-        bodyWeight(l.body_weight, unit))
+        h("p", { class: "chart-foot" }, EPLEY_NOTE)) : null
     ];
+  }
+
+  // Sessions and volume by week, sets by muscle group, recent personal records.
+  function liftingTraining(data) {
+    var b = liftingBasics(data), l = b.l;
+    if (!b.state.show || b.count === 0) return null;
+    var weeks = arr(l.weeks, "lifting.weeks").map(function (w) {
+      need(isObj(w), "lifting week");
+      return { start: calDate(w.week_start, "week_start"), sessions: num(w.sessions, "week.sessions"), volume: num(w.volume, "week.volume") };
+    });
+    need(weeks.length > 0, "lifting.weeks");
+    var active = weeks.some(function (w) { return w.sessions > 0 || w.volume > 0; });
+    return h("div", { class: "lift-grid" },
+      active ? volumeChart(weeks, b.unit)
+        : h("div", { class: "chart-block" },
+            h("div", { class: "chart-title" }, "Sessions and volume, last " + weeks.length + " weeks"),
+            h("p", { class: "panel-empty" }, "No workouts logged in the last " + weeks.length + " weeks")),
+      muscleChart(l.muscle_sets),
+      prList(l.recent_prs));
+  }
+
+  function liftingBodyWeight(data) {
+    var b = liftingBasics(data);
+    if (!b.state.show || b.count === 0) return null;
+    return bodyWeight(b.l.body_weight, b.unit);
+  }
+
+  // The blocks a lately/<feed>/ page can hold (build.py's FEED_BLOCKS).
+  var BLOCKS = {
+    "fantasy.lineup": fantasyLineup, "fantasy.carry": fantasyCarry,
+    "watching.hours": watchingHours, "watching.recent": watchingRecent, "watching.rankings": watchingRankings,
+    "listening.recent": listeningRecent, "eating.recent": eatingRecent,
+    "lifting.lifts": liftingLifts, "lifting.training": liftingTraining, "lifting.body_weight": liftingBodyWeight
+  };
+
+  // ---------- the main page's panels ----------
+  // Each: a question in bold, a two-sentence answer from a fixed template, two or three
+  // numbers, one chart, and the link to the feed's page. A statistic that is "not
+  // enough data yet" or not in the file leaves the question standing over a box that
+  // says so, with its n and min_n; the numbers still show.
+
+  function question(text, sentences) {
+    return h("div", { class: "panel-lead" }, h("p", { class: "panel-question" }, text), h("p", { class: "panel-answer" }, sentences.join(" ")));
+  }
+  function numbers(items) {
+    items = items.filter(Boolean).slice(0, 3);
+    var d = LD();
+    if (d && d.headlineRow) return d.headlineRow(items, "ld-stats--panel");
+    return h("div", { class: "stats ld-stats ld-stats--panel" }, items.map(function (i) { return stat(i.label, i.value, i.note); }));
+  }
+  function waitBox(s, unit, extra) {
+    var d = LD();
+    var inner = d && d.waitBox ? d.waitBox(s, unit, extra)
+      : h("p", { class: "ld-wait" }, h("b", null, isObj(s) ? String(s.status) : "not in the data yet"));
+    return h("div", { class: "panel-wait" }, inner);
+  }
+  function chartOr(fn) {
+    var d = LD();
+    if (!d || !d.charts) return h("p", { class: "panel-empty" }, "Couldn't draw this chart right now.");
+    return fn(d.charts);
+  }
+  function more(feed) { return h("a", { class: "ld-more", href: "lately/" + feed + "/" }, "more about " + feed + " →"); }
+  function nOf(s) { return isNum(s.n) ? s.n + " of " + s.min_n : String(s.min_n); }
+  function plus(x, dp) { return fsigned(x, dp); }
+
+  function fantasyPanel(data) {
+    var ctx = fantasyTeams(data);
+    if (!ctx.any) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    var hl = ctx.f.headline;
+    need(isObj(hl), "fantasy.headline");
+    var a = analysisOf(data);
+    var q = a && isObj(a.fantasy) ? a.fantasy.quadrant : null;
+    var teamCount = num(hl.team_count, "team_count"), wae = num(hl.wins_above_expected, "wae");
+    var rec = record(num(hl.wins, "wins"), num(hl.losses, "losses"), hl.ties || 0);
+    var nums = [
+      { label: "Combined record", value: rec, note: "across " + plural(teamCount, "team", "teams") },
+      { label: "Wins above expected", value: plus(wae, 1), note: "actual wins minus all-play wins" },
+      { label: "Favoured this week", value: num(hl.favoured, "favoured") + " of " + num(hl.favoured_of, "favoured_of"), note: "by projected points" }
+    ];
+    var sentences, chart;
+    var mine = okStat(q) ? list(q.values.mine).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck) && typeof t.label === "string"; }) : [];
+    if (mine.length) {
+      var good = mine.filter(function (t) { return t.all_play >= 0.5; }).length;
+      var byLuck = mine.slice().sort(function (x, y) { return y.luck - x.luck; });
+      var L = byLuck[0], U = byLuck[byLuck.length - 1];
+      sentences = [
+        good + " of my " + plural(mine.length, "team", "teams") + (good === 1 ? " sits" : " sit") + " in the good half by all-play, and together they have won " +
+          fnum(Math.abs(wae), 1) + " " + (wae >= 0 ? "more" : "fewer") + " games than that strength predicts.",
+        mine.length > 1 ? "The luckiest is " + L.label + " at " + plus(L.luck, 1) + "; the least lucky is " + U.label + " at " + plus(U.luck, 1) + "."
+          : L.label + " is at " + plus(L.luck, 1) + " wins above expected."
+      ];
+      chart = chartOr(function (c) { return c.quadrant(q.values); });
+    } else {
+      sentences = [
+        "Across " + plural(teamCount, "team", "teams") + " I'm " + rec + ", " + fnum(Math.abs(wae), 1) + " " + (Math.abs(wae) === 1 ? "win" : "wins") + " " +
+          (wae >= 0 ? "above" : "below") + " what all-play says I should have.",
+        "The strength-and-luck chart waits for the league-wide statistic" + (isObj(q) && isNum(q.min_n) ? " (" + nOf(q) + " weeks)" : "") + "."
+      ];
+      chart = waitBox(q, "weeks");
+    }
+    return [fantasyStale(ctx.shown), question("Good, or lucky?", sentences), numbers(nums), chart, more("fantasy")];
+  }
+
+  var TYPE_NAMES = { film: "films", show: "shows", anime: "anime", films: "films", shows: "shows" };
+
+  function watchingPanel(data) {
+    var ws = watchingState(data), w = ws.w;
+    if (!ws.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    var a = analysisOf(data), aw = a && isObj(a.watching) ? a.watching : {};
+    var st = aw.s_tier, comp = isObj(aw.completion) ? aw.completion.show : null;
+    var weeks = list(w.weeks).filter(isObj), n = weeks.length;
+    var hours = weeks.reduce(function (s, wk) { return s + (isNum(wk.films) ? wk.films : 0) + (isNum(wk.shows) ? wk.shows : 0) + (isNum(wk.anime) ? wk.anime : 0); }, 0);
+    var completion = okStat(comp) ? { label: "Completion, shows", value: fpct(comp.value), note: comp.values.finished + " finished, " + comp.values.dropped + " dropped" } : null;
+    var hoursNum = n && hours > 0 ? { label: "Hours watched, last " + n + " weeks", value: short(hours), note: "films, shows and anime" } : null;
+    var sentences, chart, nums;
+    if (okStat(st)) {
+      var v = st.values;
+      var types = list(v.by_type).filter(function (t) { return isObj(t) && isNum(t.share); }).slice().sort(function (x, y) { return y.share - x.share; });
+      var top = list(v.over_indexed).filter(function (g) { return isObj(g) && isNum(g.ratio); }).slice().sort(function (x, y) { return y.ratio - x.ratio; })[0];
+      var decades = list(v.by_decade).filter(function (d) { return isObj(d) && isNum(d.share); }).slice().sort(function (x, y) { return y.share - x.share; });
+      var hi = types[0], lo = types[types.length - 1];
+      var sTotal = types.reduce(function (s, t) { return s + (isNum(t.s) ? t.s : 0); }, 0), total = types.reduce(function (s, t) { return s + (isNum(t.titles) ? t.titles : 0); }, 0);
+      sentences = [
+        fpct(st.value) + " of my tiered titles are S" + (hi && lo && hi !== lo ? ": " + TYPE_NAMES[hi.type] + " most often at " + fpct(hi.share) + ", " + TYPE_NAMES[lo.type] + " least at " + fpct(lo.share) : "") + ".",
+        (top ? top.genre + " appears " + fnum(top.ratio, 1) + "× as often in S as in B" : "No genre stands out in S against B") +
+          (decades.length ? ", and the " + decades[0].decade + " are the richest decade at " + fpct(decades[0].share) : "") + "."
+      ];
+      nums = [
+        { label: "S tier, all titles", value: fpct(st.value), note: sTotal + " of " + total + " tiered titles" },
+        top ? { label: "Most over-indexed in S", value: String(top.genre), note: fnum(top.ratio, 1) + "× its share in B" } : null,
+        completion
+      ];
+      chart = chartOr(function (c) { return h("div", { class: "chart-block chart-block--pair" }, c.sTierBars(v)); });
+    } else {
+      // Without the S-tier statistic, the tier counts come from tier_distribution.
+      var dist = isObj(aw.tier_distribution) ? aw.tier_distribution : {}, sAll = 0, tAll = 0, best = null;
+      Object.keys(dist).forEach(function (k) {
+        if (!okStat(dist[k])) return;
+        var tiers = list(dist[k].values.tiers).filter(isObj), s = 0, t = 0;
+        tiers.forEach(function (x) { t += isNum(x.titles) ? x.titles : 0; if (x.tier === "S") s += isNum(x.titles) ? x.titles : 0; });
+        sAll += s; tAll += t;
+        if (t && (!best || s / t > best.share)) best = { type: TYPE_NAMES[k] || k, share: s / t };
+      });
+      sentences = [
+        tAll ? sAll + " of my " + tAll + " tiered titles are S (" + fpct(sAll / tAll) + ")" + (best ? ", " + best.type + " most often at " + fpct(best.share) : "") + "."
+          : short(hours) + " hours watched in the last " + plural(n, "week", "weeks") + ".",
+        "Which genres and decades earn it waits for the S-tier statistic" + (isObj(st) && isNum(st.min_n) ? " (" + nOf(st) + " titles)" : "") + "."
+      ];
+      nums = [tAll ? { label: "S tier, all titles", value: fpct(sAll / tAll), note: sAll + " of " + tAll + " tiered titles" } : null, completion, hoursNum];
+      chart = waitBox(st, "titles");
+    }
+    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What earns an S?", sentences), numbers(nums), chart, more("watching")];
+  }
+
+  function listeningPanel(data) {
+    var b = listeningBasics(data);
+    if (!b.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    var a = analysisOf(data), al = a && isObj(a.listening) ? a.listening : {};
+    var r = al.retention_new_artists, conc = al.concentration, fr = al.first_repeat, disc = al.discovery;
+    var f = F();
+    var month = f ? f.monthText : function (m) { return String(m); };
+    var concLast = okStat(conc) ? list(conc.values.months).filter(isObj).slice(-1)[0] : null;
+    var top5 = concLast && isNum(concLast.top_five_share) ? concLast.top_five_share : null;
+    var plays = { label: "Plays, " + b.win, value: String(b.plays), note: "from Last.fm" };
+    var topFive = top5 !== null ? { label: "Top five artists' share", value: fpct(top5), note: month(concLast.month) } : null;
+    var sentences, chart, nums;
+    var months = okStat(r) ? list(r.values.months).filter(function (m) { return isObj(m) && isNum(m.share_30d) && isNum(m.share_90d); }) : [];
+    if (months.length) {
+      var last = months[months.length - 1];
+      sentences = [
+        "Of the " + plural(last.new_artists, "artist", "artists") + " new to me in " + month(last.month) + ", " + fpct(last.share_30d) + " were still playing a month later and " + fpct(last.share_90d) + " three months on.",
+        "I played " + plural(b.plays, "track", "tracks") + " in the " + b.win.replace(/^since/, "window since") + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
+      ];
+      nums = [
+        { label: "Still played after 30 days", value: fpct(last.share_30d), note: "new artists of " + month(last.month) },
+        { label: "Still played after 90 days", value: fpct(last.share_90d), note: "the same artists" },
+        plays
+      ];
+      chart = chartOr(function (c) {
+        return c.multiLine("New artists still played 30 and 90 days later", months.map(function (m) { return month(m.month); }),
+          [{ name: "after 30 days", values: months.map(function (m) { return m.share_30d; }) },
+           { name: "after 90 days", values: months.map(function (m) { return m.share_90d; }) }], { fmt: fpct, labelHeading: "Month", height: 110 });
+      });
+    } else {
+      var range = listeningRange(data);
+      sentences = [
+        (range ? "The archive holds " + plural(range.days, "day", "days") + " of plays, from " + range.from + " to " + range.to : "The archive is young") +
+          "; new-artist retention needs " + (isObj(r) && isNum(r.min_n) ? plural(r.min_n, "month", "months") : "months") + " with a full 90 days after them.",
+        "So far: " + plural(b.plays, "play", "plays") + " in the " + b.win.replace(/^since/, "window since") + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
+      ];
+      var newArtists = okStat(disc) ? list(disc.values.months).filter(isObj).slice(-1)[0] : null;
+      var topArtist = list(b.l.top_artists).filter(function (x) { return isObj(x) && typeof x.name === "string" && isNum(x.plays); })[0];
+      nums = [plays, topFive,
+        okStat(fr) && f ? { label: "First repeat, median", value: f.hoursText(fr.values.median_hours), note: "from a new track's first play to its second" }
+          : newArtists && isNum(newArtists.share) ? { label: "Plays by new artists", value: fpct(newArtists.share), note: month(newArtists.month) }
+          : topArtist ? { label: "Top artist, " + b.win, value: topArtist.name, note: plural(topArtist.plays, "play", "plays") } : null];
+      chart = waitBox(r, "months", range ? "plays from " + range.from + " to " + range.to : null);
+    }
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Do I keep playing what's new?", sentences), numbers(nums), chart, more("listening")];
+  }
+
+  function eatingPanel(data) {
+    var e = data.eating;
+    need(isObj(e), "eating");
+    var state = sourceState(sourceOf(data, e.source), true);
+    if (!state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    var a = analysisOf(data), ae = a && isObj(a.eating) ? a.eating : {};
+    var sc = ae.scores, hb = ae.home_bias, oe = ae.order_effect;
+    var home = okStat(hb) && isNum(hb.value) ? { label: "Home against away", value: plus(hb.value, 2), note: "points, same cuisine" } : null;
+    var order = okStat(oe) && isNum(oe.value) ? { label: "Order effect", value: plus(oe.value, 2), note: "points per 100 places ranked" } : null;
+    var sentences, chart, nums;
+    var med = okStat(sc) && isObj(sc.values.overall) && isNum(sc.values.overall.median) ? sc.values.overall.median : null;
+    if (med !== null) {
+      var byC = isObj(sc.values.by_cuisine) ? sc.values.by_cuisine : {};
+      var items = Object.keys(byC).filter(function (k) { return isObj(byC[k]) && isNum(byC[k].median) && isNum(byC[k].n) && byC[k].n >= MIN_CUISINE_PLACES && !/^other$/i.test(k); })
+        .map(function (k) { return { label: k, value: byC[k].median - med, text: plus(byC[k].median - med, 2) + " (" + plural(byC[k].n, "place", "places") + ")" }; })
+        .sort(function (x, y) { return y.value - x.value; });
+      var hi = items[0], lo = items[items.length - 1];
+      if (home) items.push({ label: "home against away", value: hb.value, text: plus(hb.value, 2) + " (same cuisine)" });
+      sentences = [
+        "Against my median of " + fnum(med, 2) + (hi && lo && hi !== lo ? ", " + hi.label + " runs " + plus(hi.value, 2) + " and " + lo.label + " " + plus(lo.value, 2) : ", no cuisine with " + MIN_CUISINE_PLACES + " places stands apart") + ".",
+        home ? "At home I score " + fnum(Math.abs(hb.value), 2) + " points " + (hb.value < 0 ? "lower" : "higher") + " than away for the same cuisine" +
+          (order ? ", and each 100 places ranked moves a score " + plus(oe.value, 2) + " points" : "") + "."
+          : "Home against away waits for " + (isObj(hb) && isNum(hb.min_n) ? nOf(hb) + " places" : "more places") + (order ? "; each 100 places ranked moves a score " + plus(oe.value, 2) + " points" : "") + "."
+      ];
+      nums = [{ label: "Median score", value: fnum(med, 2), note: "middle half " + fnum(sc.values.overall.q1, 2) + " to " + fnum(sc.values.overall.q3, 2) }, home, order];
+      chart = chartOr(function (c) {
+        var block = c.bars("Median score against my overall median, by cuisine", items, { labelHeading: "Cuisine", valueHeading: "Points against the median" });
+        block.appendChild(h("p", { class: "chart-foot" }, "Bars are each cuisine's median minus my overall median of " + fnum(med, 2) +
+          " (cuisines with " + MIN_CUISINE_PLACES + " or more places)" + (home ? "; the last bar is home against away, same cuisine" : "") + "."));
+        return block;
+      });
+    } else {
+      sentences = [
+        "Scores by cuisine wait for " + (isObj(sc) && isNum(sc.min_n) ? nOf(sc) + " places" : "more places") + ".",
+        home ? "At home I score " + fnum(Math.abs(hb.value), 2) + " points " + (hb.value < 0 ? "lower" : "higher") + " than away for the same cuisine."
+          : "Home against away waits too."
+      ];
+      nums = [{ label: "Restaurants ranked", value: String(num(e.ranked_count, "ranked_count")), note: "on Beli" }, home, order];
+      chart = waitBox(sc, "places");
+    }
+    return [state.asOf ? staleNote(state.asOf) : null, question("What biases my scores?", sentences), numbers(nums), chart, more("eating")];
+  }
+
+  function liftingPanel(data) {
+    var b = liftingBasics(data), l = b.l;
+    if (!b.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
+    if (b.count === 0) return [b.state.asOf ? staleNote(b.state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet."), more("lifting")];
+    var a = analysisOf(data), al = a && isObj(a.lifting) ? a.lifting : {};
+    var si = al.strength_index, bwr = al.body_weight_rate, ret = isObj(al.retention) ? al.retention : {}, kept = isObj(al.strength_kept) ? al.strength_kept : {};
+    var f = F();
+    var date = f ? f.dateText : function (s) { return String(s); };
+    // Bench best, as logged (a best set entered by hand says so).
+    var bench = list(l.main_lifts).filter(function (x) { return isObj(x) && /bench/i.test(String(x.name)); })[0];
+    var benchNum = null;
+    if (bench && isObj(bench.best) && isNum(bench.best.e1rm)) {
+      var bs = isObj(bench.best.best_set) ? bench.best.best_set : null;
+      benchNum = { label: "Bench best, e1RM", value: short(bench.best.e1rm) + " " + b.unit,
+        note: bs && isNum(bs.weight_lb) && isNum(bs.reps) ? "best set " + short(bs.weight_lb) + " × " + bs.reps + (bs.source === "manual" ? " · logged by hand" : "") : "estimated one-rep max" };
+    }
+    var weeks = okStat(si) ? list(si.values.weeks).filter(function (w) { return isObj(w) && isNum(w.strength) && isNum(w.body_weight); }) : [];
+    var last = weeks[weeks.length - 1];
+    var bwPct = last ? last.body_weight - 100 : okStat(bwr) && isNum(bwr.values.first) && isNum(bwr.values.latest) && bwr.values.first ? (bwr.values.latest / bwr.values.first - 1) * 100 : null;
+    var cutStart = okStat(si) && si.values.cut_start ? si.values.cut_start : okStat(bwr) ? bwr.values.cut_start : al.cut_start;
+    var bwNum = bwPct !== null ? { label: "Body weight since the cut", value: plus(bwPct, 1) + "%",
+      note: okStat(bwr) && isNum(bwr.values.first) ? "from " + fnum(bwr.values.first, 1) + " to " + fnum(bwr.values.latest, 1) + " " + b.unit : null } : null;
+    var sentences, chart, nums;
+    // The lift that held up best and least since the cut: from retention, else strength kept.
+    function extremes(map, unit) {
+      var ks = Object.keys(map).filter(function (k) { return okStat(map[k]) && isNum(map[k].value); }).sort(function (x, y) { return map[y].value - map[x].value; });
+      if (!ks.length) return null;
+      var hi = ks[0], lo = ks[ks.length - 1];
+      return hi === lo ? hi + " is at " + plus(map[hi].value, 1) + " " + unit + "."
+        : hi + " has held up best at " + plus(map[hi].value, 1) + " " + unit + " and " + lo + " least at " + plus(map[lo].value, 1) + "." ;
+    }
+    var second = extremes(ret, "lb of e1RM since the cut") || extremes(kept, "lb of e1RM kept per lb lost");
+    if (weeks.length > 1) {
+      sentences = [
+        "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + ", body weight is " + plus(last.body_weight - 100, 1) + "% and the strength index is " + plus(last.strength - 100, 1) + "%.",
+        second || "Per-lift retention appears once each lift has enough sessions."
+      ];
+      nums = [bwNum, { label: "Strength index since the cut", value: plus(last.strength - 100, 1) + "%", note: "mean best e1RM, main lifts" }, benchNum];
+      chart = chartOr(function (c) { return c.indexedLines(weeks, { height: 150 }); });
+    } else {
+      var waits = "The strength index waits for " + (isObj(si) && isNum(si.min_n) ? nOf(si) + " weeks" : "the pipeline");
+      sentences = [
+        okStat(bwr) && isNum(bwr.value) ? "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + " I've gone from " + fnum(bwr.values.first, 1) + " to " + fnum(bwr.values.latest, 1) + " " + b.unit +
+          (bwPct !== null ? " (" + plus(bwPct, 1) + "%)" : "") + ", " + (bwr.value < 0 ? "losing" : "gaining") + " " + fnum(Math.abs(bwr.value), 2) + " " + b.unit + " a week." : "Body weight since the cut waits for weigh-ins.",
+        second ? waits + "; meanwhile " + second.charAt(0).toLowerCase() + second.slice(1) : waits + "."
+      ];
+      nums = [bwNum, benchNum, okStat(bwr) && isNum(bwr.value) ? { label: "Body weight a week", value: plus(bwr.value, 2) + " " + b.unit, note: f ? f.interval(bwr.interval, function (x) { return f.signed(x, 2); }) || "since the cut started" : "since the cut started" } : null];
+      chart = waitBox(si, "weeks");
+    }
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is the cut costing strength?", sentences), numbers(nums), chart, more("lifting")];
   }
 
   // ---------- assembly ----------
@@ -922,25 +1245,14 @@
     ["panel-watching", watchingPanel],
     ["panel-listening", listeningPanel],
     ["panel-eating", eatingPanel],
-    ["panel-rankings", rankingsPanel, { optional: true }],
     ["panel-lifting", liftingPanel]
   ];
+  var FEEDS = { "panel-fantasy": "fantasy", "panel-watching": "watching", "panel-listening": "listening",
+    "panel-eating": "eating", "panel-lifting": "lifting" };
 
-  // Optional panels are hidden, not marked "not connected", when there is
-  // nothing to draw or drawing fails.
-  function fill(panelId, build, data, opts) {
+  function fill(panelId, build, data) {
     var panel = document.getElementById(panelId);
     if (!panel) return;
-    if (opts && opts.optional) {
-      while (panel.children.length > 1) panel.removeChild(panel.lastElementChild);
-      var extra = null;
-      try { extra = data ? build(data) : null; } catch (err) {
-        if (window.console) console.warn("lately: " + panelId + " not drawn:", err.message);
-      }
-      panel.hidden = !extra;
-      append(panel, extra);
-      return;
-    }
     // Keep the static heading row; replace everything after it.
     while (panel.children.length > 1) panel.removeChild(panel.lastElementChild);
     var nodes;
@@ -952,22 +1264,8 @@
       nodes = [h("p", { class: "panel-empty" }, missing ? NOT_CONNECTED : BROKEN)];
     }
     append(panel, nodes);
-    depth(panel, panelId, data);
-  }
-
-  // Each feed's panel gains its headline numbers from the analysis block (drawn by
-  // js/lately-depth.js) under the heading, and a link to its page at the end.
-  var FEEDS = { "panel-fantasy": "fantasy", "panel-watching": "watching", "panel-listening": "listening",
-    "panel-eating": "eating", "panel-lifting": "lifting" };
-  function depth(panel, panelId, data) {
-    var feed = FEEDS[panelId];
-    if (!feed) return;
-    var LD = window.LatelyDepth, items = [];
-    try { items = LD && data ? LD.headline(feed, data.analysis) : []; } catch (err) {
-      if (window.console) console.warn("lately: " + feed + " headline not drawn:", err.message);
-    }
-    if (items.length) panel.insertBefore(LD.headlineRow(items, "ld-stats--panel"), panel.children[1] || null);
-    panel.appendChild(h("a", { class: "ld-more", href: "lately/" + feed + "/" }, "more →"));
+    // The link to the feed's page, even when the panel could not be drawn.
+    if (!panel.querySelector(".ld-more")) panel.appendChild(more(FEEDS[panelId]));
   }
 
   function render(data, isSample) {
@@ -977,13 +1275,22 @@
     if (badge) badge.hidden = !sample;
     if (note) note.hidden = !sample;
     try { renderChips(data); } catch (e) { /* chips are decoration */ }
-    PANELS.forEach(function (p) { fill(p[0], p[1], data, p[2]); });
+    PANELS.forEach(function (p) { fill(p[0], p[1], data); });
   }
 
   // The top level must be the right shape; panels validate their own parts.
   function looksValid(data) {
     return isObj(data) && data.schema_version === 1 && isObj(data.sources);
   }
+
+  // The feed blocks for the lately/<feed>/ pages: nodes, or null when there is nothing to draw.
+  window.LatelyFeed = {
+    block: function (name, data) {
+      var fn = BLOCKS[name];
+      if (!fn || !looksValid(data)) return null;
+      return fn(data);
+    }
+  };
 
   function load(url) {
     return fetch(url, { cache: "no-cache" }).then(function (res) {
