@@ -562,6 +562,163 @@
        0.188,
        0.812
       ]
+     },
+     "acquisition_split": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "My starters' points to date by how each player reached my roster, against the league's median team on the same split.",
+      "values": {
+       "draft": {
+        "mine": 540.2,
+        "league_median": 588.4
+       },
+       "waiver": {
+        "mine": 69.8,
+        "league_median": 45.2
+       },
+       "trade": {
+        "mine": 0.0,
+        "league_median": 14.0
+       },
+       "other": {
+        "mine": 12.3,
+        "league_median": 8.0
+       }
+      }
+     },
+     "draft": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Each of my picks' points to date against the median points to date of every player taken in that round, league-wide.",
+      "value": 128.2,
+      "values": {
+       "picks": [
+        {
+         "round": 1,
+         "pick": 7,
+         "player": "Player A1",
+         "points_to_date": 79.8,
+         "round_baseline": 73.5,
+         "residual": 6.3
+        },
+        {
+         "round": 2,
+         "pick": 18,
+         "player": "Player A2",
+         "points_to_date": 95.9,
+         "round_baseline": 69.8,
+         "residual": 26.1
+        },
+        {
+         "round": 3,
+         "pick": 31,
+         "player": "Player A3",
+         "points_to_date": 87.6,
+         "round_baseline": 65.2,
+         "residual": 22.4
+        },
+        {
+         "round": 4,
+         "pick": 42,
+         "player": "Player A4",
+         "points_to_date": 42.2,
+         "round_baseline": 54.5,
+         "residual": -12.3
+        },
+        {
+         "round": 5,
+         "pick": 55,
+         "player": "Player A5",
+         "points_to_date": 73.7,
+         "round_baseline": 53.6,
+         "residual": 20.1
+        },
+        {
+         "round": 6,
+         "pick": 66,
+         "player": "Player A6",
+         "points_to_date": 60.0,
+         "round_baseline": 46.8,
+         "residual": 13.2
+        },
+        {
+         "round": 7,
+         "pick": 79,
+         "player": "Player A7",
+         "points_to_date": 35.0,
+         "round_baseline": 39.5,
+         "residual": -4.5
+        },
+        {
+         "round": 8,
+         "pick": 90,
+         "player": "Player A8",
+         "points_to_date": 33.0,
+         "round_baseline": 29.9,
+         "residual": 3.1
+        },
+        {
+         "round": 9,
+         "pick": 103,
+         "player": "Player A9",
+         "points_to_date": 27.9,
+         "round_baseline": 27.0,
+         "residual": 0.9
+        },
+        {
+         "round": 10,
+         "pick": 114,
+         "player": "Player A10",
+         "points_to_date": 35.8,
+         "round_baseline": 18.6,
+         "residual": 17.2
+        },
+        {
+         "round": 11,
+         "pick": 127,
+         "player": "Player A11",
+         "points_to_date": 5.5,
+         "round_baseline": 11.8,
+         "residual": -6.3
+        },
+        {
+         "round": 12,
+         "pick": 138,
+         "player": "Player A12",
+         "points_to_date": 29.1,
+         "round_baseline": 7.5,
+         "residual": 21.6
+        },
+        {
+         "round": 13,
+         "pick": 151,
+         "player": "Player A13",
+         "points_to_date": 0.0,
+         "round_baseline": 4.0,
+         "residual": -4.0
+        },
+        {
+         "round": 14,
+         "pick": 162,
+         "player": "Player A14",
+         "points_to_date": 5.5,
+         "round_baseline": 4.0,
+         "residual": 1.5
+        },
+        {
+         "round": 15,
+         "pick": 175,
+         "player": "Player A15",
+         "points_to_date": 26.9,
+         "round_baseline": 4.0,
+         "residual": 22.9
+        }
+       ]
+      }
      }
     },
     {
@@ -1261,6 +1418,163 @@
        0.097,
        0.566
       ]
+     },
+     "acquisition_split": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "My starters' points to date by how each player reached my roster, against the league's median team on the same split.",
+      "values": {
+       "draft": {
+        "mine": 570.2,
+        "league_median": 576.4
+       },
+       "waiver": {
+        "mine": 108.8,
+        "league_median": 53.2
+       },
+       "trade": {
+        "mine": 0.0,
+        "league_median": 7.0
+       },
+       "other": {
+        "mine": 14.3,
+        "league_median": 9.0
+       }
+      }
+     },
+     "draft": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Each of my picks' points to date against the median points to date of every player taken in that round, league-wide.",
+      "value": -19.5,
+      "values": {
+       "picks": [
+        {
+         "round": 1,
+         "pick": 7,
+         "player": "Player B1",
+         "points_to_date": 69.4,
+         "round_baseline": 74.2,
+         "residual": -4.8
+        },
+        {
+         "round": 2,
+         "pick": 16,
+         "player": "Player B2",
+         "points_to_date": 73.5,
+         "round_baseline": 68.5,
+         "residual": 5.0
+        },
+        {
+         "round": 3,
+         "pick": 27,
+         "player": "Player B3",
+         "points_to_date": 72.9,
+         "round_baseline": 60.6,
+         "residual": 12.3
+        },
+        {
+         "round": 4,
+         "pick": 36,
+         "player": "Player B4",
+         "points_to_date": 45.3,
+         "round_baseline": 58.7,
+         "residual": -13.4
+        },
+        {
+         "round": 5,
+         "pick": 47,
+         "player": "Player B5",
+         "points_to_date": 47.3,
+         "round_baseline": 53.4,
+         "residual": -6.1
+        },
+        {
+         "round": 6,
+         "pick": 56,
+         "player": "Player B6",
+         "points_to_date": 15.4,
+         "round_baseline": 43.8,
+         "residual": -28.4
+        },
+        {
+         "round": 7,
+         "pick": 67,
+         "player": "Player B7",
+         "points_to_date": 23.6,
+         "round_baseline": 38.9,
+         "residual": -15.3
+        },
+        {
+         "round": 8,
+         "pick": 76,
+         "player": "Player B8",
+         "points_to_date": 0.0,
+         "round_baseline": 33.1,
+         "residual": -33.1
+        },
+        {
+         "round": 9,
+         "pick": 87,
+         "player": "Player B9",
+         "points_to_date": 64.3,
+         "round_baseline": 27.7,
+         "residual": 36.6
+        },
+        {
+         "round": 10,
+         "pick": 96,
+         "player": "Player B10",
+         "points_to_date": 7.3,
+         "round_baseline": 18.8,
+         "residual": -11.5
+        },
+        {
+         "round": 11,
+         "pick": 107,
+         "player": "Player B11",
+         "points_to_date": 28.7,
+         "round_baseline": 13.9,
+         "residual": 14.8
+        },
+        {
+         "round": 12,
+         "pick": 116,
+         "player": "Player B12",
+         "points_to_date": 14.2,
+         "round_baseline": 7.7,
+         "residual": 6.5
+        },
+        {
+         "round": 13,
+         "pick": 127,
+         "player": "Player B13",
+         "points_to_date": 21.1,
+         "round_baseline": 4.0,
+         "residual": 17.1
+        },
+        {
+         "round": 14,
+         "pick": 136,
+         "player": "Player B14",
+         "points_to_date": 0.0,
+         "round_baseline": 4.0,
+         "residual": -4.0
+        },
+        {
+         "round": 15,
+         "pick": 147,
+         "player": "Player B15",
+         "points_to_date": 8.8,
+         "round_baseline": 4.0,
+         "residual": 4.8
+        }
+       ]
+      }
      }
     },
     {
@@ -1869,6 +2183,163 @@
        0.026,
        0.513
       ]
+     },
+     "acquisition_split": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "My starters' points to date by how each player reached my roster, against the league's median team on the same split.",
+      "values": {
+       "draft": {
+        "mine": 600.2,
+        "league_median": 564.4
+       },
+       "waiver": {
+        "mine": 147.8,
+        "league_median": 61.2
+       },
+       "trade": {
+        "mine": 0.0,
+        "league_median": 0.0
+       },
+       "other": {
+        "mine": 16.3,
+        "league_median": 10.0
+       }
+      }
+     },
+     "draft": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Each of my picks' points to date against the median points to date of every player taken in that round, league-wide.",
+      "value": 14.8,
+      "values": {
+       "picks": [
+        {
+         "round": 1,
+         "pick": 7,
+         "player": "Player C1",
+         "points_to_date": 73.8,
+         "round_baseline": 76.0,
+         "residual": -2.2
+        },
+        {
+         "round": 2,
+         "pick": 16,
+         "player": "Player C2",
+         "points_to_date": 68.5,
+         "round_baseline": 68.2,
+         "residual": 0.3
+        },
+        {
+         "round": 3,
+         "pick": 27,
+         "player": "Player C3",
+         "points_to_date": 73.5,
+         "round_baseline": 66.3,
+         "residual": 7.2
+        },
+        {
+         "round": 4,
+         "pick": 36,
+         "player": "Player C4",
+         "points_to_date": 44.8,
+         "round_baseline": 58.7,
+         "residual": -13.9
+        },
+        {
+         "round": 5,
+         "pick": 47,
+         "player": "Player C5",
+         "points_to_date": 47.5,
+         "round_baseline": 49.3,
+         "residual": -1.8
+        },
+        {
+         "round": 6,
+         "pick": 56,
+         "player": "Player C6",
+         "points_to_date": 62.8,
+         "round_baseline": 46.0,
+         "residual": 16.8
+        },
+        {
+         "round": 7,
+         "pick": 67,
+         "player": "Player C7",
+         "points_to_date": 5.8,
+         "round_baseline": 35.8,
+         "residual": -30.0
+        },
+        {
+         "round": 8,
+         "pick": 76,
+         "player": "Player C8",
+         "points_to_date": 38.5,
+         "round_baseline": 33.1,
+         "residual": 5.4
+        },
+        {
+         "round": 9,
+         "pick": 87,
+         "player": "Player C9",
+         "points_to_date": 54.1,
+         "round_baseline": 29.2,
+         "residual": 24.9
+        },
+        {
+         "round": 10,
+         "pick": 96,
+         "player": "Player C10",
+         "points_to_date": 39.8,
+         "round_baseline": 22.0,
+         "residual": 17.8
+        },
+        {
+         "round": 11,
+         "pick": 107,
+         "player": "Player C11",
+         "points_to_date": 0.0,
+         "round_baseline": 11.0,
+         "residual": -11.0
+        },
+        {
+         "round": 12,
+         "pick": 116,
+         "player": "Player C12",
+         "points_to_date": 0.5,
+         "round_baseline": 5.9,
+         "residual": -5.4
+        },
+        {
+         "round": 13,
+         "pick": 127,
+         "player": "Player C13",
+         "points_to_date": 18.7,
+         "round_baseline": 4.0,
+         "residual": 14.7
+        },
+        {
+         "round": 14,
+         "pick": 136,
+         "player": "Player C14",
+         "points_to_date": 0.0,
+         "round_baseline": 4.0,
+         "residual": -4.0
+        },
+        {
+         "round": 15,
+         "pick": 147,
+         "player": "Player C15",
+         "points_to_date": 0.0,
+         "round_baseline": 4.0,
+         "residual": -4.0
+        }
+       ]
+      }
      }
     }
    ],
@@ -1973,6 +2444,511 @@
        -1.68,
        1.69
       ]
+     }
+    }
+   },
+   "quadrant": {
+    "status": "ok",
+    "n": 5,
+    "min_n": 1,
+    "as_of": "2026-10-13",
+    "how": "For every team in my leagues, the all-play win share (wins against every other team each week) against actual wins minus all-play wins; my teams carry their week-by-week trail. Other teams are points only, never named.",
+    "values": {
+     "week": 5,
+     "mine": [
+      {
+       "label": "Sleeper · 12-team PPR",
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.236,
+       "luck": 1.82,
+       "trail": [
+        {
+         "week": 1,
+         "all_play": 0.364,
+         "luck": 0.46
+        },
+        {
+         "week": 2,
+         "all_play": 0.353,
+         "luck": 0.68
+        },
+        {
+         "week": 3,
+         "all_play": 0.308,
+         "luck": 1.12
+        },
+        {
+         "week": 4,
+         "all_play": 0.271,
+         "luck": 1.42
+        },
+        {
+         "week": 5,
+         "all_play": 0.236,
+         "luck": 1.82
+        }
+       ]
+      },
+      {
+       "label": "ESPN · 10-team, 2 flex",
+       "league_key": "espn-2",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.422,
+       "luck": 0.89,
+       "trail": [
+        {
+         "week": 1,
+         "all_play": 0.458,
+         "luck": 0.34
+        },
+        {
+         "week": 2,
+         "all_play": 0.433,
+         "luck": 0.43
+        },
+        {
+         "week": 3,
+         "all_play": 0.451,
+         "luck": 0.6
+        },
+        {
+         "week": 4,
+         "all_play": 0.424,
+         "luck": 0.7
+        },
+        {
+         "week": 5,
+         "all_play": 0.422,
+         "luck": 0.89
+        }
+       ]
+      },
+      {
+       "label": "ESPN · 10-team, 1 flex",
+       "league_key": "espn-1",
+       "record": {
+        "wins": 4,
+        "losses": 1,
+        "ties": 0
+       },
+       "all_play": 0.578,
+       "luck": 1.11,
+       "trail": [
+        {
+         "week": 1,
+         "all_play": 0.567,
+         "luck": 0.16
+        },
+        {
+         "week": 2,
+         "all_play": 0.542,
+         "luck": 0.54
+        },
+        {
+         "week": 3,
+         "all_play": 0.562,
+         "luck": 0.63
+        },
+        {
+         "week": 4,
+         "all_play": 0.561,
+         "luck": 0.91
+        },
+        {
+         "week": 5,
+         "all_play": 0.578,
+         "luck": 1.11
+        }
+       ]
+      }
+     ],
+     "others": [
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.497,
+       "luck": -0.49
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.351,
+       "luck": 0.24
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.733,
+       "luck": -1.67
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.05,
+       "luck": 1.75
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 5,
+        "losses": 0,
+        "ties": 0
+       },
+       "all_play": 0.788,
+       "luck": 1.06
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.569,
+       "luck": -0.84
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 1,
+        "losses": 4,
+        "ties": 0
+       },
+       "all_play": 0.44,
+       "luck": -1.2
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.612,
+       "luck": -0.06
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 0,
+        "losses": 5,
+        "ties": 0
+       },
+       "all_play": 0.159,
+       "luck": -0.8
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 1,
+        "losses": 4,
+        "ties": 0
+       },
+       "all_play": 0.406,
+       "luck": -1.03
+      },
+      {
+       "league_key": "sleeper-1",
+       "record": {
+        "wins": 5,
+        "losses": 0,
+        "ties": 0
+       },
+       "all_play": 0.851,
+       "luck": 0.75
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.237,
+       "luck": 1.82
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.293,
+       "luck": 1.54
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.585,
+       "luck": -0.92
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 0,
+        "losses": 5,
+        "ties": 0
+       },
+       "all_play": 0.1,
+       "luck": -0.5
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.342,
+       "luck": 0.29
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 4,
+        "losses": 1,
+        "ties": 0
+       },
+       "all_play": 0.468,
+       "luck": 1.66
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 4,
+        "losses": 1,
+        "ties": 0
+       },
+       "all_play": 0.581,
+       "luck": 1.09
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 1,
+        "losses": 4,
+        "ties": 0
+       },
+       "all_play": 0.297,
+       "luck": -0.49
+      },
+      {
+       "league_key": "espn-2",
+       "record": {
+        "wins": 4,
+        "losses": 1,
+        "ties": 0
+       },
+       "all_play": 0.671,
+       "luck": 0.64
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 4,
+        "losses": 1,
+        "ties": 0
+       },
+       "all_play": 0.466,
+       "luck": 1.67
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.481,
+       "luck": -0.4
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 5,
+        "losses": 0,
+        "ties": 0
+       },
+       "all_play": 0.946,
+       "luck": 0.27
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.529,
+       "luck": 0.35
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 1,
+        "losses": 4,
+        "ties": 0
+       },
+       "all_play": 0.262,
+       "luck": -0.31
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.274,
+       "luck": 0.63
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.72,
+       "luck": -0.6
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 2,
+        "losses": 3,
+        "ties": 0
+       },
+       "all_play": 0.413,
+       "luck": -0.06
+      },
+      {
+       "league_key": "espn-1",
+       "record": {
+        "wins": 3,
+        "losses": 2,
+        "ties": 0
+       },
+       "all_play": 0.499,
+       "luck": 0.5
+      }
+     ]
+    }
+   },
+   "manager_score": {
+    "components": {
+     "draft": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Points per week my drafted starters scored above the median player taken in the same round, league-wide, over the season so far; rank and percentile among every manager across my leagues.",
+      "value": 3.4,
+      "interval": [
+       -1.2,
+       8.0
+      ],
+      "values": {
+       "rank": 9,
+       "of": 32,
+       "percentile": 0.72
+      }
+     },
+     "lineup": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Points per week my chosen lineup lost against the best possible lineup from my roster, the league's median manager as zero; rank and percentile across my leagues.",
+      "value": -2.1,
+      "interval": [
+       -4.0,
+       -0.2
+      ],
+      "values": {
+       "rank": 24,
+       "of": 32,
+       "percentile": 0.25
+      }
+     },
+     "moves": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Points per week from players I added, dropped or traded against keeping my drafted roster; rank and percentile across my leagues.",
+      "value": 1.6,
+      "interval": [
+       -0.9,
+       4.1
+      ],
+      "values": {
+       "rank": 12,
+       "of": 32,
+       "percentile": 0.63
+      }
+     },
+     "strength": {
+      "status": "ok",
+      "n": 5,
+      "min_n": 4,
+      "as_of": "2026-10-13",
+      "how": "Points per week my starters scored against the league average starter; rank and percentile across my leagues.",
+      "value": 4.8,
+      "interval": [
+       1.1,
+       8.5
+      ],
+      "values": {
+       "rank": 6,
+       "of": 32,
+       "percentile": 0.81
+      }
+     }
+    },
+    "composite": {
+     "status": "ok",
+     "n": 5,
+     "min_n": 4,
+     "as_of": "2026-10-13",
+     "how": "The four components standardised and averaged, as the share of managers across my leagues I beat, with a bootstrap interval over weeks.",
+     "value": 0.61,
+     "interval": [
+      0.41,
+      0.78
+     ],
+     "values": {
+      "percentile": 0.61
      }
     }
    }
@@ -2453,6 +3429,228 @@
      "median_hours": 720.0,
      "repeated": 88,
      "new_tracks": 88
+    }
+   },
+   "entropy": {
+    "status": "ok",
+    "n": 8,
+    "min_n": 1,
+    "as_of": "2026-10-13",
+    "how": "Shannon entropy, in bits, of the month's plays across artists, for months with at least 50 plays; higher means plays spread over more artists.",
+    "value": 3.4,
+    "values": {
+     "months": [
+      {
+       "month": "2026-03",
+       "plays": 120,
+       "artists": 22,
+       "entropy_bits": 2.6
+      },
+      {
+       "month": "2026-04",
+       "plays": 135,
+       "artists": 25,
+       "entropy_bits": 2.7
+      },
+      {
+       "month": "2026-05",
+       "plays": 150,
+       "artists": 28,
+       "entropy_bits": 2.8
+      },
+      {
+       "month": "2026-06",
+       "plays": 165,
+       "artists": 31,
+       "entropy_bits": 2.9
+      },
+      {
+       "month": "2026-07",
+       "plays": 180,
+       "artists": 34,
+       "entropy_bits": 3.0
+      },
+      {
+       "month": "2026-08",
+       "plays": 195,
+       "artists": 37,
+       "entropy_bits": 3.1
+      },
+      {
+       "month": "2026-09",
+       "plays": 210,
+       "artists": 40,
+       "entropy_bits": 3.2
+      },
+      {
+       "month": "2026-10",
+       "plays": 225,
+       "artists": 43,
+       "entropy_bits": 3.3
+      }
+     ]
+    }
+   },
+   "nostalgia": {
+    "status": "ok",
+    "n": 8,
+    "min_n": 1,
+    "as_of": "2026-10-13",
+    "how": "The median release year of the tracks played each month, for months with at least 50 plays.",
+    "value": 2016,
+    "values": {
+     "months": [
+      {
+       "month": "2026-03",
+       "plays": 120,
+       "median_release_year": 2014
+      },
+      {
+       "month": "2026-04",
+       "plays": 135,
+       "median_release_year": 2015
+      },
+      {
+       "month": "2026-05",
+       "plays": 150,
+       "median_release_year": 2016
+      },
+      {
+       "month": "2026-06",
+       "plays": 165,
+       "median_release_year": 2017
+      },
+      {
+       "month": "2026-07",
+       "plays": 180,
+       "median_release_year": 2014
+      },
+      {
+       "month": "2026-08",
+       "plays": 195,
+       "median_release_year": 2015
+      },
+      {
+       "month": "2026-09",
+       "plays": 210,
+       "median_release_year": 2016
+      },
+      {
+       "month": "2026-10",
+       "plays": 225,
+       "median_release_year": 2017
+      }
+     ]
+    }
+   },
+   "enduring": {
+    "status": "ok",
+    "n": 412,
+    "min_n": 20,
+    "as_of": "2026-10-13",
+    "how": "From Apple Music's lifetime play counts: each artist's plays divided by the years since the first track of theirs was added to my library, for artists in the library at least a year.",
+    "values": {
+     "library": {
+      "artists": 412,
+      "plays": 38210,
+      "since": "2015-03"
+     },
+     "artists": [
+      {
+       "artist": "Artist 0",
+       "plays": 4200,
+       "first_added": "2015-01",
+       "years": 11.3,
+       "plays_per_year": 372.0
+      },
+      {
+       "artist": "Artist 1",
+       "plays": 3700,
+       "first_added": "2016-02",
+       "years": 10.3,
+       "plays_per_year": 359.0
+      },
+      {
+       "artist": "Artist 2",
+       "plays": 3200,
+       "first_added": "2017-03",
+       "years": 9.3,
+       "plays_per_year": 344.0
+      },
+      {
+       "artist": "Artist 3",
+       "plays": 2700,
+       "first_added": "2018-04",
+       "years": 8.3,
+       "plays_per_year": 325.0
+      },
+      {
+       "artist": "Artist 4",
+       "plays": 2200,
+       "first_added": "2019-05",
+       "years": 7.3,
+       "plays_per_year": 301.0
+      },
+      {
+       "artist": "Artist 5",
+       "plays": 1700,
+       "first_added": "2020-06",
+       "years": 6.3,
+       "plays_per_year": 270.0
+      }
+     ]
+    }
+   },
+   "retention_new_artists": {
+    "status": "ok",
+    "n": 5,
+    "min_n": 3,
+    "as_of": "2026-10-13",
+    "how": "For each month, the artists I played for the first time, and the share of them played again in the 30 and 90 days after that first play; months whose 90 days are not up yet are left out.",
+    "value": 0.42,
+    "values": {
+     "months": [
+      {
+       "month": "2026-03",
+       "new_artists": 18,
+       "played_30d": 8,
+       "played_90d": 6,
+       "share_30d": 0.444,
+       "share_90d": 0.333
+      },
+      {
+       "month": "2026-04",
+       "new_artists": 17,
+       "played_30d": 7,
+       "played_90d": 5,
+       "share_30d": 0.412,
+       "share_90d": 0.294
+      },
+      {
+       "month": "2026-05",
+       "new_artists": 16,
+       "played_30d": 6,
+       "played_90d": 4,
+       "share_30d": 0.375,
+       "share_90d": 0.25
+      },
+      {
+       "month": "2026-06",
+       "new_artists": 15,
+       "played_30d": 8,
+       "played_90d": 6,
+       "share_30d": 0.533,
+       "share_90d": 0.4
+      },
+      {
+       "month": "2026-07",
+       "new_artists": 14,
+       "played_30d": 7,
+       "played_90d": 5,
+       "share_30d": 0.5,
+       "share_90d": 0.357
+      }
+     ]
     }
    }
   },
@@ -3111,6 +4309,336 @@
         -0.36,
         0.698
        ]
+      }
+     ]
+    }
+   },
+   "strength_index": {
+    "status": "ok",
+    "n": 20,
+    "min_n": 4,
+    "as_of": "2026-10-13",
+    "how": "Each week since the cut started, my body weight and the mean of my best e1RM across the main lifts, both as an index with the cut's first week at 100.",
+    "value": 103.8,
+    "values": {
+     "cut_start": "2026-05-25",
+     "lifts": [
+      "Bench",
+      "Incline press",
+      "Shoulder press",
+      "Lat pulldown",
+      "Row",
+      "Hack squat",
+      "RDL",
+      "Leg extension"
+     ],
+     "weeks": [
+      {
+       "week_start": "2026-05-25",
+       "body_weight": 100.0,
+       "strength": 100.0
+      },
+      {
+       "week_start": "2026-06-01",
+       "body_weight": 99.6,
+       "strength": 100.3
+      },
+      {
+       "week_start": "2026-06-08",
+       "body_weight": 99.6,
+       "strength": 101.0
+      },
+      {
+       "week_start": "2026-06-15",
+       "body_weight": 99.1,
+       "strength": 100.1
+      },
+      {
+       "week_start": "2026-06-22",
+       "body_weight": 99.0,
+       "strength": 100.7
+      },
+      {
+       "week_start": "2026-06-29",
+       "body_weight": 98.7,
+       "strength": 101.5
+      },
+      {
+       "week_start": "2026-07-06",
+       "body_weight": 98.0,
+       "strength": 101.6
+      },
+      {
+       "week_start": "2026-07-13",
+       "body_weight": 97.8,
+       "strength": 101.3
+      },
+      {
+       "week_start": "2026-07-20",
+       "body_weight": 97.6,
+       "strength": 101.8
+      },
+      {
+       "week_start": "2026-07-27",
+       "body_weight": 97.2,
+       "strength": 102.0
+      },
+      {
+       "week_start": "2026-08-03",
+       "body_weight": 97.0,
+       "strength": 101.7
+      },
+      {
+       "week_start": "2026-08-10",
+       "body_weight": 96.7,
+       "strength": 102.6
+      },
+      {
+       "week_start": "2026-08-17",
+       "body_weight": 96.4,
+       "strength": 102.3
+      },
+      {
+       "week_start": "2026-08-24",
+       "body_weight": 96.1,
+       "strength": 102.5
+      },
+      {
+       "week_start": "2026-08-31",
+       "body_weight": 96.2,
+       "strength": 103.4
+      },
+      {
+       "week_start": "2026-09-07",
+       "body_weight": 95.4,
+       "strength": 103.1
+      },
+      {
+       "week_start": "2026-09-14",
+       "body_weight": 95.3,
+       "strength": 103.6
+      },
+      {
+       "week_start": "2026-09-21",
+       "body_weight": 95.0,
+       "strength": 103.8
+      },
+      {
+       "week_start": "2026-09-28",
+       "body_weight": 94.9,
+       "strength": 103.5
+      },
+      {
+       "week_start": "2026-10-05",
+       "body_weight": 94.5,
+       "strength": 103.8
+      }
+     ]
+    }
+   },
+   "retention": {
+    "Bench": {
+     "status": "ok",
+     "n": 40,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "value": 28.6,
+     "interval": [
+      25.9,
+      31.3
+     ],
+     "values": {
+      "start": 230.0,
+      "latest": 258.6,
+      "change_pct": 0.124
+     }
+    },
+    "Incline press": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    },
+    "Shoulder press": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    },
+    "Lat pulldown": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    },
+    "Row": {
+     "status": "ok",
+     "n": 40,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "value": 28.6,
+     "interval": [
+      25.9,
+      31.3
+     ],
+     "values": {
+      "start": 230.0,
+      "latest": 258.6,
+      "change_pct": 0.124
+     }
+    },
+    "Hack squat": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    },
+    "RDL": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    },
+    "Leg extension": {
+     "status": "not enough data yet",
+     "n": 0,
+     "min_n": 6,
+     "as_of": "2026-10-13",
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+    }
+   },
+   "volume_lag": {
+    "status": "ok",
+    "n": 16,
+    "min_n": 12,
+    "as_of": "2026-10-13",
+    "how": "Pearson correlation between a week's training volume (weight × reps over working sets) and the change in mean best e1RM the following week, with a Fisher interval.",
+    "value": 0.21,
+    "interval": [
+     -0.31,
+     0.62
+    ],
+    "values": {
+     "lag_weeks": 1,
+     "weeks": 16,
+     "points": [
+      {
+       "week_start": "2026-05-25",
+       "volume": 18173,
+       "next_e1rm_change": 0.7
+      },
+      {
+       "week_start": "2026-06-01",
+       "volume": 17085,
+       "next_e1rm_change": 2.7
+      },
+      {
+       "week_start": "2026-06-08",
+       "volume": 20283,
+       "next_e1rm_change": -3.6
+      },
+      {
+       "week_start": "2026-06-15",
+       "volume": 17535,
+       "next_e1rm_change": 0.0
+      },
+      {
+       "week_start": "2026-06-22",
+       "volume": 19058,
+       "next_e1rm_change": 0.1
+      },
+      {
+       "week_start": "2026-06-29",
+       "volume": 19390,
+       "next_e1rm_change": -0.8
+      },
+      {
+       "week_start": "2026-07-06",
+       "volume": 19290,
+       "next_e1rm_change": 2.0
+      },
+      {
+       "week_start": "2026-07-13",
+       "volume": 19251,
+       "next_e1rm_change": 1.7
+      },
+      {
+       "week_start": "2026-07-20",
+       "volume": 16713,
+       "next_e1rm_change": -0.8
+      },
+      {
+       "week_start": "2026-07-27",
+       "volume": 16753,
+       "next_e1rm_change": 1.2
+      },
+      {
+       "week_start": "2026-08-03",
+       "volume": 16112,
+       "next_e1rm_change": 1.4
+      },
+      {
+       "week_start": "2026-08-10",
+       "volume": 17963,
+       "next_e1rm_change": -3.5
+      },
+      {
+       "week_start": "2026-08-17",
+       "volume": 17391,
+       "next_e1rm_change": 3.2
+      },
+      {
+       "week_start": "2026-08-24",
+       "volume": 16351,
+       "next_e1rm_change": 1.9
+      },
+      {
+       "week_start": "2026-08-31",
+       "volume": 17198,
+       "next_e1rm_change": 0.7
+      },
+      {
+       "week_start": "2026-09-07",
+       "volume": 19318,
+       "next_e1rm_change": -1.6
+      }
+     ]
+    }
+   },
+   "consistency": {
+    "status": "ok",
+    "n": 20,
+    "min_n": 12,
+    "as_of": "2026-10-13",
+    "how": "Weeks grouped by sessions logged, with the mean change in best e1RM over the following week; the value is the correlation between the two.",
+    "value": 0.35,
+    "interval": [
+     -0.11,
+     0.69
+    ],
+    "values": {
+     "buckets": [
+      {
+       "sessions_per_week": "1",
+       "weeks": 4,
+       "mean_e1rm_change": -1.2
+      },
+      {
+       "sessions_per_week": "2",
+       "weeks": 9,
+       "mean_e1rm_change": 0.8
+      },
+      {
+       "sessions_per_week": "3+",
+       "weeks": 7,
+       "mean_e1rm_change": 2.1
       }
      ]
     }
@@ -4171,6 +5699,300 @@
      ],
      "dated_titles": 0
     }
+   },
+   "s_tier": {
+    "status": "ok",
+    "n": 276,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "The share of tiered titles in S, by type and by release decade; and for each genre carried by at least 10 titles, its share among S titles divided by its share among B titles.",
+    "value": 0.123,
+    "values": {
+     "by_type": [
+      {
+       "type": "film",
+       "s": 13,
+       "titles": 178,
+       "share": 0.073
+      },
+      {
+       "type": "show",
+       "s": 10,
+       "titles": 37,
+       "share": 0.27
+      },
+      {
+       "type": "anime",
+       "s": 11,
+       "titles": 61,
+       "share": 0.18
+      }
+     ],
+     "by_decade": [
+      {
+       "decade": "1980s",
+       "s": 1,
+       "titles": 5,
+       "share": 0.2
+      },
+      {
+       "decade": "1990s",
+       "s": 4,
+       "titles": 12,
+       "share": 0.333
+      },
+      {
+       "decade": "2000s",
+       "s": 9,
+       "titles": 39,
+       "share": 0.231
+      },
+      {
+       "decade": "2010s",
+       "s": 12,
+       "titles": 101,
+       "share": 0.119
+      },
+      {
+       "decade": "2020s",
+       "s": 8,
+       "titles": 119,
+       "share": 0.067
+      }
+     ],
+     "over_indexed": [
+      {
+       "genre": "Drama",
+       "ratio": 1.9,
+       "n": 62
+      },
+      {
+       "genre": "Crime",
+       "ratio": 1.6,
+       "n": 28
+      },
+      {
+       "genre": "Thriller",
+       "ratio": 1.3,
+       "n": 41
+      },
+      {
+       "genre": "Comedy",
+       "ratio": 0.8,
+       "n": 118
+      },
+      {
+       "genre": "Action",
+       "ratio": 0.7,
+       "n": 141
+      }
+     ]
+    }
+   },
+   "tier_model": {
+    "status": "ok",
+    "n": 276,
+    "min_n": 100,
+    "as_of": "2026-10-13",
+    "how": "An ordered logistic model of my tier from Simkl's community score, release year, runtime and the top genres, scored by leave-one-out accuracy against always guessing the commonest tier.",
+    "value": 0.46,
+    "interval": [
+     0.4,
+     0.52
+    ],
+    "values": {
+     "accuracy_loo": 0.46,
+     "baseline_accuracy": 0.32,
+     "features": [
+      {
+       "name": "community score",
+       "effect": 0.31,
+       "interval": [
+        0.18,
+        0.44
+       ]
+      },
+      {
+       "name": "release year",
+       "effect": -0.07,
+       "interval": [
+        -0.16,
+        0.02
+       ]
+      },
+      {
+       "name": "runtime",
+       "effect": 0.05,
+       "interval": [
+        -0.04,
+        0.14
+       ]
+      },
+      {
+       "name": "drama",
+       "effect": 0.22,
+       "interval": [
+        0.06,
+        0.38
+       ]
+      },
+      {
+       "name": "comedy",
+       "effect": -0.11,
+       "interval": [
+        -0.26,
+        0.04
+       ]
+      }
+     ]
+    }
+   },
+   "taste_drift": {
+    "status": "ok",
+    "n": 8,
+    "min_n": 3,
+    "as_of": "2026-10-13",
+    "how": "Mean tier score (S=4, A=3, B=2, C=1, D=0) of the titles I finished each year, from the year each was first watched; the value is a straight line's slope per year.",
+    "value": 0.08,
+    "interval": [
+     -0.02,
+     0.18
+    ],
+    "values": {
+     "years": [
+      {
+       "year": 2019,
+       "mean_tier_score": 1.9,
+       "n": 22
+      },
+      {
+       "year": 2020,
+       "mean_tier_score": 2.1,
+       "n": 41
+      },
+      {
+       "year": 2021,
+       "mean_tier_score": 2.0,
+       "n": 38
+      },
+      {
+       "year": 2022,
+       "mean_tier_score": 2.3,
+       "n": 35
+      },
+      {
+       "year": 2023,
+       "mean_tier_score": 2.2,
+       "n": 44
+      },
+      {
+       "year": 2024,
+       "mean_tier_score": 2.4,
+       "n": 39
+      },
+      {
+       "year": 2025,
+       "mean_tier_score": 2.5,
+       "n": 36
+      },
+      {
+       "year": 2026,
+       "mean_tier_score": 2.6,
+       "n": 21
+      }
+     ]
+    }
+   },
+   "community_gap_by_genre": {
+    "status": "ok",
+    "n": 276,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "For each genre carried by at least 15 titles, my mean tier score minus the tier score Simkl's community rating implies (its rating mapped to tiers by my own quantiles), with a 95% interval.",
+    "values": {
+     "genres": [
+      {
+       "genre": "Comedy",
+       "gap": 0.42,
+       "interval": [
+        0.21,
+        0.63
+       ],
+       "n": 118
+      },
+      {
+       "genre": "Animation",
+       "gap": 0.31,
+       "interval": [
+        0.05,
+        0.57
+       ],
+       "n": 52
+      },
+      {
+       "genre": "Crime",
+       "gap": 0.12,
+       "interval": [
+        -0.18,
+        0.42
+       ],
+       "n": 28
+      },
+      {
+       "genre": "Action",
+       "gap": -0.08,
+       "interval": [
+        -0.24,
+        0.08
+       ],
+       "n": 141
+      },
+      {
+       "genre": "Drama",
+       "gap": -0.15,
+       "interval": [
+        -0.35,
+        0.05
+       ],
+       "n": 62
+      },
+      {
+       "genre": "Horror",
+       "gap": -0.44,
+       "interval": [
+        -0.81,
+        -0.07
+       ],
+       "n": 17
+      }
+     ]
+    }
+   },
+   "pace_vs_tier": {
+    "status": "ok",
+    "n": 92,
+    "min_n": 10,
+    "as_of": "2026-10-13",
+    "how": "Mean tier score of finished titles with dated episodes, by pace: binge (3 or more episodes a week), steady (1 to 3) and slow (under 1).",
+    "values": {
+     "buckets": [
+      {
+       "bucket": "binge",
+       "mean_tier_score": 2.7,
+       "n": 40
+      },
+      {
+       "bucket": "steady",
+       "mean_tier_score": 2.2,
+       "n": 35
+      },
+      {
+       "bucket": "slow",
+       "mean_tier_score": 1.8,
+       "n": 17
+      }
+     ]
+    }
    }
   },
   "eating": {
@@ -4611,12 +6433,101 @@
      ]
     }
    },
-   "top_ten_churn": {
-    "status": "not enough data yet",
-    "n": 0,
-    "min_n": 4,
+   "landing": {
+    "status": "ok",
+    "n": 10,
+    "min_n": 3,
     "as_of": "2026-10-13",
-    "how": "Places that entered my top ten between one weekly snapshot and the next (snapshots began 13 October 2026); the mean per week."
+    "how": "For places ranked for the first time each month, the percentile of my list each entered at (0 = bottom, 1 = top); the median per month.",
+    "value": 0.58,
+    "values": {
+     "months": [
+      {
+       "month": "2026-01",
+       "rankings": 30,
+       "median_percentile": 0.5
+      },
+      {
+       "month": "2026-02",
+       "rankings": 28,
+       "median_percentile": 0.52
+      },
+      {
+       "month": "2026-03",
+       "rankings": 26,
+       "median_percentile": 0.54
+      },
+      {
+       "month": "2026-04",
+       "rankings": 24,
+       "median_percentile": 0.56
+      },
+      {
+       "month": "2026-05",
+       "rankings": 22,
+       "median_percentile": 0.58
+      },
+      {
+       "month": "2026-06",
+       "rankings": 20,
+       "median_percentile": 0.6
+      },
+      {
+       "month": "2026-07",
+       "rankings": 18,
+       "median_percentile": 0.62
+      },
+      {
+       "month": "2026-08",
+       "rankings": 16,
+       "median_percentile": 0.64
+      },
+      {
+       "month": "2026-09",
+       "rankings": 14,
+       "median_percentile": 0.66
+      },
+      {
+       "month": "2026-10",
+       "rankings": 12,
+       "median_percentile": 0.68
+      }
+     ]
+    }
+   },
+   "rerank_drift": {
+    "status": "ok",
+    "n": 84,
+    "min_n": 20,
+    "as_of": "2026-10-13",
+    "how": "For places I ranked more than once, the later score minus the first, grouped by time since the first ranking; the value is the mean change overall with a bootstrap interval.",
+    "value": 0.12,
+    "interval": [
+     -0.05,
+     0.29
+    ],
+    "values": {
+     "buckets": [
+      {
+       "since": "under 30 days",
+       "n": 31,
+       "median_change": 0.0,
+       "mean_change": 0.04
+      },
+      {
+       "since": "30 to 90 days",
+       "n": 29,
+       "median_change": 0.1,
+       "mean_change": 0.15
+      },
+      {
+       "since": "over 90 days",
+       "n": 24,
+       "median_change": 0.2,
+       "mean_change": 0.19
+      }
+     ]
+    }
    }
   },
   "cross": {
@@ -4746,6 +6657,54 @@
       ]
      }
     }
+   },
+   "time_budget": {
+    "status": "ok",
+    "n": 56,
+    "min_n": 14,
+    "as_of": "2026-10-13",
+    "how": "Hours by weekday over the last 8 weeks: watching from episode and film runtimes, listening from track lengths, training from workout durations.",
+    "values": {
+     "weekdays": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+     ],
+     "weeks": 8,
+     "hours": {
+      "watching": [
+       1.1,
+       0.9,
+       1.4,
+       1.2,
+       2.3,
+       3.8,
+       3.1
+      ],
+      "listening": [
+       2.4,
+       2.6,
+       2.2,
+       2.5,
+       2.0,
+       1.1,
+       1.3
+      ],
+      "training": [
+       1.0,
+       0.5,
+       1.1,
+       0.9,
+       1.0,
+       0.4,
+       0.6
+      ]
+     }
+    }
    }
   },
   "grading": {
@@ -4831,6 +6790,16 @@
       }
      }
     }
+   ]
+  },
+  "meta": {
+   "sources_included": [
+    "sleeper",
+    "espn",
+    "simkl",
+    "lastfm",
+    "beli",
+    "hevy"
    ]
   }
  }

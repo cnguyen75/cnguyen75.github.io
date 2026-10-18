@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -1065,6 +1065,23 @@
         },
         "grading": {
           "$ref": "#/$defs/analysis_grading"
+        },
+        "meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sources_included"
+          ],
+          "properties": {
+            "sources_included": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The source names present in this file (sleeper, espn, yahoo, simkl, lastfm, beli, hevy); the site renders an absent source cleanly."
+            }
+          },
+          "description": "About the file itself."
         }
       },
       "description": "Statistics computed from the archive: one block per feed plus cross and grading. Opponents are never named; Beli dates never appear."
@@ -1098,6 +1115,54 @@
             }
           },
           "description": "Per platform (sleeper, espn), across my teams there."
+        },
+        "quadrant": {
+          "$ref": "#/$defs/analysis_stat_quadrant",
+          "description": "Strength against luck for every team in my leagues: x = all-play win share, y = wins above expected. values.mine are my teams with their week-by-week trail; values.others are the other teams, anonymous."
+        },
+        "manager_score": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "components",
+            "composite"
+          ],
+          "properties": {
+            "components": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "draft",
+                "lineup",
+                "moves",
+                "strength"
+              ],
+              "properties": {
+                "draft": {
+                  "$ref": "#/$defs/analysis_stat_manager_component",
+                  "description": "Points per week my drafted starters score against the round baseline (value), with rank, of and percentile in values."
+                },
+                "lineup": {
+                  "$ref": "#/$defs/analysis_stat_manager_component",
+                  "description": "Points per week my lineup choices gain or lose against the optimal lineup (value), with rank, of and percentile."
+                },
+                "moves": {
+                  "$ref": "#/$defs/analysis_stat_manager_component",
+                  "description": "Points per week from adds, drops and trades against a no-move baseline (value), with rank, of and percentile."
+                },
+                "strength": {
+                  "$ref": "#/$defs/analysis_stat_manager_component",
+                  "description": "Points per week my roster scores against the league average (value), with rank, of and percentile."
+                }
+              },
+              "description": "Each component's value is points per week against its baseline."
+            },
+            "composite": {
+              "$ref": "#/$defs/analysis_stat_manager_composite",
+              "description": "The four components combined: value and values.percentile are the share of managers I beat (0 to 1), with its interval."
+            }
+          },
+          "description": "How good a manager I am, apart from luck: four components and a composite, pooled across my leagues."
         }
       }
     },
@@ -1172,6 +1237,14 @@
         },
         "waiver_adds": {
           "$ref": "#/$defs/analysis_stat"
+        },
+        "acquisition_split": {
+          "$ref": "#/$defs/analysis_stat_acquisition_split",
+          "description": "Points to date by how each player arrived (draft, waiver, trade, other), mine against the league median."
+        },
+        "draft": {
+          "$ref": "#/$defs/analysis_stat_draft",
+          "description": "Every pick of mine against the median for its round (value: the residuals summed)."
         }
       }
     },
@@ -1217,6 +1290,22 @@
         },
         "first_repeat": {
           "$ref": "#/$defs/analysis_stat"
+        },
+        "entropy": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Shannon entropy of plays across artists, by month with at least 50 plays: values.months [{month, plays, artists, entropy_bits}]; value: the latest month."
+        },
+        "nostalgia": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Median release year of what I played, by month: values.months [{month, plays, median_release_year}]; value: the latest month."
+        },
+        "enduring": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "From Apple Music lifetime counts: values.library {artists, plays, since} and values.artists [{artist, plays, first_added, years, plays_per_year}], top artists by plays per year since first added."
+        },
+        "retention_new_artists": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Share of each month's new artists still played 30 and 90 days later: values.months [{month, new_artists, played_30d, played_90d, share_30d, share_90d}]; value: the latest share_30d."
         }
       }
     },
@@ -1268,6 +1357,25 @@
         },
         "lag_check": {
           "$ref": "#/$defs/analysis_stat"
+        },
+        "strength_index": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Weekly series since the cut started, both indexed to 100 at cut start: values.weeks [{week_start, body_weight, strength}], strength being the mean best e1RM across values.lifts. value: the latest strength index."
+        },
+        "retention": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/analysis_stat"
+          },
+          "description": "Per main lift, by display name: change in best e1RM since the cut started (value, lb, with interval); values {start, latest, change_pct}."
+        },
+        "volume_lag": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Correlation of a week's volume with the next week's e1RM change (value: r, with interval); values {lag_weeks, weeks, points [{week_start, volume, next_e1rm_change}]}."
+        },
+        "consistency": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Sessions per week against e1RM change: value r with interval; values.buckets [{sessions_per_week, weeks, mean_e1rm_change}]."
         }
       }
     },
@@ -1422,6 +1530,26 @@
         },
         "tier_completion_pace": {
           "$ref": "#/$defs/analysis_stat"
+        },
+        "s_tier": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "What earns an S: values.by_type [{type, s, titles, share}], values.by_decade [{decade, s, titles, share}] by release decade, and values.over_indexed [{genre, ratio, n}], genres over-represented in S against B (ratio of shares). value: the S share overall."
+        },
+        "tier_model": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Can my tiers be predicted from Simkl metadata: value and values.accuracy_loo (leave-one-out accuracy), values.baseline_accuracy (always guessing the commonest tier), values.features [{name, effect, interval}]."
+        },
+        "taste_drift": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Tier by the year I watched: values.years [{year, mean_tier_score, n}] with S=4 to D=0; value: the slope per year."
+        },
+        "community_gap_by_genre": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "My tier against the community score, by genre: values.genres [{genre, gap, interval, n}], gap in tier-score units, positive where I rate higher."
+        },
+        "pace_vs_tier": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Tier by how fast I watched: values.buckets [{bucket, mean_tier_score, n}] for binge, steady and slow pace."
         }
       }
     },
@@ -1436,8 +1564,7 @@
         "contrast_effect",
         "home_bias",
         "contrarian",
-        "new_cuisines",
-        "top_ten_churn"
+        "new_cuisines"
       ],
       "properties": {
         "places": {
@@ -1465,8 +1592,13 @@
         "new_cuisines": {
           "$ref": "#/$defs/analysis_stat"
         },
-        "top_ten_churn": {
-          "$ref": "#/$defs/analysis_stat"
+        "landing": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "The percentile at which a first-time ranking enters my list, by month: values.months [{month, rankings, median_percentile}] (0 to 1); value: the latest month."
+        },
+        "rerank_drift": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Score change for places I re-ranked, by time since the first ranking: values.buckets [{since, n, median_change, mean_change}]; value: the mean change overall, with interval."
         }
       },
       "description": "From Beli. Cities may appear; dates never do."
@@ -1510,6 +1642,10 @@
               "$ref": "#/$defs/analysis_stat"
             }
           }
+        },
+        "time_budget": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Hours by weekday across watching, listening and training over the last 8 weeks: values {weekdays, weeks, hours {watching [7], listening [7], training [7]}}."
         }
       }
     },
@@ -1559,6 +1695,628 @@
               }
             }
           }
+        }
+      }
+    },
+    "analysis_stat_quadrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An analysis_stat whose values have a fixed shape. Strength against luck for every team in my leagues: x = all-play win share, y = wins above expected. values.mine are my teams with their week-by-week trail; values.others are the other teams, anonymous.",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "week",
+            "mine",
+            "others"
+          ],
+          "properties": {
+            "week": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The last completed week the points describe."
+            },
+            "mine": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "label",
+                  "league_key",
+                  "record",
+                  "all_play",
+                  "luck",
+                  "trail"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "My team's display label, as teams[].name (\"Sleeper · 12-team PPR\")."
+                  },
+                  "league_key": {
+                    "type": "string",
+                    "description": "Opaque key joining my team to its league's other points (\"sleeper-1\"); never a league name."
+                  },
+                  "record": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "wins",
+                      "losses"
+                    ],
+                    "properties": {
+                      "wins": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "losses": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ties": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "all_play": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "All-play win share, 0 to 1."
+                  },
+                  "luck": {
+                    "type": "number",
+                    "description": "Wins above expected: actual wins minus all-play wins."
+                  },
+                  "trail": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "week",
+                        "all_play",
+                        "luck"
+                      ],
+                      "properties": {
+                        "week": {
+                          "type": "integer",
+                          "minimum": 1
+                        },
+                        "all_play": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1,
+                          "description": "All-play win share, 0 to 1."
+                        },
+                        "luck": {
+                          "type": "number",
+                          "description": "Wins above expected: actual wins minus all-play wins."
+                        }
+                      }
+                    },
+                    "description": "Week 1 to now, oldest first."
+                  }
+                }
+              }
+            },
+            "others": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "league_key",
+                  "record",
+                  "all_play",
+                  "luck"
+                ],
+                "properties": {
+                  "league_key": {
+                    "type": "string"
+                  },
+                  "record": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "wins",
+                      "losses"
+                    ],
+                    "properties": {
+                      "wins": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "losses": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "ties": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "all_play": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "All-play win share, 0 to 1."
+                  },
+                  "luck": {
+                    "type": "number",
+                    "description": "Wins above expected: actual wins minus all-play wins."
+                  }
+                }
+              },
+              "description": "Every other team in my leagues. Carries no names, ids or team names, ever: the schema rejects any other key."
+            }
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
+        }
+      }
+    },
+    "analysis_stat_manager_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An analysis_stat whose values have a fixed shape. Points per week my roster scores against the league average (value), with rank, of and percentile.",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "rank",
+            "of",
+            "percentile"
+          ],
+          "properties": {
+            "rank": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Rank among every manager across my leagues, 1 = best."
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Share of managers I beat on this component, 0 to 1."
+            }
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
+        }
+      }
+    },
+    "analysis_stat_manager_composite": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An analysis_stat whose values have a fixed shape. The four components combined: value and values.percentile are the share of managers I beat (0 to 1), with its interval.",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "percentile"
+          ],
+          "properties": {
+            "percentile": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
+        }
+      }
+    },
+    "analysis_stat_acquisition_split": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An analysis_stat whose values have a fixed shape. Points to date by how each player arrived (draft, waiver, trade, other), mine against the league median.",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "draft",
+            "waiver",
+            "trade",
+            "other"
+          ],
+          "properties": {
+            "draft": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mine",
+                "league_median"
+              ],
+              "properties": {
+                "mine": {
+                  "type": "number",
+                  "description": "My points to date from players who arrived this way."
+                },
+                "league_median": {
+                  "type": "number",
+                  "description": "The league's median team, same measure."
+                }
+              }
+            },
+            "waiver": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mine",
+                "league_median"
+              ],
+              "properties": {
+                "mine": {
+                  "type": "number",
+                  "description": "My points to date from players who arrived this way."
+                },
+                "league_median": {
+                  "type": "number",
+                  "description": "The league's median team, same measure."
+                }
+              }
+            },
+            "trade": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mine",
+                "league_median"
+              ],
+              "properties": {
+                "mine": {
+                  "type": "number",
+                  "description": "My points to date from players who arrived this way."
+                },
+                "league_median": {
+                  "type": "number",
+                  "description": "The league's median team, same measure."
+                }
+              }
+            },
+            "other": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "mine",
+                "league_median"
+              ],
+              "properties": {
+                "mine": {
+                  "type": "number",
+                  "description": "My points to date from players who arrived this way."
+                },
+                "league_median": {
+                  "type": "number",
+                  "description": "The league's median team, same measure."
+                }
+              }
+            }
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
+        }
+      }
+    },
+    "analysis_stat_draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "An analysis_stat whose values have a fixed shape. Every pick of mine against the median for its round (value: the residuals summed).",
+      "required": [
+        "status",
+        "n",
+        "min_n",
+        "as_of",
+        "how"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "not enough data yet",
+            "not available from source",
+            "not configured"
+          ]
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "The headline number, when there is one."
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "picks"
+          ],
+          "properties": {
+            "picks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "round",
+                  "pick",
+                  "player",
+                  "points_to_date",
+                  "round_baseline",
+                  "residual"
+                ],
+                "properties": {
+                  "round": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "pick": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Overall pick number."
+                  },
+                  "player": {
+                    "type": "string",
+                    "description": "A public figure; may appear."
+                  },
+                  "points_to_date": {
+                    "type": "number"
+                  },
+                  "round_baseline": {
+                    "type": "number",
+                    "description": "Median points to date of every player taken in that round, league-wide."
+                  },
+                  "residual": {
+                    "type": "number",
+                    "description": "points_to_date minus round_baseline."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "interval": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "95% interval for value, where one is defined."
+        },
+        "n": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sample size, in the unit min_n counts (weeks, plays, sessions, places...)."
+        },
+        "min_n": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "$ref": "#/$defs/date"
+        },
+        "how": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One plain sentence: how it is computed."
+        },
+        "missing": {
+          "type": "string",
+          "description": "Unless ok: the archive field or setting that is lacking."
         }
       }
     }
