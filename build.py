@@ -57,6 +57,14 @@ MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-N
 # The data register (content/lately/<feed>.md -> lately/<feed>/)
 DATA_FEEDS = ("fantasy", "watching", "listening", "eating", "lifting")
 DATA_REQUIRED = ("register", "feed", "title", "source")
+# Every page has these two groups ("# What's happening", "# Why"), in this order; each
+# ## section sits in one. Cards in Why are questions and show "not enough data yet" with
+# n and min_n; sections in What's happening are hidden until they have data.
+DATA_GROUPS = ("What's happening", "Why")
+DATA_GROUP_IDS = {"What's happening": "whats-happening", "Why": "why"}
+# Blocks of the feed itself (not the analysis) that js/lately.js draws into a FEED: slot.
+FEED_BLOCKS = ("fantasy.lineup", "fantasy.carry", "watching.hours", "watching.recent", "watching.rankings",
+               "listening.recent", "eating.recent", "lifting.lifts", "lifting.training", "lifting.body_weight")
 # Each page credits its source by name and link; these four require it.
 DATA_ATTRIBUTION = {"watching": "Simkl", "listening": "Last.fm", "eating": "Beli", "lifting": "Hevy"}
 # Statistics in the analysis schema that no page shows, as {path: reason}. Every other
@@ -185,19 +193,27 @@ def _schema_node(schema, node):
     return node
 
 
+# A statistic: analysis_stat, or one of its fixed-shape variants (analysis_stat_quadrant...),
+# which carry the same required fields.
+STAT_FIELDS = {"status", "n", "min_n", "as_of", "how"}
+
+
+def _is_stat(node):
+    return isinstance(node.get("properties"), dict) and STAT_FIELDS <= set(node["properties"])
+
+
 def stat_paths(schema, pattern=None):
     """Every statistic under analysis, as paths such as fantasy.teams[].playoff_odds,
     lifting.progress.* (a map keyed by the data) or watching.completion.show. With a
     pattern, only the ones it names: "teams[]" steps into a list, and "*" takes a map's
     keys or every statistic among fixed properties. KeyError if it names nothing."""
-    stat = schema["$defs"]["analysis_stat"]
     steps = None if pattern is None else [x for part in pattern.split(".")
                                           for x in ([part[:-2], "[]"] if part.endswith("[]") else [part])]
     out = []
 
     def walk(node, path, steps):
         node = _schema_node(schema, node)
-        if node is stat:
+        if _is_stat(node):
             if steps:
                 raise KeyError(".".join(path))
             out.append(".".join(path))
@@ -261,25 +277,72 @@ def read_data_page(path, schema):
         raise ContentError(f"{path.name}: the {meta['feed']} page must credit {need}")
     meta["sources"] = sources
     meta["source_file"] = path
-    meta["sections"] = parse_sections(m.group(2), path.name)
+    if meta.get("attribution_when"):
+        # "attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://...": a credit
+        # line shown only when that source is in analysis.meta.sources_included.
+        parts = [x.strip() for x in meta["attribution_when"].split("|")]
+        if len(parts) != 3 or not all(parts) or not re.fullmatch(r"[a-z]+", parts[0]) or not re.fullmatch(r"https://\S+", parts[2]):
+            raise ContentError(f"{path.name}: attribution_when must be 'source | text | https://...'")
+        meta["attribution_when"] = tuple(parts)
+    meta["groups"] = parse_data_body(m.group(2), path.name)
+    meta["sections"] = [s for g in meta["groups"] for s in g["sections"]]
     meta["stats"] = []
     for sec in meta["sections"]:
-        sec["stats"] = []
+        sec["stats"], sec["slots"], sec["notes"] = [], [], []
         for line in sec["lines"]:
             if not line.strip():
                 continue
-            mm = re.fullmatch(r"STAT:\s*(\S+)\s*", line)
+            mm = re.fullmatch(r"(STAT|FEED|NOTE):\s*(\S.*?)\s*", line)
             if not mm:
-                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT: lines are allowed, not {line.strip()!r}")
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED: and NOTE: lines are allowed, not {line.strip()!r}")
+            kind, arg = mm.group(1), mm.group(2)
+            if kind == "NOTE":
+                sec["notes"].append(arg)
+                continue
+            if kind == "FEED":
+                if arg not in FEED_BLOCKS:
+                    raise ContentError(f"{path.name}: FEED: {arg} is not a block js/lately.js draws ({', '.join(FEED_BLOCKS)})")
+                sec["slots"].append(("feed", arg))
+                continue
             try:
-                leaves = stat_paths(schema, mm.group(1))
+                leaves = stat_paths(schema, arg)
             except KeyError as e:
-                raise ContentError(f"{path.name}: STAT: {mm.group(1)} is not a statistic in {SCHEMA_PATH} ({e.args[0]})")
+                raise ContentError(f"{path.name}: STAT: {arg} is not a statistic in {SCHEMA_PATH} ({e.args[0]})")
             sec["stats"].append(leaves)  # one slot per STAT: line, naming every statistic it covers
+            sec["slots"].append(("stat", leaves))
             meta["stats"] += leaves
-        if not sec["stats"]:
-            raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: line")
+        if not sec["slots"]:
+            raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: or FEED: line")
     return meta
+
+
+def parse_data_body(body, name):
+    """A data page's body: "# What's happening" and "# Why", each holding ## sections (a
+    section may fix its id with {#id} so a retitled card keeps its deep link)."""
+    groups, cur = [], None
+    for line in body.splitlines():
+        g = re.match(r"# (.+?)\s*$", line)
+        if g:
+            title = g.group(1).strip()
+            if title not in DATA_GROUPS:
+                raise ContentError(f"{name}: groups are '# {DATA_GROUPS[0]}' and '# {DATA_GROUPS[1]}', not '# {title}'")
+            cur = {"title": title, "id": DATA_GROUP_IDS[title], "lines": []}
+            groups.append(cur)
+        elif cur is not None:
+            cur["lines"].append(line)
+        elif line.strip():
+            raise ContentError(f"{name}: text before the first # group")
+    if [g["title"] for g in groups] != list(DATA_GROUPS):
+        raise ContentError(f"{name}: a data page has the groups '# {DATA_GROUPS[0]}' then '# {DATA_GROUPS[1]}', once each")
+    ids = set()
+    for g in groups:
+        g["sections"] = parse_sections("\n".join(g["lines"]), name)
+        for s in g["sections"]:
+            s["group"] = g["id"]
+            if s["id"] in ids:
+                raise ContentError(f"{name}: two sections share an id")
+            ids.add(s["id"])
+    return groups
 
 
 def check_data_coverage(pages, schema):
@@ -308,12 +371,24 @@ def render_data_page(meta):
     # The page's first line: whose numbers these are and which apps they come from.
     apps = " and ".join(esc(n) for n, _ in meta["sources"])
     lede = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
-    nav = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in meta["sections"])
-    secs = []
-    for s in meta["sections"]:
-        stats = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(p))}"></div>' for p in s["stats"])
-        secs.append(f'<section class="ld-section" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
-                    f'<h2 class="ld-section-title" id="{s["id"]}-h">{esc(s["title"])}</h2>{stats}</section>')
+    nav, groups = [], []
+    for g in meta["groups"]:
+        links = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in g["sections"])
+        nav.append(f'<li class="ld-toc-group" data-group="{g["id"]}"><span class="ld-toc-label">{esc(g["title"])}</span><ol>{links}</ol></li>')
+        secs = []
+        for s in g["sections"]:
+            notes = "".join(f'<p class="ld-section-note">{inline(n)}</p>' for n in s["notes"])
+            slots = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
+                            else f'<div class="ld-feed" data-block="{esc(arg)}"></div>' for kind, arg in s["slots"])
+            secs.append(f'<section class="ld-section ld-section--{g["id"]}" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
+                        f'<h3 class="ld-section-title" id="{s["id"]}-h">{esc(s["title"])}</h3>{notes}{slots}</section>')
+        groups.append(f'<section class="ld-group ld-group--{g["id"]}" id="{g["id"]}" aria-labelledby="{g["id"]}-h">'
+                      f'<h2 class="ld-group-title" id="{g["id"]}-h">{esc(g["title"])}</h2>{"".join(secs)}</section>')
+    attribution = ""
+    if meta.get("attribution_when"):
+        src, text, link = meta["attribution_when"]
+        attribution = (f'\n<p class="ld-attribution" data-when-source="{esc(src)}" hidden>'
+                       f'<a href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>')
     current = ' aria-current="page"'
     others = " · ".join(f'<a href="../{f}/"{current if f == feed else ""}>{f}</a>' for f in DATA_FEEDS)
     return f"""<!doctype html>
@@ -339,6 +414,7 @@ def render_data_page(meta):
 <link rel="preload" href="../../fonts/courier-prime-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/site.css">
 <script src="../../js/lately-depth.js" defer></script>
+<script src="../../js/lately.js" defer></script>
 </head>
 <body class="ld-body" data-feed="{feed}" data-root="../../">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -357,11 +433,11 @@ def render_data_page(meta):
 <p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
 <div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
 <noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
-<p class="panel-empty ld-missing" hidden>Not connected yet.</p>
+<p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>
 </section>
-<nav class="ld-toc" aria-label="On this page"><ol>{nav}</ol></nav>
+<nav class="ld-toc" aria-label="On this page"><ol>{"".join(nav)}</ol></nav>
 <p class="ld-waiting" hidden></p>
-{"".join(secs)}
+{"".join(groups)}{attribution}
 </main>
 </div>
 </div>

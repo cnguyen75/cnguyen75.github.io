@@ -67,7 +67,8 @@
   function plural(n, unit) {
     var one = { weeks: "week", plays: "play", sessions: "session", places: "place", titles: "title", films: "film",
       months: "month", albums: "album", tracks: "track", days: "day", years: "year", tiers: "tier", pairs: "pair",
-      predictions: "prediction", seasons: "season", workouts: "workout", "weigh-ins": "weigh-in", "adds judged": "add judged" }[unit];
+      predictions: "prediction", seasons: "season", workouts: "workout", "weigh-ins": "weigh-in", "adds judged": "add judged",
+      artists: "artist", "re-rankings": "re-ranking", picks: "pick" }[unit];
     return big(n) + " " + (n === 1 && one ? one : unit);
   }
   function record(r) {
@@ -264,6 +265,132 @@
   function heatLevel(v, max) {
     if (!v || max <= 0) return 0;
     return Math.min(5, 2 + Math.floor((v / max) * 3.999));
+  }
+
+  // ---------- SVG charts shared with the main page (window.LatelyDepth.charts) ----------
+  // Geometry is SVG stretched to its box (vector-effect keeps strokes 2px); dots, labels and
+  // legends are HTML placed in percentages, so text keeps its size at any width.
+
+  var NS = "http://www.w3.org/2000/svg";
+  function sv(tag, attrs) {
+    var el = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, String(attrs[k])); });
+    return el;
+  }
+  function plotSvg() {
+    return sv("svg", { class: "line-svg", viewBox: "0 0 100 100", preserveAspectRatio: "none", "aria-hidden": "true", focusable: "false" });
+  }
+  function polyline(pts, cls) {
+    return sv("polyline", { class: cls || "", points: pts.map(function (p) { return p[0].toFixed(2) + "," + p[1].toFixed(2); }).join(" "),
+      "vector-effect": "non-scaling-stroke" });
+  }
+  function legendItem(cls, text) {
+    return h("span", { class: "legend-item" }, h("span", { class: "legend-swatch " + cls, "aria-hidden": "true" }), text);
+  }
+  var SERIES = ["s-blue", "s-orange", "s-purple"]; // one hue for one series, a second for two
+
+  // Lines over the same x positions. series: [{name, values: [number|null]}]; labels: x labels
+  // (first and last are shown); opts: {fmt, base (a dashed reference line, e.g. 100), height,
+  // endLabels (true: each series' last value at the right), title}. Returns the chart with its
+  // "view as table" toggle and, for two or more series, a legend.
+  function multiLine(title, labels, series, opts) {
+    opts = opts || {};
+    var fmt = opts.fmt || function (x) { return num(x, 1); };
+    var all = [];
+    series.forEach(function (s) { s.values.forEach(function (v) { if (isNum(v)) all.push(v); }); });
+    if (isNum(opts.base)) all.push(opts.base);
+    var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
+    var pad = hi > lo ? (hi - lo) * 0.12 : Math.abs(hi) * 0.05 || 1;
+    lo -= pad; hi += pad;
+    var n = labels.length;
+    function x(i) { return n > 1 ? (i / (n - 1)) * 100 : 100; }
+    function y(v) { return (1 - (v - lo) / (hi - lo)) * 100; }
+    var svg = plotSvg();
+    if (isNum(opts.base)) svg.appendChild(sv("line", { class: "line-base", x1: 0, x2: 100, y1: y(opts.base).toFixed(2), y2: y(opts.base).toFixed(2), "vector-effect": "non-scaling-stroke" }));
+    var ends = [];
+    series.forEach(function (s, k) {
+      var pts = [];
+      s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
+      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length]));
+      var lastIdx = -1;
+      s.values.forEach(function (v, i) { if (isNum(v)) lastIdx = i; });
+      if (lastIdx >= 0) ends.push({ k: k, v: s.values[lastIdx], top: y(s.values[lastIdx]) });
+    });
+    var plot = h("div", { class: "line-plot" }, svg, ends.map(function (e) {
+      return h("span", { class: "line-dot line-dot--last " + SERIES[e.k % SERIES.length], style: { left: "100%", top: e.top + "%" } });
+    }));
+    // End labels: nudged apart when two sit within 14% of each other.
+    ends.sort(function (a, b) { return a.top - b.top; });
+    for (var i = 1; i < ends.length; i++) if (ends[i].top - ends[i - 1].top < 14) ends[i].top = ends[i - 1].top + 14;
+    var endText = ends.map(function (e) { return fmt(e.v); });
+    var width = Math.max.apply(null, endText.map(function (t) { return t.length; }).concat(1));
+    var summary = series.map(function (s) {
+      var vals = s.values.filter(isNum);
+      return s.name + " from " + fmt(vals[0]) + " to " + fmt(vals[vals.length - 1]);
+    }).join("; ");
+    var chart = h("div", { class: "ld-line", role: "img", "aria-label": title + ", " + n + " points from " + labels[0] + " to " + labels[n - 1] + ": " + summary },
+      h("div", { class: "line-chart", style: { height: (opts.height || 120) + "px" } },
+        h("div", { class: "line-area" }, plot),
+        h("div", { class: "line-end", style: { width: (width * 0.62 + 0.4) + "em" } }, ends.map(function (e) {
+          return h("span", { class: "line-end-label " + SERIES[e.k % SERIES.length], style: { top: Math.min(Math.max(e.top, 6), 94) + "%" } }, fmt(e.v));
+        }))),
+      h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, labels[0]), h("span", null, n > 1 ? labels[n - 1] : "")));
+    var legend = series.length > 1 ? h("p", { class: "ld-legend" }, series.map(function (s, k) { return legendItem(SERIES[k % SERIES.length], s.name); }),
+      isNum(opts.base) ? legendItem("s-base", opts.baseText || String(opts.base)) : null) : null;
+    var cols = [{ label: opts.labelHeading || "" }].concat(series.map(function (s) { return { label: s.name, num: true }; }));
+    return charted(title, chart, cols, labels.map(function (l, i) {
+      return [l].concat(series.map(function (s) { return isNum(s.values[i]) ? fmt(s.values[i]) : "–"; }));
+    }), legend);
+  }
+
+  // Strength against luck: every team in my leagues as a point, mine in blue with their
+  // labels and a faint trail from week 1, the others grey and unlabelled. Hover on any
+  // point shows its record and all-play share only; no name of another team ever appears.
+  function quadrant(v) {
+    var mine = list(v.mine).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck); });
+    var others = list(v.others).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck); });
+    var xs = mine.concat(others).map(function (t) { return t.all_play; });
+    mine.forEach(function (t) { list(t.trail).forEach(function (p) { if (isObj(p) && isNum(p.all_play)) xs.push(p.all_play); }); });
+    var ys = mine.concat(others).map(function (t) { return Math.abs(t.luck); });
+    mine.forEach(function (t) { list(t.trail).forEach(function (p) { if (isObj(p) && isNum(p.luck)) ys.push(Math.abs(p.luck)); }); });
+    // 0.25 to 0.75 is shown; the range widens only when a team sits outside it.
+    var x0 = Math.min(0.25, Math.min.apply(null, xs.concat(0.25)) - 0.03), x1 = Math.max(0.75, Math.max.apply(null, xs.concat(0.75)) + 0.03);
+    var yMax = Math.max(1.5, Math.max.apply(null, ys.concat(0)) + 0.4);
+    function x(a) { return ((a - x0) / (x1 - x0)) * 100; }
+    function y(l) { return (1 - (l + yMax) / (2 * yMax)) * 100; }
+    function hover(t) { return record(t.record) + " · all-play " + pct(t.all_play); }
+    var svg = plotSvg();
+    svg.appendChild(sv("line", { class: "quad-axis", x1: x(0.5).toFixed(2), x2: x(0.5).toFixed(2), y1: 0, y2: 100, "vector-effect": "non-scaling-stroke" }));
+    svg.appendChild(sv("line", { class: "quad-axis", x1: 0, x2: 100, y1: 50, y2: 50, "vector-effect": "non-scaling-stroke" }));
+    mine.forEach(function (t) {
+      var pts = list(t.trail).filter(function (p) { return isObj(p) && isNum(p.all_play) && isNum(p.luck); }).map(function (p) { return [x(p.all_play), y(p.luck)]; });
+      if (pts.length > 1) svg.appendChild(polyline(pts, "quad-trail"));
+    });
+    var plot = h("div", { class: "quad-plot" }, svg,
+      others.map(function (t) {
+        return h("span", { class: "quad-dot quad-dot--other", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
+          h("span", { class: "sr-only" }, "another team, " + hover(t)));
+      }),
+      mine.map(function (t) {
+        return h("span", { class: "quad-dot quad-dot--mine", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
+          h("span", { class: "quad-label" + (x(t.all_play) > 60 ? " quad-label--left" : "") }, String(t.label)),
+          h("span", { class: "sr-only" }, ", " + hover(t)));
+      }),
+      [["quad-corner--tl", "bad and lucky"], ["quad-corner--tr", "good and lucky"], ["quad-corner--bl", "bad and unlucky"], ["quad-corner--br", "good and unlucky"]].map(function (c) {
+        return h("span", { class: "quad-corner " + c[0], "aria-hidden": "true" }, c[1]);
+      }));
+    var chart = h("div", { class: "quad", role: "img", "aria-label": "Strength against luck, week " + (isNum(v.week) ? v.week : "") + ": " +
+      mine.map(function (t) { return t.label + " " + hover(t) + ", " + signed(t.luck, 1) + " wins above expected"; }).join("; ") +
+      "; and " + others.length + " other teams as unlabelled points" },
+      h("div", { class: "quad-y", "aria-hidden": "true" }, "wins above expected ↑"),
+      plot,
+      h("div", { class: "quad-x", "aria-hidden": "true" }, [0.25, 0.5, 0.75].map(function (a) {
+        return h("span", { style: { left: x(a) + "%" } }, pct(a));
+      }), h("span", { class: "quad-x-label" }, "all-play win share →")));
+    var rows = mine.map(function (t) { return [String(t.label), record(t.record), pct(t.all_play), signed(t.luck, 1)]; })
+      .concat(others.map(function (t) { return ["another team", record(t.record), pct(t.all_play), signed(t.luck, 1)]; }));
+    return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
+      h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail from week 1")));
   }
 
   // ---------- statistics ----------
@@ -484,6 +611,55 @@
         }), { labelHeading: "Position", valueHeading: "mine", refHeading: "league average" });
       }
     },
+    "fantasy.quadrant": {
+      n: WEEKS,
+      wide: true,
+      draw: function (v) { return quadrant(v); }
+    },
+    "fantasy.manager_score.components.draft": managerComponent("Draft", "my drafted starters against the median player taken in the same round"),
+    "fantasy.manager_score.components.lineup": managerComponent("Lineup", "my lineup against the best possible one from my roster"),
+    "fantasy.manager_score.components.moves": managerComponent("Moves", "adds, drops and trades against keeping my drafted roster"),
+    "fantasy.manager_score.components.strength": managerComponent("Strength", "my starters against the league average"),
+    "fantasy.manager_score.composite": {
+      n: WEEKS,
+      label: "Composite",
+      value: function (s) { return [pct(s.value), "of managers across my leagues score lower"]; },
+      intervalFmt: function (x) { return pct(x); },
+      draw: function (v, s) {
+        return h("div", { class: "meter" }, h("div", { class: "chance-track", "aria-hidden": "true" },
+          h("div", { class: "chance-bar", style: { width: (Math.max(0, Math.min(1, s.value)) * 100) + "%" } })));
+      }
+    },
+    "fantasy.teams[].acquisition_split": {
+      n: WEEKS,
+      draw: function (v) {
+        var keys = ["draft", "waiver", "trade", "other"].filter(function (k) { return isObj(v[k]) && isNum(v[k].mine); });
+        return bars("Points to date by how the player arrived", keys.map(function (k) {
+          return { label: k, value: v[k].mine, text: num(v[k].mine, 1), ref: v[k].league_median, refText: isNum(v[k].league_median) ? num(v[k].league_median, 1) : null };
+        }), { labelHeading: "Arrived by", valueHeading: "mine", refHeading: "league median" });
+      }
+    },
+    "fantasy.teams[].draft": {
+      n: WEEKS,
+      wide: true,
+      value: function (s) { return isNum(s.value) ? [signed(s.value, 1), "points above the round baseline, all picks together"] : null; },
+      draw: function (v) {
+        var picks = list(v.picks).filter(isObj);
+        var best = null, worst = null;
+        picks.forEach(function (p) {
+          if (!isNum(p.residual)) return;
+          if (!best || p.residual > best.residual) best = p;
+          if (!worst || p.residual < worst.residual) worst = p;
+        });
+        return [facts([["best value", best ? best.player + " (round " + best.round + ", " + signed(best.residual, 1) + ")" : null],
+          ["worst value", worst ? worst.player + " (round " + worst.round + ", " + signed(worst.residual, 1) + ")" : null]]),
+          table("Every pick against the median for its round", [{ label: "Round", num: true }, { label: "Pick", num: true }, { label: "Player" },
+            { label: "Points to date", num: true }, { label: "Round baseline", num: true }, { label: "Residual", num: true }],
+            picks.map(function (p) {
+              return [String(p.round), String(p.pick), String(p.player), num(p.points_to_date, 1), num(p.round_baseline, 1), signed(p.residual, 1)];
+            }), { showCaption: true })];
+      }
+    },
     "fantasy.platforms.*.projection_accuracy": {
       n: WEEKS,
       value: function (s) { return [signed(s.value, 2), "points per player-week (bias)"]; },
@@ -618,6 +794,47 @@
             { labelHeading: "Hour", valueHeading: "Plays", every: 6 }) : null];
       }
     },
+    "listening.entropy": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [num(s.value, 2) + " bits", "entropy of plays across artists, latest month"] : null; },
+      draw: function (v) {
+        return columns("Entropy across artists by month (months with 50 or more plays)", list(v.months).map(function (m) {
+          return { label: monthText(m.month, true), title: monthText(m.month) + " (" + plural(m.plays, "plays") + ", " + plural(m.artists, "artists") + ")", value: m.entropy_bits, text: num(m.entropy_bits, 2) };
+        }), { labelHeading: "Month", valueHeading: "Entropy (bits)" });
+      }
+    },
+    "listening.nostalgia": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [String(Math.round(s.value)), "median release year of what I played, latest month"] : null; },
+      draw: function (v) {
+        var months = list(v.months);
+        return months.length ? lineChart("Median release year by month", months.map(function (m) {
+          return { label: monthText(m.month), value: m.median_release_year };
+        }), function (x) { return String(Math.round(x)); }) : null;
+      }
+    },
+    "listening.enduring": {
+      n: "artists",
+      draw: function (v) {
+        var lib = isObj(v.library) ? v.library : {};
+        return [facts([["artists in the library", isNum(lib.artists) ? big(lib.artists) : null], ["lifetime plays", isNum(lib.plays) ? big(lib.plays) : null],
+          ["library since", typeof lib.since === "string" ? monthText(lib.since) : null]]),
+          bars("Plays a year since first added", list(v.artists).map(function (a) {
+            return { label: a.artist, value: a.plays_per_year, text: big(a.plays_per_year) + " (" + big(a.plays) + " over " + num(a.years, 1) + " years)" };
+          }), { labelHeading: "Artist", valueHeading: "Plays a year" })];
+      }
+    },
+    "listening.retention_new_artists": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of a month's new artists played again within 30 days, latest"] : null; },
+      draw: function (v) {
+        var months = list(v.months);
+        return months.length ? multiLine("New artists still played 30 and 90 days later", months.map(function (m) { return monthText(m.month); }),
+          [{ name: "after 30 days", values: months.map(function (m) { return m.share_30d; }) },
+           { name: "after 90 days", values: months.map(function (m) { return m.share_90d; }) }],
+          { fmt: pct, labelHeading: "Month", height: 110 }) : null;
+      }
+    },
 
     // ----- lifting -----
     "lifting.body_weight_rate": {
@@ -645,11 +862,79 @@
       value: function (s) { return [signed(s.value, 1), "lb a month, estimated one-rep max"]; },
       intervalFmt: function (x) { return signed(x, 1); },
       draw: function (v) {
-        var l8 = isObj(v.last_8_weeks) ? v.last_8_weeks : null;
-        return facts([["last 8 weeks", l8 ? (v.plateau ? "plateau" : l8.direction) + ", " + signed(l8.lb_per_month, 1) + " lb a month" : null],
+        // A lift with too few recent sessions has nulls here; those rows are left out.
+        var l8 = isObj(v.last_8_weeks) && isNum(v.last_8_weeks.lb_per_month) ? v.last_8_weeks : null;
+        return facts([["last 8 weeks", l8 ? (v.plateau ? "plateau" : String(l8.direction)) + ", " + signed(l8.lb_per_month, 1) + " lb a month" : null],
           ["its interval", l8 ? interval(l8.interval, function (x) { return signed(x, 1); }) : null],
           ["sessions in those weeks", l8 ? String(l8.sessions) : null],
           ["sessions a week", isNum(v.sessions_per_week) ? num(v.sessions_per_week, 1) : null]]);
+      }
+    },
+    "lifting.strength_index": {
+      n: WEEKS,
+      value: function (s) { return isNum(s.value) ? [num(s.value, 1), "strength index (the cut's first week = 100)"] : null; },
+      draw: function (v) {
+        var weeks = list(v.weeks).filter(function (w) { return isObj(w) && isNum(w.strength) && isNum(w.body_weight); });
+        var last = weeks[weeks.length - 1];
+        return [weeks.length > 1 ? indexedLines(weeks) : null,
+          facts([["cut started", v.cut_start ? dateText(v.cut_start) : null],
+            ["body weight", last ? signed(last.body_weight - 100, 1) + "%" : null], ["strength", last ? signed(last.strength - 100, 1) + "%" : null],
+            ["lifts in the index", list(v.lifts).length ? list(v.lifts).join(", ") : null]])];
+      }
+    },
+    "lifting.retention.*": {
+      n: "sessions",
+      value: function (s) { return [signed(s.value, 1), "lb of e1RM since the cut started"]; },
+      intervalFmt: function (x) { return signed(x, 1); },
+      draw: function (v) {
+        return facts([["before the cut", isNum(v.start) ? num(v.start, 1) + " lb" : null], ["latest", isNum(v.latest) ? num(v.latest, 1) + " lb" : null],
+          ["change", isNum(v.change_pct) ? signed(v.change_pct * 100, 1) + "%" : null]]);
+      }
+    },
+    "lifting.volume_lag": {
+      n: WEEKS,
+      value: function (s) { return ["r " + num(s.value, 2), "a week's volume against the next week's e1RM change"]; },
+      intervalFmt: function (x) { return num(x, 2); },
+      draw: function (v) {
+        var pts = list(v.points).filter(function (p) { return isObj(p) && isNum(p.volume) && isNum(p.next_e1rm_change); });
+        return [facts([["lag", isNum(v.lag_weeks) ? plural(v.lag_weeks, WEEKS) : null], ["weeks paired", isNum(v.weeks) ? String(v.weeks) : null]]),
+          pts.length ? table("Each week's volume and the next week's change", [{ label: "Week of" }, { label: "Volume (lb)", num: true }, { label: "Next week's e1RM change", num: true }],
+            pts.map(function (p) { return [dateText(p.week_start), big(p.volume), signed(p.next_e1rm_change, 1)]; }), { showCaption: true }) : null];
+      }
+    },
+    "lifting.consistency": {
+      n: WEEKS,
+      value: function (s) { return ["r " + num(s.value, 2), "sessions a week against the next week's e1RM change"]; },
+      intervalFmt: function (x) { return num(x, 2); },
+      draw: function (v) {
+        return bars("Mean e1RM change by sessions a week", list(v.buckets).map(function (b) {
+          return { label: String(b.sessions_per_week) + (b.sessions_per_week === "1" ? " session" : " sessions") + " · " + plural(b.weeks, WEEKS),
+            value: b.mean_e1rm_change, text: signed(b.mean_e1rm_change, 1) + " lb" };
+        }), { labelHeading: "Sessions a week", valueHeading: "Mean e1RM change" });
+      }
+    },
+    "cross.time_budget": {
+      n: "days",
+      draw: function (v, s, ctx) {
+        var hrs = isObj(v.hours) ? v.hours : {}, kinds = ["watching", "listening", "training"];
+        var days = list(v.weekdays).length === 7 ? v.weekdays : ctx.weekdays;
+        var totals = days.map(function (d, i) { return kinds.reduce(function (a, k) { return a + (isNum(list(hrs[k])[i]) ? hrs[k][i] : 0); }, 0); });
+        var max = Math.max.apply(null, totals.concat(0));
+        var chart = h("div", { class: "ld-cols", role: "img", style: { gridTemplateColumns: "repeat(7, minmax(0, 1fr))" },
+          "aria-label": "Hours by weekday over the last " + (isNum(v.weeks) ? v.weeks : 8) + " weeks: " + days.map(function (d, i) {
+            return d + " " + num(totals[i], 1) + " hours (" + kinds.map(function (k) { return k + " " + num(list(hrs[k])[i] || 0, 1); }).join(", ") + ")";
+          }).join("; ") },
+          days.map(function (d, i) {
+            return h("div", { class: "ld-col", title: d + ": " + num(totals[i], 1) + " hours" },
+              h("span", { class: "ld-col-value" }, num(totals[i], 1)),
+              h("div", { class: "ld-col-stack", style: { height: max > 0 ? "calc((100% - 18px) * " + (totals[i] / max).toFixed(4) + ")" : "0" } },
+                kinds.map(function (k) { var x = list(hrs[k])[i]; return isNum(x) && x > 0 ? h("span", { class: "fill--" + k, style: { flexGrow: x } }) : null; }).reverse()),
+              h("span", { class: "ld-col-label", "aria-hidden": "true" }, d));
+          }));
+        return charted("Hours by weekday, last " + (isNum(v.weeks) ? v.weeks : 8) + " weeks", chart,
+          [{ label: "Weekday" }, { label: "Hours", num: true }].concat(kinds.map(function (k) { return { label: k, num: true }; })),
+          days.map(function (d, i) { return [d, num(totals[i], 1)].concat(kinds.map(function (k) { return num(list(hrs[k])[i] || 0, 1); })); }),
+          h("p", { class: "ld-legend" }, kinds.map(function (k) { return legendItem("fill--" + k, k); })));
       }
     },
     "lifting.relative_strength.*": {
@@ -818,6 +1103,58 @@
           table("Tiered below their rating", cols, rows(v.i_rate_lower), { showCaption: true })];
       }
     },
+    "watching.s_tier": {
+      n: "titles",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of my tiered titles are S"] : null; },
+      draw: function (v) {
+        var top = list(v.over_indexed).filter(function (g) { return isObj(g) && isNum(g.ratio); }).slice().sort(function (a, b) { return b.ratio - a.ratio; });
+        return [sTierBars(v),
+          top.length ? table("Genres in S against B", [{ label: "Genre" }, { label: "S share ÷ B share", num: true }, { label: "Titles", num: true }],
+            top.map(function (g) { return [String(g.genre), num(g.ratio, 1) + "×", String(g.n)]; }), { showCaption: true }) : null];
+      }
+    },
+    "watching.tier_model": {
+      n: "titles",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of tiers predicted right, leave-one-out"] : null; },
+      intervalFmt: function (x) { return pct(x); },
+      draw: function (v) {
+        var feats = list(v.features).filter(function (f) { return isObj(f) && isNum(f.effect) && Array.isArray(f.interval); });
+        return [facts([["always guessing the commonest tier", isNum(v.baseline_accuracy) ? pct(v.baseline_accuracy) : null]]),
+          feats.length ? intervals("Each feature's effect on my tier, with 95% intervals", feats.map(function (f) {
+            return { label: String(f.name), value: f.effect, lo: f.interval[0], hi: f.interval[1],
+              text: signed(f.effect, 2) + " (" + signed(f.interval[0], 2) + " to " + signed(f.interval[1], 2) + ")" };
+          }), { labelHeading: "Feature" }) : null];
+      }
+    },
+    "watching.taste_drift": {
+      n: "years",
+      value: function (s) { return isNum(s.value) ? [signed(s.value, 2), "tier points a year (S = 4, D = 0)"] : null; },
+      intervalFmt: function (x) { return signed(x, 2); },
+      draw: function (v) {
+        return columns("Mean tier score by the year I watched", list(v.years).map(function (y) {
+          return { label: String(y.year), title: y.year + " (" + plural(y.n, "titles") + ")", value: y.mean_tier_score, text: num(y.mean_tier_score, 1) };
+        }), { labelHeading: "Year", valueHeading: "Mean tier score" });
+      }
+    },
+    "watching.community_gap_by_genre": {
+      n: "titles",
+      draw: function (v) {
+        var gs = list(v.genres).filter(function (g) { return isObj(g) && isNum(g.gap) && Array.isArray(g.interval); });
+        return intervals("My tier against the community's, by genre (tier points; positive = I rate higher)", gs.map(function (g) {
+          return { label: g.genre + " · " + plural(g.n, "titles"), value: g.gap, lo: g.interval[0], hi: g.interval[1],
+            text: signed(g.gap, 2) + " (" + signed(g.interval[0], 2) + " to " + signed(g.interval[1], 2) + ")" };
+        }), { labelHeading: "Genre" });
+      }
+    },
+    "watching.pace_vs_tier": {
+      n: "titles",
+      draw: function (v) {
+        var names = { binge: "binge (3+ episodes a week)", steady: "steady (1 to 3)", slow: "slow (under 1)" };
+        return bars("Mean tier score by pace", list(v.buckets).map(function (b) {
+          return { label: (names[b.bucket] || String(b.bucket)) + " · " + plural(b.n, "titles"), value: b.mean_tier_score, text: num(b.mean_tier_score, 1) };
+        }), { labelHeading: "Pace", valueHeading: "Mean tier score" });
+      }
+    },
     "watching.tier_completion_pace": {
       n: "titles",
       draw: function (v, s, ctx) {
@@ -900,7 +1237,25 @@
         }), { labelHeading: "Month", valueHeading: "New cuisines" });
       }
     },
-    "eating.top_ten_churn": { n: WEEKS, value: function (s) { return isNum(s.value) ? [num(s.value, 1), "places entering my top ten a week"] : null; } },
+    "eating.landing": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "up my list is where a first ranking lands, latest month"] : null; },
+      draw: function (v) {
+        return columns("Median landing percentile of first rankings, by month", list(v.months).map(function (m) {
+          return { label: monthText(m.month, true), title: monthText(m.month) + " (" + plural(m.rankings, "places") + ")", value: m.median_percentile, text: pct(m.median_percentile) };
+        }), { labelHeading: "Month", valueHeading: "Median percentile" });
+      }
+    },
+    "eating.rerank_drift": {
+      n: "re-rankings",
+      value: function (s) { return [signed(s.value, 2), "points, mean change when I re-rank a place"]; },
+      intervalFmt: function (x) { return signed(x, 2); },
+      draw: function (v) {
+        return table("Change on re-ranking, by time since the first ranking", [{ label: "Since first ranking" }, { label: "Re-rankings", num: true },
+          { label: "Median change", num: true }, { label: "Mean change", num: true }],
+          list(v.buckets).map(function (b) { return [String(b.since), String(b.n), signed(b.median_change, 2), signed(b.mean_change, 2)]; }), { showCaption: true });
+      }
+    },
     "cross.rhythm.restaurants": {
       n: "places",
       draw: function (v, s, ctx) { return weekdayColumns("Places ranked by weekday", ctx.weekdays, v.by_weekday, "Places"); }
@@ -940,6 +1295,36 @@
       }
     };
   }
+  function managerComponent(label, what) {
+    return {
+      n: WEEKS,
+      label: label,
+      value: function (s) { return [signed(s.value, 1), "points a week, " + what]; },
+      intervalFmt: function (x) { return signed(x, 1); },
+      draw: function (v) { return facts([["rank", rankText(v.rank, v.of, "best")], ["percentile", isNum(v.percentile) ? pct(v.percentile) : null]]); }
+    };
+  }
+
+  // S-tier share by type (three bars in the type colours) and by release decade.
+  function sTierBars(v) {
+    var types = list(v.by_type).filter(function (t) { return isObj(t) && isNum(t.share); });
+    var decades = list(v.by_decade).filter(function (d) { return isObj(d) && isNum(d.share); });
+    return [types.length ? bars("S-tier share by type", types.map(function (t) {
+      return { label: nameOf(t.type), value: t.share, text: pct(t.share) + " (" + t.s + " of " + t.titles + ")", cls: TYPE_CLASS[t.type] ? "fill--" + TYPE_CLASS[t.type] : null };
+    }), { labelHeading: "Type", valueHeading: "S share" }) : null,
+      decades.length ? bars("S-tier share by release decade", decades.map(function (d) {
+        return { label: String(d.decade), value: d.share, text: pct(d.share) + " (" + d.s + " of " + d.titles + ")" };
+      }), { labelHeading: "Decade", valueHeading: "S share" }) : null];
+  }
+
+  // Body weight and strength since the cut, both indexed to 100 at the cut's first week.
+  function indexedLines(weeks, opts) {
+    return multiLine("Body weight and strength since the cut, indexed to 100", weeks.map(function (w) { return dateText(w.week_start); }),
+      [{ name: "body weight", values: weeks.map(function (w) { return w.body_weight; }) },
+       { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }],
+      Object.assign({ fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", height: 130 }, opts || {}));
+  }
+
   function effect(unit, dp, more) {
     return {
       n: "places",
@@ -1039,11 +1424,33 @@
     } catch (err) { return s.status; }
   }
 
-  // Statistics still waiting for data ("not enough data yet") aren't drawn; they're
-  // counted in ctx.waiting for the page's one line, and a slot left with nothing to
-  // show is hidden.
+  // Slots that draw several statistics as one block, keyed by the slot's data-stat.
+  var GROUPS = {};
+  GROUPS["fantasy.manager_score.components.draft fantasy.manager_score.components.lineup fantasy.manager_score.components.moves fantasy.manager_score.components.strength"] = {
+    n: WEEKS,
+    // Four bars, points a week against each baseline, with rank and of; the composite is its own slot below.
+    draw: function (entries) {
+      var ok = entries.filter(function (e) { return okStat(e.stat); });
+      var items = ok.map(function (e) {
+        var v = isObj(e.stat.values) ? e.stat.values : {};
+        return { label: e.spec.label, value: e.stat.value, text: signed(e.stat.value, 1) + (isNum(v.rank) && isNum(v.of) ? " · " + v.rank + " of " + v.of : "") };
+      });
+      return [items.length ? bars("Points a week against each baseline", items, { labelHeading: "Component", valueHeading: "Points a week · rank" }) : null,
+        h("p", { class: "ld-small" }, ok.map(function (e) {
+          var v = isObj(e.stat.values) ? e.stat.values : {};
+          return e.spec.label + ": " + (isNum(v.percentile) ? pct(v.percentile) + " of managers score lower" : "") + (interval(e.stat.interval, function (x) { return signed(x, 1); }) ? ", " + interval(e.stat.interval, function (x) { return signed(x, 1); }) : "");
+        }).join(". ") + ".")];
+    }
+  };
+
+  // Statistics still waiting for data ("not enough data yet"): in a "Why" card they are
+  // drawn as the question with a "not enough data yet · n of min_n" box; elsewhere they
+  // aren't drawn, they're counted in ctx.waiting for the page's one line, and a slot left
+  // with nothing to show is hidden.
   function fillSlot(slot, analysis, ctx) {
     var entries = [], found = 0;
+    var card = !!slot.closest(".ld-section--why");
+    var group = GROUPS[slot.getAttribute("data-stat")];
     slot.textContent = "";
     slot.hidden = false;
     slot.getAttribute("data-stat").split(/\s+/).forEach(function (path) {
@@ -1054,29 +1461,73 @@
         e.spec = spec;
         e.path = path;
         found++;
-        if (shownStatus(e, analysis) === "not enough data yet") { ctx.waiting = (ctx.waiting || 0) + 1; return; }
+        if (!card && shownStatus(e, analysis) === "not enough data yet") { ctx.waiting = (ctx.waiting || 0) + 1; return; }
         entries.push(e);
       });
     });
     if (!entries.length && found) { slot.hidden = true; return; }
-    if (!entries.length) { slot.appendChild(h("p", { class: "panel-empty" }, NOT_CONNECTED)); return; }
-    // One block, or blocks whose tables need the width: one to a row.
-    var one = entries.length === 1 || entries.some(function (e) { return e.spec.wide; });
-    var hows = [], grid = h("div", { class: "ld-blocks" + (one ? " ld-blocks--one" : "") });
-    slot.appendChild(grid);
-    entries.forEach(function (e) {
-      var spec = e.spec, path = e.path;
+    if (!entries.length) {
+      // A card whose statistic the file predates says so; elsewhere the slot says not connected.
+      var firstSpec = STATS[slot.getAttribute("data-stat").split(/\s+/)[0]];
+      slot.appendChild(card ? h("div", { class: "ld-blocks ld-blocks--one" }, h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not in the data yet" },
+        waitBox(null, firstSpec ? firstSpec.n : ""))) : h("p", { class: "panel-empty" }, NOT_CONNECTED));
+      return;
+    }
+    var hows = [];
+    function noteHow(s) {
+      if (s.status !== "not available from source" && s.status !== "not configured" && typeof s.how === "string" && hows.indexOf(s.how) < 0) hows.push(s.how);
+    }
+    if (group) {
+      // One block for the whole slot. Any entry still waiting makes the block wait too.
+      var block = h("div", { class: "ld-blocks ld-blocks--one" }), waiting = entries.filter(function (e) { return shownStatus(e, analysis) === "not enough data yet"; });
       try {
-        grid.appendChild(statBlock(e, spec, analysis, ctx));
-        if (e.stat.status !== "not available from source" && e.stat.status !== "not configured" &&
-            typeof e.stat.how === "string" && hows.indexOf(e.stat.how) < 0) hows.push(e.stat.how);
+        if (waiting.length) {
+          var w = waiting[0].stat;
+          block.appendChild(h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not enough data yet" },
+            h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"), " · " + (isNum(w.n) ? big(w.n) + " of " : "") + plural(w.min_n, group.n || "") + " needed")));
+        } else {
+          var b = h("div", { class: "ld-block", "data-status": "ok" });
+          append(b, group.draw(entries, analysis, ctx));
+          var ns = entries.map(function (e) { return e.stat.n; }).filter(isNum);
+          b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || "")));
+          block.appendChild(b);
+        }
+        entries.forEach(function (e) { noteHow(e.stat); });
       } catch (err) {
-        if (window.console) console.warn("lately-depth: " + path + " not drawn:", err.message);
-        grid.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
+        if (window.console) console.warn("lately-depth: " + slot.getAttribute("data-stat") + " not drawn:", err.message);
+        block.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
       }
-    });
+      slot.appendChild(block);
+    } else {
+      // One block, or blocks whose tables need the width: one to a row.
+      var one = entries.length === 1 || entries.some(function (e) { return e.spec.wide; });
+      var grid = h("div", { class: "ld-blocks" + (one ? " ld-blocks--one" : "") });
+      slot.appendChild(grid);
+      entries.forEach(function (e) {
+        var spec = e.spec, path = e.path;
+        try {
+          grid.appendChild(statBlock(e, spec, analysis, ctx));
+          noteHow(e.stat);
+        } catch (err) {
+          if (window.console) console.warn("lately-depth: " + path + " not drawn:", err.message);
+          grid.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
+        }
+      });
+    }
     // The pipeline's "how" sentence, once per slot when every entry shares it.
     hows.forEach(function (t) { slot.appendChild(h("p", { class: "ld-how" }, h("span", { class: "ld-how-label" }, "how: "), t)); });
+  }
+
+  // A FEED: slot holds a block of the feed itself (lineup grid, recent lists, lift tiles,
+  // rankings), drawn by js/lately.js; nothing to draw hides the slot.
+  function fillFeed(slot, data) {
+    var LF = window.LatelyFeed, nodes = null;
+    slot.textContent = "";
+    try { nodes = LF && data ? LF.block(slot.getAttribute("data-block"), data) : null; } catch (err) {
+      if (window.console) console.warn("lately-depth: " + slot.getAttribute("data-block") + " not drawn:", err.message);
+    }
+    slot.hidden = !nodes;
+    append(slot, nodes);
   }
 
   // ---------- headline numbers (the pages and the main panels) ----------
@@ -1145,7 +1596,17 @@
     }));
   }
 
-  window.LatelyDepth = { headline: headline, headlineRow: headlineRow };
+  // Not-enough-data box for a card or panel: the statistic's n of min_n, or "not in the
+  // data yet" when the file predates the statistic. unit: what n counts.
+  function waitBox(s, unit, extra) {
+    if (!isObj(s)) return h("p", { class: "ld-wait" }, h("b", null, "not in the data yet"), " · appears once the pipeline publishes it");
+    var text = " · " + (isNum(s.n) ? big(s.n) + " of " : "") + plural(s.min_n, unit) + " needed" + (extra ? " · " + extra : "");
+    return h("p", { class: "ld-wait" }, h("b", null, String(s.status)), text);
+  }
+
+  window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat,
+    charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns },
+    fmt: { num: num, signed: signed, pct: pct, big: big, plural: plural, dateText: dateText, monthText: monthText, record: record, interval: interval, hoursText: hoursText } };
 
   // ---------- the page ----------
 
@@ -1156,9 +1617,12 @@
     if (sample) sample.hidden = !(isSample || (data && data.sample === true));
     var slots = document.querySelectorAll(".ld-stat");
     if (!isObj(a)) {
+      // No analysis block: the feed blocks still draw; every statistic slot is hidden.
       document.querySelector(".ld-missing").hidden = false;
       document.querySelector(".ld-asof").hidden = true;
-      Array.prototype.forEach.call(document.querySelectorAll(".ld-section, .ld-toc"), function (s) { s.hidden = true; });
+      Array.prototype.forEach.call(slots, function (s) { s.hidden = true; });
+      Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
+      hideEmpty();
       return;
     }
     var asof = document.querySelector(".ld-asof-date");
@@ -1169,12 +1633,12 @@
       : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     var ctx = { weekdays: weekdays, waiting: 0 };
     Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
-    // A section whose every statistic is still waiting is hidden, with its contents entry.
-    Array.prototype.forEach.call(document.querySelectorAll(".ld-section"), function (sec) {
-      var open = Array.prototype.some.call(sec.querySelectorAll(".ld-stat"), function (x) { return !x.hidden; });
-      sec.hidden = !open;
-      var link = document.querySelector('.ld-toc a[href="#' + sec.id + '"]');
-      if (link) link.parentNode.hidden = !open;
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
+    hideEmpty();
+    // A credit shown only while its source is in the file (analysis.meta.sources_included).
+    var included = isObj(a.meta) ? list(a.meta.sources_included) : [];
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-attribution[data-when-source]"), function (p) {
+      p.hidden = included.indexOf(p.getAttribute("data-when-source")) < 0;
     });
     var more = document.querySelector(".ld-waiting");
     if (more) {
@@ -1182,6 +1646,23 @@
       more.textContent = ctx.waiting === 1 ? "1 more statistic appears as data accrues."
         : ctx.waiting + " more statistics appear as data accrues.";
     }
+  }
+
+  // A section whose every slot is hidden is hidden, with its contents entry; a group with
+  // no open section is hidden too.
+  function hideEmpty() {
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-section"), function (sec) {
+      var open = Array.prototype.some.call(sec.querySelectorAll(".ld-stat, .ld-feed"), function (x) { return !x.hidden; });
+      sec.hidden = !open;
+      var link = document.querySelector('.ld-toc a[href="#' + sec.id + '"]');
+      if (link) link.parentNode.hidden = !open;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-group"), function (g) {
+      var open = Array.prototype.some.call(g.querySelectorAll(".ld-section"), function (s) { return !s.hidden; });
+      g.hidden = !open;
+      var entry = document.querySelector('.ld-toc-group[data-group="' + g.id + '"]');
+      if (entry) entry.hidden = !open;
+    });
   }
 
   function load(url) {

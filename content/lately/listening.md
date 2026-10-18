@@ -5,17 +5,13 @@ title: Listening, in depth
 source: Last.fm | https://www.last.fm
 ---
 
-## Album half-life
-STAT: listening.album_half_life
+# What's happening
+
+## Right now
+FEED: listening.recent
 
 ## New artists
 STAT: listening.discovery
-
-## First repeat
-STAT: listening.first_repeat
-
-## Concentration
-STAT: listening.concentration
 
 ## Genres by month
 STAT: listening.genre_mix
@@ -29,5 +25,28 @@ STAT: listening.heatmap
 ## Plays by weekday and hour
 STAT: cross.rhythm.plays
 
-## Whole albums
+# Why
+
+## Do I keep playing what's new? {#retention-new-artists}
+STAT: listening.retention_new_artists
+
+## How fast does an album burn out? {#album-half-life}
+STAT: listening.album_half_life
+
+## How spread out is my listening? {#entropy}
+STAT: listening.entropy
+
+## How old is what I play? {#nostalgia}
+STAT: listening.nostalgia
+
+## Who lasts? {#enduring}
+STAT: listening.enduring
+
+## How much do my top five dominate? {#concentration}
+STAT: listening.concentration
+
+## How soon do I replay a new track? {#first-repeat}
+STAT: listening.first_repeat
+
+## Do I listen to whole albums? {#whole-albums}
 STAT: listening.album_listener

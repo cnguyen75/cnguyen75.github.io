@@ -179,9 +179,9 @@ Set `CHROME` to Chrome's executable if it isn't at the macOS default path. Cards
 
 ## Lately in depth
 
-Five pages, `lately/fantasy/`, `lately/watching/`, `lately/listening/`, `lately/eating/` and `lately/lifting/`, draw the `analysis` block of `data/lately.json`: statistics the pipeline computes from its archive. The block's schema is merged into `data/lately.schema.json` from the pipeline's `analysis.schema.json` (this repository owns the merged copy; the pipeline syncs from it).
+Five pages, `lately/fantasy/`, `lately/watching/`, `lately/listening/`, `lately/eating/` and `lately/lifting/`, draw the `analysis` block of `data/lately.json`: statistics the pipeline computes from its archive. The block's schema is merged into `data/lately.schema.json` from the pipeline's `analysis.schema.json` (this repository owns the merged copy; the pipeline syncs from it, and the handoff copy in `~/Personal/site-handoff/lately-analysis/` with its `analysis.sample.json` is kept identical: `tests/test_lately.py` checks).
 
-Each page comes from `content/lately/<feed>.md` in the **data** register, separate from the track registers:
+Each page comes from `content/lately/<feed>.md` in the **data** register, separate from the track registers. Every page has two groups, `# What's happening` (distributions, lists, tables, recent items, rankings) then `# Why` (the analysis cards, titled as questions), each holding `##` sections:
 
 ```
 ---
@@ -190,42 +190,57 @@ feed: lifting                       one of fantasy, watching, listening, eating,
 title: Lifting, in depth
 source: Hevy | https://www.hevyapp.com     comma-separated "Name | https://" credits
 source_note: ...                    optional, shown after the credit
+attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://sports.yahoo.com/fantasy/
+                                    optional: a credit line shown only while that source is in analysis.meta.sources_included
 ---
 
-## Body weight since the cut
-STAT: lifting.body_weight_rate
+# What's happening
 
-## Strength kept per pound lost
-STAT: lifting.strength_kept.*
+## Main lifts
+FEED: lifting.lifts                 a block of the feed itself, drawn by js/lately.js
+
+## Progress by lift
+STAT: lifting.progress.*
+
+# Why
+
+## Is the cut costing strength? {#strength-index}
+STAT: lifting.strength_index
+
+## Do I finish what I start? {#completion}
+NOTE: Only finished titles are logged as a rule, so completion and drop counts cover what I chose to record.
+STAT: watching.completion.*
 ```
 
-A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes every team, `*` every key of a map (one per lift, platform or ranking) or every statistic among fixed keys (`watching.completion.*` is shows, films and anime, shown side by side). A section holds only `STAT:` lines. The build stops when a path names nothing in the schema, when watching, listening, eating or lifting doesn't credit Simkl, Last.fm, Beli or Hevy, or when a statistic in the schema is on no page or on two. A statistic can be left out on purpose by listing it in `DATA_LEFT_OUT` in `build.py` with its reason; none is. An optional `source_note:` follows the credit on the source line: the eating page's reads "Beli dates are used only as counts, never tied to a place" (new cuisines are counted by month; no date is shown with a place).
+A `STAT:` path is the statistic's place in the analysis block: `teams[]` takes every team, `*` every key of a map (one per lift, platform or ranking) or every statistic among fixed keys (`watching.completion.*` is shows, films and anime, shown side by side). A `FEED:` line names one of the feed blocks in `FEED_BLOCKS` in `build.py` (the lineup grid and carry list, hours and recent lists, my rankings, the listening strip, the eating lists, the lift tiles, training and body weight), which left the main page on 2026-10-17 and live under What's happening. A `NOTE:` line is a sentence under the section title. A `{#id}` on a retitled section keeps its old id, so deep links from before the regrouping still land. A section holds only these lines. The build stops when a path names nothing in the schema, when watching, listening, eating or lifting doesn't credit Simkl, Last.fm, Beli or Hevy, when a statistic in the schema is on no page or on two, or when the two groups are missing or out of order. A statistic can be left out on purpose by listing it in `DATA_LEFT_OUT` in `build.py` with its reason; none is. An optional `source_note:` follows the credit on the source line: the eating page's reads "Beli dates are used only as counts, never tied to a place" (new cuisines are counted by month; no date is shown with a place).
 
-The built page is a frame with no numbers in it. In the browser, `js/lately-depth.js` fills in:
+The built page is a frame with no numbers in it. In the browser, `js/lately-depth.js` (with `js/lately.js` for the feed blocks) fills in:
 
 - the source line ("data from Hevy · as of 13 Oct 2026", the block's `as_of`) and a headline row of two or three numbers;
 - the tier-completion table's "Tiered titles" column, from `tier_distribution` (the rankings file's counts), with "Completion covers N of the M tiered titles." when completion covers fewer;
 - for each statistic, by `status`:
   - `ok`: its value and 95% interval where it has them, its chart or table, its n ("n = 20 weigh-ins", plus "as of …" when the statistic's date differs from the block's), and the pipeline's `how` sentence under it in the label face;
-  - `not enough data yet`: not drawn. One line under the contents counts them ("7 more statistics appear as data accrues."); a section left empty is hidden with its contents entry, and no headline tile shows a "–" for one;
+  - `not enough data yet`: under What's happening, not drawn. One line under the contents counts them ("4 more statistics appear as data accrues."); a section left empty is hidden with its contents entry, as is a group with no open section, and no headline tile shows a "–" for one. Under Why, the card keeps its question over a box, "not enough data yet · 3 of 16 weeks needed", with its `how` line; a statistic the file predates (an older `lately.json`) shows "not in the data yet";
   - `not available from source` (or `not configured`): one line with what is `missing`.
-- Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`. Charts use the site's blue, orange and purple, each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
+- Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`. Charts use the site's blue, orange and purple (one hue for one series, a legend for two), each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
 
-The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval, net points available against captured, adds a week, the count in each class, and a table of every add (`values.all`), the best and worst three marked "▲ best" or "▽ worst" from their flags; a file without `all` shows its best and worst lists and says the rest aren't in it. A dropped player's new team is never shown. "Points left on the bench" adds the line "Hit, left on the bench", waiver adds that beat their baseline but sat on the bench.
+The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval, net points available against captured, adds a week, the count in each class, and a table of every add (`values.all`), the best and worst three marked "▲ best" or "▽ worst" from their flags; a file without `all` shows its best and worst lists and says the rest aren't in it. A dropped player's new team is never shown. "Points left on the bench" adds the line "Hit, left on the bench", waiver adds that beat their baseline but sat on the bench. Under Why, "Good, or lucky?" is the strength-against-luck quadrant (every team in my leagues as a point: other teams grey and unlabelled, hover shows a record and all-play share only; mine blue, labelled, with a trail from week 1), "Am I a good manager, or a lucky one?" the four manager-score bars with rank and of and the composite percentile, then the acquisition split (mine against the league median) and the draft table (every pick against the median for its round). "Fantasy data provided by Yahoo Fantasy" appears at the foot only while `yahoo` is in `analysis.meta.sources_included`.
 
-"Is the win chance honest?" (the calibration table and Brier score) is on the fantasy page and says "not enough data yet" until `grading.predictions_stored` reaches 20. The cross statistics sit with the feed they describe: the lifting soundtrack and workouts by weekday on lifting, plays by weekday and hour on listening, places ranked by weekday on eating.
+"Is the win chance honest?" (the calibration table and Brier score) is on the fantasy page and says "not enough data yet" until `grading.predictions_stored` reaches 20. The cross statistics sit with the feed they describe: the lifting soundtrack, workouts by weekday and the time budget (hours by weekday across watching, listening and training) on lifting, plays by weekday and hour on listening, places ranked by weekday on eating. The watching page keeps completion and drops under Why with their n and the note that only finished titles are logged as a rule.
 
-On the main page each feed's panel keeps its content and gains its headline numbers under the heading and a "more →" link to its page:
+### Side D on the main page
 
-| Panel | Headline |
-| --- | --- |
-| Fantasy | playoff odds, one per team (up to three) |
-| Watching | completion: shows, films, anime |
-| Listening | half-life of this week's most-played album; share of plays by new artists, latest month; first repeat, median |
-| Eating | median score; home against away |
-| Lifting | body-weight rate since the cut; latest body weight; and e1RM kept per lb lost for the first lift whose interval excludes zero, once one does |
+Since 2026-10-17 the main page's Lately section is analysis-first: five panels, fantasy across the width, then watching | listening, then eating | lifting, with the feed-status chips and heading above them. Each panel has its title, the source line (label face, right), a question in bold, a two-sentence answer filled from a fixed template (never free text), two or three current numbers, one chart, and "more about <feed> →":
 
-Without an `analysis` block (the sample file has none) the pages say "Not connected yet." and the panels show only the link.
+| Panel | Question | Chart | Numbers |
+| --- | --- | --- | --- |
+| Fantasy | Good, or lucky? | the quadrant (`fantasy.quadrant`) | combined record; wins above expected; favoured this week |
+| Watching | What earns an S? | S-tier share by type and by decade (`watching.s_tier`) | S share; the most over-indexed genre; completion of shows |
+| Listening | Do I keep playing what's new? | new artists still played 30 and 90 days later (`listening.retention_new_artists`) | the two latest shares; plays in the window |
+| Eating | What biases my scores? | diverging bars: each cuisine's median (15+ places) minus my overall median, home against away last (`eating.scores`, `home_bias`) | median score; home against away; order effect |
+| Lifting | Is the cut costing strength? | body weight and strength indexed to 100 at cut start (`lifting.strength_index`) | body weight %; strength index %; bench best (with "logged by hand") |
+
+When a panel's statistic is "not enough data yet" or not in the file, the question stands over a box with its n and min_n (listening's adds the archive's date range) and the numbers still show. Without an `analysis` block (the sample file has none) the pages say the statistics are not connected yet, the feed blocks still draw, and the panels show their question, numbers from the feed, the box and the link.
 
 ## Preview locally
 
