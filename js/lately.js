@@ -1079,10 +1079,13 @@
     if (directors.length) {
       var top = directors[0], low = directors.filter(function (r) { return r.n >= 3; }).slice(-1)[0];
       var studio = studios[0];
+      // A credited pair ("A & B") takes a plural verb.
+      var pair = function (name) { return /\s(&|and)\s/.test(name); };
       sentences = [
         low && low !== top
-          ? top.name + " tops my directors at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + "; " + low.name + " sits lowest at " + tier(low.mean_tier) + " over " + plural(low.n, "film", "films") + "."
-          : top.name + " is my only director with three or more films, at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + ".",
+          ? top.name + (pair(top.name) ? " top" : " tops") + " my directors at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + "; " +
+            low.name + (pair(low.name) ? " sit" : " sits") + " lowest at " + tier(low.mean_tier) + " over " + plural(low.n, "film", "films") + "."
+          : top.name + (pair(top.name) ? " are my only directors" : " is my only director") + " with three or more films, at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + ".",
         studio ? "Among anime studios, " + studio.name + " leads at " + tier(studio.mean_tier) + " over " + plural(studio.n, "title", "titles") + "."
           : "No anime studio has three of my finished titles yet."
       ];

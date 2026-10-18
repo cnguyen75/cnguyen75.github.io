@@ -213,6 +213,10 @@ def variant(name):
             del a["watching"][k]
         del a["lifting"]["best_held_lift"]
         a["eating"]["top_ten_churn"] = {"status": "not enough data yet", "n": 0, "min_n": 4, "as_of": a["as_of"], "how": "Old."}
+    if name == "director pair":
+        rows = a["watching"]["by_director"]["values"]["rows"]
+        rows[0]["name"] = "Anthony Russo & Joe Russo"
+        rows[-1]["name"] = "Phil Lord & Christopher Miller"
     if name == "films waiting":
         # 2026-10-18: the film statistics present but waiting, the critics one absent; retention says when it starts.
         for k in ("by_director", "by_studio", "by_lead", "blockbuster", "sequels", "language", "crowd_agreement"):
@@ -533,6 +537,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual(w["headline"][0][1], rows[0]["name"])
         self.assertTrue(w["answer"].startswith(rows[0]["name"] + " tops my directors at a mean tier of"))
         self.assertIn("Among anime studios, " + ANALYSIS["watching"]["by_studio"]["values"]["rows"][0]["name"] + " leads at", w["answer"])
+        self.assertIn(" sits lowest at ", w["answer"])
+        # A credited pair takes the plural: "A & B top my directors", "C & D sit lowest".
+        pair = next(p for p in draw("index.html", name="director pair")["panels"] if p["id"] == "panel-watching")["answer"]
+        self.assertTrue(pair.startswith("Anthony Russo & Joe Russo top my directors at a mean tier of"), pair)
+        self.assertIn("; Phil Lord & Christopher Miller sit lowest at ", pair)
         self.assertIn("Anime studios: ", d["bodyText"])
         self.assertNotIn("S-tier share by type", d["bodyText"])  # moved to the watching page
         self.assertEqual(w["tierRows"], min(8, len(rows)))
