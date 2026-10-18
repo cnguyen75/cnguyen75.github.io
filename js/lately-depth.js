@@ -303,6 +303,7 @@
     var pad = hi > lo ? (hi - lo) * 0.12 : Math.abs(hi) * 0.05 || 1;
     lo -= pad; hi += pad;
     var n = labels.length;
+    // One point sits at the right edge, where its label is.
     function x(i) { return n > 1 ? (i / (n - 1)) * 100 : 100; }
     function y(v) { return (1 - (v - lo) / (hi - lo)) * 100; }
     var svg = plotSvg();
@@ -314,14 +315,17 @@
       // A sparse series (s.points: measurements at some weeks only) is drawn as points
       // joined by a 1px line; a full series as a 2px line.
       if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points ? " line-thin" : "")));
-      if (s.points) pts.forEach(function (pt) { points.push({ k: k, left: pt[0], top: pt[1] }); });
+      if (s.points) {
+        var at = 0;
+        s.values.forEach(function (v, i) { if (isNum(v)) { points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : null }); at++; } });
+      }
       var lastIdx = -1;
       s.values.forEach(function (v, i) { if (isNum(v)) lastIdx = i; });
       if (lastIdx >= 0) ends.push({ k: k, v: s.values[lastIdx], top: y(s.values[lastIdx]), left: x(lastIdx) });
     });
     var plot = h("div", { class: "line-plot" }, svg,
-      points.map(function (d) { return h("span", { class: "line-dot line-dot--point " + SERIES[d.k % SERIES.length], style: { left: d.left + "%", top: d.top + "%" } }); }),
-      ends.map(function (e) {
+      points.map(function (d) { return h("span", { class: "line-dot line-dot--point " + SERIES[d.k % SERIES.length], title: d.title || null, style: { left: d.left + "%", top: d.top + "%" } }); }),
+      ends.filter(function (e) { return !series[e.k].points; }).map(function (e) {  // a dotted series already marks its last point
         return h("span", { class: "line-dot line-dot--last " + SERIES[e.k % SERIES.length], style: { left: e.left + "%", top: e.top + "%" } });
       }));
     // End labels: nudged apart when two sit within 14% of each other.
@@ -419,6 +423,77 @@
     })) : null;
     return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
       [h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail, last 5 weeks")), key]);
+  }
+
+  // ---------- films: tier bars and the crowd plot ----------
+
+  var TIER_ORDER = ["D", "C", "B", "A", "S"]; // the tier scale, D = 0 to S = 4
+  function tierText(x) { return num(x, 1); }
+  function filmsText(films) { return list(films).filter(isObj).map(function (f) { return f.title + " (" + f.tier + ")"; }).join(", "); }
+
+  // Horizontal bars of a mean tier on the fixed D..S scale, each labelled with its count;
+  // hover lists the titles with their tiers. rows: {name, mean_tier, n, films}
+  function tierBars(title, rows, opts) {
+    opts = opts || {};
+    var unit = opts.unit || "films";
+    var chart = h("div", { class: "ld-bars ld-bars--tier", role: "img",
+      "aria-label": title + ": " + rows.map(function (r) { return r.name + " " + tierText(r.mean_tier) + " over " + plural(r.n, unit); }).join("; ") },
+      rows.map(function (r) {
+        var films = filmsText(r.films);
+        return h("div", { class: "ld-bar-row", title: r.name + (films ? ": " + films : "") },
+          h("span", { class: "ld-bar-label" }, String(r.name)),
+          h("span", { class: "ld-bar-track" }, h("span", { class: "ld-bar-fill" + (opts.cls ? " " + opts.cls : ""), style: { left: 0, width: (Math.max(0, Math.min(4, r.mean_tier)) / 4 * 100) + "%" } })),
+          h("span", { class: "ld-bar-value" }, tierText(r.mean_tier) + " · " + plural(r.n, unit)));
+      }),
+      h("div", { class: "ld-bar-row ld-range-axis", "aria-hidden": "true" }, h("span"),
+        h("span", { class: "ld-iv-axis-track" }, TIER_ORDER.map(function (t, i) { return h("span", { style: { left: (i / 4 * 100) + "%" } }, t); })), h("span")));
+    return charted(title, chart, [{ label: opts.labelHeading || "Name" }, { label: "Mean tier", num: true }, { label: unit, num: true }, { label: "Titles" }],
+      rows.map(function (r) { return [String(r.name), tierText(r.mean_tier), String(r.n), filmsText(r.films)]; }), opts.after);
+  }
+
+  // Community score (x) against my tier (y): every title a muted dot, the disagreements
+  // labelled (numbered markers with a key under 600px); hover gives title, year, tier, score.
+  function crowdPlot(v) {
+    var pts = list(v.points).filter(function (p) { return isObj(p) && isNum(p.community) && isNum(p.tier_score); });
+    var marks = list(v.disagreements).filter(function (p) { return isObj(p) && isNum(p.community) && typeof p.tier === "string"; });
+    var xs = pts.concat(marks).map(function (p) { return p.community; });
+    var x0 = Math.min.apply(null, xs.concat(10)) - 0.2, x1 = Math.max.apply(null, xs.concat(0)) + 0.2;
+    function x(c) { return ((c - x0) / (x1 - x0)) * 100; }
+    function y(ts, i) { return 90 - ts / 4 * 80 + (((i * 37) % 11) - 5) * 1.1; } // rows for the five tiers, a little jitter
+    function hover(p) { return p.title + (isNum(p.year) ? " (" + p.year + ")" : "") + " · " + p.tier + " · " + num(p.community, 1); }
+    var svg = plotSvg();
+    TIER_ORDER.forEach(function (t, k) { svg.appendChild(sv("line", { class: "quad-axis", x1: 0, x2: 100, y1: (90 - k * 20).toFixed(1), y2: (90 - k * 20).toFixed(1), "vector-effect": "non-scaling-stroke" })); });
+    var plot = h("div", { class: "quad-plot crowd-plot" }, svg,
+      pts.map(function (p, i) {
+        return h("span", { class: "quad-dot quad-dot--other", title: hover(p), style: { left: x(p.community) + "%", top: y(p.tier_score, i) + "%" } });
+      }),
+      marks.map(function (p, i) {
+        var ts = TIER_ORDER.indexOf(p.tier);
+        return h("span", { class: "quad-dot quad-dot--mine", title: hover(p), style: { left: x(p.community) + "%", top: y(ts < 0 ? 2 : ts, i + 3) + "%" } },
+          h("span", { class: "quad-num", "aria-hidden": "true" }, String(i + 1)),
+          h("span", { class: "quad-label" + (x(p.community) > 60 ? " quad-label--left" : "") }, String(p.title)),
+          h("span", { class: "sr-only" }, ", " + hover(p)));
+      }));
+    var ticks = [];
+    for (var t = Math.ceil(x0); t <= Math.floor(x1); t++) ticks.push(t);
+    var chart = h("div", { class: "quad", role: "img", "aria-label": "Community score against my tier for " + plural(pts.length, "titles") + "; the largest disagreements: " + marks.map(hover).join("; ") },
+      h("div", { class: "quad-y crowd-y", "aria-hidden": "true" }, TIER_ORDER.map(function (t, k) { return h("span", { style: { top: (90 - k * 20) + "%" } }, t); })),
+      plot,
+      h("div", { class: "quad-x", "aria-hidden": "true" }, ticks.map(function (t) { return h("span", { style: { left: x(t) + "%" } }, String(t)); }), h("span", { class: "quad-x-label" }, "Simkl community score →")));
+    var key = marks.length ? h("ol", { class: "quad-key", "aria-label": "The disagreements, by marker number" }, marks.map(function (p, i) {
+      return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), hover(p));
+    })) : null;
+    return charted("Community score against my tier", chart, [{ label: "Title" }, { label: "Year", num: true }, { label: "My tier" }, { label: "Community", num: true }],
+      pts.map(function (p) { return [String(p.title), isNum(p.year) ? String(p.year) : "–", String(p.tier), num(p.community, 1)]; }),
+      [h("p", { class: "ld-legend" }, legendItem("s-grey", "every tiered title"), legendItem("s-blue", "the six largest disagreements")), key]);
+  }
+
+  // The credits in analysis.meta.attributions, as text or links, joined by dots.
+  function attributionNodes(attrs) {
+    return attrs.map(function (x, i) {
+      var link = typeof x.url === "string" && /^https:\/\//.test(x.url);
+      return [i ? " · " : null, link ? h("a", { href: x.url, target: "_blank", rel: "noopener" }, String(x.text)) : String(x.text)];
+    });
   }
 
   // ---------- statistics ----------
@@ -828,18 +903,26 @@
       n: "months",
       value: function (s) { return isNum(s.value) ? [num(s.value, 2) + " bits", "entropy of plays across artists, latest month"] : null; },
       draw: function (v) {
-        return columns("Entropy across artists by month (months with 50 or more plays)", list(v.months).map(function (m) {
-          return { label: monthText(m.month, true), title: monthText(m.month) + " (" + plural(m.plays, "plays") + ", " + plural(m.artists, "artists") + ")", value: m.entropy_bits, text: num(m.entropy_bits, 2) };
-        }), { labelHeading: "Month", valueHeading: "Entropy (bits)" });
+        // By week while the archive has under three months, by month after that.
+        var months = list(v.months).filter(isObj), weeks = list(v.weeks).filter(isObj);
+        var weekly = weeks.length > 0 && months.length < 3;
+        var rows = weekly ? weeks : months;
+        function eff(r) { return isNum(r.effective_artists) ? r.effective_artists : Math.pow(2, r.entropy_bits); }
+        return rows.length ? columns("Effective artists (2 to the entropy) by " + (weekly ? "week" : "month") + (weekly ? "" : ", months with 50 or more plays"), rows.map(function (r) {
+          return { label: weekly ? dateText(r.week_start, false) : monthText(r.month, true), title: (weekly ? "week of " + dateText(r.week_start) : monthText(r.month)) + " (" + plural(r.plays, "plays") + ", " + plural(r.artists, "artists") + ")",
+            value: eff(r), text: num(eff(r), 1) };
+        }), { labelHeading: weekly ? "Week of" : "Month", valueHeading: "Effective artists" }) : null;
       }
     },
     "listening.nostalgia": {
       n: "months",
       value: function (s) { return isNum(s.value) ? [String(Math.round(s.value)), "median release year of what I played, latest month"] : null; },
       draw: function (v) {
-        var months = list(v.months);
-        return months.length ? lineChart("Median release year by month", months.map(function (m) {
-          return { label: monthText(m.month), value: m.median_release_year };
+        var months = list(v.months).filter(isObj), weeks = list(v.weeks).filter(isObj);
+        var weekly = weeks.length > 0 && months.length < 3;
+        var rows = (weekly ? weeks : months).filter(function (r) { return isNum(r.median_release_year); });
+        return rows.length ? lineChart("Median release year by " + (weekly ? "week" : "month"), rows.map(function (r) {
+          return { label: weekly ? dateText(r.week_start) : monthText(r.month), value: r.median_release_year };
         }), function (x) { return String(Math.round(x)); }) : null;
       }
     },
@@ -1161,6 +1244,78 @@
             top.map(function (g) { return [String(g.genre), num(g.ratio, 1) + "×", String(g.n)]; }), { showCaption: true }) : null];
       }
     },
+    "watching.by_director": {
+      n: "films",
+      wide: true,
+      draw: function (v) { return tierBars("Mean tier by director", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Director" }); }
+    },
+    "watching.by_studio": {
+      n: "titles",
+      wide: true,
+      draw: function (v) { return tierBars("Mean tier by anime studio", list(v.rows).filter(isObj), { unit: "titles", labelHeading: "Studio", cls: "fill--anime" }); }
+    },
+    "watching.by_lead": {
+      n: "films",
+      wide: true,
+      draw: function (v) { return tierBars("Mean tier by lead actor", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Lead" }); }
+    },
+    "watching.crowd_agreement": {
+      n: "titles",
+      wide: true,
+      value: function (s) { return isNum(s.value) ? [num(s.value, 2), "rank correlation, my tier against the community score"] : null; },
+      intervalFmt: function (x) { return num(x, 2); },
+      draw: function (v) {
+        function genre(g, word) { return isObj(g) && typeof g.genre === "string" ? g.genre + " (" + signed(g.gap, 2) + " tier points over " + plural(g.n, "titles") + ")" : null; }
+        return [crowdPlot(v),
+          facts([["I rate highest against the crowd", genre(v.top_overrated_genre)], ["lowest against the crowd", genre(v.top_underrated_genre)],
+            ["tier predicted from the score alone", isNum(v.model_accuracy) ? pct(v.model_accuracy) + " right" + (isNum(v.baseline) ? ", against " + pct(v.baseline) + " always guessing the commonest tier" : "") : null]])];
+      }
+    },
+    "watching.blockbuster": {
+      n: "films",
+      value: function (s) { return isNum(s.value) ? [signed(s.value, 2), "tier points per popularity quartile (the slope)"] : null; },
+      intervalFmt: function (x) { return signed(x, 2); },
+      draw: function (v) {
+        var qs = list(v.by_popularity_quartile).filter(function (q) { return isObj(q) && isNum(q.mean_tier); });
+        var names = { 1: "least popular quarter", 2: "second quarter", 3: "third quarter", 4: "most popular quarter" };
+        return tierBars("Mean tier by TMDB popularity quartile", qs.map(function (q) { return { name: names[q.quartile] || "quartile " + q.quartile, mean_tier: q.mean_tier, n: q.n }; }), { unit: "films", labelHeading: "Quartile" });
+      }
+    },
+    "watching.sequels": {
+      n: "collections",
+      value: function (s) { return isNum(s.value) ? [signed(s.value, 2), "tier points, later films against the first"] : null; },
+      intervalFmt: function (x) { return signed(x, 2); },
+      draw: function (v) {
+        var cols = list(v.collections).filter(function (c) { return isObj(c) && isObj(c.first); });
+        return table("Each collection's first film against the later ones", [{ label: "Collection" }, { label: "First" }, { label: "Later" }, { label: "Change", num: true }],
+          cols.map(function (c) {
+            return [String(c.collection), c.first.title + " (" + c.first.tier + ")", filmsText(c.later),
+              isNum(c.mean_later) && isNum(c.mean_first) ? signed(c.mean_later - c.mean_first, 2) : "–"];
+          }), { showCaption: true });
+      }
+    },
+    "watching.language": {
+      n: "films",
+      draw: function (v) {
+        var m = isObj(v.means) ? v.means : {};
+        var rows = [["English", m.english], ["Other languages", m.other]].filter(function (r) { return isObj(r[1]) && isNum(r[1].mean_tier); })
+          .map(function (r) { return { name: r[0], mean_tier: r[1].mean_tier, n: r[1].n }; });
+        return [facts([["films not in English", isNum(v.share_non_english) ? pct(v.share_non_english) : null]]),
+          rows.length ? tierBars("Mean tier by original language", rows, { unit: "films", labelHeading: "Language" }) : null];
+      }
+    },
+    "watching.critics_vs_audience": {
+      n: "films",
+      absentStatus: "not available from source",
+      absentMissing: "critic and audience scores (OMDb)",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of the films where critics and audiences split side with the critics"] : null; },
+      intervalFmt: function (x) { return pct(x); },
+      draw: function (v) {
+        return table("Films where the scores split by 20 points or more", [{ label: "Film" }, { label: "Year", num: true }, { label: "My tier" }, { label: "Critics", num: true }, { label: "Audience", num: true }, { label: "I side with" }],
+          list(v.films).filter(isObj).map(function (f) { return [String(f.title), isNum(f.year) ? String(f.year) : "–", String(f.tier), isNum(f.critics) ? String(f.critics) : "–", isNum(f.audience) ? String(f.audience) : "–", String(f.sides_with)]; }),
+          { showCaption: true });
+      }
+    },
     "watching.tier_model": {
       n: "titles",
       value: function (s) { return isNum(s.value) ? [pct(s.value), "of tiers predicted right, leave-one-out"] : null; },
@@ -1446,8 +1601,7 @@
     if (label) block.appendChild(h("h3", { class: "ld-block-title" }, label));
 
     if (status === "not enough data yet") {
-      block.appendChild(h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"),
-        " · " + (isNum(n) ? big(n) + " of " : "") + plural(minN, spec.n || "") + " needed"));
+      block.appendChild(h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"), " · " + waitText(s, n, minN, spec.n || "")));
       return block;
     }
     if (status !== "ok") {
@@ -1548,6 +1702,11 @@
     if (!entries.length) {
       // A card whose statistic the file predates says so; elsewhere the slot says not connected.
       var firstSpec = STATS[slot.getAttribute("data-stat").split(/\s+/)[0]];
+      if (card && firstSpec && firstSpec.absentStatus) {
+        slot.appendChild(h("div", { class: "ld-blocks ld-blocks--one" }, h("div", { class: "ld-block ld-block--not-available-from-source", "data-status": firstSpec.absentStatus },
+          h("p", { class: "ld-note" }, h("b", null, firstSpec.absentStatus), firstSpec.absentMissing ? ": " + firstSpec.absentMissing : ""))));
+        return;
+      }
       slot.appendChild(card ? h("div", { class: "ld-blocks ld-blocks--one" }, h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not in the data yet" },
         waitBox(null, firstSpec ? firstSpec.n : ""))) : h("p", { class: "panel-empty" }, NOT_CONNECTED));
       return;
@@ -1676,16 +1835,24 @@
     }));
   }
 
+  // "available from 10 Nov 2026" when the statistic says when it can start; else "n of min_n needed".
+  function waitText(s, n, minN, unit) {
+    var from = isObj(s) && isObj(s.values) && typeof s.values.available_from === "string" ? s.values.available_from : null;
+    if (from) { try { return "available from " + dateText(from); } catch (e) { /* fall through */ } }
+    return (isNum(n) ? big(n) + " of " : "") + plural(minN, unit) + " needed";
+  }
+
   // Not-enough-data box for a card or panel: the statistic's n of min_n, or "not in the
   // data yet" when the file predates the statistic. unit: what n counts.
   function waitBox(s, unit, extra) {
     if (!isObj(s)) return h("p", { class: "ld-wait" }, h("b", null, "not in the data yet"), " · appears once the pipeline publishes it");
-    var text = " · " + (isNum(s.n) ? big(s.n) + " of " : "") + plural(s.min_n, unit) + " needed" + (extra ? " · " + extra : "");
+    var text = " · " + waitText(s, s.n, s.min_n, unit) + (extra ? " · " + extra : "");
     return h("p", { class: "ld-wait" }, h("b", null, String(s.status)), text);
   }
 
   window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat,
-    charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns },
+    charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars },
+    attributionNodes: attributionNodes, tierText: tierText,
     fmt: { num: num, signed: signed, pct: pct, big: big, plural: plural, dateText: dateText, monthText: monthText, record: record, interval: interval, hoursText: hoursText } };
 
   // ---------- the page ----------
@@ -1715,6 +1882,14 @@
     Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
     Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
     hideEmpty();
+    // The credits in meta.attributions, while any of the statistics they cover is drawn.
+    var attrs = isObj(a.meta) ? list(a.meta.attributions).filter(function (x) { return isObj(x) && typeof x.text === "string"; }) : [];
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-attributions[data-when-stats]"), function (p) {
+      var any = p.getAttribute("data-when-stats").split(/\s+/).some(function (path) { return expand(a, path).some(function (e) { return okStat(e.stat); }); });
+      p.textContent = "";
+      p.hidden = !(any && attrs.length);
+      if (!p.hidden) append(p, attributionNodes(attrs));
+    });
     // A credit shown only while its source is in the file (analysis.meta.sources_included).
     var included = isObj(a.meta) ? list(a.meta.sources_included) : [];
     Array.prototype.forEach.call(document.querySelectorAll(".ld-attribution[data-when-source]"), function (p) {

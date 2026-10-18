@@ -284,6 +284,16 @@ def read_data_page(path, schema):
         if len(parts) != 3 or not all(parts) or not re.fullmatch(r"[a-z]+", parts[0]) or not re.fullmatch(r"https://\S+", parts[2]):
             raise ContentError(f"{path.name}: attribution_when must be 'source | text | https://...'")
         meta["attribution_when"] = tuple(parts)
+    if meta.get("attributions_when"):
+        # "attributions_when: watching.by_director, watching.crowd_agreement": the credits in
+        # analysis.meta.attributions are printed in the footer while any of these statistics is ok.
+        paths = [x.strip() for x in meta["attributions_when"].split(",") if x.strip()]
+        for pth in paths:
+            try:
+                stat_paths(schema, pth)
+            except KeyError as e:
+                raise ContentError(f"{path.name}: attributions_when: {pth} is not a statistic in {SCHEMA_PATH} ({e.args[0]})")
+        meta["attributions_when"] = paths
     meta["groups"] = parse_data_body(m.group(2), path.name)
     meta["sections"] = [s for g in meta["groups"] for s in g["sections"]]
     meta["stats"] = []
@@ -389,6 +399,8 @@ def render_data_page(meta):
         src, text, link = meta["attribution_when"]
         attribution = (f'\n<p class="ld-attribution" data-when-source="{esc(src)}" hidden>'
                        f'<a href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>')
+    if meta.get("attributions_when"):
+        attribution += f'\n<p class="ld-attributions" data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
     current = ' aria-current="page"'
     others = " · ".join(f'<a href="../{f}/"{current if f == feed else ""}>{f}</a>' for f in DATA_FEEDS)
     return f"""<!doctype html>

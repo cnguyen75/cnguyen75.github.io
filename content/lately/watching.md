@@ -3,6 +3,7 @@ register: data
 feed: watching
 title: Watching, in depth
 source: Simkl | https://simkl.com
+attributions_when: watching.by_director, watching.by_studio, watching.by_lead, watching.blockbuster, watching.sequels, watching.language, watching.critics_vs_audience, watching.crowd_agreement
 ---
 
 # What's happening
@@ -58,6 +59,26 @@ STAT: watching.first_episode_drops
 
 ## What earns an S? {#s-tier}
 STAT: watching.s_tier
+
+## Whose films earn an S? {#whose-films}
+STAT: watching.by_director
+STAT: watching.by_studio
+STAT: watching.by_lead
+
+## Do I agree with the crowd? {#crowd-agreement}
+STAT: watching.crowd_agreement
+
+## Do I like blockbusters or small films? {#blockbuster}
+STAT: watching.blockbuster
+
+## Do sequels hold up? {#sequels}
+STAT: watching.sequels
+
+## Does language matter? {#language}
+STAT: watching.language
+
+## Do I side with critics or audiences? {#critics-vs-audience}
+STAT: watching.critics_vs_audience
 
 ## Can my tiers be predicted? {#tier-model}
 STAT: watching.tier_model
