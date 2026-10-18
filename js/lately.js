@@ -1055,96 +1055,111 @@
     var ws = watchingState(data), w = ws.w;
     if (!ws.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     var a = analysisOf(data), aw = a && isObj(a.watching) ? a.watching : {};
-    var st = aw.s_tier, comp = isObj(aw.completion) ? aw.completion.show : null;
-    var weeks = list(w.weeks).filter(isObj), n = weeks.length;
-    var hours = weeks.reduce(function (s, wk) { return s + (isNum(wk.films) ? wk.films : 0) + (isNum(wk.shows) ? wk.shows : 0) + (isNum(wk.anime) ? wk.anime : 0); }, 0);
-    var completion = okStat(comp) ? { label: "Completion, shows", value: fpct(comp.value), note: comp.values.finished + " finished, " + comp.values.dropped + " dropped" } : null;
-    var hoursNum = n && hours > 0 ? { label: "Hours watched, last " + n + " weeks", value: short(hours), note: "films, shows and anime" } : null;
-    var sentences, chart, nums;
-    if (okStat(st)) {
-      var v = st.values;
-      var types = list(v.by_type).filter(function (t) { return isObj(t) && isNum(t.share); }).slice().sort(function (x, y) { return y.share - x.share; });
-      var top = list(v.over_indexed).filter(function (g) { return isObj(g) && isNum(g.ratio); }).slice().sort(function (x, y) { return y.ratio - x.ratio; })[0];
-      var decades = list(v.by_decade).filter(function (d) { return isObj(d) && isNum(d.share); }).slice().sort(function (x, y) { return y.share - x.share; });
-      var hi = types[0], lo = types[types.length - 1];
-      var sTotal = types.reduce(function (s, t) { return s + (isNum(t.s) ? t.s : 0); }, 0), total = types.reduce(function (s, t) { return s + (isNum(t.titles) ? t.titles : 0); }, 0);
-      sentences = [
-        fpct(st.value) + " of my tiered titles are S" + (hi && lo && hi !== lo ? ": " + TYPE_NAMES[hi.type] + " most often at " + fpct(hi.share) + ", " + TYPE_NAMES[lo.type] + " least at " + fpct(lo.share) : "") + ".",
-        (top ? top.genre + " appears " + fnum(top.ratio, 1) + "× as often in S as in B" : "No genre stands out in S against B") +
-          (decades.length ? ", and the " + decades[0].decade + " are the richest decade at " + fpct(decades[0].share) : "") + "."
-      ];
-      nums = [
-        { label: "S tier, all titles", value: fpct(st.value), note: sTotal + " of " + total + " tiered titles" },
-        top ? { label: "Most over-indexed in S", value: String(top.genre), note: fnum(top.ratio, 1) + "× its share in B" } : null,
-        completion
-      ];
-      chart = chartOr(function (c) { return h("div", { class: "chart-block chart-block--pair" }, c.sTierBars(v)); });
-    } else {
-      // Without the S-tier statistic, the tier counts come from tier_distribution.
-      var dist = isObj(aw.tier_distribution) ? aw.tier_distribution : {}, sAll = 0, tAll = 0, best = null;
-      Object.keys(dist).forEach(function (k) {
-        if (!okStat(dist[k])) return;
-        var tiers = list(dist[k].values.tiers).filter(isObj), s = 0, t = 0;
-        tiers.forEach(function (x) { t += isNum(x.titles) ? x.titles : 0; if (x.tier === "S") s += isNum(x.titles) ? x.titles : 0; });
-        sAll += s; tAll += t;
-        if (t && (!best || s / t > best.share)) best = { type: TYPE_NAMES[k] || k, share: s / t };
-      });
-      sentences = [
-        tAll ? sAll + " of my " + tAll + " tiered titles are S (" + fpct(sAll / tAll) + ")" + (best ? ", " + best.type + " most often at " + fpct(best.share) : "") + "."
-          : short(hours) + " hours watched in the last " + plural(n, "week", "weeks") + ".",
-        "Which genres and decades earn it waits for the S-tier statistic" + (isObj(st) && isNum(st.min_n) ? " (" + nOf(st) + " titles)" : "") + "."
-      ];
-      nums = [tAll ? { label: "S tier, all titles", value: fpct(sAll / tAll), note: sAll + " of " + tAll + " tiered titles" } : null, completion, hoursNum];
-      chart = waitBox(st, "titles");
+    var bd = aw.by_director, bs = aw.by_studio, ca = aw.crowd_agreement, st = aw.s_tier;
+    var d = LD(), tier = d && d.tierText ? d.tierText : function (x) { return fnum(x, 1); };
+    function rowsOf(stat) { return okStat(stat) ? list(stat.values.rows).filter(function (r) { return isObj(r) && isNum(r.mean_tier) && isNum(r.n) && typeof r.name === "string"; }) : []; }
+    var directors = rowsOf(bd), studios = rowsOf(bs);
+    // Share of films that are S: from s_tier, else the films' tier distribution.
+    var filmS = null;
+    var byType = okStat(st) ? list(st.values.by_type).filter(function (t) { return isObj(t) && t.type === "film" && isNum(t.share); })[0] : null;
+    if (byType) filmS = { share: byType.share, s: byType.s, titles: byType.titles };
+    else if (isObj(aw.tier_distribution) && okStat(aw.tier_distribution.films)) {
+      var tiers = list(aw.tier_distribution.films.values.tiers).filter(isObj), sN = 0, tN = 0;
+      tiers.forEach(function (x) { tN += isNum(x.titles) ? x.titles : 0; if (x.tier === "S") sN += isNum(x.titles) ? x.titles : 0; });
+      if (tN) filmS = { share: sN / tN, s: sN, titles: tN };
     }
-    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What earns an S?", sentences), numbers(nums), chart, more("watching")];
+    var sNum = filmS ? { label: "Films that are S", value: fpct(filmS.share), note: filmS.s + " of " + plural(filmS.titles, "film", "films") } : null;
+    var crowd = okStat(ca) && isNum(ca.value) ? { label: "Agreement with the crowd", value: fnum(ca.value, 2), note: "rank correlation, my tier against the community score" }
+      : isObj(aw.tier_contrarian) && okStat(aw.tier_contrarian.films) && isNum(aw.tier_contrarian.films.value)
+        ? { label: "My film tiers against Simkl", value: fnum(aw.tier_contrarian.films.value, 2), note: "rank correlation" } : null;
+    var sentences, chart, nums;
+    if (directors.length) {
+      var top = directors[0], low = directors.filter(function (r) { return r.n >= 3; }).slice(-1)[0];
+      var studio = studios[0];
+      sentences = [
+        low && low !== top
+          ? top.name + " tops my directors at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + "; " + low.name + " sits lowest at " + tier(low.mean_tier) + " over " + plural(low.n, "film", "films") + "."
+          : top.name + " is my only director with three or more films, at a mean tier of " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") + ".",
+        studio ? "Among anime studios, " + studio.name + " leads at " + tier(studio.mean_tier) + " over " + plural(studio.n, "title", "titles") + "."
+          : "No anime studio has three of my finished titles yet."
+      ];
+      nums = [{ label: "Top director", value: top.name, note: "mean tier " + tier(top.mean_tier) + " over " + plural(top.n, "film", "films") }, sNum, crowd];
+      chart = chartOr(function (c) {
+        var block = c.tierBars("Mean tier by director", directors.slice(0, 8), { unit: "films", labelHeading: "Director" });
+        if (studios.length) block.appendChild(h("p", { class: "chart-foot panel-studios" }, "Anime studios: " + studios.slice(0, 3).map(function (x) {
+          return x.name + " · " + tier(x.mean_tier) + " · " + x.n;
+        }).join(", ")));
+        return block;
+      });
+    } else {
+      var hi = okStat(st) ? list(st.values.by_type).filter(function (t) { return isObj(t) && isNum(t.share); }).slice().sort(function (x, y) { return y.share - x.share; })[0] : null;
+      sentences = [
+        filmS ? fpct(filmS.share) + " of my finished films are S (" + filmS.s + " of " + filmS.titles + ")" + (hi && TYPE_NAMES[hi.type] !== "films" ? ", against " + fpct(hi.share) + " of my " + TYPE_NAMES[hi.type] : "") + "."
+          : "Tiers are not in the data yet.",
+        "Which directors earn an S waits for the film credits" + (isObj(bd) && isNum(bd.min_n) ? " (" + nOf(bd) + " films)" : "") + "."
+      ];
+      var comp = isObj(aw.completion) ? aw.completion.show : null;
+      nums = [sNum, crowd, okStat(comp) ? { label: "Completion, shows", value: fpct(comp.value), note: comp.values.finished + " finished, " + comp.values.dropped + " dropped" } : null];
+      chart = waitBox(bd, "films");
+    }
+    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("Whose films earn an S?", sentences), numbers(nums), chart, more("watching")];
   }
 
   function listeningPanel(data) {
     var b = listeningBasics(data);
     if (!b.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
     var a = analysisOf(data), al = a && isObj(a.listening) ? a.listening : {};
-    var r = al.retention_new_artists, conc = al.concentration, fr = al.first_repeat, disc = al.discovery;
+    var en = al.entropy, no = al.nostalgia, conc = al.concentration;
     var f = F();
     var month = f ? f.monthText : function (m) { return String(m); };
+    var dateT = f ? f.dateText : function (x) { return String(x); };
+    var plays = { label: "Plays, " + b.win, value: String(b.plays), note: "from Last.fm" };
     var concLast = okStat(conc) ? list(conc.values.months).filter(isObj).slice(-1)[0] : null;
     var top5 = concLast && isNum(concLast.top_five_share) ? concLast.top_five_share : null;
-    var plays = { label: "Plays, " + b.win, value: String(b.plays), note: "from Last.fm" };
-    var topFive = top5 !== null ? { label: "Top five artists' share", value: fpct(top5), note: month(concLast.month) } : null;
+    // Effective artists (2 to the entropy) by week while the archive is young, else by month.
+    var weekly = okStat(en) && list(en.values.weeks).filter(isObj).length > 0;
+    var rows = okStat(en) ? list(weekly ? en.values.weeks : en.values.months).filter(function (r) { return isObj(r) && (isNum(r.effective_artists) || isNum(r.entropy_bits)); }) : [];
+    var unit = weekly ? "week" : "month";
+    function eff(r) { return isNum(r.effective_artists) ? r.effective_artists : Math.pow(2, r.entropy_bits); }
+    function label(r) { return weekly ? dateT(r.week_start) : month(r.month); }
     var sentences, chart, nums;
-    var months = okStat(r) ? list(r.values.months).filter(function (m) { return isObj(m) && isNum(m.share_30d) && isNum(m.share_90d); }) : [];
-    if (months.length) {
-      var last = months[months.length - 1];
-      sentences = [
-        "Of the " + plural(last.new_artists, "artist", "artists") + " new to me in " + month(last.month) + ", " + fpct(last.share_30d) + " were still playing a month later and " + fpct(last.share_90d) + " three months on.",
-        "I played " + plural(b.plays, "track", "tracks") + windowText(b.win) + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
-      ];
-      nums = [
-        { label: "Still played after 30 days", value: fpct(last.share_30d), note: "new artists of " + month(last.month) },
-        { label: "Still played after 90 days", value: fpct(last.share_90d), note: "the same artists" },
-        plays
-      ];
+    if (rows.length) {
+      var last = rows[rows.length - 1], first = rows[0];
+      var nRows = okStat(no) ? list(weekly && list(no.values.weeks).length ? no.values.weeks : no.values.months).filter(function (r) { return isObj(r) && isNum(r.median_release_year); }) : [];
+      var year = nRows.length ? nRows[nRows.length - 1].median_release_year : null, year0 = nRows.length ? nRows[0].median_release_year : null;
+      var effText = fnum(eff(last), 0), playsText = isNum(last.plays) ? plural(last.plays, "play", "plays") : null;
+      if (rows.length === 1) {
+        sentences = ["One " + unit + " in: " + effText + " effective artists" + (playsText ? " over " + playsText : "") + (year !== null ? ", median release year " + year : "") + ".",
+          "The spread of my listening is the number of equally played artists that would give the same entropy; a narrowing taste shows as a falling line."];
+      } else {
+        var e0 = eff(first), e1 = eff(last), dir = Math.abs(e1 - e0) < 0.5 ? "level with" : e1 > e0 ? "up from" : "down from";
+        sentences = [plural(rows.length, unit, unit + "s") + " in: " + effText + " effective artists this " + unit + (playsText ? " over " + playsText : "") + ", " + dir + " " + fnum(e0, 0) + " in the first.",
+          year !== null ? "The median release year of what I play is " + year + (year0 !== null && year0 !== year ? ", from " + year0 + " at the start" : ", as at the start") + "."
+            : "The median release year waits for plays with a known album year."];
+      }
+      nums = [{ label: "Effective artists this " + unit, value: effText, note: "2 to the entropy of plays across artists" },
+        playsText ? { label: "Plays this " + unit, value: String(last.plays), note: weekly ? "week of " + label(last) : label(last) } : plays,
+        year !== null ? { label: "Median release year this " + unit, value: String(year), note: "of the tracks played" } : (top5 !== null ? { label: "Top five artists' share", value: fpct(top5), note: month(concLast.month) } : null)];
       chart = chartOr(function (c) {
-        return c.multiLine("New artists still played 30 and 90 days later", months.map(function (m) { return month(m.month); }),
-          [{ name: "after 30 days", values: months.map(function (m) { return m.share_30d; }) },
-           { name: "after 90 days", values: months.map(function (m) { return m.share_90d; }) }], { fmt: fpct, labelHeading: "Month", height: 110 });
+        var block = c.multiLine("Effective artists by " + unit, rows.map(label),
+          [{ name: "effective artists", values: rows.map(eff), points: true, titles: rows.map(function (r) { return (isNum(r.plays) ? plural(r.plays, "play", "plays") + ", " : "") + fnum(eff(r), 1) + " effective artists"; }) }],
+          { fmt: function (x) { return fnum(x, 0); }, labelHeading: weekly ? "Week of" : "Month", height: 110 });
+        block.appendChild(h("p", { class: "ld-n" }, "n = " + plural(rows.length, unit, unit + "s")));
+        return block;
       });
     } else {
       var range = listeningRange(data);
       sentences = [
         (range ? "The archive holds " + plural(range.days, "day", "days") + " of plays, from " + range.from + " to " + range.to : "The archive is young") +
-          "; new-artist retention needs " + (isObj(r) && isNum(r.min_n) ? plural(r.min_n, "month", "months") : "months") + " with a full 90 days after them.",
+          "; the spread of my listening needs " + (isObj(en) && isNum(en.min_n) ? plural(en.min_n, "month", "months") : "a month") + " with 50 plays.",
         "So far: " + plural(b.plays, "play", "plays") + windowText(b.win) + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
       ];
-      var newArtists = okStat(disc) ? list(disc.values.months).filter(isObj).slice(-1)[0] : null;
+      var topFive = top5 !== null ? { label: "Top five artists' share", value: fpct(top5), note: month(concLast.month) } : null;
       var topArtist = list(b.l.top_artists).filter(function (x) { return isObj(x) && typeof x.name === "string" && isNum(x.plays); })[0];
-      nums = [plays, topFive,
-        okStat(fr) && f ? { label: "First repeat, median", value: f.hoursText(fr.values.median_hours), note: "from a new track's first play to its second" }
-          : newArtists && isNum(newArtists.share) ? { label: "Plays by new artists", value: fpct(newArtists.share), note: month(newArtists.month) }
-          : topArtist ? { label: "Top artist, " + b.win, value: topArtist.name, note: plural(topArtist.plays, "play", "plays") } : null];
-      chart = waitBox(r, "months", range ? "plays from " + range.from + " to " + range.to : null);
+      nums = [plays, topFive, topArtist ? { label: "Top artist, " + b.win, value: topArtist.name, note: plural(topArtist.plays, "play", "plays") } : null];
+      chart = waitBox(en, "months", range ? "plays from " + range.from + " to " + range.to : null);
     }
-    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Do I keep playing what's new?", sentences), numbers(nums), chart, more("listening")];
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is my taste narrowing?", sentences), numbers(nums), chart, more("listening")];
   }
 
   function eatingPanel(data) {
@@ -1198,17 +1213,15 @@
     var si = al.strength_index, bwr = al.body_weight_rate, ret = isObj(al.retention) ? al.retention : {}, kept = isObj(al.strength_kept) ? al.strength_kept : {};
     var f = F();
     var date = f ? f.dateText : function (s) { return String(s); };
-    // Bench best, as logged (a best set entered by hand says so).
-    var bench = list(l.main_lifts).filter(function (x) { return isObj(x) && /bench/i.test(String(x.name)); })[0];
-    var benchNum = null;
-    if (bench && isObj(bench.best) && isNum(bench.best.e1rm)) {
-      var bs = isObj(bench.best.best_set) ? bench.best.best_set : null;
-      benchNum = { label: "Bench best, e1RM", value: short(bench.best.e1rm) + " " + b.unit,
-        note: bs && isNum(bs.weight_lb) && isNum(bs.reps) ? "best set " + short(bs.weight_lb) + " × " + bs.reps + (bs.source === "manual" ? " · logged by hand" : "") : "estimated one-rep max" };
+    // The best-held lift: analysis.lifting.best_held_lift, else the largest change in the index's lifts_change.
+    var held = isObj(al.best_held_lift) && typeof al.best_held_lift.name === "string" && isNum(al.best_held_lift.change_pct) ? al.best_held_lift : null;
+    if (!held && okStat(si) && isObj(si.values.lifts_change)) {
+      Object.keys(si.values.lifts_change).forEach(function (k) {
+        var c = si.values.lifts_change[k];
+        if (isObj(c) && isNum(c.change_pct) && (!held || c.change_pct > held.change_pct)) held = { name: k, change_pct: c.change_pct };
+      });
     }
-    // Weeks without a weigh-in carry a null body weight (and a week without sessions a null
-    // strength): each line skips those points. The latest figures are values.current, else the
-    // last week with a value.
+    var benchNum = held ? { label: "Best-held lift", value: held.name, note: plus(held.change_pct * 100, 1) + "% since the cut" } : null;
     var weeks = okStat(si) ? list(si.values.weeks).filter(function (w) { return isObj(w) && (isNum(w.strength) || isNum(w.body_weight)); }) : [];
     function latest(key) {
       var cur = okStat(si) && isObj(si.values.current) ? si.values.current[key] : null;
@@ -1300,6 +1313,19 @@
     if (note) note.hidden = !sample;
     try { renderChips(data); } catch (e) { /* chips are decoration */ }
     PANELS.forEach(function (p) { fill(p[0], p[1], data); });
+    try { renderAttributions(data); } catch (e) { /* credits are a footer line */ }
+  }
+
+  // analysis.meta.attributions (TMDB, OMDb) under the section while the watching panel draws from them.
+  function renderAttributions(data) {
+    var slot = document.getElementById("lately-attributions");
+    if (!slot) return;
+    var a = analysisOf(data), d = LD();
+    var attrs = a && isObj(a.meta) ? list(a.meta.attributions).filter(function (x) { return isObj(x) && typeof x.text === "string"; }) : [];
+    var drawn = a && isObj(a.watching) && okStat(a.watching.by_director);
+    slot.textContent = "";
+    slot.hidden = !(drawn && attrs.length && d && d.attributionNodes);
+    if (!slot.hidden) append(slot, [" · ", d.attributionNodes(attrs)]);
   }
 
   // The top level must be the right shape; panels validate their own parts.

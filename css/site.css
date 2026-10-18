@@ -1264,6 +1264,16 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .quad-x { grid-column: 2; position: relative; height: 38px; font-family: var(--font-label); font-size: 12px; color: var(--text-3); }
 .quad-x > span { position: absolute; top: 0; transform: translateX(-50%); }
 .quad-x > .quad-x-label { left: 50%; top: 18px; }
+/* Tier bars: the fixed D..S scale under the bars */
+.ld-bars--tier .ld-bar-fill { left: 0; }
+.ld-bars--tier .ld-iv-axis-track { margin-top: 0; }
+/* The crowd plot: five tier rows, the community score across */
+.crowd-plot { height: 300px; }
+.crowd-y { position: relative; align-self: stretch; writing-mode: horizontal-tb; transform: none; width: 1.2em; font-family: var(--font-label); font-size: 12px; color: var(--text-3); }
+.crowd-y > span { position: absolute; left: 0; transform: translateY(-50%); }
+.ld-attributions, #lately-attributions { font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
+.ld-attributions { margin: 0; }
+.panel-studios { padding-top: 4px; }
 /* Under 600px my teams are numbered markers and the key below names them; wider, the label sits beside the point. */
 .quad-num { display: none; }
 .quad-key { display: none; }
@@ -1278,6 +1288,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 
 @media (max-width: 520px) {
   .quad-plot { height: 240px; }
+  .crowd-plot { height: 260px; }
   .quad-label { font-size: 12px; }
   .ld-section { padding: 20px 16px; }
   .ld-value-num { font-size: 30px; }
