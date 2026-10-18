@@ -212,7 +212,14 @@ def variant(name):
         for k in ("by_director", "by_studio", "by_lead", "blockbuster", "sequels", "language", "critics_vs_audience", "crowd_agreement"):
             del a["watching"][k]
         del a["lifting"]["best_held_lift"]
+        del a["watching"]["taste_profile"]
+        for k in ("artist_survival", "artist_survival_all", "album_listening", "discovery_direction"):
+            del a["listening"][k]
         a["eating"]["top_ten_churn"] = {"status": "not enough data yet", "n": 0, "min_n": 4, "as_of": a["as_of"], "how": "Old."}
+    if name == "hr crosses":
+        a["listening"]["artist_survival"]["values"]["hr_a"] = {"value": 1.08, "interval": [0.8, 1.45]}
+    if name == "hr below":
+        a["listening"]["artist_survival"]["values"]["hr_a"] = {"value": 0.71, "interval": [0.52, 0.96]}
     if name == "director pair":
         rows = a["watching"]["by_director"]["values"]["rows"]
         rows[0]["name"] = "Anthony Russo & Joe Russo"
@@ -231,7 +238,7 @@ def variant(name):
         a["listening"]["nostalgia"]["values"]["weeks"] = a["listening"]["nostalgia"]["values"]["weeks"][:1]
     if name == "waiting":
         # The new statistics present but not yet computable.
-        for st in (a["fantasy"]["quadrant"], a["watching"]["by_director"], a["lifting"]["strength_index"], a["listening"]["entropy"], a["eating"]["scores"]):
+        for st in (a["fantasy"]["quadrant"], a["watching"]["taste_profile"], a["lifting"]["strength_index"], a["listening"]["artist_survival"], a["eating"]["scores"]):
             st.update(status="not enough data yet", n=2)
             st.pop("values", None)
             st.pop("value", None)
@@ -386,7 +393,7 @@ class Drawing(unittest.TestCase):
         self.assertNotIn("last 30 days", young)
         home_young, home = draw("index.html", name="young archive"), draw("index.html")
         self.assertIn("Plays, since 11 Oct", home_young["bodyText"])  # entropy is waiting there: the window's plays
-        self.assertIn("Plays this week", home["bodyText"])
+        self.assertIn("Hazard ratio, new vs catalog", home["bodyText"])  # the panel asks about rotation now
         self.assertNotIn("Top artists", home["bodyText"])  # the list left the main page
 
     # "No episodes or films logged" only when nothing is: not beside something being watched.
@@ -499,7 +506,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual((fb["status"], fb["wait"]), ("not enough data yet", "not enough data yet · 19 of 20 predictions needed"))
         self.assertFalse(slot(few, "grading.win_chance")["hidden"])
 
-    QUESTIONS = {"fantasy": "Good, or lucky?", "watching": "Whose films earn an S?", "listening": "Is my taste narrowing?",
+    QUESTIONS = {"fantasy": "Good, or lucky?", "watching": "What does my taste look like?", "listening": "Does old music last longer than new?",
                  "eating": "What biases my scores?", "lifting": "Is the cut costing strength?"}
 
     # The main page: fantasy across the width, then watching | listening, then eating | lifting.
@@ -532,25 +539,33 @@ class Drawing(unittest.TestCase):
         for t in f["quadTitles"]:  # hover: record and all-play only
             self.assertRegex(t, r"^\d+–\d+(–\d+)? · all-play \d+%$")
         w = panels["panel-watching"]
-        rows = ANALYSIS["watching"]["by_director"]["values"]["rows"]
-        self.assertEqual([h[0] for h in w["headline"]], ["Top director", "Films that are S", "Agreement with the crowd"])
-        self.assertEqual(w["headline"][0][1], rows[0]["name"])
-        self.assertTrue(w["answer"].startswith(rows[0]["name"] + " tops my directors at a mean tier of"))
-        self.assertIn("Among anime studios, " + ANALYSIS["watching"]["by_studio"]["values"]["rows"][0]["name"] + " leads at", w["answer"])
-        self.assertIn(" sits lowest at ", w["answer"])
-        # A credited pair takes the plural: "A & B top my directors", "C & D sit lowest".
-        pair = next(p for p in draw("index.html", name="director pair")["panels"] if p["id"] == "panel-watching")["answer"]
-        self.assertTrue(pair.startswith("Anthony Russo & Joe Russo top my directors at a mean tier of"), pair)
-        self.assertIn("; Phil Lord & Christopher Miller sit lowest at ", pair)
-        self.assertIn("Anime studios: ", d["bodyText"])
-        self.assertNotIn("S-tier share by type", d["bodyText"])  # moved to the watching page
-        self.assertEqual(w["tierRows"], min(8, len(rows)))
-        self.assertTrue(w["tierTitles"] and all(re.search(r": .+ \([SABCD]\)", t) for t in w["tierTitles"]))  # hover lists the films with tiers
+        tp = ANALYSIS["watching"]["taste_profile"]["values"]
+        self.assertEqual([h[0] for h in w["headline"]], ["Agreement with the crowd", "Predictable from metadata", "Films that are S"])
+        self.assertEqual(w["headline"][1][1:], ["44%", "vs 33% baseline guessing"])
+        self.assertEqual(w["answer"], "Drama, Crime and Romance lift my tiers; Horror and Action lower them. Release year, Animation and Runtime don't move me.")
+        self.assertEqual(w["effectRows"], len(tp["rows"]))
+        self.assertEqual(w["effectUnclear"], len([r for r in tp["rows"] if not r["clear"]]))
+        self.assertEqual(w["effectValues"][0], "+0.44")
+        self.assertIn("Above the crowd: " + tp["disagreements"]["above"][0]["title"] + " (" + tp["disagreements"]["above"][0]["tier"] + ", ", d["bodyText"])
+        self.assertIn("Below: ", d["bodyText"])
+        for gone in ("Mean tier by director", "Anime studios: ", "Effective artists by week"):
+            self.assertNotIn(gone, d["bodyText"], gone)  # these live on the track pages now
         li = panels["panel-listening"]
-        self.assertEqual([h[0] for h in li["headline"]], ["Effective artists this week", "Plays this week", "Median release year this week"])
-        self.assertRegex(li["answer"], r"^8 weeks in: \d+ effective artists this week over \d+ plays, (up from|down from|level with) \d+ in the first\. The median release year of what I play is \d{4}")
-        self.assertIn("n = 8 weeks", d["bodyText"])
+        sv = ANALYSIS["listening"]["artist_survival"]["values"]
+        self.assertEqual([h[0] for h in li["headline"]], ["Median rotation length, all artists", "Hazard ratio, new vs catalog", "Discoveries that are catalog"])
+        self.assertEqual(li["headline"][1][1], "1.62×")
+        self.assertTrue(li["answer"].startswith("New artists drop out of rotation 1.62× as fast as catalog ones (95% 1.22 to 2.19); half of my catalog discoveries last"), li["answer"])
+        self.assertTrue(li["answer"].endswith("Note: artists in the library before the 2023 sync excluded; see the listening page for the version that includes them."), li["answer"])
+        self.assertEqual(li["kmCurves"], 2)
+        self.assertEqual(li["kmMedians"], len([c for c in sv["curves"] if c["median"] is not None]))
+        self.assertIn("catalog · n = " + str(sv["n"]["catalog"]), d["bodyText"])
+        self.assertIn("Longest in rotation: " + sv["longest_lived"][0]["artist"] + " (" + str(sv["longest_lived"][0]["months"]) + " months, still playing)", d["bodyText"])
         self.assertIn("This product uses the TMDB API", d["bodyText"])
+        # The other two hazard cases.
+        cross = next(p for p in draw("index.html", name="hr crosses")["panels"] if p["id"] == "panel-listening")["answer"]
+        self.assertTrue(cross.startswith("No clear difference: new artists leave rotation at 1.08× the catalog rate, with an interval of 95% 0.80 to 1.45 that crosses 1;"), cross)
+        below = next(p for p in draw("index.html", name="hr below")["panels"] if p["id"] == "panel-listening")["answer"]
+        self.assertTrue(below.startswith("New artists outlast catalog ones: they leave rotation at 0.71× the catalog rate (95% 0.52 to 0.96);"), below)
         e = panels["panel-eating"]
         self.assertEqual(e["headline"][0][:2], ["Median score", "7.97"])
         self.assertIn("minus my overall median of 7.97", e["legend"])
@@ -584,12 +599,11 @@ class Drawing(unittest.TestCase):
             self.assertEqual(d["errors"], [])
         # The listening box says what the archive covers.
         li = next(p for p in draw("index.html", name="waiting")["panels"] if p["id"] == "panel-listening")
-        self.assertRegex(li["wait"], r"months? needed · plays from \d+ \w+( \d{4})? to \d+ \w+( \d{4})?$")
-        # One week of plays: a dot with its label and the one-week sentence.
-        one = next(p for p in draw("index.html", name="films waiting")["panels"] if p["id"] == "panel-listening")
-        self.assertRegex(one["answer"], r"^One week in: \d+ effective artists over \d+ plays, median release year \d{4}\.")
-        self.assertEqual(one["charts"], 1)
-        self.assertIn("n = 1 week", one["legendAll"])
+        self.assertRegex(li["wait"], r"\w+ needed · plays from \d+ \w+( \d{4})? to \d+ \w+( \d{4})?$")
+        # Entropy by week lives on the listening page ("Is my taste narrowing?").
+        one = next(s for s in draw("lately/listening/", name="films waiting")["sections"] if s["id"] == "entropy")
+        self.assertEqual(one["title"], "Is my taste narrowing?")
+        self.assertIn("by week", one["slots"][0]["blocks"][0]["text"])
         # An old file's feed pages: the new cards say the statistic isn't in the data yet; the rest draws.
         old = draw("lately/lifting/", name="old file")
         (si,) = blocks(old, "lifting.strength_index")
@@ -739,6 +753,30 @@ class Drawing(unittest.TestCase):
         self.assertEqual(blocks(old, "watching.by_director")[0]["status"], "not in the data yet")
         self.assertEqual(blocks(old, "watching.critics_vs_audience")[0]["status"], "not available from source")
         self.assertEqual(old["attributions"], [])
+
+    # Profile cards on the track pages: the taste profile with the crowd lines, both survival
+    # cohorts, albums or songs, dig back or keep up; and their absent state in an old file.
+    def test_profile_cards(self):
+        d = draw("lately/watching/")
+        (tp,) = blocks(d, "watching.taste_profile")
+        self.assertEqual(tp["value"], "44%")
+        self.assertIn("What my tiers respond to", tp["text"])
+        self.assertIn("Above the crowd: ", tp["text"])
+        l = draw("lately/listening/")
+        (sv,) = blocks(l, "listening.artist_survival")
+        self.assertEqual(sv["value"], "1.62×")
+        self.assertIn("New artists drop out of rotation 1.62× as fast", sv["text"])
+        self.assertIn("Longest in rotation: ", sv["text"])
+        (sv2,) = blocks(l, "listening.artist_survival_all")
+        self.assertEqual(sv2["value"], "1.41×")
+        self.assertIn("before the 2023 sync", sv2["text"])  # the cohort line
+        self.assertEqual(blocks(l, "listening.album_listening")[0]["value"], "38%")
+        self.assertEqual(blocks(l, "listening.discovery_direction")[0]["value"], "58%")
+        self.assertEqual(next(s for s in l["sections"] if s["id"] == "entropy")["title"], "Is my taste narrowing?")
+        old = draw("lately/listening/", name="old file")
+        for stat in ("listening.artist_survival", "listening.artist_survival_all", "listening.album_listening", "listening.discovery_direction"):
+            self.assertEqual(blocks(old, stat)[0]["status"], "not in the data yet", stat)
+        self.assertEqual(blocks(draw("lately/watching/", name="old file"), "watching.taste_profile")[0]["status"], "not in the data yet")
 
     # Every feed block that left the main page draws on its feed page.
     def test_feed_blocks(self):

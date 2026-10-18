@@ -27,13 +27,25 @@ STAT: cross.rhythm.plays
 
 # Why
 
+## Does old music last longer than new? {#artist-survival}
+STAT: listening.artist_survival
+
+## And counting the artists from before the Apple Music sync? {#artist-survival-all}
+STAT: listening.artist_survival_all
+
+## Albums or songs? {#album-listening}
+STAT: listening.album_listening
+
+## Do I dig back or keep up? {#discovery-direction}
+STAT: listening.discovery_direction
+
 ## Do I keep playing what's new? {#retention-new-artists}
 STAT: listening.retention_new_artists
 
 ## How fast does an album burn out? {#album-half-life}
 STAT: listening.album_half_life
 
-## How spread out is my listening? {#entropy}
+## Is my taste narrowing? {#entropy}
 STAT: listening.entropy
 
 ## How old is what I play? {#nostalgia}

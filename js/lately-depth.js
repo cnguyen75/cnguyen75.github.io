@@ -495,6 +495,113 @@
       [h("p", { class: "ld-legend" }, legendItem("s-grey", "every tiered title"), legendItem("s-blue", "the six largest disagreements")), key]);
   }
 
+  // Diverging bars of standardised effects: zero centred, positive right (blue), negative left
+  // (orange), each with a thin 95% interval line; a row whose interval includes zero is faded.
+  // rows: {name, effect, interval, clear}
+  function effectBars(title, rows) {
+    var span = Math.max.apply(null, rows.map(function (r) { return Math.max(Math.abs(r.effect), Math.abs(list(r.interval)[0] || 0), Math.abs(list(r.interval)[1] || 0)); }).concat(0.1));
+    function x(v) { return 50 + v / span * 50; }
+    var chart = h("div", { class: "ld-bars ld-bars--effects", role: "img",
+      "aria-label": title + ": " + rows.map(function (r) { return r.name + " " + signed(r.effect, 2) + (r.clear === false ? " (unclear)" : ""); }).join("; ") },
+      rows.map(function (r) {
+        var iv = Array.isArray(r.interval) && isNum(r.interval[0]) && isNum(r.interval[1]) ? r.interval : null;
+        var w = Math.abs(r.effect) / span * 50;
+        return h("div", { class: "ld-bar-row" + (r.clear === false ? " ld-bar-row--unclear" : ""), title: r.name + ": " + signed(r.effect, 2) + (iv ? " (95% " + signed(iv[0], 2) + " to " + signed(iv[1], 2) + ")" : "") + (r.clear === false ? "; the interval includes zero" : "") },
+          h("span", { class: "ld-bar-label" }, String(r.name)),
+          h("span", { class: "ld-bar-track" },
+            h("span", { class: "ld-bar-zero", style: { left: "50%" } }),
+            h("span", { class: "ld-bar-fill" + (r.effect < 0 ? " ld-bar-fill--neg" : ""), style: { left: (r.effect < 0 ? 50 - w : 50) + "%", width: w + "%" } }),
+            iv ? h("span", { class: "ld-iv-line ld-iv-line--thin", style: { left: x(iv[0]) + "%", width: (x(iv[1]) - x(iv[0])) + "%" } }) : null),
+          h("span", { class: "ld-bar-value" }, signed(r.effect, 2)));
+      }));
+    return charted(title, chart, [{ label: "Feature" }, { label: "Effect", num: true }, { label: "95% interval" }, { label: "Clear" }],
+      rows.map(function (r) { return [String(r.name), signed(r.effect, 2), interval(r.interval, function (x) { return signed(x, 2); }) || "–", r.clear === false ? "no" : "yes"]; }),
+      h("p", { class: "ld-legend" }, legendItem("s-blue", "raises my tier"), legendItem("s-orange", "lowers it"), legendItem("s-base", "thin line: 95% interval; faded: includes zero")));
+  }
+
+  // "Above the crowd: Title (A, 6.4), …" and "Below: …" from a disagreements block.
+  function disagreementLines(dis) {
+    if (!isObj(dis)) return null;
+    function line(label, xs) {
+      xs = list(xs).filter(function (p) { return isObj(p) && typeof p.title === "string"; });
+      if (!xs.length) return null;
+      return h("p", { class: "ld-small ld-disagree" }, h("b", null, label + " "), xs.map(function (p) {
+        return p.title + " (" + p.tier + (isNum(p.community) ? ", " + num(p.community, 1) : "") + ")";
+      }).join(", "));
+    }
+    return [line("Above the crowd:", dis.above), line("Below:", dis.below)];
+  }
+
+  // Kaplan–Meier step curves, catalog against new: months since discovery across, the share
+  // still in rotation up, a shaded 95% band, the median marked with a dropped line and label.
+  // curves: [{type, n, median, points: [{months, survival, lower, upper, at_risk}]}]
+  function survivalChart(title, curves, opts) {
+    opts = opts || {};
+    curves = list(curves).filter(function (c) { return isObj(c) && list(c.points).length; });
+    var maxM = Math.max.apply(null, curves.map(function (c) { return Math.max.apply(null, c.points.map(function (p) { return p.months; })); }).concat(1));
+    function x(m) { return m / maxM * 100; }
+    function y(v) { return (1 - v) * 100; }
+    var svg = plotSvg();
+    curves.forEach(function (c, k) {
+      var pts = c.points.filter(function (p) { return isObj(p) && isNum(p.months) && isNum(p.survival); }).slice().sort(function (a, b) { return a.months - b.months; });
+      var cls = SERIES[k % SERIES.length];
+      // The band: the upper bound stepped forward, the lower stepped back.
+      var up = [], lo = [];
+      pts.forEach(function (p, i) {
+        var prev = i ? pts[i - 1] : null;
+        if (prev) { up.push([x(p.months), y(isNum(prev.upper) ? prev.upper : prev.survival)]); lo.push([x(p.months), y(isNum(prev.lower) ? prev.lower : prev.survival)]); }
+        up.push([x(p.months), y(isNum(p.upper) ? p.upper : p.survival)]); lo.push([x(p.months), y(isNum(p.lower) ? p.lower : p.survival)]);
+      });
+      if (up.length > 1) svg.appendChild(sv("polygon", { class: "km-band " + cls, points: up.concat(lo.slice().reverse()).map(function (q) { return q[0].toFixed(2) + "," + q[1].toFixed(2); }).join(" ") }));
+      var step = [];
+      pts.forEach(function (p, i) { if (i) step.push([x(p.months), y(pts[i - 1].survival)]); step.push([x(p.months), y(p.survival)]); });
+      if (step.length > 1) svg.appendChild(polyline(step, cls + " km-step"));
+      if (isNum(c.median)) {
+        svg.appendChild(sv("line", { class: "km-median " + cls, x1: x(c.median).toFixed(2), x2: x(c.median).toFixed(2), y1: 50, y2: 100, "vector-effect": "non-scaling-stroke" }));
+      }
+    });
+    var labels = curves.filter(function (c) { return isNum(c.median); }).map(function (c, k) {
+      return h("span", { class: "km-median-label " + SERIES[curves.indexOf(c) % SERIES.length], style: { left: x(c.median) + "%" } }, "median " + c.median + " mo");
+    });
+    var chart = h("div", { class: "ld-line km", role: "img", "aria-label": title + ": " + curves.map(function (c) {
+      var last = c.points[c.points.length - 1];
+      return c.type + " (n = " + c.n + ")" + (isNum(c.median) ? ", median " + c.median + " months" : ", median not reached") + ", " + pct(last.survival) + " still in rotation at " + last.months + " months";
+    }).join("; ") },
+      h("div", { class: "km-plot" }, h("div", { class: "line-plot" }, svg), h("div", { class: "km-y", "aria-hidden": "true" }, [1, 0.5, 0].map(function (v) { return h("span", { style: { top: y(v) + "%" } }, pct(v)); }))),
+      h("div", { class: "km-medians", "aria-hidden": "true" }, labels),
+      h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "0 months since first play"), h("span", null, maxM + " months")));
+    var months = [];
+    curves.forEach(function (c) { c.points.forEach(function (p) { if (months.indexOf(p.months) < 0) months.push(p.months); }); });
+    months.sort(function (a, b) { return a - b; });
+    function at(c, m) { var p = c.points.filter(function (q) { return q.months <= m; }).slice(-1)[0]; return p ? pct(p.survival) : "–"; }
+    return charted(title, chart, [{ label: "Months" }].concat(curves.map(function (c) { return { label: c.type + " still in rotation", num: true }; })),
+      months.map(function (m) { return [String(m)].concat(curves.map(function (c) { return at(c, m); })); }),
+      h("p", { class: "ld-legend" }, curves.map(function (c, k) { return legendItem(SERIES[k % SERIES.length], c.type + " · n = " + c.n); }), legendItem("s-base", "dropped line: median")));
+  }
+
+  // The hazard-ratio sentence: new against catalog, by whether the interval crosses 1.
+  function hazardSentence(hr, medians) {
+    if (!isObj(hr) || !isNum(hr.value)) return null;
+    var iv = Array.isArray(hr.interval) && isNum(hr.interval[0]) && isNum(hr.interval[1]) ? hr.interval : null;
+    var ivText = iv ? " (95% " + num(iv[0], 2) + " to " + num(iv[1], 2) + ")" : "";
+    var crosses = iv && iv[0] <= 1 && iv[1] >= 1;
+    var med = isObj(medians) ? medians : {};
+    // One sentence: the ratio, then the medians after a semicolon.
+    var tail = isNum(med.catalog) && isNum(med.new) ? "; half of my catalog discoveries last " + med.catalog + " months, against " + med.new + " for new ones."
+      : isNum(med.catalog) ? "; half of my catalog discoveries last " + med.catalog + " months, while over half of the new ones are still in rotation." : ".";
+    if (crosses) return "No clear difference: new artists leave rotation at " + num(hr.value, 2) + "× the catalog rate, with an interval" + ivText.replace(" (", " of ").replace(")", "") + " that crosses 1" + tail;
+    if (hr.value > 1) return "New artists drop out of rotation " + num(hr.value, 2) + "× as fast as catalog ones" + ivText + tail;
+    return "New artists outlast catalog ones: they leave rotation at " + num(hr.value, 2) + "× the catalog rate" + ivText + tail;
+  }
+  function longestLine(xs) {
+    xs = list(xs).filter(function (p) { return isObj(p) && typeof p.artist === "string" && isNum(p.months); }).slice(0, 5);
+    if (!xs.length) return null;
+    return h("p", { class: "ld-small ld-disagree" }, h("b", null, "Longest in rotation: "), xs.map(function (p) {
+      return p.artist + " (" + plural(p.months, "months") + (p.censored ? ", still playing" : "") + ")";
+    }).join(", "));
+  }
+  var PRESYNC_NOTE = "artists in the library before the 2023 sync excluded; see the listening page for the version that includes them.";
+
   // The credits in analysis.meta.attributions, as text or links, joined by dots.
   function attributionNodes(attrs) {
     return attrs.map(function (x, i) {
@@ -904,6 +1011,31 @@
         return [weekdayColumns("Plays by weekday", ctx.weekdays, v.by_weekday, "Plays"),
           hours.length ? columns("Plays by hour, Pacific", hours.map(function (c, i) { return { label: String(i), title: i + ":00", value: c, text: big(c) }; }),
             { labelHeading: "Hour", valueHeading: "Plays", every: 6 }) : null];
+      }
+    },
+    "listening.artist_survival": survivalSpec("Artists first played since the 2023 Apple Music sync"),
+    "listening.artist_survival_all": survivalSpec("Every artist, those in the library before the 2023 sync included"),
+    "listening.album_listening": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of plays sit inside a run of three or more tracks from one album"] : null; },
+      draw: function (v) {
+        var months = list(v.by_month).filter(function (m) { return isObj(m) && isNum(m.share); });
+        return [facts([["album runs", isNum(v.runs) ? big(v.runs) : null], ["median run", isNum(v.median_run_tracks) ? plural(v.median_run_tracks, "tracks") : null]]),
+          months.length ? columns("Share of plays in album runs, by month", months.map(function (m) {
+            return { label: monthText(m.month, true), title: monthText(m.month) + (isNum(m.plays) ? " (" + plural(m.plays, "plays") + ")" : ""), value: m.share, text: pct(m.share) };
+          }), { labelHeading: "Month", valueHeading: "Share in album runs" }) : null];
+      }
+    },
+    "listening.discovery_direction": {
+      n: "months",
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of new artists are digging back (first album over 5 years old)"] : null; },
+      draw: function (v) {
+        var months = list(v.by_month).filter(function (m) { return isObj(m) && isNum(m.back) && isNum(m.keep_up); });
+        return [facts([["digging back", isNum(v.back) ? plural(v.back, "artists") : null], ["keeping up", isNum(v.keep_up) ? plural(v.keep_up, "artists") : null],
+          ["median gap to the first album", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null]]),
+          months.length ? multiLine("New artists by month: digging back against keeping up", months.map(function (m) { return monthText(m.month); }),
+            [{ name: "digging back", values: months.map(function (m) { return m.back; }) }, { name: "keeping up", values: months.map(function (m) { return m.keep_up; }) }],
+            { fmt: function (x) { return big(x); }, labelHeading: "Month", height: 110 }) : null];
       }
     },
     "listening.entropy": {
@@ -1326,6 +1458,17 @@
           { showCaption: true });
       }
     },
+    "watching.taste_profile": {
+      n: "titles",
+      wide: true,
+      value: function (s) { return isNum(s.value) ? [pct(s.value), "of tiers predicted from metadata, leave-one-out"] : null; },
+      draw: function (v) {
+        var rows = list(v.rows).filter(function (r) { return isObj(r) && isNum(r.effect) && typeof r.name === "string"; });
+        return [rows.length ? effectBars("What my tiers respond to", rows) : null,
+          facts([["always guessing the commonest tier", isNum(v.baseline) ? pct(v.baseline) : null]]),
+          disagreementLines(v.disagreements)];
+      }
+    },
     "watching.tier_model": {
       n: "titles",
       value: function (s) { return isNum(s.value) ? [pct(s.value), "of tiers predicted right, leave-one-out"] : null; },
@@ -1515,6 +1658,27 @@
   // 0.4 -> ".40": an all-play share without its leading zero.
   function share2(x) { return x.toFixed(2).replace(/^0\./, "."); }
   function pointsPerWeek(x) { return signed(x, 1) + " pts/wk"; }
+
+  function survivalSpec(who) {
+    return {
+      n: "artists",
+      wide: true,
+      value: function (s) { return isNum(s.value) ? [num(s.value, 2) + "×", "hazard ratio: how much faster new artists leave rotation than catalog ones"] : null; },
+      intervalFmt: function (x) { return num(x, 2); },
+      draw: function (v) {
+        var n = isObj(v.n) ? v.n : {}, med = isObj(v.medians) ? v.medians : {};
+        return [h("p", { class: "ld-sentence" }, hazardSentence(v.hr_a, med) || who + "."),
+          list(v.curves).length ? survivalChart("Share of artists still in rotation, by months since first play", v.curves) : null,
+          facts([["who is counted", typeof v.cohort === "string" ? v.cohort : who],
+            ["median rotation, overall", isNum(med.overall) ? plural(med.overall, "months") : null],
+            ["adjusted for first-month plays", isObj(v.hr_b) && isNum(v.hr_b.value) ? num(v.hr_b.value, 2) + "×" + (interval(v.hr_b.interval, function (x) { return num(x, 2); }) ? " (" + interval(v.hr_b.interval, function (x) { return num(x, 2); }) + ")" : "") : null],
+            ["log-rank", isObj(v.logrank) && isNum(v.logrank.p) ? "p = " + num(v.logrank.p, 3) : null],
+            ["share of discoveries that are catalog", isNum(v.share_catalog) ? pct(v.share_catalog) : null],
+            ["artists", isNum(n.total) ? big(n.total) + " (" + big(n.catalog) + " catalog, " + big(n.new) + " new)" : null]]),
+          longestLine(v.longest_lived)];
+      }
+    };
+  }
 
   function managerComponent(label, what, raw) {
     return {
@@ -1861,7 +2025,9 @@
   }
 
   window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat,
-    charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars },
+    charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
+      effectBars: effectBars, survivalChart: survivalChart },
+    disagreementLines: disagreementLines, hazardSentence: hazardSentence, longestLine: longestLine, PRESYNC_NOTE: PRESYNC_NOTE,
     attributionNodes: attributionNodes, tierText: tierText, tierLetter: tierLetter,
     fmt: { num: num, signed: signed, pct: pct, big: big, plural: plural, dateText: dateText, monthText: monthText, record: record, interval: interval, hoursText: hoursText } };
 

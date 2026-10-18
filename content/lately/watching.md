@@ -60,6 +60,9 @@ STAT: watching.first_episode_drops
 ## What earns an S? {#s-tier}
 STAT: watching.s_tier
 
+## What does my taste look like? {#taste-profile}
+STAT: watching.taste_profile
+
 ## Whose films earn an S? {#whose-films}
 STAT: watching.by_director
 STAT: watching.by_studio
