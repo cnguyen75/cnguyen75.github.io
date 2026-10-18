@@ -580,7 +580,9 @@ class Drawing(unittest.TestCase):
         self.assertEqual(draft[0]["cells"][0][:3], ["1", "7", "Player A1"])
         (q,) = blocks(d, "fantasy.quadrant")
         self.assertEqual(q["quadOthers"], len(ANALYSIS["fantasy"]["quadrant"]["values"]["others"]))
-        self.assertEqual(q["quadTrails"], 3)
+        # Trails: weeks 3 to 5 of the fixture's five, two segments a team, with the fading dots in between.
+        self.assertEqual(q["quadTrails"], 6)
+        self.assertIn("my trail, last 5 weeks", q["text"])
         self.assertEqual(sorted(q["quadLabels"]), sorted(t["name"] for t in ANALYSIS["fantasy"]["teams"]))
         self.assertEqual(d["attribution"], [{"source": "yahoo", "hidden": True, "text": "Fantasy data provided by Yahoo Fantasy",
                                              "link": ["https://sports.yahoo.com/fantasy/", "_blank", "noopener"]}])
@@ -646,7 +648,7 @@ class Drawing(unittest.TestCase):
         # The strength-index card and its two indexed lines, with the dashed 100 line in the legend.
         (si,) = blocks(draw("lately/lifting/"), "lifting.strength_index")
         self.assertIn("100 = cut start", si["text"])
-        self.assertIn("body weight", si["text"])
+        self.assertIn("body weight · 20 weigh-ins", si["text"])  # every fixture week has a weigh-in
 
     # No other managers' names; no Beli dates (cities are fine; new cuisines are counted by
     # month, which ties no date to a place).

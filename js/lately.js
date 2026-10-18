@@ -646,6 +646,7 @@
   var MAX_MUSCLES = 8; // named bars; the rest are summed into one "Other" bar
   var MAX_PRS = 5;
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var MIN_TREND_SESSIONS = 3; // fewer than this shows "n sessions so far" instead of a line
   var EPLEY_NOTE = "Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are not comparable with barbell lifts.";
 
@@ -1236,9 +1237,14 @@
       || extremes(ret, function (st) { return okStat(st) && isObj(st.values) ? st.values.change_pct : null; }, pctUnit)
       || extremes(kept, function (st) { return okStat(st) ? st.value : null; }, function (x) { return plus(x, 1) + " lb of e1RM kept per lb lost"; });
     if (weeks.length > 1 && last && isNum(last.strength)) {
+      // When the index has fallen more than 2 points from its peak, say so, with the peak's month.
+      var peak = null;
+      weeks.forEach(function (w) { if (isNum(w.strength) && (!peak || w.strength > peak.strength)) peak = w; });
+      var peakClause = peak && peak.strength - last.strength > 2
+        ? ", down from a peak of " + fnum(peak.strength, 0) + " in " + MONTH_NAMES[calDate(peak.week_start, "week_start").getUTCMonth()] : "";
       sentences = [
         "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + ", " + (isNum(last.body_weight) ? "body weight is " + plus(last.body_weight - 100, 1) + "% and " : "") +
-          "the strength index is " + plus(last.strength - 100, 1) + "%.",
+          "the strength index is " + plus(last.strength - 100, 1) + "%" + peakClause + ".",
         second || "Per-lift retention appears once each lift has enough sessions."
       ];
       nums = [bwNum, { label: "Strength index since the cut", value: plus(last.strength - 100, 1) + "%", note: "mean best e1RM, main lifts" }, benchNum];

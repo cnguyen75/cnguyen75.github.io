@@ -307,18 +307,23 @@
     function y(v) { return (1 - (v - lo) / (hi - lo)) * 100; }
     var svg = plotSvg();
     if (isNum(opts.base)) svg.appendChild(sv("line", { class: "line-base", x1: 0, x2: 100, y1: y(opts.base).toFixed(2), y2: y(opts.base).toFixed(2), "vector-effect": "non-scaling-stroke" }));
-    var ends = [];
+    var ends = [], points = [];
     series.forEach(function (s, k) {
       var pts = [];
       s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
-      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length]));
+      // A sparse series (s.points: measurements at some weeks only) is drawn as points
+      // joined by a 1px line; a full series as a 2px line.
+      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points ? " line-thin" : "")));
+      if (s.points) pts.forEach(function (pt) { points.push({ k: k, left: pt[0], top: pt[1] }); });
       var lastIdx = -1;
       s.values.forEach(function (v, i) { if (isNum(v)) lastIdx = i; });
-      if (lastIdx >= 0) ends.push({ k: k, v: s.values[lastIdx], top: y(s.values[lastIdx]) });
+      if (lastIdx >= 0) ends.push({ k: k, v: s.values[lastIdx], top: y(s.values[lastIdx]), left: x(lastIdx) });
     });
-    var plot = h("div", { class: "line-plot" }, svg, ends.map(function (e) {
-      return h("span", { class: "line-dot line-dot--last " + SERIES[e.k % SERIES.length], style: { left: "100%", top: e.top + "%" } });
-    }));
+    var plot = h("div", { class: "line-plot" }, svg,
+      points.map(function (d) { return h("span", { class: "line-dot line-dot--point " + SERIES[d.k % SERIES.length], style: { left: d.left + "%", top: d.top + "%" } }); }),
+      ends.map(function (e) {
+        return h("span", { class: "line-dot line-dot--last " + SERIES[e.k % SERIES.length], style: { left: e.left + "%", top: e.top + "%" } });
+      }));
     // End labels: nudged apart when two sit within 14% of each other.
     ends.sort(function (a, b) { return a.top - b.top; });
     for (var i = 1; i < ends.length; i++) if (ends[i].top - ends[i - 1].top < 14) ends[i].top = ends[i - 1].top + 14;
@@ -362,11 +367,29 @@
     var svg = plotSvg();
     svg.appendChild(sv("line", { class: "quad-axis", x1: x(0.5).toFixed(2), x2: x(0.5).toFixed(2), y1: 0, y2: 100, "vector-effect": "non-scaling-stroke" }));
     svg.appendChild(sv("line", { class: "quad-axis", x1: 0, x2: 100, y1: 50, y2: 50, "vector-effect": "non-scaling-stroke" }));
+    // A team's trail: complete weeks from week 3 on, the last five of them, ending at the
+    // team's point. Older weeks fade toward 0.25; none is drawn under three complete weeks.
+    var trailDots = [];
     mine.forEach(function (t) {
-      var pts = list(t.trail).filter(function (p) { return isObj(p) && isNum(p.all_play) && isNum(p.luck); }).map(function (p) { return [x(p.all_play), y(p.luck)]; });
-      if (pts.length > 1) svg.appendChild(polyline(pts, "quad-trail"));
+      var done = list(t.trail).filter(function (p) { return isObj(p) && isNum(p.week) && isNum(p.all_play) && isNum(p.luck) && (!isNum(v.week) || p.week <= v.week); })
+        .sort(function (a, b) { return a.week - b.week; });
+      if (done.length < 3) return;
+      var pts = done.filter(function (p) { return p.week >= 3; }).slice(-5);
+      if (pts.length < 2) return;
+      function fade(i) { return 0.25 + 0.75 * (i / (pts.length - 1)); }
+      pts.forEach(function (p, i) {
+        if (i > 0) {
+          var a = pts[i - 1];
+          svg.appendChild(sv("line", { class: "quad-trail", x1: x(a.all_play).toFixed(2), y1: y(a.luck).toFixed(2), x2: x(p.all_play).toFixed(2), y2: y(p.luck).toFixed(2),
+            opacity: ((fade(i - 1) + fade(i)) / 2).toFixed(2), "vector-effect": "non-scaling-stroke" }));
+        }
+        if (i < pts.length - 1) trailDots.push({ left: x(p.all_play), top: y(p.luck), opacity: fade(i), week: p.week });
+      });
     });
     var plot = h("div", { class: "quad-plot" }, svg,
+      trailDots.map(function (d) {
+        return h("span", { class: "quad-trail-dot", "aria-hidden": "true", title: "week " + d.week, style: { left: d.left + "%", top: d.top + "%", opacity: d.opacity } });
+      }),
       others.map(function (t) {
         return h("span", { class: "quad-dot quad-dot--other", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
           h("span", { class: "sr-only" }, "another team, " + hover(t)));
@@ -390,7 +413,7 @@
     var rows = mine.map(function (t) { return [String(t.label), record(t.record), pct(t.all_play), signed(t.luck, 1)]; })
       .concat(others.map(function (t) { return ["another team", record(t.record), pct(t.all_play), signed(t.luck, 1)]; }));
     return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
-      h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail from week 1")));
+      h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail, last 5 weeks")));
   }
 
   // ---------- statistics ----------
@@ -1337,8 +1360,9 @@
 
   // Body weight and strength since the cut, both indexed to 100 at the cut's first week.
   function indexedLines(weeks, opts) {
+    var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
     return multiLine("Body weight and strength since the cut, indexed to 100", weeks.map(function (w) { return dateText(w.week_start); }),
-      [{ name: "body weight", values: weeks.map(function (w) { return w.body_weight; }) },
+      [{ name: "body weight · " + plural(weighIns, "weigh-ins"), values: weeks.map(function (w) { return w.body_weight; }), points: true },
        { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }],
       Object.assign({ fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", height: 130 }, opts || {}));
   }
