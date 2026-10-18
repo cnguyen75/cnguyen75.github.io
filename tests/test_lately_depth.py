@@ -809,9 +809,9 @@ class Drawing(unittest.TestCase):
         (dd,) = blocks(l, "listening.discovery_direction")
         self.assertEqual(dd["value"], "58%")
         self.assertIn("Share digging back, by the year I found them", dd["text"])
-        self.assertIn("2023 · 40 artists", dd["text"])
+        self.assertIn("2023 · 40 additions", dd["text"])
         self.assertIn("per five years of gap between release years", sv["text"])
-        self.assertIn("Plays before 1 Mar 2023 carry no date", sv["text"])  # the play-date floor note
+        self.assertIn("The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.", sv["text"])  # the how line's floor statement, quoted
         self.assertEqual(next(s for s in l["sections"] if s["id"] == "entropy")["title"], "Is my taste narrowing?")
         old = draw("lately/listening/", name="old file")
         for stat in ("listening.artist_survival", "listening.artist_survival_all", "listening.album_listening", "listening.discovery_direction"):

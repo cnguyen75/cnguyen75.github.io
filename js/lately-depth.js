@@ -603,13 +603,12 @@
     }).join(", "));
   }
   var PRESYNC_NOTE = "artists in the library before the 2023 sync excluded; see the listening page for the version that includes them.";
-  // The play-date floor: values.play_date_floor, else the sentence of the how line that says plays are floored.
+  // The play-date floor, in the how line's own words: the export records no play before a
+  // day, so a rotation that ended before it is invisible (which is why the primary cohort is
+  // the artists added after it).
   function floorNote(v, s) {
-    if (isObj(v) && typeof v.play_date_floor === "string") {
-      try { return h("p", { class: "ld-note" }, "Plays before " + dateText(v.play_date_floor) + " carry no date, so an artist's first play is floored there."); } catch (e) { /* fall through */ }
-    }
     var how = isObj(s) && typeof s.how === "string" ? s.how : "";
-    var sentence = how.split(/(?<=\.)\s+/).filter(function (t) { return /floor/i.test(t); })[0];
+    var sentence = how.split(/(?<=\.)\s+/).filter(function (t) { return /no play before|invisible|floor/i.test(t); })[0];
     return sentence ? h("p", { class: "ld-note" }, sentence) : null;
   }
 
@@ -1045,14 +1044,14 @@
     },
     "listening.discovery_direction": {
       n: "artists",
-      value: function (s) { var share = isNum(s.value) ? s.value : isObj(s.values) && isNum(s.values.share_back) ? s.values.share_back : null; return isNum(share) ? [pct(share), "of the artists I found were over 5 years old at discovery (digging back)"] : null; },
+      value: function (s) { var share = isNum(s.value) ? s.value : isObj(s.values) && isNum(s.values.share_back) ? s.values.share_back : null; return isNum(share) ? [pct(share), "of the tracks I added were at least 5 years old when added (digging back)"] : null; },
       draw: function (v) {
         var years = list(v.by_year).filter(function (y) { return isObj(y) && isNum(y.share_dig_back); });
-        return [facts([["digging back", isNum(v.back) ? plural(v.back, "artists") : null], ["keeping up", isNum(v.keep_up) ? plural(v.keep_up, "artists") : null],
+        return [facts([["digging back", isNum(v.back) ? big(v.back) + " additions" : null], ["keeping up", isNum(v.keep_up) ? big(v.keep_up) + " additions" : null],
           ["median gap to the release years", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null],
           ["left out: added by the sync, not found", isNum(v.sync_additions_left_out) ? big(v.sync_additions_left_out) : null]]),
           years.length ? bars("Share digging back, by the year I found them", years.map(function (y) {
-            return { label: String(y.year) + (isNum(y.n) ? " · " + plural(y.n, "artists") : ""), value: y.share_dig_back, text: pct(y.share_dig_back) };
+            return { label: String(y.year) + (isNum(y.n) ? " · " + big(y.n) + " additions" : ""), value: y.share_dig_back, text: pct(y.share_dig_back) };
           }), { labelHeading: "Year", valueHeading: "Digging back" }) : null];
       }
     },

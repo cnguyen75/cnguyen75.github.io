@@ -3767,7 +3767,7 @@
     "n": 190,
     "min_n": 40,
     "as_of": "2026-10-13",
-    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, and per five years of gap between an artist's release years and the year I added them; the log-rank test. Plays before 1 March 2023 carry no date, so an artist's first play is floored there.",
+    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, and per five years of gap between an artist's release years and the year I added them; the log-rank test. The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.",
     "value": 1.62,
     "interval": [
      1.22,
@@ -4033,8 +4033,7 @@
        "censored": true
       }
      ],
-     "cohort": "Artists first played since the 2023 Apple Music sync; those already in the library before it are left out.",
-     "play_date_floor": "2023-03-01"
+     "cohort": "Artists first played since the 2023 Apple Music sync; those already in the library before it are left out."
     }
    },
    "artist_survival_all": {
@@ -4042,7 +4041,7 @@
     "n": 480,
     "min_n": 40,
     "as_of": "2026-10-13",
-    "how": "The same analysis with the artists already in the library before the 2023 sync included, their first play taken from the library's date added. Plays before 1 March 2023 carry no date, so an artist's first play is floored there.",
+    "how": "The same analysis with the artists already in the library before the 2023 sync included, their first play taken from the library's date added. The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.",
     "value": 1.41,
     "interval": [
      1.12,
@@ -4308,8 +4307,7 @@
        "censored": true
       }
      ],
-     "cohort": "Every artist, including those in the library before the 2023 sync, dated from the library.",
-     "play_date_floor": "2023-03-01"
+     "cohort": "Every artist, including those in the library before the 2023 sync, dated from the library."
     }
    },
    "album_listening": {
@@ -4413,7 +4411,7 @@
     "n": 168,
     "min_n": 1,
     "as_of": "2026-10-13",
-    "how": "Of the artists first played each year, the share whose music was over 5 years old when I found them (digging back) against those within 5 years (keeping up); the share overall.",
+    "how": "Of the tracks added to the library each year, the share released at least 5 years earlier (digging back) against the rest (keeping up), by the year added; tracks added on the sync date are left out.",
     "value": 0.58,
     "values": {
      "by_year": [
