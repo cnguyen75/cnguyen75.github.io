@@ -1267,6 +1267,24 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 /* Tier bars: the fixed D..S scale under the bars */
 .ld-bars--tier .ld-bar-fill { left: 0; }
 .ld-bars--tier .ld-iv-axis-track { margin-top: 0; }
+/* Effect bars: zero centred, a thin interval line, unclear rows faded */
+.ld-bar-row--unclear > * { opacity: 0.35; }
+.ld-iv-line--thin { height: 1px; top: 6.5px; background: var(--ink); }
+.ld-disagree { color: var(--text-2); }
+.ld-disagree b { color: var(--ink); }
+/* Kaplan–Meier curves */
+.km-plot { position: relative; height: 150px; border-bottom: 1px solid var(--axis); }
+.km-plot .line-plot { inset: 4px 2.4em 0 0; }
+.km-y { position: absolute; right: 0; top: 4px; bottom: 0; width: 2.2em; font-family: var(--font-label); font-size: 11px; color: var(--text-3); }
+.km-y span { position: absolute; right: 0; transform: translateY(-50%); }
+.km-band { stroke: none; fill: var(--blue); fill-opacity: 0.12; }
+.km-band.s-orange { fill: var(--orange); }
+.km-step { fill: none; }
+.km-median { stroke: var(--blue); stroke-width: 1; stroke-dasharray: 3 3; }
+.km-median.s-orange { stroke: var(--orange); }
+.km-medians { position: relative; height: 16px; margin-right: 2.4em; font-family: var(--font-label); font-size: 11px; color: var(--text-3); }
+.km-median-label { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.km-median-label.s-orange { top: 0; }
 /* The crowd plot: five tier rows, the community score across */
 .crowd-plot { height: 300px; }
 .crowd-y { position: relative; align-self: stretch; writing-mode: horizontal-tb; transform: none; width: 1.2em; font-family: var(--font-label); font-size: 12px; color: var(--text-3); }
