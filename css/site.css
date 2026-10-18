@@ -1282,9 +1282,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .km-step { fill: none; }
 .km-median { stroke: var(--blue); stroke-width: 1; stroke-dasharray: 3 3; }
 .km-median.s-orange { stroke: var(--orange); }
-.km-medians { position: relative; height: 16px; margin-right: 2.4em; font-family: var(--font-label); font-size: 11px; color: var(--text-3); }
-.km-median-label { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
-.km-median-label.s-orange { top: 0; }
+.km-medians { position: relative; height: 30px; margin-right: 2.4em; font-family: var(--font-label); font-size: 11px; color: var(--text-3); }
+.km-median-label { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 /* The crowd plot: five tier rows, the community score across */
 .crowd-plot { height: 300px; }
 .crowd-y { position: relative; align-self: stretch; writing-mode: horizontal-tb; transform: none; width: 1.2em; font-family: var(--font-label); font-size: 12px; color: var(--text-3); }

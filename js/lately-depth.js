@@ -560,8 +560,10 @@
         svg.appendChild(sv("line", { class: "km-median " + cls, x1: x(c.median).toFixed(2), x2: x(c.median).toFixed(2), y1: 50, y2: 100, "vector-effect": "non-scaling-stroke" }));
       }
     });
-    var labels = curves.filter(function (c) { return isNum(c.median); }).map(function (c, k) {
-      return h("span", { class: "km-median-label " + SERIES[curves.indexOf(c) % SERIES.length], style: { left: x(c.median) + "%" } }, "median " + c.median + " mo");
+    // Each curve's median label on its own line, so close medians never overlap.
+    var labels = curves.filter(function (c) { return isNum(c.median); }).map(function (c) {
+      var k = curves.indexOf(c);
+      return h("span", { class: "km-median-label " + SERIES[k % SERIES.length], style: { left: x(c.median) + "%", top: (k * 14) + "px" } }, c.type + " median " + c.median + " mo");
     });
     var chart = h("div", { class: "ld-line km", role: "img", "aria-label": title + ": " + curves.map(function (c) {
       var last = c.points[c.points.length - 1];
