@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -1079,6 +1079,29 @@
                 "type": "string"
               },
               "description": "The source names present in this file (sleeper, espn, yahoo, simkl, lastfm, beli, hevy); the site renders an absent source cleanly."
+            },
+            "attributions": {
+              "type": "array",
+              "description": "Credits the pages must print where these statistics render: text verbatim, as a link when url is given.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source",
+                  "text"
+                ],
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           },
           "description": "About the file itself."
@@ -1293,11 +1316,11 @@
         },
         "entropy": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Shannon entropy of plays across artists, by month with at least 50 plays: values.months [{month, plays, artists, entropy_bits}]; value: the latest month."
+          "description": "Shannon entropy of plays across artists, by month with at least 50 plays: values.months [{month, plays, artists, entropy_bits}]; value: the latest month. values.weeks, optional: the same by week [{week_start, plays, artists, entropy_bits, effective_artists}] while the archive is young."
         },
         "nostalgia": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Median release year of what I played, by month: values.months [{month, plays, median_release_year}]; value: the latest month."
+          "description": "Median release year of what I played, by month: values.months [{month, plays, median_release_year}]; value: the latest month. values.weeks, optional: the same by week [{week_start, plays, median_release_year}]."
         },
         "enduring": {
           "$ref": "#/$defs/analysis_stat",
@@ -1305,7 +1328,7 @@
         },
         "retention_new_artists": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Share of each month's new artists still played 30 and 90 days later: values.months [{month, new_artists, played_30d, played_90d, share_30d, share_90d}]; value: the latest share_30d."
+          "description": "Share of each month's new artists still played 30 and 90 days later: values.months [{month, new_artists, played_30d, played_90d, share_30d, share_90d}]; value: the latest share_30d. While not enough data yet, values.available_from (a date) says when the first month's 90 days are up."
         }
       }
     },
@@ -1376,6 +1399,23 @@
         "consistency": {
           "$ref": "#/$defs/analysis_stat",
           "description": "Sessions per week against e1RM change: value r with interval; values.buckets [{sessions_per_week, weeks, mean_e1rm_change}]."
+        },
+        "best_held_lift": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "change_pct"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "change_pct": {
+              "type": "number"
+            }
+          },
+          "description": "The main lift whose best e1RM has changed most for the better since the cut started (strength_index.values.lifts_change)."
         }
       }
     },
@@ -1550,6 +1590,38 @@
         "pace_vs_tier": {
           "$ref": "#/$defs/analysis_stat",
           "description": "Tier by how fast I watched: values.buckets [{bucket, mean_tier_score, n}] for binge, steady and slow pace."
+        },
+        "by_director": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Mean tier of my finished films by director: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+        },
+        "by_studio": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Mean tier of my finished anime by studio: values.rows [{name, mean_tier, n, titles: [{title, tier}]}], people with at least 3 finished titles, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+        },
+        "by_lead": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Mean tier of my finished films by lead actor: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+        },
+        "blockbuster": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Tier against popularity: value is the slope in tier points per popularity quartile, with interval; values.by_popularity_quartile [{quartile (1 = least popular), mean_tier, n}]."
+        },
+        "sequels": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Sequels against their first film: value is the mean later-minus-first tier change, with interval; values.collections [{collection, first: {title, tier}, later: [{title, tier}], mean_first, mean_later}]."
+        },
+        "language": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "English against other languages: values.share_non_english (0 to 1) and values.means {english: {mean_tier, n}, other: {mean_tier, n}}."
+        },
+        "critics_vs_audience": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Where critics and audiences split, which side my tier takes: value is the share siding with critics, with interval; values.films [{title, year, tier, critics, audience, sides_with}]. 'not available from source' without OMDb scores."
+        },
+        "crowd_agreement": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "My tier against Simkl's community score: value is the rank correlation; values.points [{title, year, tier, tier_score, community}] for every tiered title, values.disagreements (six largest gaps, [{title, year, tier, community, gap}]), values.top_overrated_genre and top_underrated_genre {genre, gap, n} (gap positive where I rate higher), values.model_accuracy and values.baseline (predicting my tier from the score, leave-one-out)."
         }
       }
     },

@@ -3444,49 +3444,115 @@
        "month": "2026-03",
        "plays": 120,
        "artists": 22,
-       "entropy_bits": 2.6
+       "entropy_bits": 2.6,
+       "effective_artists": 6.1
       },
       {
        "month": "2026-04",
        "plays": 135,
        "artists": 25,
-       "entropy_bits": 2.7
+       "entropy_bits": 2.7,
+       "effective_artists": 6.5
       },
       {
        "month": "2026-05",
        "plays": 150,
        "artists": 28,
-       "entropy_bits": 2.8
+       "entropy_bits": 2.8,
+       "effective_artists": 7.0
       },
       {
        "month": "2026-06",
        "plays": 165,
        "artists": 31,
-       "entropy_bits": 2.9
+       "entropy_bits": 2.9,
+       "effective_artists": 7.5
       },
       {
        "month": "2026-07",
        "plays": 180,
        "artists": 34,
-       "entropy_bits": 3.0
+       "entropy_bits": 3.0,
+       "effective_artists": 8.0
       },
       {
        "month": "2026-08",
        "plays": 195,
        "artists": 37,
-       "entropy_bits": 3.1
+       "entropy_bits": 3.1,
+       "effective_artists": 8.6
       },
       {
        "month": "2026-09",
        "plays": 210,
        "artists": 40,
-       "entropy_bits": 3.2
+       "entropy_bits": 3.2,
+       "effective_artists": 9.2
       },
       {
        "month": "2026-10",
        "plays": 225,
        "artists": 43,
-       "entropy_bits": 3.3
+       "entropy_bits": 3.3,
+       "effective_artists": 9.8
+      }
+     ],
+     "weeks": [
+      {
+       "week_start": "2026-08-25",
+       "plays": 173,
+       "artists": 50,
+       "entropy_bits": 4.23,
+       "effective_artists": 18.8
+      },
+      {
+       "week_start": "2026-09-01",
+       "plays": 202,
+       "artists": 53,
+       "entropy_bits": 4.12,
+       "effective_artists": 17.4
+      },
+      {
+       "week_start": "2026-09-08",
+       "plays": 177,
+       "artists": 56,
+       "entropy_bits": 4.28,
+       "effective_artists": 19.4
+      },
+      {
+       "week_start": "2026-09-15",
+       "plays": 229,
+       "artists": 59,
+       "entropy_bits": 4.31,
+       "effective_artists": 19.8
+      },
+      {
+       "week_start": "2026-09-22",
+       "plays": 227,
+       "artists": 62,
+       "entropy_bits": 4.34,
+       "effective_artists": 20.3
+      },
+      {
+       "week_start": "2026-09-29",
+       "plays": 237,
+       "artists": 65,
+       "entropy_bits": 4.55,
+       "effective_artists": 23.4
+      },
+      {
+       "week_start": "2026-10-06",
+       "plays": 231,
+       "artists": 68,
+       "entropy_bits": 4.55,
+       "effective_artists": 23.4
+      },
+      {
+       "week_start": "2026-10-13",
+       "plays": 206,
+       "artists": 71,
+       "entropy_bits": 4.69,
+       "effective_artists": 25.8
       }
      ]
     }
@@ -3539,6 +3605,48 @@
        "month": "2026-10",
        "plays": 225,
        "median_release_year": 2017
+      }
+     ],
+     "weeks": [
+      {
+       "week_start": "2026-08-25",
+       "plays": 173,
+       "median_release_year": 2014
+      },
+      {
+       "week_start": "2026-09-01",
+       "plays": 202,
+       "median_release_year": 2015
+      },
+      {
+       "week_start": "2026-09-08",
+       "plays": 177,
+       "median_release_year": 2016
+      },
+      {
+       "week_start": "2026-09-15",
+       "plays": 229,
+       "median_release_year": 2017
+      },
+      {
+       "week_start": "2026-09-22",
+       "plays": 227,
+       "median_release_year": 2018
+      },
+      {
+       "week_start": "2026-09-29",
+       "plays": 237,
+       "median_release_year": 2014
+      },
+      {
+       "week_start": "2026-10-06",
+       "plays": 231,
+       "median_release_year": 2015
+      },
+      {
+       "week_start": "2026-10-13",
+       "plays": 206,
+       "median_release_year": 2016
       }
      ]
     }
@@ -3650,7 +3758,8 @@
        "share_30d": 0.5,
        "share_90d": 0.357
       }
-     ]
+     ],
+     "available_from": "2026-11-05"
     }
    }
   },
@@ -4642,6 +4751,10 @@
       }
      ]
     }
+   },
+   "best_held_lift": {
+    "name": "Bench",
+    "change_pct": 0.124
    }
   },
   "watching": {
@@ -5993,6 +6106,1396 @@
       }
      ]
     }
+   },
+   "by_director": {
+    "status": "ok",
+    "n": 178,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "For each director with at least 3 of my finished films (TMDB credits), the mean of my tiers (S=4 to D=0), best first.",
+    "values": {
+     "rows": [
+      {
+       "name": "Director 1",
+       "mean_tier": 3.25,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film D1-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film D1-2",
+         "tier": "A"
+        },
+        {
+         "title": "Film D1-3",
+         "tier": "A"
+        },
+        {
+         "title": "Film D1-4",
+         "tier": "S"
+        }
+       ]
+      },
+      {
+       "name": "Director 2",
+       "mean_tier": 2.67,
+       "n": 6,
+       "films": [
+        {
+         "title": "Film D2-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film D2-2",
+         "tier": "A"
+        },
+        {
+         "title": "Film D2-3",
+         "tier": "A"
+        },
+        {
+         "title": "Film D2-4",
+         "tier": "B"
+        },
+        {
+         "title": "Film D2-5",
+         "tier": "A"
+        },
+        {
+         "title": "Film D2-6",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Director 3",
+       "mean_tier": 1.86,
+       "n": 7,
+       "films": [
+        {
+         "title": "Film D3-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film D3-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film D3-3",
+         "tier": "S"
+        },
+        {
+         "title": "Film D3-4",
+         "tier": "D"
+        },
+        {
+         "title": "Film D3-5",
+         "tier": "B"
+        },
+        {
+         "title": "Film D3-6",
+         "tier": "A"
+        },
+        {
+         "title": "Film D3-7",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Director 4",
+       "mean_tier": 1.5,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film D4-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film D4-2",
+         "tier": "A"
+        },
+        {
+         "title": "Film D4-3",
+         "tier": "D"
+        },
+        {
+         "title": "Film D4-4",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Director 5",
+       "mean_tier": 1.4,
+       "n": 5,
+       "films": [
+        {
+         "title": "Film D5-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film D5-2",
+         "tier": "B"
+        },
+        {
+         "title": "Film D5-3",
+         "tier": "B"
+        },
+        {
+         "title": "Film D5-4",
+         "tier": "D"
+        },
+        {
+         "title": "Film D5-5",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Director 8",
+       "mean_tier": 1.25,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film D8-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film D8-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film D8-3",
+         "tier": "B"
+        },
+        {
+         "title": "Film D8-4",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Director 7",
+       "mean_tier": 1.0,
+       "n": 3,
+       "films": [
+        {
+         "title": "Film D7-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film D7-2",
+         "tier": "B"
+        },
+        {
+         "title": "Film D7-3",
+         "tier": "D"
+        }
+       ]
+      },
+      {
+       "name": "Director 6",
+       "mean_tier": 0.67,
+       "n": 6,
+       "films": [
+        {
+         "title": "Film D6-1",
+         "tier": "D"
+        },
+        {
+         "title": "Film D6-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film D6-3",
+         "tier": "D"
+        },
+        {
+         "title": "Film D6-4",
+         "tier": "C"
+        },
+        {
+         "title": "Film D6-5",
+         "tier": "C"
+        },
+        {
+         "title": "Film D6-6",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Director 9",
+       "mean_tier": 0.14,
+       "n": 7,
+       "films": [
+        {
+         "title": "Film D9-1",
+         "tier": "D"
+        },
+        {
+         "title": "Film D9-2",
+         "tier": "D"
+        },
+        {
+         "title": "Film D9-3",
+         "tier": "C"
+        },
+        {
+         "title": "Film D9-4",
+         "tier": "D"
+        },
+        {
+         "title": "Film D9-5",
+         "tier": "D"
+        },
+        {
+         "title": "Film D9-6",
+         "tier": "D"
+        },
+        {
+         "title": "Film D9-7",
+         "tier": "D"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "by_studio": {
+    "status": "ok",
+    "n": 61,
+    "min_n": 20,
+    "as_of": "2026-10-13",
+    "how": "For each studio with at least 3 of my finished anime (TMDB credits), the mean of my tiers, best first.",
+    "values": {
+     "rows": [
+      {
+       "name": "Studio 1",
+       "mean_tier": 2.67,
+       "n": 6,
+       "films": [
+        {
+         "title": "Anime S1-1",
+         "tier": "A"
+        },
+        {
+         "title": "Anime S1-2",
+         "tier": "A"
+        },
+        {
+         "title": "Anime S1-3",
+         "tier": "A"
+        },
+        {
+         "title": "Anime S1-4",
+         "tier": "A"
+        },
+        {
+         "title": "Anime S1-5",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S1-6",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Studio 2",
+       "mean_tier": 2.5,
+       "n": 4,
+       "films": [
+        {
+         "title": "Anime S2-1",
+         "tier": "S"
+        },
+        {
+         "title": "Anime S2-2",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S2-3",
+         "tier": "C"
+        },
+        {
+         "title": "Anime S2-4",
+         "tier": "A"
+        }
+       ]
+      },
+      {
+       "name": "Studio 3",
+       "mean_tier": 2.0,
+       "n": 3,
+       "films": [
+        {
+         "title": "Anime S3-1",
+         "tier": "A"
+        },
+        {
+         "title": "Anime S3-2",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S3-3",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Studio 5",
+       "mean_tier": 1.4,
+       "n": 5,
+       "films": [
+        {
+         "title": "Anime S5-1",
+         "tier": "D"
+        },
+        {
+         "title": "Anime S5-2",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S5-3",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S5-4",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S5-5",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Studio 4",
+       "mean_tier": 1.17,
+       "n": 6,
+       "films": [
+        {
+         "title": "Anime S4-1",
+         "tier": "D"
+        },
+        {
+         "title": "Anime S4-2",
+         "tier": "C"
+        },
+        {
+         "title": "Anime S4-3",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S4-4",
+         "tier": "C"
+        },
+        {
+         "title": "Anime S4-5",
+         "tier": "B"
+        },
+        {
+         "title": "Anime S4-6",
+         "tier": "C"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "by_lead": {
+    "status": "ok",
+    "n": 178,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "For each lead actor (first billed on TMDB) with at least 3 of my finished films, the mean of my tiers, best first.",
+    "values": {
+     "rows": [
+      {
+       "name": "Lead 1",
+       "mean_tier": 2.25,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film L1-1",
+         "tier": "C"
+        },
+        {
+         "title": "Film L1-2",
+         "tier": "A"
+        },
+        {
+         "title": "Film L1-3",
+         "tier": "S"
+        },
+        {
+         "title": "Film L1-4",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Lead 2",
+       "mean_tier": 2.17,
+       "n": 6,
+       "films": [
+        {
+         "title": "Film L2-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film L2-2",
+         "tier": "A"
+        },
+        {
+         "title": "Film L2-3",
+         "tier": "B"
+        },
+        {
+         "title": "Film L2-4",
+         "tier": "C"
+        },
+        {
+         "title": "Film L2-5",
+         "tier": "C"
+        },
+        {
+         "title": "Film L2-6",
+         "tier": "A"
+        }
+       ]
+      },
+      {
+       "name": "Lead 4",
+       "mean_tier": 2.17,
+       "n": 6,
+       "films": [
+        {
+         "title": "Film L4-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film L4-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film L4-3",
+         "tier": "A"
+        },
+        {
+         "title": "Film L4-4",
+         "tier": "D"
+        },
+        {
+         "title": "Film L4-5",
+         "tier": "B"
+        },
+        {
+         "title": "Film L4-6",
+         "tier": "S"
+        }
+       ]
+      },
+      {
+       "name": "Lead 5",
+       "mean_tier": 2.0,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film L5-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film L5-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film L5-3",
+         "tier": "B"
+        },
+        {
+         "title": "Film L5-4",
+         "tier": "B"
+        }
+       ]
+      },
+      {
+       "name": "Lead 3",
+       "mean_tier": 1.83,
+       "n": 6,
+       "films": [
+        {
+         "title": "Film L3-1",
+         "tier": "B"
+        },
+        {
+         "title": "Film L3-2",
+         "tier": "B"
+        },
+        {
+         "title": "Film L3-3",
+         "tier": "B"
+        },
+        {
+         "title": "Film L3-4",
+         "tier": "B"
+        },
+        {
+         "title": "Film L3-5",
+         "tier": "B"
+        },
+        {
+         "title": "Film L3-6",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Lead 6",
+       "mean_tier": 1.67,
+       "n": 3,
+       "films": [
+        {
+         "title": "Film L6-1",
+         "tier": "A"
+        },
+        {
+         "title": "Film L6-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film L6-3",
+         "tier": "C"
+        }
+       ]
+      },
+      {
+       "name": "Lead 7",
+       "mean_tier": 1.5,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film L7-1",
+         "tier": "D"
+        },
+        {
+         "title": "Film L7-2",
+         "tier": "B"
+        },
+        {
+         "title": "Film L7-3",
+         "tier": "C"
+        },
+        {
+         "title": "Film L7-4",
+         "tier": "A"
+        }
+       ]
+      },
+      {
+       "name": "Lead 8",
+       "mean_tier": 1.25,
+       "n": 4,
+       "films": [
+        {
+         "title": "Film L8-1",
+         "tier": "B"
+        },
+        {
+         "title": "Film L8-2",
+         "tier": "C"
+        },
+        {
+         "title": "Film L8-3",
+         "tier": "C"
+        },
+        {
+         "title": "Film L8-4",
+         "tier": "C"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "blockbuster": {
+    "status": "ok",
+    "n": 178,
+    "min_n": 40,
+    "as_of": "2026-10-13",
+    "how": "My finished films split into quartiles of TMDB popularity; the mean tier in each, and a straight line's slope across the quartiles with a 95% interval.",
+    "value": 0.12,
+    "interval": [
+     -0.08,
+     0.32
+    ],
+    "values": {
+     "by_popularity_quartile": [
+      {
+       "quartile": 1,
+       "mean_tier": 2.1,
+       "n": 44
+      },
+      {
+       "quartile": 2,
+       "mean_tier": 2.2,
+       "n": 45
+      },
+      {
+       "quartile": 3,
+       "mean_tier": 2.3,
+       "n": 45
+      },
+      {
+       "quartile": 4,
+       "mean_tier": 2.5,
+       "n": 44
+      }
+     ]
+    }
+   },
+   "sequels": {
+    "status": "ok",
+    "n": 5,
+    "min_n": 3,
+    "as_of": "2026-10-13",
+    "how": "For each TMDB collection where I finished the first film and at least one later one, the later films' mean tier minus the first's; the value is the mean change.",
+    "value": -0.0,
+    "interval": [
+     -0.9,
+     0.3
+    ],
+    "values": {
+     "collections": [
+      {
+       "collection": "Collection 1",
+       "first": {
+        "title": "Film 1-1",
+        "tier": "A"
+       },
+       "later": [
+        {
+         "title": "Sequel 1-2",
+         "tier": "A"
+        }
+       ],
+       "mean_first": 3,
+       "mean_later": 3.0
+      },
+      {
+       "collection": "Collection 2",
+       "first": {
+        "title": "Film 2-1",
+        "tier": "A"
+       },
+       "later": [
+        {
+         "title": "Sequel 2-2",
+         "tier": "B"
+        },
+        {
+         "title": "Sequel 2-3",
+         "tier": "S"
+        },
+        {
+         "title": "Sequel 2-4",
+         "tier": "S"
+        }
+       ],
+       "mean_first": 3,
+       "mean_later": 3.33
+      },
+      {
+       "collection": "Collection 3",
+       "first": {
+        "title": "Film 3-1",
+        "tier": "S"
+       },
+       "later": [
+        {
+         "title": "Sequel 3-2",
+         "tier": "B"
+        },
+        {
+         "title": "Sequel 3-3",
+         "tier": "S"
+        },
+        {
+         "title": "Sequel 3-4",
+         "tier": "S"
+        }
+       ],
+       "mean_first": 4,
+       "mean_later": 3.33
+      },
+      {
+       "collection": "Collection 4",
+       "first": {
+        "title": "Film 4-1",
+        "tier": "C"
+       },
+       "later": [
+        {
+         "title": "Sequel 4-2",
+         "tier": "C"
+        },
+        {
+         "title": "Sequel 4-3",
+         "tier": "B"
+        },
+        {
+         "title": "Sequel 4-4",
+         "tier": "C"
+        }
+       ],
+       "mean_first": 1,
+       "mean_later": 1.33
+      },
+      {
+       "collection": "Collection 5",
+       "first": {
+        "title": "Film 5-1",
+        "tier": "C"
+       },
+       "later": [
+        {
+         "title": "Sequel 5-2",
+         "tier": "C"
+        }
+       ],
+       "mean_first": 1,
+       "mean_later": 1.0
+      }
+     ]
+    }
+   },
+   "language": {
+    "status": "ok",
+    "n": 178,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "My finished films by original language (TMDB): the share not in English, and the mean tier of each group.",
+    "values": {
+     "share_non_english": 0.146,
+     "means": {
+      "english": {
+       "mean_tier": 2.2,
+       "n": 152
+      },
+      "other": {
+       "mean_tier": 2.7,
+       "n": 26
+      }
+     }
+    }
+   },
+   "critics_vs_audience": {
+    "status": "ok",
+    "n": 12,
+    "min_n": 10,
+    "as_of": "2026-10-13",
+    "how": "Films where the Rotten Tomatoes critic and audience scores (OMDb) differ by 20 points or more: whether my tier sides with the critics or the audience; the value is the critics' share with a Wilson interval.",
+    "value": 0.25,
+    "interval": [
+     0.25,
+     0.75
+    ],
+    "values": {
+     "films": [
+      {
+       "title": "Film 1",
+       "year": 2000,
+       "tier": "B",
+       "critics": 77,
+       "audience": 48,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 2",
+       "year": 2001,
+       "tier": "S",
+       "critics": 41,
+       "audience": 46,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 3",
+       "year": 2002,
+       "tier": "A",
+       "critics": 63,
+       "audience": 89,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 4",
+       "year": 2003,
+       "tier": "S",
+       "critics": 41,
+       "audience": 54,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 5",
+       "year": 2004,
+       "tier": "C",
+       "critics": 89,
+       "audience": 89,
+       "sides_with": "critics"
+      },
+      {
+       "title": "Film 6",
+       "year": 2005,
+       "tier": "A",
+       "critics": 50,
+       "audience": 88,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 7",
+       "year": 2006,
+       "tier": "C",
+       "critics": 58,
+       "audience": 63,
+       "sides_with": "critics"
+      },
+      {
+       "title": "Film 8",
+       "year": 2007,
+       "tier": "S",
+       "critics": 94,
+       "audience": 89,
+       "sides_with": "critics"
+      },
+      {
+       "title": "Film 9",
+       "year": 2008,
+       "tier": "S",
+       "critics": 81,
+       "audience": 83,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 10",
+       "year": 2009,
+       "tier": "A",
+       "critics": 88,
+       "audience": 88,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 11",
+       "year": 2010,
+       "tier": "C",
+       "critics": 95,
+       "audience": 81,
+       "sides_with": "audience"
+      },
+      {
+       "title": "Film 12",
+       "year": 2011,
+       "tier": "B",
+       "critics": 56,
+       "audience": 41,
+       "sides_with": "audience"
+      }
+     ]
+    }
+   },
+   "crowd_agreement": {
+    "status": "ok",
+    "n": 276,
+    "min_n": 30,
+    "as_of": "2026-10-13",
+    "how": "Every tiered title's Simkl community score against my tier (S=4 to D=0): Spearman's rank correlation; the six largest gaps; the genres where my tiers run furthest above and below the community; and how often a tier predicted from the score alone is right, leave-one-out, against always guessing the commonest tier.",
+    "value": 0.41,
+    "interval": [
+     0.3,
+     0.51
+    ],
+    "values": {
+     "points": [
+      {
+       "title": "Title 1",
+       "year": 1990,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 5.8
+      },
+      {
+       "title": "Title 2",
+       "year": 1991,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.8
+      },
+      {
+       "title": "Title 3",
+       "year": 1992,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 5.5
+      },
+      {
+       "title": "Title 4",
+       "year": 1993,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.2
+      },
+      {
+       "title": "Title 5",
+       "year": 1994,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 6.6
+      },
+      {
+       "title": "Title 6",
+       "year": 1995,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.8
+      },
+      {
+       "title": "Title 7",
+       "year": 1996,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 6.5
+      },
+      {
+       "title": "Title 8",
+       "year": 1997,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 7.3
+      },
+      {
+       "title": "Title 9",
+       "year": 1998,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.1
+      },
+      {
+       "title": "Title 10",
+       "year": 1999,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 7.0
+      },
+      {
+       "title": "Title 11",
+       "year": 2000,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.6
+      },
+      {
+       "title": "Title 12",
+       "year": 2001,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 7.2
+      },
+      {
+       "title": "Title 13",
+       "year": 2002,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 6.7
+      },
+      {
+       "title": "Title 14",
+       "year": 2003,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 5.7
+      },
+      {
+       "title": "Title 15",
+       "year": 2004,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 7.9
+      },
+      {
+       "title": "Title 16",
+       "year": 2005,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 8.0
+      },
+      {
+       "title": "Title 17",
+       "year": 2006,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.7
+      },
+      {
+       "title": "Title 18",
+       "year": 2007,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.3
+      },
+      {
+       "title": "Title 19",
+       "year": 2008,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.9
+      },
+      {
+       "title": "Title 20",
+       "year": 2009,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 6.5
+      },
+      {
+       "title": "Title 21",
+       "year": 2010,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 5.7
+      },
+      {
+       "title": "Title 22",
+       "year": 2011,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 7.4
+      },
+      {
+       "title": "Title 23",
+       "year": 2012,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 7.7
+      },
+      {
+       "title": "Title 24",
+       "year": 2013,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.1
+      },
+      {
+       "title": "Title 25",
+       "year": 2014,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 7.2
+      },
+      {
+       "title": "Title 26",
+       "year": 2015,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.2
+      },
+      {
+       "title": "Title 27",
+       "year": 2016,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.0
+      },
+      {
+       "title": "Title 28",
+       "year": 2017,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.0
+      },
+      {
+       "title": "Title 29",
+       "year": 2018,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.1
+      },
+      {
+       "title": "Title 30",
+       "year": 2019,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.9
+      },
+      {
+       "title": "Title 31",
+       "year": 2020,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.9
+      },
+      {
+       "title": "Title 32",
+       "year": 2021,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.3
+      },
+      {
+       "title": "Title 33",
+       "year": 2022,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 7.7
+      },
+      {
+       "title": "Title 34",
+       "year": 2023,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.7
+      },
+      {
+       "title": "Title 35",
+       "year": 2024,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.2
+      },
+      {
+       "title": "Title 36",
+       "year": 2025,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.9
+      },
+      {
+       "title": "Title 37",
+       "year": 1990,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 5.7
+      },
+      {
+       "title": "Title 38",
+       "year": 1991,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 5.8
+      },
+      {
+       "title": "Title 39",
+       "year": 1992,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 5.5
+      },
+      {
+       "title": "Title 40",
+       "year": 1993,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 6.7
+      },
+      {
+       "title": "Title 41",
+       "year": 1994,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 8.4
+      },
+      {
+       "title": "Title 42",
+       "year": 1995,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 8.8
+      },
+      {
+       "title": "Title 43",
+       "year": 1996,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.7
+      },
+      {
+       "title": "Title 44",
+       "year": 1997,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 5.6
+      },
+      {
+       "title": "Title 45",
+       "year": 1998,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.8
+      },
+      {
+       "title": "Title 46",
+       "year": 1999,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 6.6
+      },
+      {
+       "title": "Title 47",
+       "year": 2000,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.3
+      },
+      {
+       "title": "Title 48",
+       "year": 2001,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.1
+      },
+      {
+       "title": "Title 49",
+       "year": 2002,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 8.2
+      },
+      {
+       "title": "Title 50",
+       "year": 2003,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.6
+      },
+      {
+       "title": "Title 51",
+       "year": 2004,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 8.5
+      },
+      {
+       "title": "Title 52",
+       "year": 2005,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.5
+      },
+      {
+       "title": "Title 53",
+       "year": 2006,
+       "tier": "S",
+       "tier_score": 4,
+       "community": 6.8
+      },
+      {
+       "title": "Title 54",
+       "year": 2007,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.0
+      },
+      {
+       "title": "Title 55",
+       "year": 2008,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.5
+      },
+      {
+       "title": "Title 56",
+       "year": 2009,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 6.0
+      },
+      {
+       "title": "Title 57",
+       "year": 2010,
+       "tier": "C",
+       "tier_score": 1,
+       "community": 6.8
+      },
+      {
+       "title": "Title 58",
+       "year": 2011,
+       "tier": "B",
+       "tier_score": 2,
+       "community": 7.1
+      },
+      {
+       "title": "Title 59",
+       "year": 2012,
+       "tier": "D",
+       "tier_score": 0,
+       "community": 6.4
+      },
+      {
+       "title": "Title 60",
+       "year": 2013,
+       "tier": "A",
+       "tier_score": 3,
+       "community": 8.6
+      }
+     ],
+     "disagreements": [
+      {
+       "title": "Title 53",
+       "year": 2006,
+       "tier": "S",
+       "community": 6.8,
+       "gap": 2.51
+      },
+      {
+       "title": "Title 25",
+       "year": 2014,
+       "tier": "D",
+       "community": 7.2,
+       "gap": -1.94
+      },
+      {
+       "title": "Title 7",
+       "year": 1996,
+       "tier": "A",
+       "community": 6.5,
+       "gap": 1.86
+      },
+      {
+       "title": "Title 33",
+       "year": 2022,
+       "tier": "C",
+       "community": 7.7,
+       "gap": -1.51
+      },
+      {
+       "title": "Title 10",
+       "year": 1999,
+       "tier": "A",
+       "community": 7.0,
+       "gap": 1.29
+      },
+      {
+       "title": "Title 50",
+       "year": 2003,
+       "tier": "D",
+       "community": 6.6,
+       "gap": -1.26
+      }
+     ],
+     "top_overrated_genre": {
+      "genre": "Comedy",
+      "gap": 0.42,
+      "n": 118
+     },
+     "top_underrated_genre": {
+      "genre": "Horror",
+      "gap": -0.44,
+      "n": 17
+     },
+     "model_accuracy": 0.41,
+     "baseline": 0.32
+    }
    }
   },
   "eating": {
@@ -6800,6 +8303,18 @@
     "lastfm",
     "beli",
     "hevy"
+   ],
+   "attributions": [
+    {
+     "source": "tmdb",
+     "text": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+     "url": "https://www.themoviedb.org/"
+    },
+    {
+     "source": "omdb",
+     "text": "Rotten Tomatoes scores from OMDb",
+     "url": "https://www.omdbapi.com/"
+    }
    ]
   }
  }
