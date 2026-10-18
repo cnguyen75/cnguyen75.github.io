@@ -874,12 +874,19 @@
       n: WEEKS,
       value: function (s) { return isNum(s.value) ? [num(s.value, 1), "strength index (the cut's first week = 100)"] : null; },
       draw: function (v) {
-        var weeks = list(v.weeks).filter(function (w) { return isObj(w) && isNum(w.strength) && isNum(w.body_weight); });
-        var last = weeks[weeks.length - 1];
+        // A week without a weigh-in has a null body weight; each line skips those points.
+        var weeks = list(v.weeks).filter(function (w) { return isObj(w) && (isNum(w.strength) || isNum(w.body_weight)); });
+        function latest(key) {
+          if (isObj(v.current) && isNum(v.current[key])) return v.current[key];
+          for (var i = weeks.length - 1; i >= 0; i--) if (isNum(weeks[i][key])) return weeks[i][key];
+          return null;
+        }
+        var bw = latest("body_weight"), st = latest("strength");
         return [weeks.length > 1 ? indexedLines(weeks) : null,
           facts([["cut started", v.cut_start ? dateText(v.cut_start) : null],
-            ["body weight", last ? signed(last.body_weight - 100, 1) + "%" : null], ["strength", last ? signed(last.strength - 100, 1) + "%" : null],
-            ["lifts in the index", list(v.lifts).length ? list(v.lifts).join(", ") : null]])];
+            ["body weight", isNum(bw) ? signed(bw - 100, 1) + "%" : null], ["strength", isNum(st) ? signed(st - 100, 1) + "%" : null],
+            ["lifts in the index", list(v.lifts).length ? list(v.lifts).join(", ") : null],
+            ["not tracked", list(v.untracked).length ? list(v.untracked).join(", ") : null]])];
       }
     },
     "lifting.retention.*": {
@@ -907,36 +914,47 @@
       value: function (s) { return ["r " + num(s.value, 2), "sessions a week against the next week's e1RM change"]; },
       intervalFmt: function (x) { return num(x, 2); },
       draw: function (v) {
-        return bars("Mean e1RM change by sessions a week", list(v.buckets).map(function (b) {
-          return { label: String(b.sessions_per_week) + (b.sessions_per_week === "1" ? " session" : " sessions") + " · " + plural(b.weeks, WEEKS),
+        // A bucket with no following week has a null mean and is left out.
+        var rows = list(v.buckets).filter(function (b) { return isObj(b) && isNum(b.mean_e1rm_change); });
+        return rows.length ? bars("Mean e1RM change by sessions a week", rows.map(function (b) {
+          return { label: String(b.sessions_per_week) + (String(b.sessions_per_week) === "1" ? " session" : " sessions") + " · " + plural(b.weeks, WEEKS),
             value: b.mean_e1rm_change, text: signed(b.mean_e1rm_change, 1) + " lb" };
-        }), { labelHeading: "Sessions a week", valueHeading: "Mean e1RM change" });
+        }), { labelHeading: "Sessions a week", valueHeading: "Mean e1RM change" }) : null;
       }
     },
     "cross.time_budget": {
-      n: "days",
+      n: WEEKS,
       draw: function (v, s, ctx) {
         var hrs = isObj(v.hours) ? v.hours : {}, kinds = ["watching", "listening", "training"];
         var days = list(v.weekdays).length === 7 ? v.weekdays : ctx.weekdays;
+        var span = isNum(v.weeks) ? v.weeks : 8;
+        // The pipeline now writes each weekday's mean hours per week (and the window's "to"
+        // date); an older file holds the window's totals, and says so. Nothing is divided here.
+        var perWeek = typeof v.to === "string";
+        var title = perWeek ? "Hours per week by weekday, last " + span + " weeks" : "Hours by weekday, total over the last " + span + " weeks";
+        var unit = perWeek ? "hours a week" : "hours in total";
         var totals = days.map(function (d, i) { return kinds.reduce(function (a, k) { return a + (isNum(list(hrs[k])[i]) ? hrs[k][i] : 0); }, 0); });
         var max = Math.max.apply(null, totals.concat(0));
         var chart = h("div", { class: "ld-cols", role: "img", style: { gridTemplateColumns: "repeat(7, minmax(0, 1fr))" },
-          "aria-label": "Hours by weekday over the last " + (isNum(v.weeks) ? v.weeks : 8) + " weeks: " + days.map(function (d, i) {
-            return d + " " + num(totals[i], 1) + " hours (" + kinds.map(function (k) { return k + " " + num(list(hrs[k])[i] || 0, 1); }).join(", ") + ")";
+          "aria-label": title + ": " + days.map(function (d, i) {
+            return d + " " + num(totals[i], 1) + " " + unit + " (" + kinds.map(function (k) { return k + " " + num(list(hrs[k])[i] || 0, 1); }).join(", ") + ")";
           }).join("; ") },
           days.map(function (d, i) {
-            return h("div", { class: "ld-col", title: d + ": " + num(totals[i], 1) + " hours" },
+            return h("div", { class: "ld-col", title: d + ": " + num(totals[i], 1) + " " + unit },
               h("span", { class: "ld-col-value" }, num(totals[i], 1)),
               h("div", { class: "ld-col-stack", style: { height: max > 0 ? "calc((100% - 18px) * " + (totals[i] / max).toFixed(4) + ")" : "0" } },
                 kinds.map(function (k) { var x = list(hrs[k])[i]; return isNum(x) && x > 0 ? h("span", { class: "fill--" + k, style: { flexGrow: x } }) : null; }).reverse()),
               h("span", { class: "ld-col-label", "aria-hidden": "true" }, d));
           }));
-        return charted("Hours by weekday, last " + (isNum(v.weeks) ? v.weeks : 8) + " weeks", chart,
-          [{ label: "Weekday" }, { label: "Hours", num: true }].concat(kinds.map(function (k) { return { label: k, num: true }; })),
+        return [charted(title, chart,
+          [{ label: "Weekday" }, { label: perWeek ? "Hours a week" : "Hours, total", num: true }].concat(kinds.map(function (k) { return { label: k, num: true }; })),
           days.map(function (d, i) { return [d, num(totals[i], 1)].concat(kinds.map(function (k) { return num(list(hrs[k])[i] || 0, 1); })); }),
-          h("p", { class: "ld-legend" }, kinds.map(function (k) { return legendItem("fill--" + k, k); })));
+          h("p", { class: "ld-legend" }, kinds.map(function (k) { return legendItem("fill--" + k, k); }))),
+          facts([["window", v.from ? dateText(v.from) + (perWeek ? " to " + dateText(v.to) : "") : null],
+            ["figures", perWeek ? "mean hours per week" : "totals over the window (per-week means arrive with the next pipeline run)"]])];
       }
     },
+
     "lifting.relative_strength.*": {
       n: "sessions",
       value: function (s) { return [signed(s.value, 3), "a month, e1RM per lb of body weight"]; },
@@ -1428,18 +1446,25 @@
   var GROUPS = {};
   GROUPS["fantasy.manager_score.components.draft fantasy.manager_score.components.lineup fantasy.manager_score.components.moves fantasy.manager_score.components.strength"] = {
     n: WEEKS,
-    // Four bars, points a week against each baseline, with rank and of; the composite is its own slot below.
+    // Four bars, points a week against each baseline, with rank and of; the composite is its
+    // own slot below. A component still waiting is named under the bars with its n of min_n.
     draw: function (entries) {
-      var ok = entries.filter(function (e) { return okStat(e.stat); });
+      var ok = entries.filter(function (e) { return okStat(e.stat) && isNum(e.stat.value); });
+      var waiting = entries.filter(function (e) { return isObj(e.stat) && e.stat.status === "not enough data yet"; });
       var items = ok.map(function (e) {
         var v = isObj(e.stat.values) ? e.stat.values : {};
         return { label: e.spec.label, value: e.stat.value, text: signed(e.stat.value, 1) + (isNum(v.rank) && isNum(v.of) ? " · " + v.rank + " of " + v.of : "") };
       });
       return [items.length ? bars("Points a week against each baseline", items, { labelHeading: "Component", valueHeading: "Points a week · rank" }) : null,
-        h("p", { class: "ld-small" }, ok.map(function (e) {
+        ok.length ? h("p", { class: "ld-small" }, ok.map(function (e) {
           var v = isObj(e.stat.values) ? e.stat.values : {};
-          return e.spec.label + ": " + (isNum(v.percentile) ? pct(v.percentile) + " of managers score lower" : "") + (interval(e.stat.interval, function (x) { return signed(x, 1); }) ? ", " + interval(e.stat.interval, function (x) { return signed(x, 1); }) : "");
-        }).join(". ") + ".")];
+          var iv = interval(e.stat.interval, function (x) { return signed(x, 1); });
+          return e.spec.label + ": " + (isNum(v.percentile) ? pct(v.percentile) + " of managers score lower" : "") + (iv ? ", " + iv : "");
+        }).join(". ") + ".") : null,
+        waiting.map(function (e) {
+          return h("p", { class: "ld-wait" }, h("b", null, e.spec.label + ": not enough data yet"),
+            " · " + (isNum(e.stat.n) ? big(e.stat.n) + " of " : "") + plural(e.stat.min_n, WEEKS) + " needed");
+        })];
     }
   };
 
@@ -1481,15 +1506,15 @@
       // One block for the whole slot. Any entry still waiting makes the block wait too.
       var block = h("div", { class: "ld-blocks ld-blocks--one" }), waiting = entries.filter(function (e) { return shownStatus(e, analysis) === "not enough data yet"; });
       try {
-        if (waiting.length) {
+        if (waiting.length === entries.length) {
           var w = waiting[0].stat;
           block.appendChild(h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not enough data yet" },
             h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"), " · " + (isNum(w.n) ? big(w.n) + " of " : "") + plural(w.min_n, group.n || "") + " needed")));
         } else {
           var b = h("div", { class: "ld-block", "data-status": "ok" });
           append(b, group.draw(entries, analysis, ctx));
-          var ns = entries.map(function (e) { return e.stat.n; }).filter(isNum);
-          b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || "")));
+          var ns = entries.filter(function (e) { return okStat(e.stat); }).map(function (e) { return e.stat.n; }).filter(isNum);
+          if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || "")));
           block.appendChild(b);
         }
         entries.forEach(function (e) { noteHow(e.stat); });

@@ -242,6 +242,8 @@ def variant(name):
         d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
                                  {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
                                  {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
+    if name == "per week":
+        a["cross"]["time_budget"]["values"]["to"] = a["as_of"]
     if name == "bench":
         lift = d["lifting"]["main_lifts"][0]
         lift["name"] = "Bench"
@@ -583,9 +585,13 @@ class Drawing(unittest.TestCase):
         self.assertEqual(d["attribution"], [{"source": "yahoo", "hidden": True, "text": "Fantasy data provided by Yahoo Fantasy",
                                              "link": ["https://sports.yahoo.com/fantasy/", "_blank", "noopener"]}])
         self.assertEqual(draw("lately/fantasy/", name="yahoo")["attribution"][0]["hidden"], False)
-        # A waiting component makes the whole card wait.
+        # A waiting component is named under the bars of the others, with its n and min_n.
         waiting = next(s for s in draw("lately/fantasy/", name="waiting")["sections"] if s["id"] == "manager-score")
-        self.assertEqual(waiting["slots"][0]["blocks"][0]["wait"], "not enough data yet · 2 of 4 weeks needed")
+        (wb,) = waiting["slots"][0]["blocks"]
+        self.assertEqual(wb["status"], "ok")
+        self.assertEqual(wb["wait"], "Moves: not enough data yet · 2 of 4 weeks needed")
+        self.assertIn("Draft", wb["text"])
+        self.assertNotIn("+1.6", wb["text"])
 
     # Watching page: My rankings leads What's happening; completion and drops sit in Why with
     # the note that only finished titles are logged as a rule; the new cards draw.
@@ -626,6 +632,14 @@ class Drawing(unittest.TestCase):
                 with self.subTest(block=n):
                     self.assertFalse(feeds[n]["hidden"])
                     self.assertTrue(feeds[n]["text"])
+        # The time budget: an older file holds totals and is labelled so; a file with the window's
+        # "to" date holds mean hours per week.
+        (tb,) = blocks(draw("lately/lifting/"), "cross.time_budget")
+        self.assertIn("Hours by weekday, total over the last 8 weeks", tb["text"])
+        self.assertIn("totals over the window", tb["text"])
+        (tbw,) = blocks(draw("lately/lifting/", name="per week"), "cross.time_budget")
+        self.assertIn("Hours per week by weekday, last 8 weeks", tbw["text"])
+        self.assertIn("mean hours per week", tbw["text"])
         lifting = {f["block"]: f for f in draw("lately/lifting/")["feeds"]}
         self.assertEqual(lifting["lifting.training"]["lists"], ["Recent personal records"])
         self.assertIn("Body weight", lifting["lifting.body_weight"]["text"])
@@ -650,6 +664,24 @@ class Drawing(unittest.TestCase):
         (b,) = blocks(draw("lately/eating/"), "eating.new_cuisines")
         self.assertEqual(b["status"], "ok")
         self.assertNotRegex(b["text"], r"\d{4}-\d{2}-\d{2}|\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b")
+
+    # Every statistic the fixture holds is drawn: no slot falls back to "not in the data yet"
+    # (which only an older file should produce) and no spec is missing from the script.
+    def test_every_statistic_has_a_renderer(self):
+        for feed in FEEDS:
+            with self.subTest(feed=feed):
+                d = draw(f"lately/{feed}/")
+                for s in d["sections"]:
+                    for sl in s["slots"]:
+                        for b in sl["blocks"]:
+                            self.assertNotEqual(b["status"], "not in the data yet", (s["id"], sl["stat"]))
+                            self.assertNotIn("doesn't draw it yet", b["text"], sl["stat"])
+                self.assertIsNone(d["waiting"] and re.search(r"\d{2,}", d["waiting"]))  # a two-digit count means slots went undrawn
+        lifting = draw("lately/lifting/")
+        self.assertTrue(blocks(lifting, "lifting.relative_strength.*"))
+        self.assertTrue(blocks(lifting, "lifting.lag_check"))
+        self.assertTrue(blocks(lifting, "cross.lifting_soundtrack"))
+        self.assertTrue(blocks(lifting, "cross.rhythm.workouts"))
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
     def test_widths(self):

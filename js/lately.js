@@ -535,6 +535,9 @@
     return { days: a.n, from: dateText(new Date(end.getTime() - (a.n - 1) * 86400000)), to: dateText(end) };
   }
 
+  // "last 30 days" -> " in the last 30 days"; "since 11 Oct" -> " since 11 Oct".
+  function windowText(win) { return /^since /.test(win) ? " " + win : " in the " + win; }
+
   function listeningBasics(data) {
     var l = data.listening;
     need(isObj(l), "listening");
@@ -1113,7 +1116,7 @@
       var last = months[months.length - 1];
       sentences = [
         "Of the " + plural(last.new_artists, "artist", "artists") + " new to me in " + month(last.month) + ", " + fpct(last.share_30d) + " were still playing a month later and " + fpct(last.share_90d) + " three months on.",
-        "I played " + plural(b.plays, "track", "tracks") + " in the " + b.win.replace(/^since/, "window since") + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
+        "I played " + plural(b.plays, "track", "tracks") + windowText(b.win) + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
       ];
       nums = [
         { label: "Still played after 30 days", value: fpct(last.share_30d), note: "new artists of " + month(last.month) },
@@ -1130,7 +1133,7 @@
       sentences = [
         (range ? "The archive holds " + plural(range.days, "day", "days") + " of plays, from " + range.from + " to " + range.to : "The archive is young") +
           "; new-artist retention needs " + (isObj(r) && isNum(r.min_n) ? plural(r.min_n, "month", "months") : "months") + " with a full 90 days after them.",
-        "So far: " + plural(b.plays, "play", "plays") + " in the " + b.win.replace(/^since/, "window since") + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
+        "So far: " + plural(b.plays, "play", "plays") + windowText(b.win) + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
       ];
       var newArtists = okStat(disc) ? list(disc.values.months).filter(isObj).slice(-1)[0] : null;
       var topArtist = list(b.l.top_artists).filter(function (x) { return isObj(x) && typeof x.name === "string" && isNum(x.plays); })[0];
@@ -1202,25 +1205,40 @@
       benchNum = { label: "Bench best, e1RM", value: short(bench.best.e1rm) + " " + b.unit,
         note: bs && isNum(bs.weight_lb) && isNum(bs.reps) ? "best set " + short(bs.weight_lb) + " × " + bs.reps + (bs.source === "manual" ? " · logged by hand" : "") : "estimated one-rep max" };
     }
-    var weeks = okStat(si) ? list(si.values.weeks).filter(function (w) { return isObj(w) && isNum(w.strength) && isNum(w.body_weight); }) : [];
-    var last = weeks[weeks.length - 1];
-    var bwPct = last ? last.body_weight - 100 : okStat(bwr) && isNum(bwr.values.first) && isNum(bwr.values.latest) && bwr.values.first ? (bwr.values.latest / bwr.values.first - 1) * 100 : null;
+    // Weeks without a weigh-in carry a null body weight (and a week without sessions a null
+    // strength): each line skips those points. The latest figures are values.current, else the
+    // last week with a value.
+    var weeks = okStat(si) ? list(si.values.weeks).filter(function (w) { return isObj(w) && (isNum(w.strength) || isNum(w.body_weight)); }) : [];
+    function latest(key) {
+      var cur = okStat(si) && isObj(si.values.current) ? si.values.current[key] : null;
+      if (isNum(cur)) return cur;
+      for (var i = weeks.length - 1; i >= 0; i--) if (isNum(weeks[i][key])) return weeks[i][key];
+      return null;
+    }
+    var last = weeks.length ? { strength: latest("strength"), body_weight: latest("body_weight") } : null;
+    var bwPct = last && isNum(last.body_weight) ? last.body_weight - 100 : okStat(bwr) && isNum(bwr.values.first) && isNum(bwr.values.latest) && bwr.values.first ? (bwr.values.latest / bwr.values.first - 1) * 100 : null;
     var cutStart = okStat(si) && si.values.cut_start ? si.values.cut_start : okStat(bwr) ? bwr.values.cut_start : al.cut_start;
     var bwNum = bwPct !== null ? { label: "Body weight since the cut", value: plus(bwPct, 1) + "%",
       note: okStat(bwr) && isNum(bwr.values.first) ? "from " + fnum(bwr.values.first, 1) + " to " + fnum(bwr.values.latest, 1) + " " + b.unit : null } : null;
     var sentences, chart, nums;
-    // The lift that held up best and least since the cut: from retention, else strength kept.
-    function extremes(map, unit) {
-      var ks = Object.keys(map).filter(function (k) { return okStat(map[k]) && isNum(map[k].value); }).sort(function (x, y) { return map[y].value - map[x].value; });
+    // The lift that held up best and least since the cut: the strength index's per-lift change
+    // (largest and smallest change_pct), else retention, else strength kept.
+    function extremes(map, value, unit) {
+      var ks = Object.keys(map).filter(function (k) { return isNum(value(map[k])); }).sort(function (x, y) { return value(map[y]) - value(map[x]); });
       if (!ks.length) return null;
       var hi = ks[0], lo = ks[ks.length - 1];
-      return hi === lo ? hi + " is at " + plus(map[hi].value, 1) + " " + unit + "."
-        : hi + " has held up best at " + plus(map[hi].value, 1) + " " + unit + " and " + lo + " least at " + plus(map[lo].value, 1) + "." ;
+      if (hi === lo) return hi + " is at " + unit(value(map[hi])) + " since the cut.";
+      return hi + " has held up best at " + unit(value(map[hi])) + " since the cut, " + lo + " least at " + unit(value(map[lo])) + ".";
     }
-    var second = extremes(ret, "lb of e1RM since the cut") || extremes(kept, "lb of e1RM kept per lb lost");
-    if (weeks.length > 1) {
+    function pctUnit(x) { return plus(x * 100, 1) + "%"; }
+    var change = okStat(si) && isObj(si.values.lifts_change) ? si.values.lifts_change : {};
+    var second = extremes(change, function (c) { return isObj(c) ? c.change_pct : null; }, pctUnit)
+      || extremes(ret, function (st) { return okStat(st) && isObj(st.values) ? st.values.change_pct : null; }, pctUnit)
+      || extremes(kept, function (st) { return okStat(st) ? st.value : null; }, function (x) { return plus(x, 1) + " lb of e1RM kept per lb lost"; });
+    if (weeks.length > 1 && last && isNum(last.strength)) {
       sentences = [
-        "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + ", body weight is " + plus(last.body_weight - 100, 1) + "% and the strength index is " + plus(last.strength - 100, 1) + "%.",
+        "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + ", " + (isNum(last.body_weight) ? "body weight is " + plus(last.body_weight - 100, 1) + "% and " : "") +
+          "the strength index is " + plus(last.strength - 100, 1) + "%.",
         second || "Per-lift retention appears once each lift has enough sessions."
       ];
       nums = [bwNum, { label: "Strength index since the cut", value: plus(last.strength - 100, 1) + "%", note: "mean best e1RM, main lifts" }, benchNum];
