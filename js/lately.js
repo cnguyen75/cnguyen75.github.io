@@ -18,6 +18,7 @@
   var NO_CHANCE = "not available this week";
   var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
   var MIN_CUISINE_PLACES = 15; // a cuisine's median is compared with the overall median from this many places
+  var ENRICHMENT = ["tmdb", "omdb"]; // sources with section "enrichment", by name until the pipeline writes the section
 
   // ---------- small helpers ----------
 
@@ -131,6 +132,8 @@
     Object.keys(data.sources).forEach(function (key) {
       var src = data.sources[key];
       if (!isObj(src)) return;
+      // Enrichment sources (film credits and scores) are credited in the footer, not shown as feeds.
+      if (src.section === "enrichment" || ENRICHMENT.indexOf(key) >= 0) return;
       list.appendChild(h("li", { class: "chip" },
         h("span", { class: "chip-dot", "aria-hidden": "true" }),
         chipText(src, key)));

@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -1581,7 +1581,7 @@
         },
         "taste_drift": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Tier by the year I watched: values.years [{year, mean_tier_score, n}] with S=4 to D=0; value: the slope per year."
+          "description": "Tier by the year I watched: values.years [{year, mean_tier_score, n}] with S = 5 to D = 1; value: the slope per year."
         },
         "community_gap_by_genre": {
           "$ref": "#/$defs/analysis_stat",
@@ -1593,23 +1593,23 @@
         },
         "by_director": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Mean tier of my finished films by director: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+          "description": "Mean tier of my finished films by director: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S = 5 to D = 1. Names and titles are public figures and works."
         },
         "by_studio": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Mean tier of my finished anime by studio: values.rows [{name, mean_tier, n, titles: [{title, tier}]}], people with at least 3 finished titles, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+          "description": "Mean tier of my finished anime by studio: values.rows [{name, mean_tier, n, titles: [{title, tier}]}], people with at least 3 finished titles, best first; mean_tier on the tier scale S = 5 to D = 1. Names and titles are public figures and works."
         },
         "by_lead": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Mean tier of my finished films by lead actor: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S=4 to D=0. Names and titles are public figures and works."
+          "description": "Mean tier of my finished films by lead actor: values.rows [{name, mean_tier, n, films: [{title, tier}]}], people with at least 3 finished films, best first; mean_tier on the tier scale S = 5 to D = 1. Names and titles are public figures and works."
         },
         "blockbuster": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Tier against popularity: value is the slope in tier points per popularity quartile, with interval; values.by_popularity_quartile [{quartile (1 = least popular), mean_tier, n}]."
+          "description": "Tier against money and popularity: value is the slope in tier points (S = 5 to D = 1) per unit of log revenue over budget, with interval; values.films_with_money, values.films_with_popularity, values.by_popularity_quartile [{quartile (1 = least popular), mean_tier, n}]."
         },
         "sequels": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Sequels against their first film: value is the mean later-minus-first tier change, with interval; values.collections [{collection, first: {title, tier}, later: [{title, tier}], mean_first, mean_later}]."
+          "description": "Sequels against their first film: value is the mean first-minus-later tier change (S = 5 to D = 1; positive where the first film rated higher), with interval; values.collections [{collection, first: {title, tier}, later: [{title, tier}], mean_first, mean_later, first_minus_later}]."
         },
         "language": {
           "$ref": "#/$defs/analysis_stat",
@@ -1621,7 +1621,7 @@
         },
         "crowd_agreement": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "My tier against Simkl's community score: value is the rank correlation; values.points [{title, year, tier, tier_score, community}] for every tiered title, values.disagreements (six largest gaps, [{title, year, tier, community, gap}]), values.top_overrated_genre and top_underrated_genre {genre, gap, n} (gap positive where I rate higher), values.model_accuracy and values.baseline (predicting my tier from the score, leave-one-out)."
+          "description": "My tier against Simkl's community score: value is the rank correlation; values.points [{title, type, year, tier, tier_score (S = 5 to D = 1), community}] for every tiered title; values.disagreements {above: [three titles I rate furthest above the crowd], below: [three furthest below]}, each {title, type, year, tier, tier_score, community, gap}; values.top_overrated_genre and top_underrated_genre (genre names, where my tiers run furthest above and below the community); values.model_accuracy and values.model_baseline (predicting my tier from the score, leave-one-out, against always guessing the commonest tier)."
         }
       }
     },

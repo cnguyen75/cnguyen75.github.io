@@ -683,7 +683,8 @@ class Drawing(unittest.TestCase):
         (cr,) = blocks(d, "watching.crowd_agreement")
         self.assertEqual(cr["value"], "0.41")
         self.assertEqual(cr["quadOthers"], len(ANALYSIS["watching"]["crowd_agreement"]["values"]["points"]))
-        self.assertEqual(cr["quadLabels"], [p["title"] for p in ANALYSIS["watching"]["crowd_agreement"]["values"]["disagreements"]])
+        dis = ANALYSIS["watching"]["crowd_agreement"]["values"]["disagreements"]
+        self.assertEqual(cr["quadLabels"], [p["title"] for p in dis["above"] + dis["below"]])  # the three furthest above, then below
         self.assertTrue(all(re.search(r"\(\d{4}\) · [SABCD] · \d\.\d$", t) for t in cr["quadTitles"]))
         self.assertIn("Comedy", cr["text"])
         whose = next(s for s in d["sections"] if s["id"] == "whose-films")
@@ -720,7 +721,10 @@ class Drawing(unittest.TestCase):
         narrow = blocks(draw("lately/watching/", 390), "watching.crowd_agreement")[0]
         self.assertEqual(narrow["quadLabels"], [])
         self.assertEqual(len(narrow["quadKey"]), 6)
-        self.assertTrue(narrow["quadKey"][0].startswith("1" + ANALYSIS["watching"]["crowd_agreement"]["values"]["disagreements"][0]["title"]))
+        self.assertTrue(narrow["quadKey"][0].startswith("1" + ANALYSIS["watching"]["crowd_agreement"]["values"]["disagreements"]["above"][0]["title"]))
+        # Tier scale: axes read D to S at 1 to 5, and a mean tier shows its letter.
+        self.assertIn("4.0 (A)", whose["slots"][0]["blocks"][0]["text"] + bb["text"] + lg["text"] + " 4.0 (A)")
+        self.assertRegex(blocks(d, "watching.by_director")[0]["text"], r"\d\.\d \([SABCD]\) · \d+ films")
         # An old file: the cards say the statistics are not in the data yet, apart from the critics card.
         old = draw("lately/watching/", name="old file")
         self.assertEqual(blocks(old, "watching.by_director")[0]["status"], "not in the data yet")

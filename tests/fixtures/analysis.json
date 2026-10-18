@@ -5975,42 +5975,42 @@
      "years": [
       {
        "year": 2019,
-       "mean_tier_score": 1.9,
+       "mean_tier_score": 2.9,
        "n": 22
       },
       {
        "year": 2020,
-       "mean_tier_score": 2.1,
+       "mean_tier_score": 3.1,
        "n": 41
       },
       {
        "year": 2021,
-       "mean_tier_score": 2.0,
+       "mean_tier_score": 3.0,
        "n": 38
       },
       {
        "year": 2022,
-       "mean_tier_score": 2.3,
+       "mean_tier_score": 3.3,
        "n": 35
       },
       {
        "year": 2023,
-       "mean_tier_score": 2.2,
+       "mean_tier_score": 3.2,
        "n": 44
       },
       {
        "year": 2024,
-       "mean_tier_score": 2.4,
+       "mean_tier_score": 3.4,
        "n": 39
       },
       {
        "year": 2025,
-       "mean_tier_score": 2.5,
+       "mean_tier_score": 3.5,
        "n": 36
       },
       {
        "year": 2026,
-       "mean_tier_score": 2.6,
+       "mean_tier_score": 3.6,
        "n": 21
       }
      ]
@@ -6091,17 +6091,17 @@
      "buckets": [
       {
        "bucket": "binge",
-       "mean_tier_score": 2.7,
+       "mean_tier_score": 3.7,
        "n": 40
       },
       {
        "bucket": "steady",
-       "mean_tier_score": 2.2,
+       "mean_tier_score": 3.2,
        "n": 35
       },
       {
        "bucket": "slow",
-       "mean_tier_score": 1.8,
+       "mean_tier_score": 2.8,
        "n": 17
       }
      ]
@@ -6117,7 +6117,7 @@
      "rows": [
       {
        "name": "Director 1",
-       "mean_tier": 3.25,
+       "mean_tier": 4.25,
        "n": 4,
        "films": [
         {
@@ -6140,7 +6140,7 @@
       },
       {
        "name": "Director 2",
-       "mean_tier": 2.67,
+       "mean_tier": 3.67,
        "n": 6,
        "films": [
         {
@@ -6171,7 +6171,7 @@
       },
       {
        "name": "Director 3",
-       "mean_tier": 1.86,
+       "mean_tier": 2.86,
        "n": 7,
        "films": [
         {
@@ -6206,7 +6206,7 @@
       },
       {
        "name": "Director 4",
-       "mean_tier": 1.5,
+       "mean_tier": 2.5,
        "n": 4,
        "films": [
         {
@@ -6229,7 +6229,7 @@
       },
       {
        "name": "Director 5",
-       "mean_tier": 1.4,
+       "mean_tier": 2.4,
        "n": 5,
        "films": [
         {
@@ -6256,7 +6256,7 @@
       },
       {
        "name": "Director 8",
-       "mean_tier": 1.25,
+       "mean_tier": 2.25,
        "n": 4,
        "films": [
         {
@@ -6279,7 +6279,7 @@
       },
       {
        "name": "Director 7",
-       "mean_tier": 1.0,
+       "mean_tier": 2.0,
        "n": 3,
        "films": [
         {
@@ -6298,7 +6298,7 @@
       },
       {
        "name": "Director 6",
-       "mean_tier": 0.67,
+       "mean_tier": 1.67,
        "n": 6,
        "films": [
         {
@@ -6329,7 +6329,7 @@
       },
       {
        "name": "Director 9",
-       "mean_tier": 0.14,
+       "mean_tier": 1.14,
        "n": 7,
        "films": [
         {
@@ -6375,9 +6375,9 @@
      "rows": [
       {
        "name": "Studio 1",
-       "mean_tier": 2.67,
+       "mean_tier": 3.67,
        "n": 6,
-       "films": [
+       "titles": [
         {
          "title": "Anime S1-1",
          "tier": "A"
@@ -6406,9 +6406,9 @@
       },
       {
        "name": "Studio 2",
-       "mean_tier": 2.5,
+       "mean_tier": 3.5,
        "n": 4,
-       "films": [
+       "titles": [
         {
          "title": "Anime S2-1",
          "tier": "S"
@@ -6429,9 +6429,9 @@
       },
       {
        "name": "Studio 3",
-       "mean_tier": 2.0,
+       "mean_tier": 3.0,
        "n": 3,
-       "films": [
+       "titles": [
         {
          "title": "Anime S3-1",
          "tier": "A"
@@ -6448,9 +6448,9 @@
       },
       {
        "name": "Studio 5",
-       "mean_tier": 1.4,
+       "mean_tier": 2.4,
        "n": 5,
-       "films": [
+       "titles": [
         {
          "title": "Anime S5-1",
          "tier": "D"
@@ -6475,9 +6475,9 @@
       },
       {
        "name": "Studio 4",
-       "mean_tier": 1.17,
+       "mean_tier": 2.17,
        "n": 6,
-       "films": [
+       "titles": [
         {
          "title": "Anime S4-1",
          "tier": "D"
@@ -6517,7 +6517,7 @@
      "rows": [
       {
        "name": "Lead 1",
-       "mean_tier": 2.25,
+       "mean_tier": 3.25,
        "n": 4,
        "films": [
         {
@@ -6540,7 +6540,7 @@
       },
       {
        "name": "Lead 2",
-       "mean_tier": 2.17,
+       "mean_tier": 3.17,
        "n": 6,
        "films": [
         {
@@ -6571,7 +6571,7 @@
       },
       {
        "name": "Lead 4",
-       "mean_tier": 2.17,
+       "mean_tier": 3.17,
        "n": 6,
        "films": [
         {
@@ -6602,7 +6602,7 @@
       },
       {
        "name": "Lead 5",
-       "mean_tier": 2.0,
+       "mean_tier": 3.0,
        "n": 4,
        "films": [
         {
@@ -6625,7 +6625,7 @@
       },
       {
        "name": "Lead 3",
-       "mean_tier": 1.83,
+       "mean_tier": 2.83,
        "n": 6,
        "films": [
         {
@@ -6656,7 +6656,7 @@
       },
       {
        "name": "Lead 6",
-       "mean_tier": 1.67,
+       "mean_tier": 2.67,
        "n": 3,
        "films": [
         {
@@ -6675,7 +6675,7 @@
       },
       {
        "name": "Lead 7",
-       "mean_tier": 1.5,
+       "mean_tier": 2.5,
        "n": 4,
        "films": [
         {
@@ -6698,7 +6698,7 @@
       },
       {
        "name": "Lead 8",
-       "mean_tier": 1.25,
+       "mean_tier": 2.25,
        "n": 4,
        "films": [
         {
@@ -6737,25 +6737,27 @@
      "by_popularity_quartile": [
       {
        "quartile": 1,
-       "mean_tier": 2.1,
+       "mean_tier": 3.1,
        "n": 44
       },
       {
        "quartile": 2,
-       "mean_tier": 2.2,
+       "mean_tier": 3.2,
        "n": 45
       },
       {
        "quartile": 3,
-       "mean_tier": 2.3,
+       "mean_tier": 3.3,
        "n": 45
       },
       {
        "quartile": 4,
-       "mean_tier": 2.5,
+       "mean_tier": 3.5,
        "n": 44
       }
-     ]
+     ],
+     "films_with_money": 170,
+     "films_with_popularity": 178
     }
    },
    "sequels": {
@@ -6764,10 +6766,10 @@
     "min_n": 3,
     "as_of": "2026-10-13",
     "how": "For each TMDB collection where I finished the first film and at least one later one, the later films' mean tier minus the first's; the value is the mean change.",
-    "value": -0.0,
+    "value": 0.0,
     "interval": [
-     -0.9,
-     0.3
+     -0.3,
+     0.9
     ],
     "values": {
      "collections": [
@@ -6783,8 +6785,9 @@
          "tier": "A"
         }
        ],
-       "mean_first": 3,
-       "mean_later": 3.0
+       "mean_first": 4,
+       "mean_later": 4.0,
+       "first_minus_later": 0.0
       },
       {
        "collection": "Collection 2",
@@ -6806,8 +6809,9 @@
          "tier": "S"
         }
        ],
-       "mean_first": 3,
-       "mean_later": 3.33
+       "mean_first": 4,
+       "mean_later": 4.33,
+       "first_minus_later": -0.33
       },
       {
        "collection": "Collection 3",
@@ -6829,8 +6833,9 @@
          "tier": "S"
         }
        ],
-       "mean_first": 4,
-       "mean_later": 3.33
+       "mean_first": 5,
+       "mean_later": 4.33,
+       "first_minus_later": 0.67
       },
       {
        "collection": "Collection 4",
@@ -6852,8 +6857,9 @@
          "tier": "C"
         }
        ],
-       "mean_first": 1,
-       "mean_later": 1.33
+       "mean_first": 2,
+       "mean_later": 2.33,
+       "first_minus_later": -0.33
       },
       {
        "collection": "Collection 5",
@@ -6867,8 +6873,9 @@
          "tier": "C"
         }
        ],
-       "mean_first": 1,
-       "mean_later": 1.0
+       "mean_first": 2,
+       "mean_later": 2.0,
+       "first_minus_later": 0.0
       }
      ]
     }
@@ -6883,11 +6890,11 @@
      "share_non_english": 0.146,
      "means": {
       "english": {
-       "mean_tier": 2.2,
+       "mean_tier": 3.2,
        "n": 152
       },
       "other": {
-       "mean_tier": 2.7,
+       "mean_tier": 3.7,
        "n": 26
       }
      }
@@ -7022,479 +7029,547 @@
        "title": "Title 1",
        "year": 1990,
        "tier": "D",
-       "tier_score": 0,
-       "community": 5.8
+       "tier_score": 1,
+       "community": 5.8,
+       "type": "film"
       },
       {
        "title": "Title 2",
        "year": 1991,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.8
+       "tier_score": 3,
+       "community": 7.8,
+       "type": "film"
       },
       {
        "title": "Title 3",
        "year": 1992,
        "tier": "D",
-       "tier_score": 0,
-       "community": 5.5
+       "tier_score": 1,
+       "community": 5.5,
+       "type": "film"
       },
       {
        "title": "Title 4",
        "year": 1993,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.2
+       "tier_score": 1,
+       "community": 6.2,
+       "type": "film"
       },
       {
        "title": "Title 5",
        "year": 1994,
        "tier": "C",
-       "tier_score": 1,
-       "community": 6.6
+       "tier_score": 2,
+       "community": 6.6,
+       "type": "film"
       },
       {
        "title": "Title 6",
        "year": 1995,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.8
+       "tier_score": 5,
+       "community": 8.8,
+       "type": "film"
       },
       {
        "title": "Title 7",
        "year": 1996,
        "tier": "A",
-       "tier_score": 3,
-       "community": 6.5
+       "tier_score": 4,
+       "community": 6.5,
+       "type": "film"
       },
       {
        "title": "Title 8",
        "year": 1997,
        "tier": "C",
-       "tier_score": 1,
-       "community": 7.3
+       "tier_score": 2,
+       "community": 7.3,
+       "type": "film"
       },
       {
        "title": "Title 9",
        "year": 1998,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.1
+       "tier_score": 1,
+       "community": 6.1,
+       "type": "film"
       },
       {
        "title": "Title 10",
        "year": 1999,
        "tier": "A",
-       "tier_score": 3,
-       "community": 7.0
+       "tier_score": 4,
+       "community": 7.0,
+       "type": "film"
       },
       {
        "title": "Title 11",
        "year": 2000,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.6
+       "tier_score": 3,
+       "community": 7.6,
+       "type": "film"
       },
       {
        "title": "Title 12",
        "year": 2001,
        "tier": "C",
-       "tier_score": 1,
-       "community": 7.2
+       "tier_score": 2,
+       "community": 7.2,
+       "type": "film"
       },
       {
        "title": "Title 13",
        "year": 2002,
        "tier": "C",
-       "tier_score": 1,
-       "community": 6.7
+       "tier_score": 2,
+       "community": 6.7,
+       "type": "film"
       },
       {
        "title": "Title 14",
        "year": 2003,
        "tier": "D",
-       "tier_score": 0,
-       "community": 5.7
+       "tier_score": 1,
+       "community": 5.7,
+       "type": "film"
       },
       {
        "title": "Title 15",
        "year": 2004,
        "tier": "A",
-       "tier_score": 3,
-       "community": 7.9
+       "tier_score": 4,
+       "community": 7.9,
+       "type": "film"
       },
       {
        "title": "Title 16",
        "year": 2005,
        "tier": "B",
-       "tier_score": 2,
-       "community": 8.0
+       "tier_score": 3,
+       "community": 8.0,
+       "type": "film"
       },
       {
        "title": "Title 17",
        "year": 2006,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.7
+       "tier_score": 3,
+       "community": 7.7,
+       "type": "film"
       },
       {
        "title": "Title 18",
        "year": 2007,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.3
+       "tier_score": 3,
+       "community": 7.3,
+       "type": "film"
       },
       {
        "title": "Title 19",
        "year": 2008,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.9
+       "tier_score": 5,
+       "community": 8.9,
+       "type": "film"
       },
       {
        "title": "Title 20",
        "year": 2009,
        "tier": "C",
-       "tier_score": 1,
-       "community": 6.5
+       "tier_score": 2,
+       "community": 6.5,
+       "type": "film"
       },
       {
        "title": "Title 21",
        "year": 2010,
        "tier": "D",
-       "tier_score": 0,
-       "community": 5.7
+       "tier_score": 1,
+       "community": 5.7,
+       "type": "film"
       },
       {
        "title": "Title 22",
        "year": 2011,
        "tier": "A",
-       "tier_score": 3,
-       "community": 7.4
+       "tier_score": 4,
+       "community": 7.4,
+       "type": "film"
       },
       {
        "title": "Title 23",
        "year": 2012,
        "tier": "A",
-       "tier_score": 3,
-       "community": 7.7
+       "tier_score": 4,
+       "community": 7.7,
+       "type": "film"
       },
       {
        "title": "Title 24",
        "year": 2013,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.1
+       "tier_score": 3,
+       "community": 7.1,
+       "type": "film"
       },
       {
        "title": "Title 25",
        "year": 2014,
        "tier": "D",
-       "tier_score": 0,
-       "community": 7.2
+       "tier_score": 1,
+       "community": 7.2,
+       "type": "film"
       },
       {
        "title": "Title 26",
        "year": 2015,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.2
+       "tier_score": 1,
+       "community": 6.2,
+       "type": "film"
       },
       {
        "title": "Title 27",
        "year": 2016,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.0
+       "tier_score": 3,
+       "community": 7.0,
+       "type": "film"
       },
       {
        "title": "Title 28",
        "year": 2017,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.0
+       "tier_score": 1,
+       "community": 6.0,
+       "type": "film"
       },
       {
        "title": "Title 29",
        "year": 2018,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.1
+       "tier_score": 5,
+       "community": 8.1,
+       "type": "film"
       },
       {
        "title": "Title 30",
        "year": 2019,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.9
+       "tier_score": 3,
+       "community": 7.9,
+       "type": "film"
       },
       {
        "title": "Title 31",
        "year": 2020,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.9
+       "tier_score": 5,
+       "community": 8.9,
+       "type": "film"
       },
       {
        "title": "Title 32",
        "year": 2021,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.3
+       "tier_score": 1,
+       "community": 6.3,
+       "type": "film"
       },
       {
        "title": "Title 33",
        "year": 2022,
        "tier": "C",
-       "tier_score": 1,
-       "community": 7.7
+       "tier_score": 2,
+       "community": 7.7,
+       "type": "film"
       },
       {
        "title": "Title 34",
        "year": 2023,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.7
+       "tier_score": 5,
+       "community": 8.7,
+       "type": "film"
       },
       {
        "title": "Title 35",
        "year": 2024,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.2
+       "tier_score": 3,
+       "community": 7.2,
+       "type": "film"
       },
       {
        "title": "Title 36",
        "year": 2025,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.9
+       "tier_score": 5,
+       "community": 8.9,
+       "type": "film"
       },
       {
        "title": "Title 37",
        "year": 1990,
        "tier": "C",
-       "tier_score": 1,
-       "community": 5.7
+       "tier_score": 2,
+       "community": 5.7,
+       "type": "film"
       },
       {
        "title": "Title 38",
        "year": 1991,
        "tier": "D",
-       "tier_score": 0,
-       "community": 5.8
+       "tier_score": 1,
+       "community": 5.8,
+       "type": "film"
       },
       {
        "title": "Title 39",
        "year": 1992,
        "tier": "C",
-       "tier_score": 1,
-       "community": 5.5
+       "tier_score": 2,
+       "community": 5.5,
+       "type": "film"
       },
       {
        "title": "Title 40",
        "year": 1993,
        "tier": "B",
-       "tier_score": 2,
-       "community": 6.7
+       "tier_score": 3,
+       "community": 6.7,
+       "type": "film"
       },
       {
        "title": "Title 41",
        "year": 1994,
        "tier": "A",
-       "tier_score": 3,
-       "community": 8.4
+       "tier_score": 4,
+       "community": 8.4,
+       "type": "film"
       },
       {
        "title": "Title 42",
        "year": 1995,
        "tier": "A",
-       "tier_score": 3,
-       "community": 8.8
+       "tier_score": 4,
+       "community": 8.8,
+       "type": "film"
       },
       {
        "title": "Title 43",
        "year": 1996,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.7
+       "tier_score": 3,
+       "community": 7.7,
+       "type": "film"
       },
       {
        "title": "Title 44",
        "year": 1997,
        "tier": "C",
-       "tier_score": 1,
-       "community": 5.6
+       "tier_score": 2,
+       "community": 5.6,
+       "type": "film"
       },
       {
        "title": "Title 45",
        "year": 1998,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.8
+       "tier_score": 5,
+       "community": 8.8,
+       "type": "film"
       },
       {
        "title": "Title 46",
        "year": 1999,
        "tier": "B",
-       "tier_score": 2,
-       "community": 6.6
+       "tier_score": 3,
+       "community": 6.6,
+       "type": "film"
       },
       {
        "title": "Title 47",
        "year": 2000,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.3
+       "tier_score": 5,
+       "community": 8.3,
+       "type": "film"
       },
       {
        "title": "Title 48",
        "year": 2001,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.1
+       "tier_score": 1,
+       "community": 6.1,
+       "type": "film"
       },
       {
        "title": "Title 49",
        "year": 2002,
        "tier": "S",
-       "tier_score": 4,
-       "community": 8.2
+       "tier_score": 5,
+       "community": 8.2,
+       "type": "film"
       },
       {
        "title": "Title 50",
        "year": 2003,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.6
+       "tier_score": 1,
+       "community": 6.6,
+       "type": "film"
       },
       {
        "title": "Title 51",
        "year": 2004,
        "tier": "A",
-       "tier_score": 3,
-       "community": 8.5
+       "tier_score": 4,
+       "community": 8.5,
+       "type": "film"
       },
       {
        "title": "Title 52",
        "year": 2005,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.5
+       "tier_score": 1,
+       "community": 6.5,
+       "type": "film"
       },
       {
        "title": "Title 53",
        "year": 2006,
        "tier": "S",
-       "tier_score": 4,
-       "community": 6.8
+       "tier_score": 5,
+       "community": 6.8,
+       "type": "film"
       },
       {
        "title": "Title 54",
        "year": 2007,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.0
+       "tier_score": 3,
+       "community": 7.0,
+       "type": "film"
       },
       {
        "title": "Title 55",
        "year": 2008,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.5
+       "tier_score": 1,
+       "community": 6.5,
+       "type": "film"
       },
       {
        "title": "Title 56",
        "year": 2009,
        "tier": "C",
-       "tier_score": 1,
-       "community": 6.0
+       "tier_score": 2,
+       "community": 6.0,
+       "type": "film"
       },
       {
        "title": "Title 57",
        "year": 2010,
        "tier": "C",
-       "tier_score": 1,
-       "community": 6.8
+       "tier_score": 2,
+       "community": 6.8,
+       "type": "film"
       },
       {
        "title": "Title 58",
        "year": 2011,
        "tier": "B",
-       "tier_score": 2,
-       "community": 7.1
+       "tier_score": 3,
+       "community": 7.1,
+       "type": "film"
       },
       {
        "title": "Title 59",
        "year": 2012,
        "tier": "D",
-       "tier_score": 0,
-       "community": 6.4
+       "tier_score": 1,
+       "community": 6.4,
+       "type": "film"
       },
       {
        "title": "Title 60",
        "year": 2013,
        "tier": "A",
-       "tier_score": 3,
-       "community": 8.6
+       "tier_score": 4,
+       "community": 8.6,
+       "type": "film"
       }
      ],
-     "disagreements": [
-      {
-       "title": "Title 53",
-       "year": 2006,
-       "tier": "S",
-       "community": 6.8,
-       "gap": 2.51
-      },
-      {
-       "title": "Title 25",
-       "year": 2014,
-       "tier": "D",
-       "community": 7.2,
-       "gap": -1.94
-      },
-      {
-       "title": "Title 7",
-       "year": 1996,
-       "tier": "A",
-       "community": 6.5,
-       "gap": 1.86
-      },
-      {
-       "title": "Title 33",
-       "year": 2022,
-       "tier": "C",
-       "community": 7.7,
-       "gap": -1.51
-      },
-      {
-       "title": "Title 10",
-       "year": 1999,
-       "tier": "A",
-       "community": 7.0,
-       "gap": 1.29
-      },
-      {
-       "title": "Title 50",
-       "year": 2003,
-       "tier": "D",
-       "community": 6.6,
-       "gap": -1.26
-      }
-     ],
-     "top_overrated_genre": {
-      "genre": "Comedy",
-      "gap": 0.42,
-      "n": 118
+     "disagreements": {
+      "above": [
+       {
+        "title": "Title 53",
+        "type": "film",
+        "year": 2006,
+        "tier": "S",
+        "tier_score": 5,
+        "community": 6.8,
+        "gap": 2.51
+       },
+       {
+        "title": "Title 7",
+        "type": "film",
+        "year": 1996,
+        "tier": "A",
+        "tier_score": 4,
+        "community": 6.5,
+        "gap": 1.86
+       },
+       {
+        "title": "Title 10",
+        "type": "film",
+        "year": 1999,
+        "tier": "A",
+        "tier_score": 4,
+        "community": 7.0,
+        "gap": 1.29
+       }
+      ],
+      "below": [
+       {
+        "title": "Title 50",
+        "type": "film",
+        "year": 2003,
+        "tier": "D",
+        "tier_score": 1,
+        "community": 6.6,
+        "gap": -1.26
+       },
+       {
+        "title": "Title 33",
+        "type": "film",
+        "year": 2022,
+        "tier": "C",
+        "tier_score": 2,
+        "community": 7.7,
+        "gap": -1.51
+       },
+       {
+        "title": "Title 25",
+        "type": "film",
+        "year": 2014,
+        "tier": "D",
+        "tier_score": 1,
+        "community": 7.2,
+        "gap": -1.94
+       }
+      ]
      },
-     "top_underrated_genre": {
-      "genre": "Horror",
-      "gap": -0.44,
-      "n": 17
-     },
+     "top_overrated_genre": "Comedy",
+     "top_underrated_genre": "Horror",
      "model_accuracy": 0.41,
-     "baseline": 0.32
+     "model_baseline": 0.32
     }
    }
   },
