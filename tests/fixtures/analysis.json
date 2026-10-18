@@ -3761,6 +3761,665 @@
      ],
      "available_from": "2026-11-05"
     }
+   },
+   "artist_survival": {
+    "status": "ok",
+    "n": 190,
+    "min_n": 40,
+    "as_of": "2026-10-13",
+    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, unadjusted and adjusted for first-month plays; the log-rank test.",
+    "value": 1.62,
+    "interval": [
+     1.22,
+     2.19
+    ],
+    "values": {
+     "curves": [
+      {
+       "type": "catalog",
+       "n": 110,
+       "median": 16,
+       "points": [
+        {
+         "months": 0,
+         "survival": 1.0,
+         "lower": 0.998,
+         "upper": 1,
+         "at_risk": 110
+        },
+        {
+         "months": 2,
+         "survival": 0.905,
+         "lower": 0.846,
+         "upper": 0.965,
+         "at_risk": 93
+        },
+        {
+         "months": 4,
+         "survival": 0.815,
+         "lower": 0.729,
+         "upper": 0.9,
+         "at_risk": 79
+        },
+        {
+         "months": 6,
+         "survival": 0.744,
+         "lower": 0.639,
+         "upper": 0.848,
+         "at_risk": 67
+        },
+        {
+         "months": 8,
+         "survival": 0.679,
+         "lower": 0.557,
+         "upper": 0.802,
+         "at_risk": 56
+        },
+        {
+         "months": 10,
+         "survival": 0.624,
+         "lower": 0.486,
+         "upper": 0.763,
+         "at_risk": 47
+        },
+        {
+         "months": 12,
+         "survival": 0.556,
+         "lower": 0.4,
+         "upper": 0.712,
+         "at_risk": 39
+        },
+        {
+         "months": 14,
+         "survival": 0.514,
+         "lower": 0.343,
+         "upper": 0.684,
+         "at_risk": 33
+        },
+        {
+         "months": 16,
+         "survival": 0.478,
+         "lower": 0.293,
+         "upper": 0.663,
+         "at_risk": 28
+        },
+        {
+         "months": 18,
+         "survival": 0.443,
+         "lower": 0.24,
+         "upper": 0.646,
+         "at_risk": 23
+        },
+        {
+         "months": 20,
+         "survival": 0.41,
+         "lower": 0.189,
+         "upper": 0.631,
+         "at_risk": 19
+        },
+        {
+         "months": 22,
+         "survival": 0.378,
+         "lower": 0.141,
+         "upper": 0.616,
+         "at_risk": 16
+        },
+        {
+         "months": 24,
+         "survival": 0.35,
+         "lower": 0.091,
+         "upper": 0.609,
+         "at_risk": 13
+        }
+       ]
+      },
+      {
+       "type": "new",
+       "n": 80,
+       "median": 12,
+       "points": [
+        {
+         "months": 0,
+         "survival": 1.0,
+         "lower": 0.998,
+         "upper": 1,
+         "at_risk": 80
+        },
+        {
+         "months": 2,
+         "survival": 0.894,
+         "lower": 0.821,
+         "upper": 0.967,
+         "at_risk": 68
+        },
+        {
+         "months": 4,
+         "survival": 0.785,
+         "lower": 0.678,
+         "upper": 0.891,
+         "at_risk": 57
+        },
+        {
+         "months": 6,
+         "survival": 0.689,
+         "lower": 0.559,
+         "upper": 0.82,
+         "at_risk": 48
+        },
+        {
+         "months": 8,
+         "survival": 0.592,
+         "lower": 0.44,
+         "upper": 0.745,
+         "at_risk": 40
+        },
+        {
+         "months": 10,
+         "survival": 0.525,
+         "lower": 0.357,
+         "upper": 0.693,
+         "at_risk": 34
+        },
+        {
+         "months": 12,
+         "survival": 0.471,
+         "lower": 0.286,
+         "upper": 0.656,
+         "at_risk": 28
+        },
+        {
+         "months": 14,
+         "survival": 0.418,
+         "lower": 0.217,
+         "upper": 0.62,
+         "at_risk": 23
+        },
+        {
+         "months": 16,
+         "survival": 0.36,
+         "lower": 0.144,
+         "upper": 0.576,
+         "at_risk": 19
+        },
+        {
+         "months": 18,
+         "survival": 0.314,
+         "lower": 0.087,
+         "upper": 0.542,
+         "at_risk": 16
+        },
+        {
+         "months": 20,
+         "survival": 0.266,
+         "lower": 0.026,
+         "upper": 0.506,
+         "at_risk": 13
+        },
+        {
+         "months": 22,
+         "survival": 0.224,
+         "lower": 0,
+         "upper": 0.47,
+         "at_risk": 11
+        },
+        {
+         "months": 24,
+         "survival": 0.195,
+         "lower": 0,
+         "upper": 0.454,
+         "at_risk": 9
+        }
+       ]
+      }
+     ],
+     "medians": {
+      "overall": 12,
+      "catalog": 16,
+      "new": 12
+     },
+     "hr_a": {
+      "value": 1.62,
+      "interval": [
+       1.22,
+       2.19
+      ]
+     },
+     "hr_b": {
+      "value": 1.46,
+      "interval": [
+       1.05,
+       2.03
+      ]
+     },
+     "logrank": {
+      "statistic": 6.8,
+      "p": 0.009
+     },
+     "share_catalog": 0.579,
+     "n": {
+      "catalog": 110,
+      "new": 80,
+      "total": 190
+     },
+     "longest_lived": [
+      {
+       "artist": "Artist 1",
+       "type": "new",
+       "months": 30,
+       "censored": true
+      },
+      {
+       "artist": "Artist 2",
+       "type": "catalog",
+       "months": 27,
+       "censored": false
+      },
+      {
+       "artist": "Artist 3",
+       "type": "catalog",
+       "months": 24,
+       "censored": true
+      },
+      {
+       "artist": "Artist 4",
+       "type": "new",
+       "months": 21,
+       "censored": false
+      },
+      {
+       "artist": "Artist 5",
+       "type": "catalog",
+       "months": 18,
+       "censored": true
+      }
+     ],
+     "cohort": "Artists first played since the 2023 Apple Music sync; those already in the library before it are left out."
+    }
+   },
+   "artist_survival_all": {
+    "status": "ok",
+    "n": 480,
+    "min_n": 40,
+    "as_of": "2026-10-13",
+    "how": "The same analysis with the artists already in the library before the 2023 sync included, their first play taken from the library's date added.",
+    "value": 1.41,
+    "interval": [
+     1.12,
+     1.78
+    ],
+    "values": {
+     "curves": [
+      {
+       "type": "catalog",
+       "n": 330,
+       "median": 18,
+       "points": [
+        {
+         "months": 0,
+         "survival": 1.0,
+         "lower": 0.998,
+         "upper": 1,
+         "at_risk": 330
+        },
+        {
+         "months": 2,
+         "survival": 0.944,
+         "lower": 0.917,
+         "upper": 0.971,
+         "at_risk": 280
+        },
+        {
+         "months": 4,
+         "survival": 0.866,
+         "lower": 0.822,
+         "upper": 0.909,
+         "at_risk": 238
+        },
+        {
+         "months": 6,
+         "survival": 0.793,
+         "lower": 0.737,
+         "upper": 0.849,
+         "at_risk": 202
+        },
+        {
+         "months": 8,
+         "survival": 0.739,
+         "lower": 0.673,
+         "upper": 0.804,
+         "at_risk": 171
+        },
+        {
+         "months": 10,
+         "survival": 0.68,
+         "lower": 0.604,
+         "upper": 0.756,
+         "at_risk": 145
+        },
+        {
+         "months": 12,
+         "survival": 0.636,
+         "lower": 0.551,
+         "upper": 0.721,
+         "at_risk": 123
+        },
+        {
+         "months": 14,
+         "survival": 0.578,
+         "lower": 0.483,
+         "upper": 0.673,
+         "at_risk": 104
+        },
+        {
+         "months": 16,
+         "survival": 0.528,
+         "lower": 0.423,
+         "upper": 0.632,
+         "at_risk": 88
+        },
+        {
+         "months": 18,
+         "survival": 0.483,
+         "lower": 0.369,
+         "upper": 0.596,
+         "at_risk": 74
+        },
+        {
+         "months": 20,
+         "survival": 0.438,
+         "lower": 0.315,
+         "upper": 0.562,
+         "at_risk": 62
+        },
+        {
+         "months": 22,
+         "survival": 0.411,
+         "lower": 0.277,
+         "upper": 0.545,
+         "at_risk": 52
+        },
+        {
+         "months": 24,
+         "survival": 0.38,
+         "lower": 0.237,
+         "upper": 0.524,
+         "at_risk": 44
+        }
+       ]
+      },
+      {
+       "type": "new",
+       "n": 150,
+       "median": 14,
+       "points": [
+        {
+         "months": 0,
+         "survival": 1.0,
+         "lower": 0.998,
+         "upper": 1,
+         "at_risk": 150
+        },
+        {
+         "months": 2,
+         "survival": 0.884,
+         "lower": 0.829,
+         "upper": 0.94,
+         "at_risk": 127
+        },
+        {
+         "months": 4,
+         "survival": 0.778,
+         "lower": 0.7,
+         "upper": 0.857,
+         "at_risk": 107
+        },
+        {
+         "months": 6,
+         "survival": 0.704,
+         "lower": 0.609,
+         "upper": 0.798,
+         "at_risk": 90
+        },
+        {
+         "months": 8,
+         "survival": 0.647,
+         "lower": 0.539,
+         "upper": 0.754,
+         "at_risk": 76
+        },
+        {
+         "months": 10,
+         "survival": 0.576,
+         "lower": 0.455,
+         "upper": 0.697,
+         "at_risk": 64
+        },
+        {
+         "months": 12,
+         "survival": 0.53,
+         "lower": 0.397,
+         "upper": 0.663,
+         "at_risk": 54
+        },
+        {
+         "months": 14,
+         "survival": 0.47,
+         "lower": 0.324,
+         "upper": 0.615,
+         "at_risk": 45
+        },
+        {
+         "months": 16,
+         "survival": 0.435,
+         "lower": 0.278,
+         "upper": 0.593,
+         "at_risk": 38
+        },
+        {
+         "months": 18,
+         "survival": 0.392,
+         "lower": 0.223,
+         "upper": 0.561,
+         "at_risk": 32
+        },
+        {
+         "months": 20,
+         "survival": 0.352,
+         "lower": 0.172,
+         "upper": 0.532,
+         "at_risk": 27
+        },
+        {
+         "months": 22,
+         "survival": 0.324,
+         "lower": 0.128,
+         "upper": 0.52,
+         "at_risk": 22
+        },
+        {
+         "months": 24,
+         "survival": 0.291,
+         "lower": 0.081,
+         "upper": 0.501,
+         "at_risk": 18
+        }
+       ]
+      }
+     ],
+     "medians": {
+      "overall": 12,
+      "catalog": 18,
+      "new": 14
+     },
+     "hr_a": {
+      "value": 1.42,
+      "interval": [
+       1.06,
+       1.92
+      ]
+     },
+     "hr_b": {
+      "value": 1.28,
+      "interval": [
+       0.92,
+       1.77
+      ]
+     },
+     "logrank": {
+      "statistic": 6.8,
+      "p": 0.009
+     },
+     "share_catalog": 0.688,
+     "n": {
+      "catalog": 330,
+      "new": 150,
+      "total": 480
+     },
+     "longest_lived": [
+      {
+       "artist": "Artist 20",
+       "type": "new",
+       "months": 30,
+       "censored": true
+      },
+      {
+       "artist": "Artist 21",
+       "type": "catalog",
+       "months": 27,
+       "censored": false
+      },
+      {
+       "artist": "Artist 22",
+       "type": "catalog",
+       "months": 24,
+       "censored": true
+      },
+      {
+       "artist": "Artist 23",
+       "type": "new",
+       "months": 21,
+       "censored": false
+      },
+      {
+       "artist": "Artist 24",
+       "type": "catalog",
+       "months": 18,
+       "censored": true
+      }
+     ],
+     "cohort": "Every artist, including those in the library before the 2023 sync, dated from the library."
+    }
+   },
+   "album_listening": {
+    "status": "ok",
+    "n": 9,
+    "min_n": 1,
+    "as_of": "2026-10-13",
+    "how": "Plays inside a run of 3 or more consecutive tracks from one album, as a share of all plays, by month and overall; the runs counted and the median run length.",
+    "value": 0.38,
+    "values": {
+     "share_album_runs": 0.38,
+     "runs": 212,
+     "median_run_tracks": 5,
+     "by_month": [
+      {
+       "month": "2026-03",
+       "share": 0.3,
+       "plays": 120
+      },
+      {
+       "month": "2026-04",
+       "share": 0.32,
+       "plays": 135
+      },
+      {
+       "month": "2026-05",
+       "share": 0.34,
+       "plays": 150
+      },
+      {
+       "month": "2026-06",
+       "share": 0.36,
+       "plays": 165
+      },
+      {
+       "month": "2026-07",
+       "share": 0.38,
+       "plays": 180
+      },
+      {
+       "month": "2026-08",
+       "share": 0.4,
+       "plays": 195
+      },
+      {
+       "month": "2026-09",
+       "share": 0.42,
+       "plays": 210
+      },
+      {
+       "month": "2026-10",
+       "share": 0.44,
+       "plays": 225
+      }
+     ]
+    }
+   },
+   "discovery_direction": {
+    "status": "ok",
+    "n": 9,
+    "min_n": 1,
+    "as_of": "2026-10-13",
+    "how": "Of the artists first played each month, those whose first album came out over 5 years before (digging back) against those within 5 years (keeping up); the share digging back overall.",
+    "value": 0.58,
+    "values": {
+     "back": 52,
+     "keep_up": 38,
+     "share_back": 0.58,
+     "median_release_gap_years": 9.5,
+     "by_month": [
+      {
+       "month": "2026-03",
+       "back": 5,
+       "keep_up": 5
+      },
+      {
+       "month": "2026-04",
+       "back": 6,
+       "keep_up": 6
+      },
+      {
+       "month": "2026-05",
+       "back": 7,
+       "keep_up": 4
+      },
+      {
+       "month": "2026-06",
+       "back": 5,
+       "keep_up": 5
+      },
+      {
+       "month": "2026-07",
+       "back": 6,
+       "keep_up": 6
+      },
+      {
+       "month": "2026-08",
+       "back": 7,
+       "keep_up": 4
+      },
+      {
+       "month": "2026-09",
+       "back": 5,
+       "keep_up": 5
+      },
+      {
+       "month": "2026-10",
+       "back": 6,
+       "keep_up": 6
+      }
+     ]
+    }
    }
   },
   "lifting": {
@@ -7570,6 +8229,161 @@
      "top_underrated_genre": "Horror",
      "model_accuracy": 0.41,
      "model_baseline": 0.32
+    }
+   },
+   "taste_profile": {
+    "status": "ok",
+    "n": 276,
+    "min_n": 100,
+    "as_of": "2026-10-13",
+    "how": "An ordered logistic model of my tier (S = 5 to D = 1) on each genre's presence and the standardised runtime and release year, over every tiered title; each effect with a 95% interval, clear when the interval excludes zero; accuracy leave-one-out against always guessing the commonest tier; the six largest gaps against the community score.",
+    "value": 0.44,
+    "values": {
+     "rows": [
+      {
+       "name": "Drama",
+       "effect": 0.44,
+       "interval": [
+        0.21,
+        0.67
+       ],
+       "clear": true
+      },
+      {
+       "name": "Crime",
+       "effect": 0.31,
+       "interval": [
+        0.05,
+        0.57
+       ],
+       "clear": true
+      },
+      {
+       "name": "Romance",
+       "effect": 0.22,
+       "interval": [
+        0.01,
+        0.43
+       ],
+       "clear": true
+      },
+      {
+       "name": "Runtime",
+       "effect": 0.12,
+       "interval": [
+        -0.05,
+        0.29
+       ],
+       "clear": false
+      },
+      {
+       "name": "Release year",
+       "effect": -0.06,
+       "interval": [
+        -0.21,
+        0.09
+       ],
+       "clear": false
+      },
+      {
+       "name": "Animation",
+       "effect": -0.09,
+       "interval": [
+        -0.3,
+        0.12
+       ],
+       "clear": false
+      },
+      {
+       "name": "Comedy",
+       "effect": -0.18,
+       "interval": [
+        -0.4,
+        0.04
+       ],
+       "clear": false
+      },
+      {
+       "name": "Action",
+       "effect": -0.27,
+       "interval": [
+        -0.46,
+        -0.08
+       ],
+       "clear": true
+      },
+      {
+       "name": "Horror",
+       "effect": -0.41,
+       "interval": [
+        -0.72,
+        -0.1
+       ],
+       "clear": true
+      }
+     ],
+     "model_accuracy": 0.44,
+     "baseline": 0.33,
+     "disagreements": {
+      "above": [
+       {
+        "title": "Title 53",
+        "type": "film",
+        "year": 2006,
+        "tier": "S",
+        "tier_score": 5,
+        "community": 6.8,
+        "gap": 2.51
+       },
+       {
+        "title": "Title 7",
+        "type": "film",
+        "year": 1996,
+        "tier": "A",
+        "tier_score": 4,
+        "community": 6.5,
+        "gap": 1.86
+       },
+       {
+        "title": "Title 10",
+        "type": "film",
+        "year": 1999,
+        "tier": "A",
+        "tier_score": 4,
+        "community": 7.0,
+        "gap": 1.29
+       }
+      ],
+      "below": [
+       {
+        "title": "Title 50",
+        "type": "film",
+        "year": 2003,
+        "tier": "D",
+        "tier_score": 1,
+        "community": 6.6,
+        "gap": -1.26
+       },
+       {
+        "title": "Title 33",
+        "type": "film",
+        "year": 2022,
+        "tier": "C",
+        "tier_score": 2,
+        "community": 7.7,
+        "gap": -1.51
+       },
+       {
+        "title": "Title 25",
+        "type": "film",
+        "year": 2014,
+        "tier": "D",
+        "tier_score": 1,
+        "community": 7.2,
+        "gap": -1.94
+       }
+      ]
+     }
     }
    }
   },
