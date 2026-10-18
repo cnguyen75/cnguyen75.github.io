@@ -3767,7 +3767,7 @@
     "n": 190,
     "min_n": 40,
     "as_of": "2026-10-13",
-    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, unadjusted and adjusted for first-month plays; the log-rank test.",
+    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, and per five years of gap between an artist's release years and the year I added them; the log-rank test. Plays before 1 March 2023 carry no date, so an artist's first play is floored there.",
     "value": 1.62,
     "interval": [
      1.22,
@@ -4033,7 +4033,8 @@
        "censored": true
       }
      ],
-     "cohort": "Artists first played since the 2023 Apple Music sync; those already in the library before it are left out."
+     "cohort": "Artists first played since the 2023 Apple Music sync; those already in the library before it are left out.",
+     "play_date_floor": "2023-03-01"
     }
    },
    "artist_survival_all": {
@@ -4041,7 +4042,7 @@
     "n": 480,
     "min_n": 40,
     "as_of": "2026-10-13",
-    "how": "The same analysis with the artists already in the library before the 2023 sync included, their first play taken from the library's date added.",
+    "how": "The same analysis with the artists already in the library before the 2023 sync included, their first play taken from the library's date added. Plays before 1 March 2023 carry no date, so an artist's first play is floored there.",
     "value": 1.41,
     "interval": [
      1.12,
@@ -4307,118 +4308,138 @@
        "censored": true
       }
      ],
-     "cohort": "Every artist, including those in the library before the 2023 sync, dated from the library."
+     "cohort": "Every artist, including those in the library before the 2023 sync, dated from the library.",
+     "play_date_floor": "2023-03-01"
     }
    },
    "album_listening": {
     "status": "ok",
-    "n": 9,
+    "n": 14,
     "min_n": 1,
     "as_of": "2026-10-13",
-    "how": "Plays inside a run of 3 or more consecutive tracks from one album, as a share of all plays, by month and overall; the runs counted and the median run length.",
-    "value": 0.38,
+    "how": "For each album with at least 20 plays, the Gini coefficient of plays across its tracks (0: every track played alike, 1: one track only); the value is the share of albums under 0.4, the ones I play through.",
+    "value": 0.357,
     "values": {
-     "share_album_runs": 0.38,
-     "runs": 212,
-     "median_run_tracks": 5,
-     "by_month": [
+     "rows": [
       {
-       "month": "2026-03",
-       "share": 0.3,
-       "plays": 120
+       "album": "Album 1",
+       "artist": "Artist 1",
+       "gini": 0.22,
+       "plays": 234
       },
       {
-       "month": "2026-04",
-       "share": 0.32,
-       "plays": 135
+       "album": "Album 2",
+       "artist": "Artist 2",
+       "gini": 0.54,
+       "plays": 265
       },
       {
-       "month": "2026-05",
-       "share": 0.34,
-       "plays": 150
+       "album": "Album 3",
+       "artist": "Artist 3",
+       "gini": 0.69,
+       "plays": 263
       },
       {
-       "month": "2026-06",
-       "share": 0.36,
-       "plays": 165
+       "album": "Album 4",
+       "artist": "Artist 4",
+       "gini": 0.67,
+       "plays": 282
       },
       {
-       "month": "2026-07",
-       "share": 0.38,
-       "plays": 180
+       "album": "Album 5",
+       "artist": "Artist 5",
+       "gini": 0.23,
+       "plays": 290
       },
       {
-       "month": "2026-08",
-       "share": 0.4,
-       "plays": 195
+       "album": "Album 6",
+       "artist": "Artist 6",
+       "gini": 0.27,
+       "plays": 21
       },
       {
-       "month": "2026-09",
-       "share": 0.42,
-       "plays": 210
+       "album": "Album 7",
+       "artist": "Artist 1",
+       "gini": 0.11,
+       "plays": 239
       },
       {
-       "month": "2026-10",
-       "share": 0.44,
-       "plays": 225
+       "album": "Album 8",
+       "artist": "Artist 2",
+       "gini": 0.15,
+       "plays": 138
+      },
+      {
+       "album": "Album 9",
+       "artist": "Artist 3",
+       "gini": 0.75,
+       "plays": 41
+      },
+      {
+       "album": "Album 10",
+       "artist": "Artist 4",
+       "gini": 0.41,
+       "plays": 228
+      },
+      {
+       "album": "Album 11",
+       "artist": "Artist 5",
+       "gini": 0.53,
+       "plays": 37
+      },
+      {
+       "album": "Album 12",
+       "artist": "Artist 6",
+       "gini": 0.77,
+       "plays": 296
+      },
+      {
+       "album": "Album 13",
+       "artist": "Artist 1",
+       "gini": 0.45,
+       "plays": 79
+      },
+      {
+       "album": "Album 14",
+       "artist": "Artist 2",
+       "gini": 0.55,
+       "plays": 208
       }
      ]
     }
    },
    "discovery_direction": {
     "status": "ok",
-    "n": 9,
+    "n": 168,
     "min_n": 1,
     "as_of": "2026-10-13",
-    "how": "Of the artists first played each month, those whose first album came out over 5 years before (digging back) against those within 5 years (keeping up); the share digging back overall.",
+    "how": "Of the artists first played each year, the share whose music was over 5 years old when I found them (digging back) against those within 5 years (keeping up); the share overall.",
     "value": 0.58,
     "values": {
-     "back": 52,
-     "keep_up": 38,
-     "share_back": 0.58,
-     "median_release_gap_years": 9.5,
-     "by_month": [
+     "by_year": [
       {
-       "month": "2026-03",
-       "back": 5,
-       "keep_up": 5
+       "year": 2023,
+       "share_dig_back": 0.62,
+       "n": 40
       },
       {
-       "month": "2026-04",
-       "back": 6,
-       "keep_up": 6
+       "year": 2024,
+       "share_dig_back": 0.55,
+       "n": 46
       },
       {
-       "month": "2026-05",
-       "back": 7,
-       "keep_up": 4
+       "year": 2025,
+       "share_dig_back": 0.58,
+       "n": 52
       },
       {
-       "month": "2026-06",
-       "back": 5,
-       "keep_up": 5
-      },
-      {
-       "month": "2026-07",
-       "back": 6,
-       "keep_up": 6
-      },
-      {
-       "month": "2026-08",
-       "back": 7,
-       "keep_up": 4
-      },
-      {
-       "month": "2026-09",
-       "back": 5,
-       "keep_up": 5
-      },
-      {
-       "month": "2026-10",
-       "back": 6,
-       "keep_up": 6
+       "year": 2026,
+       "share_dig_back": 0.6,
+       "n": 30
       }
-     ]
+     ],
+     "share_back": 0.58,
+     "median_release_gap_years": 9.5
     }
    }
   },
@@ -5201,7 +5222,28 @@
        "body_weight": 94.5,
        "strength": 103.8
       }
-     ]
+     ],
+     "lifts_change": {
+      "Bench": {
+       "start": 230.0,
+       "latest": 258.6,
+       "change_pct": 0.124
+      },
+      "Row": {
+       "start": 197.3,
+       "latest": 204.2,
+       "change_pct": 0.035
+      },
+      "Hack squat": {
+       "start": 420.0,
+       "latest": 410.0,
+       "change_pct": -0.024
+      }
+     },
+     "current": {
+      "strength": 103.8,
+      "body_weight": 94.5
+     }
     }
    },
    "retention": {
