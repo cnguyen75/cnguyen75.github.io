@@ -506,6 +506,72 @@
     return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" }, groups.map(ranking))];
   }
 
+  // The tier board: five rows of title chips for films, shows or anime, from the tiered
+  // titles the crowd statistic publishes (title, type, year, tier, community score), with a
+  // one-line summary per row from tier_genres_decades. S and A rows open; B, C and D fold
+  // to a count until opened. Titles are public works.
+  var TIER_ROWS = ["S", "A", "B", "C", "D"];
+  var TIER_TYPES = [["film", "Films"], ["show", "Shows"], ["anime", "Anime"]];
+  var TIER_OPEN = { S: true, A: true };
+  function watchingTiers(data) {
+    var ws = watchingState(data);
+    if (!ws.state.show) return null;
+    var a = analysisOf(data), aw = a && isObj(a.watching) ? a.watching : {};
+    var src = Array.isArray(aw.tiers) ? aw.tiers : okStat(aw.crowd_agreement) ? list(aw.crowd_agreement.values.points) : [];
+    var titles = src.filter(function (p) { return isObj(p) && typeof p.title === "string" && TIER_ROWS.indexOf(p.tier) >= 0; });
+    if (!titles.length) return null;
+    var summaries = {};
+    if (okStat(aw.tier_genres_decades)) list(aw.tier_genres_decades.values.tiers).forEach(function (t) {
+      if (!isObj(t) || typeof t.tier !== "string") return;
+      function top(o, k) { return isObj(o) ? Object.keys(o).sort(function (x, y) { return o[y] - o[x]; }).slice(0, k) : []; }
+      var decade = top(t.decades, 1)[0], genres = top(t.genres, 2).map(function (g) { return g.toLowerCase(); });
+      var bits = [decade ? "mostly " + decade : null, genres.length ? genres.join(", ") : null].filter(Boolean);
+      if (bits.length) summaries[t.tier] = bits.join(" · ");
+    });
+    var board = h("div", { class: "tier-board" });
+    var tabs = h("div", { class: "tier-tabs", role: "group", "aria-label": "Films, shows or anime" });
+    var rows = h("div", { class: "tier-rows" });
+    function chip(p) {
+      var hover = [p.type, isNum(p.year) ? String(p.year) : null, isNum(p.community) ? "community " + p.community.toFixed(1) : null].filter(Boolean).join(" · ");
+      return h("li", { class: "tier-chip", title: hover }, p.title, isNum(p.year) ? h("span", { class: "tier-chip-year" }, String(p.year)) : null);
+    }
+    function draw(type) {
+      rows.textContent = "";
+      var word = type === "anime" ? ["title", "titles"] : type === "show" ? ["show", "shows"] : ["film", "films"];
+      TIER_ROWS.forEach(function (tier) {
+        var items = titles.filter(function (p) { return p.type === type && p.tier === tier; })
+          .sort(function (x, y) { return (isNum(y.community) ? y.community : 0) - (isNum(x.community) ? x.community : 0) || String(x.title).localeCompare(String(y.title)); });
+        var open = !!TIER_OPEN[tier] || items.length <= 3;
+        var strip = h("ul", { class: "tier-chips", "aria-label": "Tier " + tier }, items.map(chip));
+        var row = h("div", { class: "tier-row" + (open ? "" : " tier-row--collapsed"), "data-tier": tier },
+          h("div", { class: "tier-row-head" }, h("span", { class: "tier-letter" }, tier),
+            h("span", { class: "tier-count" }, plural(items.length, word[0], word[1])),
+            summaries[tier] ? h("span", { class: "tier-summary" }, summaries[tier]) : null),
+          items.length ? strip : h("p", { class: "panel-empty" }, "No " + word[1] + " in " + tier + "."));
+        if (!open && items.length) {
+          var btn = h("button", { type: "button", class: "table-toggle tier-more", "aria-expanded": "false" }, plural(items.length, "title", "titles") + " · show all");
+          btn.addEventListener("click", function () {
+            var opening = row.classList.contains("tier-row--collapsed");
+            row.classList.toggle("tier-row--collapsed", !opening);
+            btn.setAttribute("aria-expanded", String(opening));
+            btn.textContent = opening ? "show fewer" : plural(items.length, "title", "titles") + " · show all";
+          });
+          row.appendChild(btn);
+        }
+        rows.appendChild(row);
+      });
+      Array.prototype.forEach.call(tabs.children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-type") === type)); });
+    }
+    TIER_TYPES.forEach(function (t) {
+      var b = h("button", { type: "button", class: "tier-tab", "data-type": t[0], "aria-pressed": "false" }, t[1] + " · " + titles.filter(function (p) { return p.type === t[0]; }).length);
+      b.addEventListener("click", function () { draw(t[0]); });
+      tabs.appendChild(b);
+    });
+    draw("film");
+    append(board, [tabs, rows]);
+    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, board];
+  }
+
   // ---------- feed blocks: listening ----------
 
   // Bins plays into the blue scale from the reference. Any hour with a play
@@ -979,7 +1045,7 @@
   // The blocks a lately/<feed>/ page can hold (build.py's FEED_BLOCKS).
   var BLOCKS = {
     "fantasy.lineup": fantasyLineup, "fantasy.carry": fantasyCarry,
-    "watching.hours": watchingHours, "watching.recent": watchingRecent, "watching.rankings": watchingRankings,
+    "watching.hours": watchingHours, "watching.recent": watchingRecent, "watching.rankings": watchingRankings, "watching.tiers": watchingTiers,
     "listening.recent": listeningRecent, "eating.recent": eatingRecent,
     "lifting.lifts": liftingLifts, "lifting.training": liftingTraining, "lifting.body_weight": liftingBodyWeight
   };
@@ -1081,11 +1147,19 @@
       var neg = rows.filter(function (r) { return r.clear !== false && r.effect < 0; }).sort(function (x, y) { return x.effect - y.effect; }).map(function (r) { return r.name; });
       var unclear = rows.filter(function (r) { return r.clear === false; }).sort(function (x, y) { return Math.abs(x.effect) - Math.abs(y.effect); }).map(function (r) { return r.name; });
       function names(xs) { xs = xs.slice(0, 3); return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1]; }
-      sentences = [
-        (pos.length ? names(pos) + (pos.length === 1 ? " lifts" : " lift") + " my tiers" : "No genre clearly lifts my tiers") +
-          (neg.length ? "; " + names(neg) + (neg.length === 1 ? " lowers" : " lower") + " them." : "."),
-        unclear.length ? names(unclear) + (unclear.length === 1 ? " doesn't" : " don't") + " move me." : "Every feature's effect is clear of zero."
-      ];
+      var clear = pos.length + neg.length, nTitles = isNum(tp.n) ? plural(tp.n, "title", "titles") : "these titles";
+      if (clear === 0) {
+        sentences = ["Beyond the crowd's score, nothing clearly moves my tiers.", "No feature is distinguishable from noise at " + nTitles + "."];
+      } else if (clear === 1) {
+        sentences = ["Beyond the crowd's score, only " + (pos[0] || neg[0]) + " clearly moves my tiers, " + (pos.length ? "upward" : "downward") + ".",
+          "Nothing else is distinguishable from noise at " + nTitles + "."];
+      } else {
+        sentences = [
+          (pos.length ? names(pos) + (pos.length === 1 ? " lifts" : " lift") + " my tiers" : "No genre clearly lifts my tiers") +
+            (neg.length ? "; " + names(neg) + (neg.length === 1 ? " lowers" : " lower") + " them." : "."),
+          unclear.length ? names(unclear) + (unclear.length === 1 ? " doesn't" : " don't") + " move me." : "Every feature's effect is clear of zero."
+        ];
+      }
       nums = [crowd, isNum(v.model_accuracy) ? { label: "Predictable from metadata", value: fpct(v.model_accuracy), note: isNum(v.baseline) ? "vs " + fpct(v.baseline) + " baseline guessing" : "leave-one-out" } : null, sNum];
       chart = chartOr(function (c) {
         var block = c.effectBars("What my tiers respond to", rows);
