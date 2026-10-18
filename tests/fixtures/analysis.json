@@ -2923,11 +2923,11 @@
       "n": 5,
       "min_n": 4,
       "as_of": "2026-10-13",
-      "how": "Points per week my starters scored against the league average starter; rank and percentile across my leagues.",
-      "value": 4.8,
+      "how": "My all-play win share over the completed weeks, pooled across my teams, with a Wilson interval; rank in each league and, for the percentile, among every manager across my leagues.",
+      "value": 0.58,
       "interval": [
-       1.1,
-       8.5
+       0.45,
+       0.7
       ],
       "values": {
        "rank": 6,

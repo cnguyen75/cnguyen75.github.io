@@ -394,8 +394,10 @@
         return h("span", { class: "quad-dot quad-dot--other", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
           h("span", { class: "sr-only" }, "another team, " + hover(t)));
       }),
-      mine.map(function (t) {
+      mine.map(function (t, i) {
+        // Wide: the label beside the point. Under 600px (CSS): a numbered marker and the key below.
         return h("span", { class: "quad-dot quad-dot--mine", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
+          h("span", { class: "quad-num", "aria-hidden": "true" }, String(i + 1)),
           h("span", { class: "quad-label" + (x(t.all_play) > 60 ? " quad-label--left" : "") }, String(t.label)),
           h("span", { class: "sr-only" }, ", " + hover(t)));
       }),
@@ -412,8 +414,11 @@
       }), h("span", { class: "quad-x-label" }, "all-play win share →")));
     var rows = mine.map(function (t) { return [String(t.label), record(t.record), pct(t.all_play), signed(t.luck, 1)]; })
       .concat(others.map(function (t) { return ["another team", record(t.record), pct(t.all_play), signed(t.luck, 1)]; }));
+    var key = mine.length ? h("ol", { class: "quad-key", "aria-label": "My teams, by marker number" }, mine.map(function (t, i) {
+      return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), String(t.label) + " · " + record(t.record));
+    })) : null;
     return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
-      h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail, last 5 weeks")));
+      [h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail, last 5 weeks")), key]);
   }
 
   // ---------- statistics ----------
@@ -593,6 +598,8 @@
         function bid(sp) {
           return isObj(sp) && sp.kind === "faab" && isNum(sp.amount) ? "$" + sp.amount : "–";
         }
+        // A league without bids (waiver priority, free agents) gets no Bid column.
+        var anyBid = rows.some(function (r) { return bid(r.add.spent) !== "–"; });
         function mark(m) {
           if (!m.length) return null;
           return h("span", { class: "ld-mark ld-mark--" + m[0] }, h("span", { "aria-hidden": "true" }, m[0] === "best" ? "▲ " : "▽ "), m.join(" and "));
@@ -601,8 +608,8 @@
         var t = h("div", { class: "data-table ld-table" },
           h("table", null,
             h("caption", { class: "ld-caption" }, (Array.isArray(v.all) ? "Every add" : "Adds") + ", best and worst three marked"),
-            h("thead", null, h("tr", null, ["Week", "Added", "Dropped", "Bid", "Class"].map(function (c, i) {
-              return h("th", { scope: "col", class: i === 0 || i === 3 ? "num" : null }, c);
+            h("thead", null, h("tr", null, (anyBid ? ["Week", "Added", "Dropped", "Bid", "Class"] : ["Week", "Added", "Dropped", "Class"]).map(function (c) {
+              return h("th", { scope: "col", class: c === "Week" || c === "Bid" ? "num" : null }, c);
             }))),
             h("tbody", null, rows.map(function (r) {
               var a = r.add;
@@ -610,7 +617,7 @@
                 h("td", { class: "num" }, String(a.week)),
                 h("th", { scope: "row" }, a.added + (a.position ? " (" + a.position + ")" : ""), r.marks.length ? [h("br"), mark(r.marks)] : null),
                 h("td", null, a.dropped || "–"),
-                h("td", { class: "num" }, bid(a.spent)),
+                anyBid ? h("td", { class: "num" }, bid(a.spent)) : null,
                 h("td", null, String(a["class"])));
             }))));
         return [
@@ -642,7 +649,7 @@
     "fantasy.manager_score.components.draft": managerComponent("Draft", "my drafted starters against the median player taken in the same round"),
     "fantasy.manager_score.components.lineup": managerComponent("Lineup", "my lineup against the best possible one from my roster"),
     "fantasy.manager_score.components.moves": managerComponent("Moves", "adds, drops and trades against keeping my drafted roster"),
-    "fantasy.manager_score.components.strength": managerComponent("Strength", "my starters against the league average"),
+    "fantasy.manager_score.components.strength": managerComponent("Strength", "my starters against the league average", function (x) { return share2(x) + " all-play"; }),
     "fantasy.manager_score.composite": {
       n: WEEKS,
       label: "Composite",
@@ -1336,10 +1343,19 @@
       }
     };
   }
-  function managerComponent(label, what) {
+  function ordinal(n) {
+    var r = n % 100, suffix = r >= 11 && r <= 13 ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th";
+    return n + suffix;
+  }
+  // 0.4 -> ".40": an all-play share without its leading zero.
+  function share2(x) { return x.toFixed(2).replace(/^0\./, "."); }
+  function pointsPerWeek(x) { return signed(x, 1) + " pts/wk"; }
+
+  function managerComponent(label, what, raw) {
     return {
       n: WEEKS,
       label: label,
+      raw: raw || pointsPerWeek,
       value: function (s) { return [signed(s.value, 1), "points a week, " + what]; },
       intervalFmt: function (x) { return signed(x, 1); },
       draw: function (v) { return facts([["rank", rankText(v.rank, v.of, "best")], ["percentile", isNum(v.percentile) ? pct(v.percentile) : null]]); }
@@ -1362,7 +1378,7 @@
   function indexedLines(weeks, opts) {
     var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
     return multiLine("Body weight and strength since the cut, indexed to 100", weeks.map(function (w) { return dateText(w.week_start); }),
-      [{ name: "body weight · " + plural(weighIns, "weigh-ins"), values: weeks.map(function (w) { return w.body_weight; }), points: true },
+      [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true },
        { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }],
       Object.assign({ fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", height: 130 }, opts || {}));
   }
@@ -1470,27 +1486,39 @@
   var GROUPS = {};
   GROUPS["fantasy.manager_score.components.draft fantasy.manager_score.components.lineup fantasy.manager_score.components.moves fantasy.manager_score.components.strength"] = {
     n: WEEKS,
-    // Four bars, points a week against each baseline, with rank and of; the composite is its
-    // own slot below. A component still waiting is named under the bars with its n of min_n.
-    draw: function (entries) {
-      var ok = entries.filter(function (e) { return okStat(e.stat) && isNum(e.stat.value); });
+    // The composite as the card's headline (percentile with its interval), then one bar per
+    // component: its percentile among managers across my leagues, labelled with the raw
+    // value and rank. A component still waiting is named under the bars with its n of min_n.
+    absorbs: "fantasy.manager_score.composite",
+    draw: function (entries, analysis) {
+      var ok = entries.filter(function (e) { return okStat(e.stat) && isNum(e.stat.value) && isObj(e.stat.values) && isNum(e.stat.values.percentile); });
       var waiting = entries.filter(function (e) { return isObj(e.stat) && e.stat.status === "not enough data yet"; });
+      var comp = isObj(analysis.fantasy) && isObj(analysis.fantasy.manager_score) ? analysis.fantasy.manager_score.composite : null;
+      var head = null;
+      if (okStat(comp) && isNum(comp.value)) {
+        var iv = Array.isArray(comp.interval) && isNum(comp.interval[0]) && isNum(comp.interval[1])
+          ? "95% " + Math.round(comp.interval[0] * 100) + "–" + Math.round(comp.interval[1] * 100) : null;
+        head = h("p", { class: "ld-value" }, h("span", { class: "ld-value-num" }, ordinal(Math.round(comp.value * 100)) + " percentile"), " ",
+          h("span", { class: "ld-value-unit" }, "composite of the four, among managers across my leagues"),
+          iv ? h("span", { class: "ld-interval" }, iv) : null);
+      } else if (isObj(comp) && comp.status === "not enough data yet") {
+        head = h("p", { class: "ld-wait" }, h("b", null, "Composite: not enough data yet"), " · " + (isNum(comp.n) ? big(comp.n) + " of " : "") + plural(comp.min_n, WEEKS) + " needed");
+      }
       var items = ok.map(function (e) {
-        var v = isObj(e.stat.values) ? e.stat.values : {};
-        return { label: e.spec.label, value: e.stat.value, text: signed(e.stat.value, 1) + (isNum(v.rank) && isNum(v.of) ? " · " + v.rank + " of " + v.of : "") };
+        var v = e.stat.values;
+        return { label: e.spec.label, value: v.percentile * 100, text: e.spec.raw(e.stat.value) + (isNum(v.rank) && isNum(v.of) ? " · rank " + v.rank + " of " + v.of : "") };
       });
-      return [items.length ? bars("Points a week against each baseline", items, { labelHeading: "Component", valueHeading: "Points a week · rank" }) : null,
-        ok.length ? h("p", { class: "ld-small" }, ok.map(function (e) {
-          var v = isObj(e.stat.values) ? e.stat.values : {};
-          var iv = interval(e.stat.interval, function (x) { return signed(x, 1); });
-          return e.spec.label + ": " + (isNum(v.percentile) ? pct(v.percentile) + " of managers score lower" : "") + (iv ? ", " + iv : "");
-        }).join(". ") + ".") : null,
+      return [head,
+        items.length ? bars("Percentile among managers across my leagues", items, { labelHeading: "Component", valueHeading: "Percentile · raw value and rank" }) : null,
         waiting.map(function (e) {
           return h("p", { class: "ld-wait" }, h("b", null, e.spec.label + ": not enough data yet"),
             " · " + (isNum(e.stat.n) ? big(e.stat.n) + " of " : "") + plural(e.stat.min_n, WEEKS) + " needed");
         })];
     }
   };
+  // Slots a group slot absorbs (drawn inside it) are hidden when that group is on the page.
+  var ABSORBED = {};
+  Object.keys(GROUPS).forEach(function (k) { if (GROUPS[k].absorbs) ABSORBED[GROUPS[k].absorbs] = k; });
 
   // Statistics still waiting for data ("not enough data yet"): in a "Why" card they are
   // drawn as the question with a "not enough data yet · n of min_n" box; elsewhere they
@@ -1502,6 +1530,8 @@
     var group = GROUPS[slot.getAttribute("data-stat")];
     slot.textContent = "";
     slot.hidden = false;
+    var absorbedBy = ABSORBED[slot.getAttribute("data-stat")];
+    if (absorbedBy && document.querySelector('.ld-stat[data-stat="' + absorbedBy + '"]')) { slot.hidden = true; return; }
     slot.getAttribute("data-stat").split(/\s+/).forEach(function (path) {
       var spec = STATS[path], leaf = leafLabel(path);
       if (!spec) return;
@@ -1542,6 +1572,7 @@
           block.appendChild(b);
         }
         entries.forEach(function (e) { noteHow(e.stat); });
+        if (group.absorbs) expand(analysis, group.absorbs).forEach(function (e) { if (isObj(e.stat)) noteHow(e.stat); });
       } catch (err) {
         if (window.console) console.warn("lately-depth: " + slot.getAttribute("data-stat") + " not drawn:", err.message);
         block.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));

@@ -242,6 +242,9 @@ def variant(name):
         d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
                                  {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
                                  {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
+    if name == "no bids":
+        for add in a["fantasy"]["teams"][0]["waiver_adds"]["values"]["all"]:
+            add["spent"] = {"kind": "free agent", "amount": 0}
     if name == "per week":
         a["cross"]["time_budget"]["values"]["to"] = a["as_of"]
     if name == "bench":
@@ -444,6 +447,12 @@ class Drawing(unittest.TestCase):
             self.assertNotIn("aren't in it", b["text"])
         self.assertEqual(second["rows"], 14)
         self.assertEqual(slot(d, "fantasy.teams[].waiver_adds")["hows"], ["how: " + wa["how"]])
+        # A league whose adds carry no bid has no Bid column.
+        nobid = blocks(draw("lately/fantasy/", name="no bids"), "fantasy.teams[].waiver_adds")
+        self.assertNotIn("Bid", nobid[0]["text"])
+        self.assertEqual(len(nobid[0]["cells"][0]), 4)
+        self.assertIn("Bid", first["text"])
+        self.assertEqual(len(first["cells"][0]), 5)
         # An older file without the full list shows its best and worst three, and says so.
         old = blocks(draw("lately/fantasy/", name="no all list"), "fantasy.teams[].waiver_adds")[1]
         self.assertEqual(old["rows"], 6)
@@ -567,10 +576,13 @@ class Drawing(unittest.TestCase):
         self.assertEqual(sec["group"], "why")
         bars, composite = sec["slots"]
         (b,) = bars["blocks"]
-        for bit in ("Draft", "+3.4 · 9 of 32", "Lineup", "−2.1 · 24 of 32", "Moves", "Strength", "+4.8 · 6 of 32", "72% of managers score lower"):
+        # Bars are percentiles; each label is the raw value and the rank; the composite heads the card.
+        for bit in ("Draft", "+3.4 pts/wk · rank 9 of 32", "Lineup", "−2.1 pts/wk · rank 24 of 32", "Moves", "+1.6 pts/wk · rank 12 of 32",
+                    "Strength", ".58 all-play · rank 6 of 32", "Percentile among managers"):
             self.assertIn(bit, b["text"])
-        self.assertEqual(len(bars["hows"]), 4)
-        self.assertEqual(composite["blocks"][0]["value"], "61%")
+        self.assertEqual((b["value"], b["interval"]), ("61st percentile", "95% 41–78"))
+        self.assertEqual(len(bars["hows"]), 5)  # the four components and the composite
+        self.assertTrue(composite["hidden"])  # drawn inside the card instead
         split = blocks(d, "fantasy.teams[].acquisition_split")
         self.assertEqual(len(split), len(ANALYSIS["fantasy"]["teams"]))
         self.assertIn("draft", split[0]["text"])
@@ -594,6 +606,17 @@ class Drawing(unittest.TestCase):
         self.assertEqual(wb["wait"], "Moves: not enough data yet · 2 of 4 weeks needed")
         self.assertIn("Draft", wb["text"])
         self.assertNotIn("+1.6", wb["text"])
+        # Under 600px my teams are numbered markers with a key naming them; no label in the plot.
+        narrow = next(p for p in draw("index.html", 390)["panels"] if p["id"] == "panel-fantasy")
+        self.assertEqual(narrow["quadMine"], [])
+        self.assertEqual(narrow["quadNums"], ["1", "2", "3"])
+        def rec(t):
+            r = t["schedule_what_if"]["values"]["real"]
+            return f"{r['wins']}–{r['losses']}"
+        self.assertEqual(narrow["quadKey"], [f"{i + 1}{t['name']} · {rec(t)}" for i, t in enumerate(ANALYSIS["fantasy"]["teams"])])
+        wide = next(p for p in draw("index.html")["panels"] if p["id"] == "panel-fantasy")
+        self.assertEqual(wide["quadNums"], [])
+        self.assertEqual(wide["quadKey"], [])
 
     # Watching page: My rankings leads What's happening; completion and drops sit in Why with
     # the note that only finished titles are logged as a rule; the new cards draw.
@@ -648,7 +671,7 @@ class Drawing(unittest.TestCase):
         # The strength-index card and its two indexed lines, with the dashed 100 line in the legend.
         (si,) = blocks(draw("lately/lifting/"), "lifting.strength_index")
         self.assertIn("100 = cut start", si["text"])
-        self.assertIn("body weight · 20 weigh-ins", si["text"])  # every fixture week has a weigh-in
+        self.assertIn("body weight · 20 weeks with a weigh-in", si["text"])  # every fixture week has one
 
     # No other managers' names; no Beli dates (cities are fine; new cuisines are counted by
     # month, which ties no date to a place).

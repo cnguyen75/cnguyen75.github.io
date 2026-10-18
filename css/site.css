@@ -465,7 +465,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
    a slight lift (here one step lighter than the card), the text colour kept, and the
    arrow in teal. */
 .panel-link { position: relative; isolation: isolate; color: inherit; text-decoration: none; }
-.panel-link::after { content: " →"; font-family: var(--font-label); font-size: 18px; font-weight: 400; color: var(--text-3); }
+.panel-link::after { content: "\00a0→"; font-family: var(--font-label); font-size: 18px; font-weight: 400; color: var(--text-3); }
 .panel-link::before { content: ""; position: absolute; inset: -6px -10px; z-index: -1; border-radius: 2px; }
 .panel-link:hover, .panel-link:focus-visible { color: inherit; }
 .panel-link:hover::before, .panel-link:focus-visible::before { background: var(--lift); }
@@ -719,6 +719,18 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   text-align: right;
   font-size: 14px;
   font-weight: 600;
+}
+
+/* Narrow rows: the body's parts become row items, so the status (e.g. "2026", "in progress")
+   sits on the GitHub link's line instead of alone under it, or after the description when
+   the row has no link. The same rule for every row. */
+@media (max-width: 520px) {
+  .track--wrap .track-body { display: contents; }
+  .track--wrap .track-title { flex: 1 1 0; min-width: 0; }
+  .track--wrap .track-part, .track--wrap .track-desc { flex: 1 1 100%; margin-left: 60px; }
+  .track--wrap .track-ext { flex: 1 1 auto; margin: 0 0 0 60px; }
+  .track--wrap .track-meta--status { padding-top: 4px; margin-left: 60px; }
+  .track--wrap:has(.track-ext) .track-meta--status { margin-left: 0; }
 }
 
 @media (max-width: 520px) {
@@ -1229,7 +1241,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .fill--watching { background: var(--blue); }
 .fill--listening { background: var(--orange); }
 .fill--training { background: var(--purple); }
-.ld-legend .legend-item { font-family: var(--font-label); }
+.ld-legend .legend-item { font-family: var(--font-label); white-space: normal; min-width: 0; }
 
 /* Strength against luck: other teams grey and unlabelled, mine blue with labels and trails */
 .quad { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; }
@@ -1252,6 +1264,17 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .quad-x { grid-column: 2; position: relative; height: 38px; font-family: var(--font-label); font-size: 12px; color: var(--text-3); }
 .quad-x > span { position: absolute; top: 0; transform: translateX(-50%); }
 .quad-x > .quad-x-label { left: 50%; top: 18px; }
+/* Under 600px my teams are numbered markers and the key below names them; wider, the label sits beside the point. */
+.quad-num { display: none; }
+.quad-key { display: none; }
+@media (max-width: 599px) {
+  .quad-label { display: none; }
+  .quad-dot--mine { width: 18px; height: 18px; margin: -9px 0 0 -9px; }
+  .quad-num { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-family: var(--font-label); font-size: 11px; font-weight: 700; color: var(--card); }
+  .quad-key { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 13px; }
+  .quad-key li { display: flex; align-items: center; gap: 8px; }
+  .quad-key-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--blue); color: var(--card); font-family: var(--font-label); font-size: 11px; font-weight: 700; flex: none; }
+}
 
 @media (max-width: 520px) {
   .quad-plot { height: 240px; }
