@@ -1234,6 +1234,15 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .legend-swatch.s-orange { background: var(--orange); }
 .legend-swatch.s-purple { background: var(--purple); }
 .legend-swatch.s-grey { background: var(--axis); opacity: 0.6; border-radius: 50%; }
+.legend-swatch.s-teal { background: var(--teal); }
+.line-svg polyline.s-teal { stroke: var(--teal); }
+.line-svg polyline.s-grey { stroke: var(--axis); }
+.line-dot.s-teal { background: var(--teal); }
+.line-dot.s-grey { background: var(--axis); }
+.line-end-label.s-teal::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; background: var(--teal); vertical-align: middle; }
+.line-end-label.s-grey::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; background: var(--axis); vertical-align: middle; }
+.lift-split { display: flex; flex-direction: column; gap: 10px; }
+.lift-split-title { margin: 0; font-size: 14px; font-weight: 600; color: var(--text-2); }
 .legend-swatch.s-trail { height: 0; border-top: 1px solid var(--blue); opacity: 0.6; }
 .line-svg polyline.line-thin { stroke-width: 1; }
 .line-dot--point { width: 6px; height: 6px; margin: -3px 0 0 -3px; }

@@ -34,6 +34,8 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
             button: b && { text: b.textContent, expanded: b.getAttribute("aria-expanded"), controls: b.getAttribute("aria-controls") === r.querySelector("ol").id },
           };
         }),
+        splits: [...document.querySelectorAll(LIFTS + " .lift-split-title")].map(e => e.textContent),
+        splitCounts: [...document.querySelectorAll(LIFTS + " .lift-split")].map(e => e.querySelectorAll(".lift").length),
         rankingsSection: (() => { const s = document.querySelector(RANKINGS); return s ? [s.closest(".ld-group").id, s.closest(".ld-section").id] : null; })(),
         lifts: [...document.querySelectorAll(LIFTS + " .lift")].map(l => ({
           best: l.querySelector(".lift-best").textContent,
@@ -42,6 +44,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
           setUnderBest: !!l.querySelector(".lift-best-set") &&
             l.querySelector(".lift-best-set").getBoundingClientRect().top >= l.querySelector(".lift-best > span").getBoundingClientRect().bottom - 1,
           few: (l.querySelector(".lift-few") || {}).textContent || null,
+          figures: (l.querySelector(".lift-figures") || {}).textContent || null,
           chart: !!l.querySelector(".line-chart"),
           toggle: !!l.querySelector(".table-toggle"),
         })),
@@ -49,7 +52,8 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
     }, [RANKINGS, LIFTS]);
     const watching = await open("lately/watching/", RANKINGS + " .ranking");
     const lifting = await open("lately/lifting/", LIFTS + " .lift");
-    const before = Object.assign(await facts(watching), { lifts: (await facts(lifting)).lifts, liftsScrollX: (await facts(lifting)).scrollX });
+    const lf = await facts(lifting);
+    const before = Object.assign(await facts(watching), { lifts: lf.lifts, liftsScrollX: lf.scrollX, splits: lf.splits, splitCounts: lf.splitCounts });
     // Keyboard: tab to the first "show all" button and press Enter, then Space to close.
     const btn = watching.locator(RANKINGS + " button.ranking-more").first();
     await btn.focus();

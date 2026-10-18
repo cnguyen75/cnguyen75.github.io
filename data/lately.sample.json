@@ -568,7 +568,9 @@
             "date": "2026-10-05",
             "e1rm": 259.5
           }
-        ]
+        ],
+        "split": "chest_back",
+        "tracked": true
       },
       {
         "name": "[Lift 2]",
@@ -630,7 +632,9 @@
             "date": "2026-10-06",
             "e1rm": 181.5
           }
-        ]
+        ],
+        "split": "shoulders_arms",
+        "tracked": true
       },
       {
         "name": "[Lift 3]",
@@ -692,7 +696,9 @@
             "date": "2026-10-07",
             "e1rm": 363
           }
-        ]
+        ],
+        "split": "legs",
+        "tracked": true
       },
       {
         "name": "[Lift 4]",
@@ -754,7 +760,9 @@
             "date": "2026-10-08",
             "e1rm": 113.0
           }
-        ]
+        ],
+        "split": "legs",
+        "tracked": true
       }
     ],
     "weeks": [

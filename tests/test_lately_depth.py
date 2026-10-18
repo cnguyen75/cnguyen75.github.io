@@ -302,10 +302,8 @@ def variant(name):
             add["spent"] = {"kind": "free agent", "amount": 0}
     if name == "per week":
         a["cross"]["time_budget"]["values"]["to"] = a["as_of"]
-    if name == "bench":
-        lift = d["lifting"]["main_lifts"][0]
-        lift["name"] = "Bench"
-        lift["best"] = {"date": "2026-06-06", "e1rm": 225.0, "best_set": {"weight_lb": 225, "reps": 1, "date": "2026-06-06", "source": "manual"}}
+    if name == "no splits":
+        del a["lifting"]["strength_index"]["values"]["splits"]
     if name == "kept includes zero":
         for s in a["lifting"]["strength_kept"].values():
             if s["status"] == "ok":
@@ -604,8 +602,19 @@ class Drawing(unittest.TestCase):
         lf = panels["panel-lifting"]
         self.assertEqual([h[0] for h in lf["headline"]], ["Body weight since the cut", "Strength index since the cut", "Best-held lift"])
         self.assertEqual(lf["headline"][2][1:], [ANALYSIS["lifting"]["best_held_lift"]["name"], "+12.4% since the cut"])
-        self.assertNotIn("logged by hand", d["bodyText"])  # the bench tile lives on the lifting page now
-        self.assertIn("logged by hand", draw("lately/lifting/", name="bench")["bodyText"])
+        self.assertNotIn("logged by hand", d["bodyText"])  # no hand-entered best anywhere
+        # The split lines: three thin lines under the two, labelled at the right, in the legend; the sentence compares them.
+        self.assertEqual(lf["lineCount"], 5)
+        self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
+        self.assertEqual(lf["endLabels"], 5)
+        for name in ("chest and back", "shoulders and arms", "legs"):
+            self.assertIn(name, lf["legend"] or "")
+        self.assertRegex(lf["answer"], r"; legs are (up|down) \d+\.\d%, shoulders and arms [+−]\d+\.\d%, chest and back [+−]\d+\.\d%\.$")
+        self.assertEqual(len(re.findall(r"[.!?](\s|$)", lf["answer"])), 2)
+        # Without splits (an older file) the overall line only.
+        old = next(p for p in draw("index.html", name="no splits")["panels"] if p["id"] == "panel-lifting")
+        self.assertEqual((old["lineCount"], old["thinCount"]), (2, 1))  # body weight (thin, points) and strength
+        self.assertNotIn("legs are", old["answer"])
         for gone in ("Restaurants ranked", "Recently tried", "Who is carrying my teams", "Estimated one-rep max, main lifts", "Sets by muscle group", "My rankings", "Recently"):
             self.assertNotIn(gone, d["bodyText"], gone)
         self.assertIn("Restaurants ranked", draw("lately/eating/")["bodyText"])  # moved, not deleted
@@ -881,8 +890,16 @@ class Drawing(unittest.TestCase):
         self.assertTrue(blocks(lifting, "cross.lifting_soundtrack"))
         self.assertTrue(blocks(lifting, "cross.rhythm.workouts"))  # absorbed into Training
         self.assertEqual([sl["stat"] for sl in next(s for s in lifting["sections"] if s["id"] == "training")["slots"]], ["cross.rhythm.workouts"])
-        # The strength index keeps the per-lift change list inside its card.
-        self.assertIn("Best e1RM since the cut started, by lift", blocks(lifting, "lifting.strength_index")[0]["text"])
+        # The strength index keeps the per-lift change list inside its card, draws the split lines, and its how line quotes the rule.
+        (sidx,) = blocks(lifting, "lifting.strength_index")
+        self.assertIn("Best e1RM since the cut started, by lift", sidx["text"])
+        self.assertIn("legs", sidx["text"])
+        self.assertIn("at least 12 sessions in the last 26 weeks", slot(lifting, "lifting.strength_index")["hows"][0])
+        # Main lifts: the tracked set grouped by split, with sessions; the tracking rule under them.
+        main = {f["block"]: f for f in lifting["feeds"]}["lifting.lifts"]
+        self.assertIn("Estimated one-rep max, tracked lifts", main["text"])
+        self.assertIn("Chest and back", main["text"])
+        self.assertIn("at least 12 sessions in the last 26 weeks", main["text"])
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
     def test_widths(self):

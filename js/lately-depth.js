@@ -287,7 +287,7 @@
   function legendItem(cls, text) {
     return h("span", { class: "legend-item" }, h("span", { class: "legend-swatch " + cls, "aria-hidden": "true" }), text);
   }
-  var SERIES = ["s-blue", "s-orange", "s-purple"]; // one hue for one series, a second for two
+  var SERIES = ["s-blue", "s-orange", "s-purple", "s-teal", "s-grey"]; // one hue for one series, a second for two; the rest for thin extra lines
 
   // Lines over the same x positions. series: [{name, values: [number|null]}]; labels: x labels
   // (first and last are shown); opts: {fmt, base (a dashed reference line, e.g. 100), height,
@@ -314,7 +314,7 @@
       s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
       // A sparse series (s.points: measurements at some weeks only) is drawn as points
       // joined by a 1px line; a full series as a 2px line.
-      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points ? " line-thin" : "")));
+      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : "")));
       if (s.points) {
         var at = 0;
         s.values.forEach(function (v, i) { if (isNum(v)) { points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : null }); at++; } });
@@ -1153,7 +1153,7 @@
         var bw = latest("body_weight"), st = latest("strength");
         var change = isObj(v.lifts_change) ? Object.keys(v.lifts_change).filter(function (k) { return isObj(v.lifts_change[k]) && isNum(v.lifts_change[k].change_pct); })
           .sort(function (x, y) { return v.lifts_change[y].change_pct - v.lifts_change[x].change_pct; }) : [];
-        return [weeks.length > 1 ? indexedLines(weeks) : null,
+        return [weeks.length > 1 ? indexedLines(weeks, null, v) : null,
           change.length ? bars("Best e1RM since the cut started, by lift", change.map(function (k) {
             var c = v.lifts_change[k];
             return { label: k, value: c.change_pct * 100, text: signed(c.change_pct * 100, 1) + "%" + (isNum(c.start) && isNum(c.latest) ? " (" + num(c.start, 1) + " to " + num(c.latest, 1) + " lb)" : "") };
@@ -1725,12 +1725,23 @@
       }), { labelHeading: "Decade", valueHeading: "S share" }) : null];
   }
 
-  // Body weight and strength since the cut, both indexed to 100 at the cut's first week.
-  function indexedLines(weeks, opts) {
+  var SPLIT_NAMES = { chest_back: "chest and back", shoulders_arms: "shoulders and arms", legs: "legs" };
+  // The split series aligned to the overall weeks, from values.splits; [] when absent.
+  function splitSeries(v, weeks) {
+    if (!isObj(v) || !isObj(v.splits)) return [];
+    return Object.keys(SPLIT_NAMES).filter(function (k) { return isObj(v.splits[k]) && list(v.splits[k].weeks).length; }).map(function (k) {
+      var by = {};
+      list(v.splits[k].weeks).forEach(function (w) { if (isObj(w) && isNum(w.strength)) by[w.week_start] = w.strength; });
+      return { key: k, name: SPLIT_NAMES[k], values: weeks.map(function (w) { return isNum(by[w.week_start]) ? by[w.week_start] : null; }), thin: true, lifts: list(v.splits[k].lifts) };
+    });
+  }
+  // Body weight and strength since the cut, both indexed to 100 at the cut's first week; the
+  // three splits as thin lines under them when the file has them.
+  function indexedLines(weeks, opts, v) {
     var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
     return multiLine("Body weight and strength since the cut, indexed to 100", weeks.map(function (w) { return dateText(w.week_start); }),
       [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true },
-       { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }],
+       { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }].concat(splitSeries(v, weeks)),
       Object.assign({ fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", height: 130 }, opts || {}));
   }
 
@@ -2049,6 +2060,7 @@
   window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat,
     charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
       effectBars: effectBars, survivalChart: survivalChart },
+    splitSeries: splitSeries, SPLIT_NAMES: SPLIT_NAMES,
     disagreementLines: disagreementLines, hazardSentence: hazardSentence, longestLine: longestLine, PRESYNC_NOTE: PRESYNC_NOTE,
     attributionNodes: attributionNodes, tierText: tierText, tierLetter: tierLetter,
     fmt: { num: num, signed: signed, pct: pct, big: big, plural: plural, dateText: dateText, monthText: monthText, record: record, interval: interval, hoursText: hoursText } };

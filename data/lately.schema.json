@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap. 2026-10-18, splits: main_lifts[] gain optional split and tracked; strength_index.values.splits (chest_back, shoulders_arms, legs) beside the overall index; no hand-entered best is published."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -772,6 +772,18 @@
                   }
                 },
                 "description": "Estimated one-rep max per session, oldest first, for a sparkline."
+              },
+              "split": {
+                "enum": [
+                  "chest_back",
+                  "shoulders_arms",
+                  "legs"
+                ],
+                "description": "The split the lift belongs to; the lifting page groups the tracked lifts by it."
+              },
+              "tracked": {
+                "type": "boolean",
+                "description": "True when the lift meets the tracking rule (at least 12 sessions in the last 26 weeks); the pages show tracked lifts."
               }
             }
           },
@@ -1399,7 +1411,7 @@
         },
         "strength_index": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Weekly series since the cut started, both indexed to 100 at cut start: values.weeks [{week_start, body_weight, strength}], strength being the mean best e1RM across values.lifts. value: the latest strength index."
+          "description": "Weekly series since the cut started, indexed to 100 at cut start: values.weeks [{week_start, body_weight, strength}], strength being the mean best e1RM across values.lifts, the tracked lifts (by rule: at least 12 sessions in the last 26 weeks; values.untracked names the rest). values.splits, optional: {chest_back, shoulders_arms, legs}, each {lifts, weeks: [{week_start, strength}]} indexed the same way; values.current {strength, body_weight}; values.lifts_change {lift: {start, latest, change_pct}}. value: the latest strength index. The how line states the selection rule."
         },
         "retention": {
           "type": "object",

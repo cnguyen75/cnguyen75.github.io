@@ -5105,7 +5105,7 @@
     "n": 20,
     "min_n": 4,
     "as_of": "2026-10-13",
-    "how": "Each week since the cut started, my body weight and the mean of my best e1RM across the main lifts, both as an index with the cut's first week at 100.",
+    "how": "Each ISO week since the cut started, my body weight (indexed to 100 at the first week with a weigh-in) and strength: each tracked lift's best e1RM that week, indexed to 100 at its first week, averaged over the tracked lifts and within each split (chest and back, shoulders and arms, legs). Tracked lifts are those with at least 12 sessions in the last 26 weeks; a hand-entered best is never used.",
     "value": 103.8,
     "values": {
      "cut_start": "2026-05-25",
@@ -5241,7 +5241,278 @@
      "current": {
       "strength": 103.8,
       "body_weight": 94.5
-     }
+     },
+     "splits": {
+      "chest_back": {
+       "lifts": [
+        "Bench",
+        "Incline press",
+        "Lat pulldown",
+        "Row"
+       ],
+       "weeks": [
+        {
+         "week_start": "2026-05-25",
+         "strength": 100.0
+        },
+        {
+         "week_start": "2026-06-01",
+         "strength": 100.9
+        },
+        {
+         "week_start": "2026-06-08",
+         "strength": 101.1
+        },
+        {
+         "week_start": "2026-06-15",
+         "strength": 101.2
+        },
+        {
+         "week_start": "2026-06-22",
+         "strength": 100.1
+        },
+        {
+         "week_start": "2026-06-29",
+         "strength": 101.0
+        },
+        {
+         "week_start": "2026-07-06",
+         "strength": 101.0
+        },
+        {
+         "week_start": "2026-07-13",
+         "strength": 101.3
+        },
+        {
+         "week_start": "2026-07-20",
+         "strength": 100.8
+        },
+        {
+         "week_start": "2026-07-27",
+         "strength": 101.1
+        },
+        {
+         "week_start": "2026-08-03",
+         "strength": 101.7
+        },
+        {
+         "week_start": "2026-08-10",
+         "strength": 101.5
+        },
+        {
+         "week_start": "2026-08-17",
+         "strength": 102.1
+        },
+        {
+         "week_start": "2026-08-24",
+         "strength": 101.6
+        },
+        {
+         "week_start": "2026-08-31",
+         "strength": 101.9
+        },
+        {
+         "week_start": "2026-09-07",
+         "strength": 103.0
+        },
+        {
+         "week_start": "2026-09-14",
+         "strength": 102.8
+        },
+        {
+         "week_start": "2026-09-21",
+         "strength": 103.1
+        },
+        {
+         "week_start": "2026-09-28",
+         "strength": 103.6
+        },
+        {
+         "week_start": "2026-10-05",
+         "strength": 103.2
+        }
+       ]
+      },
+      "shoulders_arms": {
+       "lifts": [
+        "Shoulder press"
+       ],
+       "weeks": [
+        {
+         "week_start": "2026-05-25",
+         "strength": 100.0
+        },
+        {
+         "week_start": "2026-06-01",
+         "strength": 99.3
+        },
+        {
+         "week_start": "2026-06-08",
+         "strength": 100.6
+        },
+        {
+         "week_start": "2026-06-15",
+         "strength": 100.3
+        },
+        {
+         "week_start": "2026-06-22",
+         "strength": 100.5
+        },
+        {
+         "week_start": "2026-06-29",
+         "strength": 100.4
+        },
+        {
+         "week_start": "2026-07-06",
+         "strength": 101.1
+        },
+        {
+         "week_start": "2026-07-13",
+         "strength": 100.1
+        },
+        {
+         "week_start": "2026-07-20",
+         "strength": 100.8
+        },
+        {
+         "week_start": "2026-07-27",
+         "strength": 100.2
+        },
+        {
+         "week_start": "2026-08-03",
+         "strength": 100.6
+        },
+        {
+         "week_start": "2026-08-10",
+         "strength": 100.8
+        },
+        {
+         "week_start": "2026-08-17",
+         "strength": 100.3
+        },
+        {
+         "week_start": "2026-08-24",
+         "strength": 100.0
+        },
+        {
+         "week_start": "2026-08-31",
+         "strength": 100.7
+        },
+        {
+         "week_start": "2026-09-07",
+         "strength": 101.1
+        },
+        {
+         "week_start": "2026-09-14",
+         "strength": 100.9
+        },
+        {
+         "week_start": "2026-09-21",
+         "strength": 100.8
+        },
+        {
+         "week_start": "2026-09-28",
+         "strength": 101.1
+        },
+        {
+         "week_start": "2026-10-05",
+         "strength": 100.4
+        }
+       ]
+      },
+      "legs": {
+       "lifts": [
+        "Hack squat",
+        "RDL",
+        "Leg extension"
+       ],
+       "weeks": [
+        {
+         "week_start": "2026-05-25",
+         "strength": 100.0
+        },
+        {
+         "week_start": "2026-06-01",
+         "strength": 99.8
+        },
+        {
+         "week_start": "2026-06-08",
+         "strength": 100.3
+        },
+        {
+         "week_start": "2026-06-15",
+         "strength": 101.4
+        },
+        {
+         "week_start": "2026-06-22",
+         "strength": 100.7
+        },
+        {
+         "week_start": "2026-06-29",
+         "strength": 100.9
+        },
+        {
+         "week_start": "2026-07-06",
+         "strength": 101.2
+        },
+        {
+         "week_start": "2026-07-13",
+         "strength": 101.4
+        },
+        {
+         "week_start": "2026-07-20",
+         "strength": 102.0
+        },
+        {
+         "week_start": "2026-07-27",
+         "strength": 102.8
+        },
+        {
+         "week_start": "2026-08-03",
+         "strength": 103.5
+        },
+        {
+         "week_start": "2026-08-10",
+         "strength": 103.0
+        },
+        {
+         "week_start": "2026-08-17",
+         "strength": 103.4
+        },
+        {
+         "week_start": "2026-08-24",
+         "strength": 103.6
+        },
+        {
+         "week_start": "2026-08-31",
+         "strength": 103.9
+        },
+        {
+         "week_start": "2026-09-07",
+         "strength": 104.9
+        },
+        {
+         "week_start": "2026-09-14",
+         "strength": 104.9
+        },
+        {
+         "week_start": "2026-09-21",
+         "strength": 104.7
+        },
+        {
+         "week_start": "2026-09-28",
+         "strength": 104.8
+        },
+        {
+         "week_start": "2026-10-05",
+         "strength": 106.2
+        }
+       ]
+      }
+     },
+     "untracked": [
+      "Hack squat"
+     ]
     }
    },
    "retention": {

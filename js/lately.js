@@ -804,12 +804,10 @@
       return { date: d, value: num(p.e1rm, "history.e1rm"), title: dateText(d, true) + ": " + short(p.e1rm) + " " + unit };
     });
 
-    var bestSet = null, byHand = false;
+    var bestSet = null;
     if (best.best_set != null) {
       var bs = best.best_set;
       need(isObj(bs), "best.best_set");
-      need(bs.source === undefined || bs.source === "manual", "best_set.source");
-      byHand = bs.source === "manual";
       bestSet = "best set " + short(num(bs.weight_lb, "best_set.weight_lb")) + " × " + num(bs.reps, "best_set.reps") +
         " · " + dateText(calDate(bs.date, "best_set.date"), false);
     }
@@ -841,11 +839,11 @@
       block,
       h("div", { class: "lift-exercise" }, exercise, lift.machine === true ? [" ", h("span", { class: "tag" }, "machine")] : null),
       h("div", { class: "lift-figures" },
-        h("span", { title: "From " + setText + " on " + dateText(curDate, true) }, "current ", h("b", null, curText)),
+        h("span", { title: "From " + setText + " on " + dateText(curDate, true) }, "latest ", h("b", null, curText)),
         h("span", { class: "lift-best" },
           h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText)),
-          bestSet ? h("span", { class: "lift-best-set" }, bestSet,
-            byHand ? [" ", h("span", { class: "tag" }, "logged by hand")] : null) : null)));
+          bestSet ? h("span", { class: "lift-best-set" }, bestSet) : null),
+        h("span", null, plural(sessions, "session", "sessions"))));
   }
 
   function volumeChart(weeks, unit) {
@@ -1002,7 +1000,22 @@
     var weeks = arr(l.weeks, "lifting.weeks");
     var recent4 = weeks.slice(-4).reduce(function (a, w) { need(isObj(w), "lifting week"); return a + num(w.sessions, "week.sessions"); }, 0);
     var minSessions = num(l.streak_min_sessions, "streak_min_sessions");
-    var lifts = arr(l.main_lifts, "main_lifts").map(function (lift) { return liftTile(lift, b.unit); });
+    // The tracked lifts (by rule: 12 sessions in 26 weeks): flagged on the lift, else the
+    // strength index's tracked set, else every lift (an older file); grouped by split.
+    var all = arr(l.main_lifts, "main_lifts").filter(isObj);
+    var a = analysisOf(data), si = a && isObj(a.lifting) ? a.lifting.strength_index : null;
+    var indexed = okStat(si) ? list(si.values.lifts).map(String) : [];
+    var tracked = all.some(function (x) { return x.tracked === true; }) ? all.filter(function (x) { return x.tracked === true; })
+      : all.some(function (x) { return indexed.indexOf(x.name) >= 0; }) ? all.filter(function (x) { return indexed.indexOf(x.name) >= 0; }) : all;
+    var LDm = LD(), names = LDm && LDm.SPLIT_NAMES ? LDm.SPLIT_NAMES : { chest_back: "chest and back", shoulders_arms: "shoulders and arms", legs: "legs" };
+    var splitOf = {};
+    if (okStat(si) && isObj(si.values.splits)) Object.keys(si.values.splits).forEach(function (k) { list(si.values.splits[k].lifts).forEach(function (n) { splitOf[n] = k; }); });
+    var groups = [];
+    Object.keys(names).concat(["other"]).forEach(function (k) {
+      var items = tracked.filter(function (x) { return (x.split || splitOf[x.name] || "other") === k; });
+      if (items.length) groups.push({ key: k, label: k === "other" ? (groups.length ? "Other lifts" : "Tracked lifts") : names[k].charAt(0).toUpperCase() + names[k].slice(1), items: items });
+    });
+    var left = all.length - tracked.length;
     return [
       b.state.asOf ? staleNote(b.state.asOf) : null,
       h("div", { class: "stats" },
@@ -1010,10 +1023,12 @@
         stat("Current streak", String(num(l.streak_weeks, "streak_weeks")),
           minSessions === 1 ? "weeks with a workout" : "weeks at " + minSessions + "+ sessions"),
         stat("Sessions, last 4 weeks", String(recent4), "including this week so far")),
-      lifts.length ? h("div", { class: "chart-block" },
-        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, main lifts")),
-        h("div", { class: "lifts" }, lifts),
-        h("p", { class: "chart-foot" }, EPLEY_NOTE)) : null
+      groups.length ? h("div", { class: "chart-block" },
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, tracked lifts")),
+        groups.map(function (g) {
+          return h("div", { class: "lift-split" }, h("h4", { class: "lift-split-title" }, g.label), h("div", { class: "lifts" }, g.items.map(function (lift) { return liftTile(lift, b.unit); })));
+        }),
+        h("p", { class: "chart-foot" }, "Tracked lifts have at least 12 sessions in the last 26 weeks" + (left > 0 ? "; " + plural(left, "lift", "lifts") + " below that " + (left === 1 ? "is" : "are") + " not shown" : "") + ". " + EPLEY_NOTE)) : null
     ];
   }
 
@@ -1306,6 +1321,19 @@
     var second = extremes(change, function (c) { return isObj(c) ? c.change_pct : null; }, pctUnit)
       || extremes(ret, function (st) { return okStat(st) && isObj(st.values) ? st.values.change_pct : null; }, pctUnit)
       || extremes(kept, function (st) { return okStat(st) ? st.value : null; }, function (x) { return plus(x, 1) + " lb of e1RM kept per lb lost"; });
+    // The splits' latest index against 100: "legs are up 8%, shoulders and arms +3%, chest and back −1%."
+    var splitBits = [];
+    if (okStat(si) && isObj(si.values.splits)) {
+      [["legs", "legs"], ["shoulders_arms", "shoulders and arms"], ["chest_back", "chest and back"]].forEach(function (sp) {
+        var ws = isObj(si.values.splits[sp[0]]) ? list(si.values.splits[sp[0]].weeks).filter(function (w) { return isObj(w) && isNum(w.strength); }) : [];
+        if (ws.length) splitBits.push({ name: sp[1], change: ws[ws.length - 1].strength - 100 });
+      });
+    }
+    if (splitBits.length && second) {
+      var first = splitBits[0];
+      second = second.replace(/\.$/, "") + "; " + first.name + (first.change < 0 ? " are down " : " are up ") + fnum(Math.abs(first.change), 1) + "%" +
+        splitBits.slice(1).map(function (x) { return ", " + x.name + " " + plus(x.change, 1) + "%"; }).join("") + ".";
+    }
     if (weeks.length > 1 && last && isNum(last.strength)) {
       // When the index has fallen more than 2 points from its peak, say so, with the peak's month.
       var peak = null;
@@ -1318,7 +1346,7 @@
         second || "Per-lift retention appears once each lift has enough sessions."
       ];
       nums = [bwNum, { label: "Strength index since the cut", value: plus(last.strength - 100, 1) + "%", note: "mean best e1RM, main lifts" }, benchNum];
-      chart = chartOr(function (c) { return c.indexedLines(weeks, { height: 150 }); });
+      chart = chartOr(function (c) { return c.indexedLines(weeks, { height: 150 }, si.values); });
     } else {
       var waits = "The strength index waits for " + (isObj(si) && isNum(si.min_n) ? nOf(si) + " weeks" : "the pipeline");
       sentences = [
