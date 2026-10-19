@@ -131,7 +131,7 @@ class Register(unittest.TestCase):
         for body, err in (("## A\nSTAT: lifting.nope\n", "not a statistic"),
                           ("## A\nSTAT: lifting.progress\n", "not a statistic"),
                           ("## A\nSTAT: fantasy.teams.margins\n", "write it with \\[\\]"),
-                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE: and ALIAS: lines"),
+                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE:, ALIAS: and SOURCE: lines"),
                           ("## A\nFEED: lifting.nope\n", "not a block js/lately.js draws"),
                           ("## A\nNOTE: only a note\n", "has no STAT: or FEED: line"),
                           ("## A\n\n## B\nSTAT: lifting.lag_check\n", "has no STAT"),
@@ -240,6 +240,9 @@ def variant(name):
         for k in ("artist_survival", "artist_survival_all", "album_listening", "discovery_direction"):
             del a["listening"][k]
         a["eating"]["top_ten_churn"] = {"status": "not enough data yet", "n": 0, "min_n": 4, "as_of": a["as_of"], "how": "Old."}
+    if name == "no censor days":
+        # A how line that doesn't state the censoring window: the pipeline's 60 days is used.
+        a["listening"]["artist_survival"]["how"] = "Kaplan–Meier curves of how long an artist stays in rotation, catalog against new."
     if name == "not available":
         a["listening"]["enduring"] = {"status": "not available from source", "n": 0, "min_n": 20, "as_of": a["as_of"], "how": "x", "missing": "Apple Music lifetime counts"}
     if name == "one clear":
@@ -587,6 +590,12 @@ class Drawing(unittest.TestCase):
         sv = ANALYSIS["listening"]["artist_survival"]["values"]
         self.assertEqual([h[0] for h in li["headline"]], ["Median rotation length, all artists", "Hazard ratio, new vs catalog", "Discoveries that are catalog"])
         self.assertEqual(li["headline"][1][1], "1.62×")
+        # The censoring window comes from the how line (60 days in the fixture, as the pipeline writes it);
+        # the source line names the library export beside Last.fm.
+        self.assertEqual(li["headline"][0][2], "from first play to 60 days without one")
+        self.assertEqual(li["meta"], "apple music library + last.fm")
+        self.assertEqual(next(p for p in draw("index.html", name="no censor days")["panels"] if p["id"] == "panel-listening")["headline"][0][2],
+                         "from first play to 60 days without one")
         self.assertTrue(li["answer"].startswith("New artists drop out of rotation 1.62× as fast as catalog ones (95% 1.22 to 2.19); half of my catalog discoveries last"), li["answer"])
         self.assertTrue(li["answer"].endswith("Note: artists in the library before the 2023 sync excluded; see the listening page for the version that includes them."), li["answer"])
         self.assertEqual(li["kmCurves"], 2)
@@ -811,6 +820,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual(sv2["value"], "1.41×")
         self.assertEqual(sv2["title"], "Counting the artists from before the 2023 sync too")  # a labelled second row in the same card
         self.assertEqual(next(s for s in l["sections"] if s["id"] == "artist-survival")["slots"][1]["stat"], "listening.artist_survival_all")
+        # The survival card's own source line, in mono: the Apple Music library export, not the page's Last.fm credit.
+        surv = next(s for s in l["sections"] if s["id"] == "artist-survival")
+        self.assertEqual(surv["source"], "apple music library")
+        self.assertEqual(surv["sourceFont"], surv["slots"][0]["howFont"])
+        self.assertEqual([s["source"] for s in l["sections"] if s["source"]], ["apple music library"])
         # Absorbed: the median release year under dig back or keep up, the top-five share under who lasts.
         self.assertEqual([sl["stat"] for sl in next(s for s in l["sections"] if s["id"] == "discovery-direction")["slots"]], ["listening.discovery_direction", "listening.nostalgia"])
         self.assertEqual([sl["stat"] for sl in next(s for s in l["sections"] if s["id"] == "enduring")["slots"]], ["listening.enduring", "listening.concentration"])

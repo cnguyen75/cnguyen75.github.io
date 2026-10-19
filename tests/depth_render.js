@@ -53,6 +53,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         sections: [...document.querySelectorAll(".ld-section")].map(sec => ({
           id: sec.id, title: txt(sec.querySelector("h3")), hidden: sec.hidden, group: sec.parentNode.id,
           notes: [...sec.querySelectorAll(".ld-section-note")].map(txt),
+          source: txt(sec.querySelector(".ld-section-source")), sourceFont: sec.querySelector(".ld-section-source") ? getComputedStyle(sec.querySelector(".ld-section-source")).fontFamily : null,
           slots: [...sec.querySelectorAll(".ld-stat")].map(slot => ({
             stat: slot.dataset.stat, hidden: slot.hidden,
             blocks: [...slot.querySelectorAll(".ld-block")].map(b => ({

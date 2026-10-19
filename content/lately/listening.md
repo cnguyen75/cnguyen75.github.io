@@ -19,6 +19,7 @@ STAT: cross.rhythm.plays
 # Why
 
 ## Does old music last longer than new? {#artist-survival}
+SOURCE: apple music library
 ALIAS: artist-survival-all
 STAT: listening.artist_survival
 STAT: listening.artist_survival_all

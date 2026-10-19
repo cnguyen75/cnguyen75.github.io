@@ -3767,7 +3767,7 @@
     "n": 190,
     "min_n": 40,
     "as_of": "2026-10-13",
-    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play until 90 days without one), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, and per five years of gap between an artist's release years and the year I added them; the log-rank test. The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.",
+    "how": "Kaplan–Meier curves of how long an artist stays in rotation (months from first play to the last one, with a play in the 60 days before the export counting as still in rotation), catalog against new, for artists first played since the 2023 Apple Music sync; a Cox hazard ratio of new against catalog, and per five years of gap between an artist's release years and the year I added them; the log-rank test. The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.",
     "value": 1.62,
     "interval": [
      1.22,

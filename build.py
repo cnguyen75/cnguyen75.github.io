@@ -336,16 +336,23 @@ def read_data_page(path, schema):
     meta["sections"] = [s for g in meta["groups"] for s in g["sections"]]
     meta["stats"] = []
     for sec in meta["sections"]:
-        sec["stats"], sec["slots"], sec["notes"], sec["aliases"] = [], [], [], []
+        sec["stats"], sec["slots"], sec["notes"], sec["aliases"], sec["source"] = [], [], [], [], None
         for line in sec["lines"]:
             if not line.strip():
                 continue
-            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS):\s*(\S.*?)\s*", line)
+            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE):\s*(\S.*?)\s*", line)
             if not mm:
-                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE: and ALIAS: lines are allowed, not {line.strip()!r}")
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE:, ALIAS: and SOURCE: lines are allowed, not {line.strip()!r}")
             kind, arg = mm.group(1), mm.group(2)
             if kind == "NOTE":
                 sec["notes"].append(arg)
+                continue
+            if kind == "SOURCE":
+                # Where this section's data comes from when it isn't the page's credit (the survival
+                # cards read the Apple Music library export, not Last.fm): one mono line under the title.
+                if sec["source"] is not None:
+                    raise ContentError(f"{path.name}: under '## {sec['title']}' only one SOURCE: line is allowed")
+                sec["source"] = arg
                 continue
             if kind == "ALIAS":
                 # The id of a card this one absorbed: a deep link to it lands here.
@@ -444,6 +451,7 @@ def render_data_page(meta):
         secs = []
         for s in g["sections"]:
             notes = "".join(f'<p class="ld-section-note">{inline(n)}</p>' for n in s["notes"])
+            notes = (f'<p class="ld-section-source">{esc(s["source"])}</p>' if s["source"] else "") + notes
             notes = "".join(f'<span class="ld-alias" id="{a}" data-to="{s["id"]}"></span>' for a in s["aliases"]) + notes
             slots = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
                             else f'<div class="ld-feed" data-block="{esc(arg)}"></div>' for kind, arg in s["slots"])

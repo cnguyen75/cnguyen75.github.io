@@ -1214,7 +1214,7 @@
     var curves = v ? list(v.curves).filter(function (c) { return isObj(c) && list(c.points).length; }) : [];
     if (curves.length && d) {
       var med = isObj(v.medians) ? v.medians : {}, hr = isObj(v.hr_a) ? v.hr_a : null;
-      var medianNum = isNum(med.overall) ? { label: "Median rotation length, all artists", value: plural(med.overall, "month", "months"), note: "from first play to 90 days without one" }
+      var medianNum = isNum(med.overall) ? { label: "Median rotation length, all artists", value: plural(med.overall, "month", "months"), note: "from first play to " + d.censorDays(sv) + " days without one" }
         : isNum(med.catalog) ? { label: "Median rotation length, catalog artists", value: plural(med.catalog, "month", "months"), note: "the overall median is not reached yet" } : null;
       var hrNum = hr && isNum(hr.value) ? { label: "Hazard ratio, new vs catalog", value: fnum(hr.value, 2) + "×", note: f && f.interval(hr.interval, function (x) { return f.num(x, 2); }) || "how much faster new artists leave" } : null;
       var shareNum = isNum(v.share_catalog) ? { label: "Discoveries that are catalog", value: fpct(v.share_catalog), note: "artists over 5 years old when first played" } : null;

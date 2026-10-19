@@ -1062,6 +1062,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .ld-group { display: flex; flex-direction: column; gap: 28px; }
 .ld-group-title { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.015em; }
 .ld-section-note { margin: 0; font-size: 14px; color: var(--text-2); max-width: 72ch; }
+.ld-section-source { margin: 0; font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
 .ld-feed { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .ld-attribution { margin: 0; font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
 /* A card's "not enough data yet": the question stands over a box with n and min_n */

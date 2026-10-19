@@ -606,6 +606,16 @@
   // The play-date floor, in the how line's own words: the export records no play before a
   // day, so a rotation that ended before it is invisible (which is why the primary cohort is
   // the artists added after it).
+  // The censoring rule: an artist with a play in the last N days before the export is still in
+  // rotation. N is read from the how line ("a play in the 60 days before the export"); when the how
+  // line carries no number, the pipeline's rule of 60 days (lately/analysis, artist_survival) is used.
+  var CENSOR_DAYS_PIPELINE = 60;
+  function censorDays(s) {
+    var how = isObj(s) && typeof s.how === "string" ? s.how : "";
+    var m = /play in the (?:last )?(\d+) days before the export/i.exec(how) || /(\d+) days without (?:a play|one)/i.exec(how);
+    return m ? Number(m[1]) : CENSOR_DAYS_PIPELINE;
+  }
+
   function floorNote(v, s) {
     var how = isObj(s) && typeof s.how === "string" ? s.how : "";
     var sentence = how.split(/(?<=\.)\s+/).filter(function (t) { return /no play before|invisible|floor/i.test(t); })[0];
@@ -2061,7 +2071,7 @@
     charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
       effectBars: effectBars, survivalChart: survivalChart },
     splitSeries: splitSeries, SPLIT_NAMES: SPLIT_NAMES,
-    disagreementLines: disagreementLines, hazardSentence: hazardSentence, longestLine: longestLine, PRESYNC_NOTE: PRESYNC_NOTE,
+    disagreementLines: disagreementLines, hazardSentence: hazardSentence, longestLine: longestLine, censorDays: censorDays, PRESYNC_NOTE: PRESYNC_NOTE,
     attributionNodes: attributionNodes, tierText: tierText, tierLetter: tierLetter,
     fmt: { num: num, signed: signed, pct: pct, big: big, plural: plural, dateText: dateText, monthText: monthText, record: record, interval: interval, hoursText: hoursText } };
 
