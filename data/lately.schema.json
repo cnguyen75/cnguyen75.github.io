@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap. 2026-10-18, splits: main_lifts[] gain optional split and tracked; strength_index.values.splits (chest_back, shoulders_arms, legs) beside the overall index; no hand-entered best is published. 2026-10-18, sessions: strength_index.values.tracked [{name, exercise, sessions, split}] carries the rule's session count; main_lifts[].sessions counts the sessions behind the trend. 2026-10-18, policy: every statistic may carry small_sample (ok, n below min_n, drawn with a tag) and, while not enough data yet, values.first_unit (what the first unit of data is); available_from is removed. eating.safe_bet (optional) and eating.landing's current-ranking version (median_percentile, recent, months)."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap. 2026-10-18, splits: main_lifts[] gain optional split and tracked; strength_index.values.splits (chest_back, shoulders_arms, legs) beside the overall index; no hand-entered best is published. 2026-10-18, sessions: strength_index.values.tracked [{name, exercise, sessions, split}] carries the rule's session count; main_lifts[].sessions counts the sessions behind the trend. 2026-10-18, policy: every statistic may carry small_sample (ok, n below min_n, drawn with a tag) and, while not enough data yet, values.first_unit (what the first unit of data is); available_from is removed. eating.safe_bet (optional) and eating.landing's current-ranking version (median_percentile, recent, months). 2026-10-18, zero units: the five fixed-shape values objects (quadrant, manager-score components and composite, acquisition_split, draft) are anyOf the full shape or {first_unit}, so a statistic at zero units validates; the small-sample tag reads \"small sample, threshold 30\"."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -1006,7 +1006,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -1710,7 +1710,7 @@
         },
         "safe_bet": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Which cuisines are a safe bet: values.rows [{cuisine, n, median, q1, q3}], one per cuisine with min_n places or more, the middle half of its scores (q1 to q3) and the median; value: the narrowest middle half (q3 − q1) in points. The page sorts narrowest first and names the safest and the widest."
+          "description": "Which cuisines are a safe bet: values.rows [{cuisine, n, median, q1, q3}], one per cuisine with enough places (15), n counting the places in the rows, the middle half of its scores (q1 to q3) and the median; value: the narrowest middle half (q3 − q1) in points. The page sorts narrowest first and names the safest and the widest."
         }
       },
       "description": "From Beli. Cities may appear; dates never do."
@@ -1832,7 +1832,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -1842,161 +1842,175 @@
           "description": "The headline number, when there is one."
         },
         "values": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "week",
-            "mine",
-            "others"
-          ],
-          "properties": {
-            "week": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "The last completed week the points describe."
-            },
-            "mine": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "label",
-                  "league_key",
-                  "record",
-                  "all_play",
-                  "luck",
-                  "trail"
-                ],
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "description": "My team's display label, as teams[].name (\"Sleeper · 12-team PPR\")."
-                  },
-                  "league_key": {
-                    "type": "string",
-                    "description": "Opaque key joining my team to its league's other points (\"sleeper-1\"); never a league name."
-                  },
-                  "record": {
+          "description": "The statistic's figures. Either the full shape (when there is anything to show) or, while not enough data yet, just first_unit: While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "week",
+                "mine",
+                "others"
+              ],
+              "properties": {
+                "week": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The last completed week the points describe."
+                },
+                "mine": {
+                  "type": "array",
+                  "items": {
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
-                      "wins",
-                      "losses"
+                      "label",
+                      "league_key",
+                      "record",
+                      "all_play",
+                      "luck",
+                      "trail"
                     ],
                     "properties": {
-                      "wins": {
-                        "type": "integer",
-                        "minimum": 0
+                      "label": {
+                        "type": "string",
+                        "description": "My team's display label, as teams[].name (\"Sleeper · 12-team PPR\")."
                       },
-                      "losses": {
-                        "type": "integer",
-                        "minimum": 0
+                      "league_key": {
+                        "type": "string",
+                        "description": "Opaque key joining my team to its league's other points (\"sleeper-1\"); never a league name."
                       },
-                      "ties": {
-                        "type": "integer",
-                        "minimum": 0
+                      "record": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "wins",
+                          "losses"
+                        ],
+                        "properties": {
+                          "wins": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "losses": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "ties": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        }
+                      },
+                      "all_play": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "All-play win share, 0 to 1."
+                      },
+                      "luck": {
+                        "type": "number",
+                        "description": "Wins above expected: actual wins minus all-play wins."
+                      },
+                      "trail": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "week",
+                            "all_play",
+                            "luck"
+                          ],
+                          "properties": {
+                            "week": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "all_play": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1,
+                              "description": "All-play win share, 0 to 1."
+                            },
+                            "luck": {
+                              "type": "number",
+                              "description": "Wins above expected: actual wins minus all-play wins."
+                            }
+                          }
+                        },
+                        "description": "Week 1 to now, oldest first."
+                      }
+                    }
+                  }
+                },
+                "others": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "league_key",
+                      "record",
+                      "all_play",
+                      "luck"
+                    ],
+                    "properties": {
+                      "league_key": {
+                        "type": "string"
+                      },
+                      "record": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "wins",
+                          "losses"
+                        ],
+                        "properties": {
+                          "wins": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "losses": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "ties": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        }
+                      },
+                      "all_play": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "All-play win share, 0 to 1."
+                      },
+                      "luck": {
+                        "type": "number",
+                        "description": "Wins above expected: actual wins minus all-play wins."
                       }
                     }
                   },
-                  "all_play": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1,
-                    "description": "All-play win share, 0 to 1."
-                  },
-                  "luck": {
-                    "type": "number",
-                    "description": "Wins above expected: actual wins minus all-play wins."
-                  },
-                  "trail": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "additionalProperties": false,
-                      "required": [
-                        "week",
-                        "all_play",
-                        "luck"
-                      ],
-                      "properties": {
-                        "week": {
-                          "type": "integer",
-                          "minimum": 1
-                        },
-                        "all_play": {
-                          "type": "number",
-                          "minimum": 0,
-                          "maximum": 1,
-                          "description": "All-play win share, 0 to 1."
-                        },
-                        "luck": {
-                          "type": "number",
-                          "description": "Wins above expected: actual wins minus all-play wins."
-                        }
-                      }
-                    },
-                    "description": "Week 1 to now, oldest first."
-                  }
+                  "description": "Every other team in my leagues. Carries no names, ids or team names, ever: the schema rejects any other key."
                 }
               }
             },
-            "others": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "league_key",
-                  "record",
-                  "all_play",
-                  "luck"
-                ],
-                "properties": {
-                  "league_key": {
-                    "type": "string"
-                  },
-                  "record": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "wins",
-                      "losses"
-                    ],
-                    "properties": {
-                      "wins": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "losses": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "ties": {
-                        "type": "integer",
-                        "minimum": 0
-                      }
-                    }
-                  },
-                  "all_play": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1,
-                    "description": "All-play win share, 0 to 1."
-                  },
-                  "luck": {
-                    "type": "number",
-                    "description": "Wins above expected: actual wins minus all-play wins."
-                  }
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "first_unit"
+              ],
+              "properties": {
+                "first_unit": {
+                  "type": "string",
+                  "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
                 }
-              },
-              "description": "Every other team in my leagues. Carries no names, ids or team names, ever: the schema rejects any other key."
-            },
-            "first_unit": {
-              "type": "string",
-              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+              }
             }
-          }
+          ]
         },
         "interval": {
           "type": "array",
@@ -2052,7 +2066,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2062,34 +2076,48 @@
           "description": "The headline number, when there is one."
         },
         "values": {
-          "type": "object",
-          "additionalProperties": true,
-          "required": [
-            "rank",
-            "of",
-            "percentile"
-          ],
-          "properties": {
-            "rank": {
-              "type": "integer",
-              "minimum": 1,
-              "description": "Rank among every manager across my leagues, 1 = best."
+          "description": "The statistic's figures. Either the full shape (when there is anything to show) or, while not enough data yet, just first_unit: While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "rank",
+                "of",
+                "percentile"
+              ],
+              "properties": {
+                "rank": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Rank among every manager across my leagues, 1 = best."
+                },
+                "of": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "percentile": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Share of managers I beat on this component, 0 to 1."
+                }
+              }
             },
-            "of": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "percentile": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1,
-              "description": "Share of managers I beat on this component, 0 to 1."
-            },
-            "first_unit": {
-              "type": "string",
-              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "first_unit"
+              ],
+              "properties": {
+                "first_unit": {
+                  "type": "string",
+                  "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+                }
+              }
             }
-          }
+          ]
         },
         "interval": {
           "type": "array",
@@ -2145,7 +2173,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2155,22 +2183,36 @@
           "description": "The headline number, when there is one."
         },
         "values": {
-          "type": "object",
-          "additionalProperties": true,
-          "required": [
-            "percentile"
-          ],
-          "properties": {
-            "percentile": {
-              "type": "number",
-              "minimum": 0,
-              "maximum": 1
+          "description": "The statistic's figures. Either the full shape (when there is anything to show) or, while not enough data yet, just first_unit: While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "percentile"
+              ],
+              "properties": {
+                "percentile": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              }
             },
-            "first_unit": {
-              "type": "string",
-              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "first_unit"
+              ],
+              "properties": {
+                "first_unit": {
+                  "type": "string",
+                  "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+                }
+              }
             }
-          }
+          ]
         },
         "interval": {
           "type": "array",
@@ -2226,7 +2268,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2236,92 +2278,106 @@
           "description": "The headline number, when there is one."
         },
         "values": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "draft",
-            "waiver",
-            "trade",
-            "other"
-          ],
-          "properties": {
-            "draft": {
+          "description": "The statistic's figures. Either the full shape (when there is anything to show) or, while not enough data yet, just first_unit: While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)",
+          "anyOf": [
+            {
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "mine",
-                "league_median"
+                "draft",
+                "waiver",
+                "trade",
+                "other"
               ],
               "properties": {
-                "mine": {
-                  "type": "number",
-                  "description": "My points to date from players who arrived this way."
+                "draft": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mine",
+                    "league_median"
+                  ],
+                  "properties": {
+                    "mine": {
+                      "type": "number",
+                      "description": "My points to date from players who arrived this way."
+                    },
+                    "league_median": {
+                      "type": "number",
+                      "description": "The league's median team, same measure."
+                    }
+                  }
                 },
-                "league_median": {
-                  "type": "number",
-                  "description": "The league's median team, same measure."
+                "waiver": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mine",
+                    "league_median"
+                  ],
+                  "properties": {
+                    "mine": {
+                      "type": "number",
+                      "description": "My points to date from players who arrived this way."
+                    },
+                    "league_median": {
+                      "type": "number",
+                      "description": "The league's median team, same measure."
+                    }
+                  }
+                },
+                "trade": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mine",
+                    "league_median"
+                  ],
+                  "properties": {
+                    "mine": {
+                      "type": "number",
+                      "description": "My points to date from players who arrived this way."
+                    },
+                    "league_median": {
+                      "type": "number",
+                      "description": "The league's median team, same measure."
+                    }
+                  }
+                },
+                "other": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mine",
+                    "league_median"
+                  ],
+                  "properties": {
+                    "mine": {
+                      "type": "number",
+                      "description": "My points to date from players who arrived this way."
+                    },
+                    "league_median": {
+                      "type": "number",
+                      "description": "The league's median team, same measure."
+                    }
+                  }
                 }
               }
             },
-            "waiver": {
+            {
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "mine",
-                "league_median"
+                "first_unit"
               ],
               "properties": {
-                "mine": {
-                  "type": "number",
-                  "description": "My points to date from players who arrived this way."
-                },
-                "league_median": {
-                  "type": "number",
-                  "description": "The league's median team, same measure."
+                "first_unit": {
+                  "type": "string",
+                  "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
                 }
               }
-            },
-            "trade": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "mine",
-                "league_median"
-              ],
-              "properties": {
-                "mine": {
-                  "type": "number",
-                  "description": "My points to date from players who arrived this way."
-                },
-                "league_median": {
-                  "type": "number",
-                  "description": "The league's median team, same measure."
-                }
-              }
-            },
-            "other": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "mine",
-                "league_median"
-              ],
-              "properties": {
-                "mine": {
-                  "type": "number",
-                  "description": "My points to date from players who arrived this way."
-                },
-                "league_median": {
-                  "type": "number",
-                  "description": "The league's median team, same measure."
-                }
-              }
-            },
-            "first_unit": {
-              "type": "string",
-              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
-          }
+          ]
         },
         "interval": {
           "type": "array",
@@ -2377,7 +2433,7 @@
         },
         "small_sample": {
           "type": "boolean",
-          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample, threshold 10\" (min_n). Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2387,58 +2443,72 @@
           "description": "The headline number, when there is one."
         },
         "values": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "picks"
-          ],
-          "properties": {
-            "picks": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "round",
-                  "pick",
-                  "player",
-                  "points_to_date",
-                  "round_baseline",
-                  "residual"
-                ],
-                "properties": {
-                  "round": {
-                    "type": "integer",
-                    "minimum": 1
-                  },
-                  "pick": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Overall pick number."
-                  },
-                  "player": {
-                    "type": "string",
-                    "description": "A public figure; may appear."
-                  },
-                  "points_to_date": {
-                    "type": "number"
-                  },
-                  "round_baseline": {
-                    "type": "number",
-                    "description": "Median points to date of every player taken in that round, league-wide."
-                  },
-                  "residual": {
-                    "type": "number",
-                    "description": "points_to_date minus round_baseline."
+          "description": "The statistic's figures. Either the full shape (when there is anything to show) or, while not enough data yet, just first_unit: While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "picks"
+              ],
+              "properties": {
+                "picks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "round",
+                      "pick",
+                      "player",
+                      "points_to_date",
+                      "round_baseline",
+                      "residual"
+                    ],
+                    "properties": {
+                      "round": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "pick": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Overall pick number."
+                      },
+                      "player": {
+                        "type": "string",
+                        "description": "A public figure; may appear."
+                      },
+                      "points_to_date": {
+                        "type": "number"
+                      },
+                      "round_baseline": {
+                        "type": "number",
+                        "description": "Median points to date of every player taken in that round, league-wide."
+                      },
+                      "residual": {
+                        "type": "number",
+                        "description": "points_to_date minus round_baseline."
+                      }
+                    }
                   }
                 }
               }
             },
-            "first_unit": {
-              "type": "string",
-              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "first_unit"
+              ],
+              "properties": {
+                "first_unit": {
+                  "type": "string",
+                  "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
+                }
+              }
             }
-          }
+          ]
         },
         "interval": {
           "type": "array",

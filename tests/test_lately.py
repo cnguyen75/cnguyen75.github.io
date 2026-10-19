@@ -104,7 +104,7 @@ class Schema(unittest.TestCase):
         self.assertIn("2026-10-17", SCHEMA["properties"]["schema_version"]["description"])
         self.assertIn("top_ten_churn is removed", SCHEMA["properties"]["schema_version"]["description"])
         # The quadrant's other teams carry no names: only these keys are allowed.
-        others = defs["analysis_stat_quadrant"]["properties"]["values"]["properties"]["others"]["items"]
+        others = defs["analysis_stat_quadrant"]["properties"]["values"]["anyOf"][0]["properties"]["others"]["items"]
         self.assertEqual(sorted(others["properties"]), ["all_play", "league_key", "luck", "record"])
         self.assertFalse(others["additionalProperties"])
         self.assertEqual(defs["analysis_fantasy"]["properties"]["quadrant"]["$ref"], "#/$defs/analysis_stat_quadrant")
@@ -126,7 +126,14 @@ class Schema(unittest.TestCase):
                 self.assertEqual(d["properties"]["small_sample"]["type"], "boolean", name)
                 self.assertNotIn("small_sample", d["required"], name)
                 v = d["properties"]["values"]
-                self.assertIn("first_unit", v["properties"] if "properties" in v else v["description"], name)
+                if name == "analysis_stat":
+                    self.assertIn("first_unit", v["description"])
+                else:
+                    # Fixed shapes validate at zero units: the full shape, or just first_unit.
+                    full, zero = v["anyOf"]
+                    self.assertTrue(full.get("required"), name)
+                    self.assertNotIn("first_unit", full["properties"], name)
+                    self.assertEqual((zero["required"], sorted(zero["properties"]), zero["additionalProperties"]), (["first_unit"], ["first_unit"], False), name)
         self.assertNotIn("available_from", json.dumps(defs).replace("(available_from is removed.)", ""))
         self.assertIn("safe_bet", defs["analysis_eating"]["properties"])
         self.assertNotIn("safe_bet", defs["analysis_eating"]["required"])

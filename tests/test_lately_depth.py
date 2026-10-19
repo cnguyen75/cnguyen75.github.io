@@ -285,6 +285,12 @@ def variant(name):
         a["fantasy"]["quadrant"]["values"] = {"first_unit": "three weeks of results across my leagues"}
     if name == "panel small":
         a["lifting"]["strength_index"].update(n=3, small_sample=True)
+    if name == "small no value":
+        # The live case on 2026-10-18: a lift with two sessions, small_sample, no value or interval yet.
+        a["eating"]["contrast_effect"].pop("value"); a["eating"]["contrast_effect"].pop("interval", None)
+        rs = a["lifting"]["relative_strength"]["Incline press"]
+        rs.update(status="ok", n=2, small_sample=True, values={"latest": 0.548, "series": [{"date": "2026-07-01", "ratio": 0.514}, {"date": "2026-07-14", "ratio": 0.548}]})
+        rs.pop("value", None); rs.pop("interval", None)
     if name == "no all list":
         for team in a["fantasy"]["teams"]:
             del team["waiver_adds"]["values"]["all"]
@@ -438,21 +444,31 @@ class Drawing(unittest.TestCase):
     def test_small_sample(self):
         (ce,) = blocks(draw("lately/eating/"), "eating.contrast_effect")
         self.assertEqual(ce["status"], "ok")
-        self.assertEqual(ce["tags"], ["small sample · n = 20 of 30"])
+        self.assertEqual(ce["tags"], ["small sample, threshold 30"])
         self.assertTrue(ce["n"].startswith("n = 20 pairs"))
-        self.assertIn("small sample · n = 20 of 30", ce["n"])
+        self.assertEqual(ce["n"], "n = 20 pairs · small sample, threshold 30")
         self.assertGreater(ce["charts"], 0)
         (sq,) = blocks(draw("lately/watching/"), "watching.sequels")
-        self.assertEqual(sq["tags"], ["small sample · n = 2 of 3"])
+        self.assertEqual(sq["tags"], ["small sample, threshold 3"])
         self.assertTrue(sq["value"])
+        # A small sample without a headline value still draws its figures and tag, and the slot's other lifts draw too.
+        nv = draw("lately/eating/", name="small no value")
+        (ce2,) = blocks(nv, "eating.contrast_effect")
+        self.assertEqual((ce2["status"], ce2["value"], ce2["tags"]), ("ok", None, ["small sample, threshold 30"]))
+        self.assertGreater(ce2["charts"], 0)
+        lv = draw("lately/lifting/", name="small no value")
+        rs = [b for b in blocks(lv, "lifting.relative_strength.*") if b["status"] == "ok" and b["tags"]]
+        self.assertEqual([(b["value"], b["tags"]) for b in rs], [(None, ["small sample, threshold 4"])])
+        self.assertIn("0.548 lb e1RM per lb", rs[0]["text"])
+        self.assertEqual(lv["errors"], [])
         # Cards without the flag carry no tag.
         self.assertEqual(blocks(draw("lately/eating/"), "eating.home_bias")[0]["tags"], [])
         waiting = next(s for s in draw("lately/fantasy/", name="waiting")["sections"] if s["id"] == "manager-score")
         (wb,) = waiting["slots"][0]["blocks"]
-        self.assertEqual(wb["tagRows"], ["Lineup · small sample · n = 0 of 2 weeks", "Moves · small sample · n = 2 of 4 weeks"])
+        self.assertEqual(wb["tagRows"], ["Lineup · n = 0 weeks · small sample, threshold 2", "Moves · n = 2 weeks · small sample, threshold 4"])
         self.assertIsNone(wb["wait"])
         lifting = next(p for p in draw("index.html", name="panel small")["panels"] if p["id"] == "panel-lifting")
-        self.assertEqual(lifting["tagLine"], "small sample · n = 3 of 4")
+        self.assertEqual(lifting["tagLine"], "small sample, threshold 4")
         self.assertEqual(lifting["charts"], 1)
         base = next(p for p in draw("index.html")["panels"] if p["id"] == "panel-lifting")
         self.assertIsNone(base["tagLine"])
@@ -771,7 +787,7 @@ class Drawing(unittest.TestCase):
         waiting = next(s for s in draw("lately/fantasy/", name="waiting")["sections"] if s["id"] == "manager-score")
         (wb,) = waiting["slots"][0]["blocks"]
         self.assertEqual(wb["status"], "ok")
-        self.assertIn("Moves · small sample · n = 2 of 4 weeks", wb["tagRows"])
+        self.assertIn("Moves · n = 2 weeks · small sample, threshold 4", wb["tagRows"])
         self.assertIn("Draft", wb["text"])
         self.assertNotIn("+1.6", wb["text"])
         # Under 600px my teams are numbered markers with a key naming them; no label in the plot.

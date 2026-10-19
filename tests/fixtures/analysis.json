@@ -9444,10 +9444,10 @@
    },
    "safe_bet": {
     "status": "ok",
-    "n": 6,
-    "min_n": 3,
+    "n": 147,
+    "min_n": 15,
     "as_of": "2026-10-13",
-    "how": "For each cuisine with ten places or more, the middle half of my scores (first to third quartile) and the median; the narrowest middle half is the safest bet, the value.",
+    "how": "For each cuisine with at least 15 ranked places, the interquartile range of my scores with the median and quartiles, narrowest first; the value is the narrowest cuisine's range, and n counts the places in the cuisines shown.",
     "value": 1.7,
     "values": {
      "rows": [

@@ -1242,7 +1242,7 @@
 
     "lifting.relative_strength.*": {
       n: "sessions",
-      value: function (s) { return [signed(s.value, 3), "a month, e1RM per lb of body weight"]; },
+      value: function (s) { return isNum(s.value) ? [signed(s.value, 3), "a month, e1RM per lb of body weight"] : null; },
       intervalFmt: function (x) { return signed(x, 3); },
       draw: function (v, s, ctx) {
         var series = list(v.series);
@@ -1665,7 +1665,7 @@
     // scores, the median as the dot), narrowest first, with its places; the sentence names the
     // safest and the widest.
     "eating.safe_bet": {
-      n: "cuisines",
+      n: "places",
       wide: true,
       value: function (s) { return isNum(s.value) ? [num(s.value, 2), "points across the middle half of the safest cuisine's scores"] : null; },
       draw: function (v) {
@@ -1892,7 +1892,12 @@
       return block;
     }
     var v = isObj(s.values) ? s.values : {};
-    var val = spec.value ? spec.value(s) : null;
+    // A small sample may have no headline value yet (two sessions make no trend): the card then
+    // draws its figures and tag without one, rather than failing on the missing number.
+    var val = null;
+    if (spec.value) {
+      try { val = spec.value(s); } catch (err) { if (isNum(s.value) || s.small_sample !== true) throw err; }
+    }
     var ivText = Array.isArray(s.interval) ? interval(s.interval, spec.intervalFmt || function (x) { return num(x); }) : null;
     if (val) {
       block.appendChild(h("p", { class: "ld-value" }, h("span", { class: "ld-value-num" }, val[0]), " ",
@@ -1902,7 +1907,7 @@
     if (spec.draw) append(block, spec.draw(v, s, { label: label, weekdays: ctx.weekdays, analysis: analysis, typeClass: TYPE_CLASS[entry.key] ? "fill--" + TYPE_CLASS[entry.key] : null }));
     else if (!val) block.appendChild(h("p", { class: "ld-note" }, "Computed, but this page doesn't draw it yet."));
     block.appendChild(h("p", { class: "ld-n" }, "n = " + plural(s.n, spec.n || "") +
-      (s.as_of && s.as_of !== analysis.as_of ? " · as of " + dateText(s.as_of) : ""), sampleTag(s) ? [" ", sampleTag(s)] : null));
+      (s.as_of && s.as_of !== analysis.as_of ? " · as of " + dateText(s.as_of) : ""), sampleTag(s) ? [" · ", sampleTag(s)] : null));
     return block;
   }
 
@@ -1925,7 +1930,7 @@
     // The composite as the card's headline (percentile with its interval), then one bar per
     // component: its percentile among managers across my leagues, labelled with the raw
     // value and rank. A component still waiting is a row under the bars with a small-sample
-    // tag ("Lineup · small sample · n = 0 of 2 weeks"), not a wait message.
+    // tag ("Lineup · n = 0 weeks · small sample, threshold 2"), not a wait message.
     absorbs: "fantasy.manager_score.composite",
     draw: function (entries, analysis) {
       var ok = entries.filter(function (e) { return okStat(e.stat) && isNum(e.stat.value) && isObj(e.stat.values) && isNum(e.stat.values.percentile); });
@@ -1948,8 +1953,8 @@
       return [head,
         items.length ? bars("Percentile among managers across my leagues", items, { labelHeading: "Component", valueHeading: "Percentile · raw value and rank" }) : null,
         waiting.map(function (e) {
-          return h("p", { class: "ld-n ld-n--row" }, e.spec.label + " · ",
-            h("span", { class: "ld-tag" }, "small sample · n = " + (isNum(e.stat.n) ? big(e.stat.n) : "?") + " of " + plural(e.stat.min_n, WEEKS)));
+          return h("p", { class: "ld-n ld-n--row" }, e.spec.label + " · n = " + plural(isNum(e.stat.n) ? e.stat.n : 0, WEEKS) + " · ",
+            h("span", { class: "ld-tag" }, "small sample, threshold " + (isNum(e.stat.min_n) ? big(e.stat.min_n) : "?")));
         })];
     }
   };
@@ -2008,7 +2013,7 @@
           append(b, group.draw(entries, analysis, ctx));
           var ns = entries.filter(function (e) { return okStat(e.stat); }).map(function (e) { return e.stat.n; }).filter(isNum);
           var small = entries.filter(function (e) { return okStat(e.stat) && e.stat.small_sample === true; })[0];
-          if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || ""), small ? [" ", sampleTag(small.stat)] : null));
+          if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || ""), small ? [" · ", sampleTag(small.stat)] : null));
           block.appendChild(b);
         }
         entries.forEach(function (e) { noteHow(e.stat); });
@@ -2117,13 +2122,13 @@
   }
 
   // Thin data (policy of 2026-10-18). A statistic that is ok on fewer than min_n units carries
-  // small_sample: it is drawn as usual with a mono tag beside its n, "small sample · n = 3 of 10"
-  // (unit: added when the tag stands alone, as on a component row). One still waiting shows a
+  // small_sample: it is drawn as usual with a mono tag beside its n, "small sample, threshold 10"
+  // (the threshold is min_n; unit: added when the tag stands alone). One still waiting shows a
   // single line from values.first_unit, "nothing to show yet: needs one album with 10 plays in
   // its first week", and nothing else: no count of units needed and no date.
   function sampleTag(s, unit) {
     if (!isObj(s) || s.small_sample !== true) return null;
-    return h("span", { class: "ld-tag" }, "small sample · n = " + (isNum(s.n) ? big(s.n) : "?") + " of " + (isNum(s.min_n) ? big(s.min_n) : "?") + (unit ? " " + unit : ""));
+    return h("span", { class: "ld-tag" }, "small sample, threshold " + (isNum(s.min_n) ? big(s.min_n) : "?") + (unit ? " " + unit : ""));
   }
   function firstUnitText(s) {
     var fu = isObj(s) && isObj(s.values) && typeof s.values.first_unit === "string" ? s.values.first_unit.trim().replace(/\.$/, "") : "";
