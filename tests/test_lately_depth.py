@@ -95,7 +95,7 @@ class Register(unittest.TestCase):
                 "listening": ["right-now", "genres-by-month", "plays-by-weekday-and-hour", "artist-survival", "album-listening",
                               "discovery-direction", "enduring", "entropy", "retention-new-artists", "album-half-life"],
                 "eating": ["recently-tried", "scores", "new-cuisines-by-month", "home-against-away", "does-the-order-i-rank-in-move-the-score",
-                           "does-the-place-before-change-the-score", "what-i-try-against-what-i-rate-highest", "landing", "rerank-drift"],
+                           "does-the-place-before-change-the-score", "what-i-try-against-what-i-rate-highest", "landing", "safe-bet"],
                 "lifting": ["main-lifts", "body-weight", "training", "hours-by-weekday-watching-listening-training", "music-during-workouts",
                             "strength-index", "body-weight-since-the-cut", "strength-for-body-weight"]}
         aliases = {"fantasy": {"draft": "draft-value", "strength-of-schedule": "good-or-lucky", "the-schedule-replayed": "good-or-lucky",
@@ -230,7 +230,7 @@ def variant(name):
             del a["lifting"][k]
         for k in ("entropy", "nostalgia", "enduring", "retention_new_artists"):
             del a["listening"][k]
-        for k in ("landing", "rerank_drift"):
+        for k in ("landing", "rerank_drift", "safe_bet"):
             del a["eating"][k]
         del a["cross"]["time_budget"], a["meta"]
         for k in ("by_director", "by_studio", "by_lead", "blockbuster", "sequels", "language", "critics_vs_audience", "crowd_agreement"):
@@ -413,6 +413,25 @@ class Drawing(unittest.TestCase):
         listening = next(p for p in draw("index.html", name="young archive")["panels"] if p["id"] == "panel-listening")
         self.assertFalse([h for h in listening["headline"] if h[1] == "–"])
         self.assertTrue(listening["wait"])
+
+    # Eating: "Which cuisines are a safe bet?" (dot-and-range rows, narrowest first, the safest and the
+    # widest named) replaces re-rank drift; "Where do new places land?" is the current-ranking version.
+    def test_eating_cards(self):
+        d = draw("lately/eating/")
+        self.assertEqual([s["id"] for s in d["sections"] if s["group"] == "why"][-2:], ["landing", "safe-bet"])
+        self.assertNotIn("Do scores drift when I re-rank?", d["bodyText"])
+        (sb,) = blocks(d, "eating.safe_bet")
+        self.assertEqual(sb["value"], "1.70")
+        self.assertIn("Vietnamese is the safest bet: the middle half of its scores spans 1.70 points around a median of 8.91. Korean is the widest at 3.56 points.", sb["text"])
+        self.assertEqual([c[0] for c in sb["cells"]], ["Vietnamese", "Japanese", "Chinese", "Poke", "Ramen", "Korean"])  # narrowest first
+        self.assertEqual(sb["cells"][0][3:], ["1.70", "22"])
+        self.assertIn("1.70 · n = 22", sb["text"])
+        (ld,) = blocks(d, "eating.landing")
+        self.assertTrue(ld["value"].endswith("%"))
+        self.assertEqual(ld["rows"], 20 + len(ANALYSIS["eating"]["landing"]["values"]["months"]))  # the 20 places' table and the months' table
+        self.assertEqual(len([t for t in d["titles"] if t and t.endswith("% up my list")]), 20)
+        self.assertIn("The last 20 places I ranked, where each sits in my list now", ld["text"])
+        self.assertIn("Median landing percentile by month of first ranking", ld["text"])
 
     # small_sample: the card draws as usual with the tag beside its n; a waiting manager-score
     # component is a row with the tag; a panel on a small sample carries the tag under its numbers.

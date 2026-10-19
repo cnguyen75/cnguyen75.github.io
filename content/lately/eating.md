@@ -34,5 +34,5 @@ STAT: eating.choice_vs_taste
 ## Where do new places land? {#landing}
 STAT: eating.landing
 
-## Do scores drift when I re-rank? {#rerank-drift}
-STAT: eating.rerank_drift
+## Which cuisines are a safe bet? {#safe-bet}
+STAT: eating.safe_bet

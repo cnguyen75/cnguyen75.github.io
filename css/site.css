@@ -1191,8 +1191,14 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .ld-iv-line { position: absolute; top: 6px; height: 2px; background: var(--ink); }
 .ld-iv-dot { position: absolute; top: 2px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--ink); }
 .ld-range-box { position: absolute; top: 3px; height: 8px; background: var(--heat-2); }
+.ld-strip .ld-iv-track { background: var(--heat-1, var(--rule)); }
+.ld-strip-dot { opacity: 0.6; }
+.ld-strip-median { position: absolute; top: -2px; width: 2px; height: 18px; margin-left: -1px; background: var(--ink); }
+.ld-key-median { display: inline-block; width: 2px; height: 12px; background: var(--ink); vertical-align: middle; }
 .ld-iv-axis-track { position: relative; height: 14px; margin-top: -4px; font-family: var(--font-label); font-size: 11px; color: var(--text-3); }
-.ld-iv-axis-track > span { position: absolute; transform: translateX(-50%); }
+.ld-iv-axis-track > span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ld-iv-axis-track > .ld-axis-start { transform: none; }
+.ld-iv-axis-track > .ld-axis-end { transform: translateX(-100%); }
 
 /* Wins and losses: filled and outlined squares with their letter */
 .ld-margin-row { display: grid; grid-template-columns: 3em 22px minmax(60px, 1fr) 4.5em; gap: 10px; align-items: center; font-size: 13px; }

@@ -1624,13 +1624,79 @@
         }), { labelHeading: "Month", valueHeading: "New cuisines" });
       }
     },
+    // Where new places land in my current ranking: the median percentile, the last 20 places as
+    // dots on a 0 to 100 strip (1 = top), and by-month bars when the file has months.
     "eating.landing": {
-      n: "months",
-      value: function (s) { return isNum(s.value) ? [pct(s.value), "up my list is where a first ranking lands, latest month"] : null; },
+      n: "places",
+      wide: true,
+      value: function (s) {
+        var p = isNum(s.value) ? s.value : isObj(s.values) && isNum(s.values.median_percentile) ? s.values.median_percentile : null;
+        return p !== null ? [pct(p), "up my list is where a new place lands, median of the last 20"] : null;
+      },
       draw: function (v) {
-        return columns("Median landing percentile of first rankings, by month", list(v.months).map(function (m) {
-          return { label: monthText(m.month, true), title: monthText(m.month) + " (" + plural(m.rankings, "places") + ")", value: m.median_percentile, text: pct(m.median_percentile) };
-        }), { labelHeading: "Month", valueHeading: "Median percentile" });
+        var recent = list(v.recent).filter(function (r) { return isObj(r) && isNum(r.percentile); });
+        var med = isNum(v.median_percentile) ? v.median_percentile : null;
+        var strip = null;
+        if (recent.length) {
+          var chart = h("div", { class: "ld-ranges ld-strip", role: "img", "aria-label": "The last " + plural(recent.length, "places") + " I ranked, each at the percentile it sits at in my current ranking" +
+              (med !== null ? ", median " + pct(med) : "") + ": " + recent.map(function (r) { return (typeof r.place === "string" ? r.place + " " : "") + pct(r.percentile); }).join(", ") },
+            h("div", { class: "ld-range-row" },
+              h("span", { class: "ld-bar-label" }, "last " + recent.length),
+              h("span", { class: "ld-iv-track" },
+                med !== null ? h("span", { class: "ld-strip-median", style: { left: med * 100 + "%" }, title: "median " + pct(med) }) : null,
+                recent.map(function (r) {
+                  return h("span", { class: "ld-iv-dot ld-strip-dot", style: { left: r.percentile * 100 + "%" }, title: (typeof r.place === "string" ? r.place + ": " : "") + pct(r.percentile) + " up my list" });
+                })),
+              h("span", { class: "ld-bar-value" }, med !== null ? "median " + pct(med) : "")),
+            h("div", { class: "ld-range-row ld-range-axis", "aria-hidden": "true" }, h("span"),
+              h("span", { class: "ld-iv-axis-track" }, [[0, "0 · bottom", "ld-axis-start"], [50, "50", ""], [100, "top · 100", "ld-axis-end"]].map(function (t) { return h("span", { class: t[2] || null, style: { left: t[0] + "%" } }, t[1]); })), h("span")));
+          strip = charted("The last 20 places I ranked, where each sits in my list now", chart,
+            [{ label: "Place" }, { label: "Percentile", num: true }],
+            recent.map(function (r) { return [typeof r.place === "string" ? r.place : "", pct(r.percentile)]; }),
+            h("p", { class: "ld-legend" }, h("span", { class: "ld-key-dot", "aria-hidden": "true" }), " one place   ", h("span", { class: "ld-key-median", "aria-hidden": "true" }), " median"));
+        }
+        var months = list(v.months).filter(function (m) { return isObj(m) && isNum(m.median_percentile); });
+        return [strip, months.length ? columns("Median landing percentile by month of first ranking", months.map(function (m) {
+          return { label: monthText(m.month, true), title: monthText(m.month) + (isNum(m.rankings) ? " (" + plural(m.rankings, "places") + ")" : ""), value: m.median_percentile, text: pct(m.median_percentile) };
+        }), { labelHeading: "Month", valueHeading: "Median percentile" }) : null];
+      }
+    },
+    // Which cuisines are a safe bet: a dot-and-range row per cuisine (the middle half of its
+    // scores, the median as the dot), narrowest first, with its places; the sentence names the
+    // safest and the widest.
+    "eating.safe_bet": {
+      n: "cuisines",
+      wide: true,
+      value: function (s) { return isNum(s.value) ? [num(s.value, 2), "points across the middle half of the safest cuisine's scores"] : null; },
+      draw: function (v) {
+        var rows = list(v.rows).filter(function (r) { return isObj(r) && typeof r.cuisine === "string" && isNum(r.q1) && isNum(r.q3) && isNum(r.median); })
+          .map(function (r) { return { cuisine: r.cuisine, n: isNum(r.n) ? r.n : null, median: r.median, q1: r.q1, q3: r.q3, spread: r.q3 - r.q1 }; })
+          .sort(function (x, y) { return x.spread - y.spread || y.median - x.median; });
+        if (!rows.length) return null;
+        var safe = rows[0], wide = rows[rows.length - 1];
+        var sentence = rows.length > 1
+          ? safe.cuisine + " is the safest bet: the middle half of its scores spans " + num(safe.spread, 2) + " points around a median of " + num(safe.median, 2) + ". " +
+            wide.cuisine + " is the widest at " + num(wide.spread, 2) + " points."
+          : safe.cuisine + " is the only cuisine with enough places: the middle half of its scores spans " + num(safe.spread, 2) + " points around a median of " + num(safe.median, 2) + ".";
+        var chart = h("div", { class: "ld-ranges", role: "img", "aria-label": "Middle half of scores by cuisine, narrowest first: " + rows.map(function (r) {
+            return r.cuisine + " median " + num(r.median, 2) + ", middle half " + num(r.q1, 2) + " to " + num(r.q3, 2) + (r.n !== null ? ", " + plural(r.n, "places") : "");
+          }).join("; ") },
+          rows.map(function (r) {
+            return h("div", { class: "ld-range-row", title: r.cuisine + ": median " + num(r.median, 2) + ", middle half " + num(r.q1, 2) + " to " + num(r.q3, 2) + (r.n !== null ? ", " + plural(r.n, "places") : "") },
+              h("span", { class: "ld-bar-label" }, r.cuisine),
+              h("span", { class: "ld-iv-track" },
+                h("span", { class: "ld-range-box", style: { left: r.q1 * 10 + "%", width: r.spread * 10 + "%" } }),
+                h("span", { class: "ld-iv-dot", style: { left: r.median * 10 + "%" } })),
+              h("span", { class: "ld-bar-value" }, num(r.spread, 2) + (r.n !== null ? " · n = " + r.n : "")));
+          }),
+          h("div", { class: "ld-range-row ld-range-axis", "aria-hidden": "true" }, h("span"),
+            h("span", { class: "ld-iv-axis-track" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
+        return [h("p", { class: "ld-sentence" }, sentence),
+          charted("Middle half of scores by cuisine, narrowest first", chart,
+            [{ label: "Cuisine" }, { label: "Median", num: true }, { label: "Middle half", num: true }, { label: "Spread", num: true }, { label: "Places", num: true }],
+            rows.map(function (r) { return [r.cuisine, num(r.median, 2), num(r.q1, 2) + " to " + num(r.q3, 2), num(r.spread, 2), r.n !== null ? String(r.n) : ""]; }),
+            h("p", { class: "ld-legend" }, h("span", { class: "ld-key-dot", "aria-hidden": "true" }), " median   ",
+              h("span", { class: "ld-key-box", "aria-hidden": "true" }), " middle half, its width in points"))];
       }
     },
     "eating.rerank_drift": {

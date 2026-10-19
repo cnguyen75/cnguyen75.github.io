@@ -107,7 +107,7 @@ DATA_LEFT_OUT = {
     "lifting.consistency": "no question of its own",
     "cross.rhythm.restaurants": "no question of its own",
     "eating.contrarian": "not available from the source",
-    "eating.safe_bet": "its card arrives with the eating-cards change",
+    "eating.rerank_drift": "replaced on the page by safe_bet (2026-10-18)",
 }
 SCHEMA_PATH = "data/lately.schema.json"
 
