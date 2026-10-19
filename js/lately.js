@@ -1086,11 +1086,21 @@
     if (d && d.headlineRow) return d.headlineRow(items, "ld-stats--panel");
     return h("div", { class: "stats ld-stats ld-stats--panel" }, items.map(function (i) { return stat(i.label, i.value, i.note); }));
   }
-  function waitBox(s, unit, extra) {
+  function waitBox(s) {
     var d = LD();
-    var inner = d && d.waitBox ? d.waitBox(s, unit, extra)
+    var inner = d && d.waitBox ? d.waitBox(s)
       : h("p", { class: "ld-wait" }, h("b", null, isObj(s) ? String(s.status) : "not in the data yet"));
     return h("div", { class: "panel-wait" }, inner);
+  }
+  // The thin-data policy on a panel: a small-sample tag line under the numbers when the panel's
+  // statistic is ok below min_n; in a sentence, ": it needs <first unit>" while it waits.
+  function sampleLine(s, extra) {
+    var d = LD(), tag = d && d.sampleTag ? d.sampleTag(s) : null;
+    return tag || extra ? h("p", { class: "ld-n ld-n--panel" }, tag, tag && extra ? " · " : null, extra) : null;
+  }
+  function needsText(s) {
+    var d = LD(), t = d && d.firstUnitText ? d.firstUnitText(s) : "";
+    return t ? ": it " + t : "";
   }
   function chartOr(fn) {
     var d = LD();
@@ -1098,7 +1108,6 @@
     return fn(d.charts);
   }
   function more(feed) { return h("a", { class: "ld-more", href: "lately/" + feed + "/" }, "more about " + feed + " →"); }
-  function nOf(s) { return isNum(s.n) ? s.n + " of " + s.min_n : String(s.min_n); }
   function plus(x, dp) { return fsigned(x, dp); }
 
   function fantasyPanel(data) {
@@ -1132,11 +1141,11 @@
       sentences = [
         "Across " + plural(teamCount, "team", "teams") + " I'm " + rec + ", " + fnum(Math.abs(wae), 1) + " " + (Math.abs(wae) === 1 ? "win" : "wins") + " " +
           (wae >= 0 ? "above" : "below") + " what all-play says I should have.",
-        "The strength-and-luck chart waits for the league-wide statistic" + (isObj(q) && isNum(q.min_n) ? " (" + nOf(q) + " weeks)" : "") + "."
+        "The strength-and-luck chart has nothing to show yet" + needsText(q) + "."
       ];
-      chart = waitBox(q, "weeks");
+      chart = waitBox(q);
     }
-    return [fantasyStale(ctx.shown), question("Good, or lucky?", sentences), numbers(nums), chart, more("fantasy")];
+    return [fantasyStale(ctx.shown), question("Good, or lucky?", sentences), numbers(nums), sampleLine(q), chart, more("fantasy")];
   }
 
   var TYPE_NAMES = { film: "films", show: "shows", anime: "anime", films: "films", shows: "shows" };
@@ -1190,13 +1199,13 @@
     } else {
       sentences = [
         filmS ? fpct(filmS.share) + " of my finished films are S (" + filmS.s + " of " + filmS.titles + ")." : "Tiers are not in the data yet.",
-        "What my tiers respond to waits for the taste model" + (isObj(tp) && isNum(tp.min_n) ? " (" + nOf(tp) + " titles)" : "") + "."
+        "What my tiers respond to has nothing to show yet" + needsText(tp) + "."
       ];
       var comp = isObj(aw.completion) ? aw.completion.show : null;
       nums = [crowd, sNum, okStat(comp) ? { label: "Completion, shows", value: fpct(comp.value), note: comp.values.finished + " finished, " + comp.values.dropped + " dropped" } : null];
-      chart = waitBox(tp, "titles");
+      chart = waitBox(tp);
     }
-    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What does my taste look like?", sentences), numbers(nums), chart, more("watching")];
+    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What does my taste look like?", sentences), numbers(nums), sampleLine(tp), chart, more("watching")];
   }
 
   function listeningPanel(data) {
@@ -1218,7 +1227,9 @@
         : isNum(med.catalog) ? { label: "Median rotation length, catalog artists", value: plural(med.catalog, "month", "months"), note: "the overall median is not reached yet" } : null;
       var hrNum = hr && isNum(hr.value) ? { label: "Hazard ratio, new vs catalog", value: fnum(hr.value, 2) + "×", note: f && f.interval(hr.interval, function (x) { return f.num(x, 2); }) || "how much faster new artists leave" } : null;
       var shareNum = isNum(v.share_catalog) ? { label: "Discoveries that are catalog", value: fpct(v.share_catalog), note: "artists over 5 years old when first played" } : null;
-      sentences = [d.hazardSentence(hr, med) || "The survival curves are drawn below.", "Note: " + d.PRESYNC_NOTE];
+      sentences = [d.hazardSentence(hr, med) || "The survival curves are drawn below.",
+        isNum(v.share_catalog) ? fpct(v.share_catalog) + " of my discoveries are catalog artists, over five years old when first played."
+          : "The curves count artists first played since the 2023 Apple Music sync."];
       nums = [medianNum, hrNum, shareNum];
       chart = chartOr(function (c) {
         var block = c.survivalChart("Share of artists still in rotation, by months since first play", curves);
@@ -1228,16 +1239,17 @@
     } else {
       var range = listeningRange(data);
       sentences = [
-        (range ? "The archive holds " + plural(range.days, "day", "days") + " of plays, from " + range.from + " to " + range.to : "The archive is young") +
-          "; whether old music lasts longer needs " + (isObj(sv) && isNum(sv.min_n) ? plural(sv.min_n, "artist", "artists") + " with a first play" : "more discoveries") + ".",
+        (range ? "The archive holds " + plural(range.days, "day", "days") + " of plays" : "The archive is young") +
+          "; whether old music lasts longer has nothing to show yet" + needsText(sv) + ".",
         "So far: " + plural(b.plays, "play", "plays") + windowText(b.win) + (top5 !== null ? ", " + fpct(top5) + " of them by my top five artists" : "") + "."
       ];
       var topFive = top5 !== null ? { label: "Top five artists' share", value: fpct(top5), note: month(concLast.month) } : null;
       var topArtist = list(b.l.top_artists).filter(function (x) { return isObj(x) && typeof x.name === "string" && isNum(x.plays); })[0];
       nums = [plays, topFive, topArtist ? { label: "Top artist, " + b.win, value: topArtist.name, note: plural(topArtist.plays, "play", "plays") } : null];
-      chart = waitBox(sv, "artists", range ? "plays from " + range.from + " to " + range.to : null);
+      chart = waitBox(sv);
     }
-    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Does old music last longer than new?", sentences), numbers(nums), chart, more("listening")];
+    var presync = curves.length && d ? [h("span", { class: "ld-tag" }, "pre-sync artists excluded"), " · see the listening page for the version that includes them"] : null;
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Does old music last longer than new?", sentences), numbers(nums), sampleLine(sv, presync), chart, more("listening")];
   }
 
   function eatingPanel(data) {
@@ -1262,7 +1274,7 @@
         "Against my median of " + fnum(med, 2) + (hi && lo && hi !== lo ? ", " + hi.label + " runs " + plus(hi.value, 2) + " and " + lo.label + " " + plus(lo.value, 2) : ", no cuisine with " + MIN_CUISINE_PLACES + " places stands apart") + ".",
         home ? "At home I score " + fnum(Math.abs(hb.value), 2) + " points " + (hb.value < 0 ? "lower" : "higher") + " than away for the same cuisine" +
           (order ? ", and each 100 places ranked moves a score " + plus(oe.value, 2) + " points" : "") + "."
-          : "Home against away waits for " + (isObj(hb) && isNum(hb.min_n) ? nOf(hb) + " places" : "more places") + (order ? "; each 100 places ranked moves a score " + plus(oe.value, 2) + " points" : "") + "."
+          : "Home against away has nothing to show yet" + needsText(hb) + (order ? "; each 100 places ranked moves a score " + plus(oe.value, 2) + " points" : "") + "."
       ];
       nums = [{ label: "Median score", value: fnum(med, 2), note: "middle half " + fnum(sc.values.overall.q1, 2) + " to " + fnum(sc.values.overall.q3, 2) }, home, order];
       chart = chartOr(function (c) {
@@ -1273,14 +1285,14 @@
       });
     } else {
       sentences = [
-        "Scores by cuisine wait for " + (isObj(sc) && isNum(sc.min_n) ? nOf(sc) + " places" : "more places") + ".",
+        "Scores by cuisine have nothing to show yet" + needsText(sc) + ".",
         home ? "At home I score " + fnum(Math.abs(hb.value), 2) + " points " + (hb.value < 0 ? "lower" : "higher") + " than away for the same cuisine."
-          : "Home against away waits too."
+          : "Home against away has nothing to show yet either."
       ];
       nums = [{ label: "Restaurants ranked", value: String(num(e.ranked_count, "ranked_count")), note: "on Beli" }, home, order];
-      chart = waitBox(sc, "places");
+      chart = waitBox(sc);
     }
-    return [state.asOf ? staleNote(state.asOf) : null, question("What biases my scores?", sentences), numbers(nums), chart, more("eating")];
+    return [state.asOf ? staleNote(state.asOf) : null, question("What biases my scores?", sentences), numbers(nums), sampleLine(sc), chart, more("eating")];
   }
 
   function liftingPanel(data) {
@@ -1354,16 +1366,16 @@
       nums = [bwNum, { label: "Strength index since the cut", value: plus(last.strength - 100, 1) + "%", note: "mean best e1RM, main lifts" }, benchNum];
       chart = chartOr(function (c) { return c.indexedLines(weeks, { height: 150 }, si.values); });
     } else {
-      var waits = "The strength index waits for " + (isObj(si) && isNum(si.min_n) ? nOf(si) + " weeks" : "the pipeline");
+      var waits = "The strength index has nothing to show yet" + needsText(si);
       sentences = [
         okStat(bwr) && isNum(bwr.value) ? "Since the cut started" + (cutStart ? " on " + date(cutStart) : "") + " I've gone from " + fnum(bwr.values.first, 1) + " to " + fnum(bwr.values.latest, 1) + " " + b.unit +
           (bwPct !== null ? " (" + plus(bwPct, 1) + "%)" : "") + ", " + (bwr.value < 0 ? "losing" : "gaining") + " " + fnum(Math.abs(bwr.value), 2) + " " + b.unit + " a week." : "Body weight since the cut waits for weigh-ins.",
         second ? waits + "; meanwhile " + second.charAt(0).toLowerCase() + second.slice(1) : waits + "."
       ];
       nums = [bwNum, benchNum, okStat(bwr) && isNum(bwr.value) ? { label: "Body weight a week", value: plus(bwr.value, 2) + " " + b.unit, note: f ? f.interval(bwr.interval, function (x) { return f.signed(x, 2); }) || "since the cut started" : "since the cut started" } : null];
-      chart = waitBox(si, "weeks");
+      chart = waitBox(si);
     }
-    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is the cut costing strength?", sentences), numbers(nums), chart, more("lifting")];
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is the cut costing strength?", sentences), numbers(nums), sampleLine(si), chart, more("lifting")];
   }
 
   // ---------- assembly ----------

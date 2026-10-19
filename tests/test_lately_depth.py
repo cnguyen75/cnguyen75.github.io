@@ -266,7 +266,7 @@ def variant(name):
             a["watching"][k].pop("values", None); a["watching"][k].pop("value", None); a["watching"][k].pop("interval", None)
         del a["watching"]["critics_vs_audience"]
         a["listening"]["retention_new_artists"].update(status="not enough data yet", n=0)
-        a["listening"]["retention_new_artists"]["values"] = {"available_from": "2026-11-10"}
+        a["listening"]["retention_new_artists"]["values"] = {"first_unit": "one month whose 90 days are up"}
         a["listening"]["entropy"]["values"]["months"] = a["listening"]["entropy"]["values"]["months"][:1]
         a["listening"]["entropy"]["values"]["weeks"] = a["listening"]["entropy"]["values"]["weeks"][:1]
         a["listening"]["nostalgia"]["values"]["months"] = a["listening"]["nostalgia"]["values"]["months"][:1]
@@ -280,6 +280,11 @@ def variant(name):
             st.pop("interval", None)
         a["fantasy"]["manager_score"]["components"]["moves"].update(status="not enough data yet", n=2)
         a["fantasy"]["manager_score"]["components"]["moves"].pop("values")
+        a["fantasy"]["manager_score"]["components"]["lineup"].update(status="not enough data yet", n=0, min_n=2)
+        a["fantasy"]["manager_score"]["components"]["lineup"].pop("values")
+        a["fantasy"]["quadrant"]["values"] = {"first_unit": "three weeks of results across my leagues"}
+    if name == "panel small":
+        a["lifting"]["strength_index"].update(n=3, small_sample=True)
     if name == "no all list":
         for team in a["fantasy"]["teams"]:
             del team["waiver_adds"]["values"]["all"]
@@ -368,29 +373,32 @@ class Drawing(unittest.TestCase):
         self.assertEqual(sl["hows"], ["how: " + ANALYSIS["lifting"]["body_weight_rate"]["how"]])
         self.assertIn("Courier Prime", sl["howFont"])
 
-    # "not enough data yet": under What's happening the statistic isn't drawn; one line per
-    # page counts them and a section with nothing else is hidden with its contents entry. A
-    # card under Why keeps its question and shows the box with n and min_n instead. No
-    # headline tile shows a "–" for either.
+    # "not enough data yet": under What's happening the statistic isn't drawn and a section with
+    # nothing else is hidden with its contents entry. A card under Why keeps its question over one
+    # line, "nothing to show yet: needs <first unit>". No count of units needed, no "available from"
+    # date and no "more statistics" line anywhere; no headline tile shows a "–".
     def test_not_enough_data(self):
         for feed in FEEDS:
-            with self.subTest(feed=feed):
-                d = draw(f"lately/{feed}/")
-                for s in d["sections"]:
-                    for sl in s["slots"]:
-                        for b in sl["blocks"]:
-                            if b["status"] == "not enough data yet":
-                                self.assertEqual(s["group"], "why", s["id"])
-                                self.assertRegex(b["wait"], r"^not enough data yet · \d+ of \d+ .+ needed$")
-                if d["waiting"]:
-                    self.assertRegex(d["waiting"], r"^(1 more statistic appears|\d+ more statistics appear) as data accrues\.$")
+            for name in ("base", "films waiting", "waiting", "young archive"):
+                with self.subTest(feed=feed, variant=name):
+                    d = draw(f"lately/{feed}/", name=name)
+                    for s in d["sections"]:
+                        for sl in s["slots"]:
+                            for b in sl["blocks"]:
+                                if b["status"] == "not enough data yet":
+                                    self.assertEqual(s["group"], "why", s["id"])
+                                    self.assertRegex(b["wait"], r"^nothing to show yet(: needs [^.]+)?$")
+                                    self.assertEqual(b["charts"], 0)
+                    self.assertIsNone(d["waiting"])
+                    self.assertNotRegex(d["bodyText"], r"\bneeded\b|available from|as data accrues|not enough data yet")
         lifting = draw("lately/lifting/")
-        # Relative strength is a Why card: the lifts without data wait in place, with their n.
+        # Relative strength is a Why card: the lifts without data wait in place, each naming its first unit.
         waits = [b for b in blocks(lifting, "lifting.relative_strength.*") if b["status"] == "not enough data yet"]
         self.assertTrue(waits)
-        self.assertEqual(waits[0]["wait"], "not enough data yet · 0 of 4 sessions needed")
+        self.assertEqual(waits[0]["wait"], "nothing to show yet: needs four sessions of Incline press in weeks with a weigh-in")
+        # A statistic the pipeline left without a first unit shows the bare line.
         young = draw("lately/listening/", name="young archive")
-        self.assertEqual(young["waiting"], "1 more statistic appears as data accrues.")  # genres by month, the one What's-happening statistic
+        self.assertEqual(blocks(young, "listening.artist_survival")[0]["wait"], "nothing to show yet")
         for s in young["sections"]:
             with self.subTest(section=s["id"]):
                 if not s["slots"]:
@@ -405,6 +413,30 @@ class Drawing(unittest.TestCase):
         listening = next(p for p in draw("index.html", name="young archive")["panels"] if p["id"] == "panel-listening")
         self.assertFalse([h for h in listening["headline"] if h[1] == "–"])
         self.assertTrue(listening["wait"])
+
+    # small_sample: the card draws as usual with the tag beside its n; a waiting manager-score
+    # component is a row with the tag; a panel on a small sample carries the tag under its numbers.
+    def test_small_sample(self):
+        (ce,) = blocks(draw("lately/eating/"), "eating.contrast_effect")
+        self.assertEqual(ce["status"], "ok")
+        self.assertEqual(ce["tags"], ["small sample · n = 20 of 30"])
+        self.assertTrue(ce["n"].startswith("n = 20 pairs"))
+        self.assertIn("small sample · n = 20 of 30", ce["n"])
+        self.assertGreater(ce["charts"], 0)
+        (sq,) = blocks(draw("lately/watching/"), "watching.sequels")
+        self.assertEqual(sq["tags"], ["small sample · n = 2 of 3"])
+        self.assertTrue(sq["value"])
+        # Cards without the flag carry no tag.
+        self.assertEqual(blocks(draw("lately/eating/"), "eating.home_bias")[0]["tags"], [])
+        waiting = next(s for s in draw("lately/fantasy/", name="waiting")["sections"] if s["id"] == "manager-score")
+        (wb,) = waiting["slots"][0]["blocks"]
+        self.assertEqual(wb["tagRows"], ["Lineup · small sample · n = 0 of 2 weeks", "Moves · small sample · n = 2 of 4 weeks"])
+        self.assertIsNone(wb["wait"])
+        lifting = next(p for p in draw("index.html", name="panel small")["panels"] if p["id"] == "panel-lifting")
+        self.assertEqual(lifting["tagLine"], "small sample · n = 3 of 4")
+        self.assertEqual(lifting["charts"], 1)
+        base = next(p for p in draw("index.html")["panels"] if p["id"] == "panel-lifting")
+        self.assertIsNone(base["tagLine"])
 
     # Each page opens with whose numbers these are and which apps they come from.
     def test_lede(self):
@@ -535,7 +567,7 @@ class Drawing(unittest.TestCase):
         # Why) keeps its question over the box, with the gate's n and min_n.
         few = draw("lately/fantasy/", name="few predictions")
         (fb,) = blocks(few, "grading.win_chance")
-        self.assertEqual((fb["status"], fb["wait"]), ("not enough data yet", "not enough data yet · 19 of 20 predictions needed"))
+        self.assertEqual((fb["status"], fb["wait"]), ("not enough data yet", "nothing to show yet"))
         self.assertFalse(slot(few, "grading.win_chance")["hidden"])
 
     QUESTIONS = {"fantasy": "Good, or lucky?", "watching": "What does my taste look like?", "listening": "Does old music last longer than new?",
@@ -597,7 +629,10 @@ class Drawing(unittest.TestCase):
         self.assertEqual(next(p for p in draw("index.html", name="no censor days")["panels"] if p["id"] == "panel-listening")["headline"][0][2],
                          "from first play to 60 days without one")
         self.assertTrue(li["answer"].startswith("New artists drop out of rotation 1.62× as fast as catalog ones (95% 1.22 to 2.19); half of my catalog discoveries last"), li["answer"])
-        self.assertTrue(li["answer"].endswith("Note: artists in the library before the 2023 sync excluded; see the listening page for the version that includes them."), li["answer"])
+        self.assertTrue(li["answer"].endswith("of my discoveries are catalog artists, over five years old when first played."), li["answer"])
+        self.assertNotIn("Note:", li["answer"])
+        self.assertEqual(li["tags"], ["pre-sync artists excluded"])
+        self.assertEqual(li["tagLine"], "pre-sync artists excluded · see the listening page for the version that includes them")
         self.assertEqual(li["kmCurves"], 2)
         self.assertEqual(li["kmMedians"], len([c for c in sv["curves"] if c["median"] is not None]))
         self.assertIn("catalog · n = " + str(sv["n"]["catalog"]), d["bodyText"])
@@ -633,9 +668,9 @@ class Drawing(unittest.TestCase):
         self.assertIn("Restaurants ranked", draw("lately/eating/")["bodyText"])  # moved, not deleted
 
     # Every panel still stands when its statistic is "not enough data yet" or the file predates
-    # it: the question, the box with n and min_n (or "not in the data yet"), the numbers, the link.
+    # it: the question, one line ("nothing to show yet…" or "not in the data yet"), the numbers, the link.
     def test_main_page_panels_waiting(self):
-        for name, box in (("waiting", r"^not enough data yet · 2 of \d+ \w+ needed"), ("old file", r"^not in the data yet · appears once the pipeline publishes it$")):
+        for name, box in (("waiting", r"^nothing to show yet(: needs [^.]+)?$"), ("old file", r"^not in the data yet · appears once the pipeline publishes it$")):
             d = draw("index.html", name=name)
             for p in d["panels"]:
                 with self.subTest(variant=name, panel=p["id"]):
@@ -649,10 +684,16 @@ class Drawing(unittest.TestCase):
                     self.assertRegex(p["wait"], box)
                     self.assertEqual(p["charts"], 0)
                     self.assertTrue(p["more"])
+                    # No count of units needed, no "available from", no date in the wait line; none of the first two in the answer.
+                    self.assertNotRegex(p["wait"], r"\bneeded\b|available|\d{4}")
+                    self.assertNotRegex(p["answer"], r"\bneeded\b|available from|\(\d+ of \d+ \w+\)")
             self.assertEqual(d["errors"], [])
-        # The listening box says what the archive covers.
-        li = next(p for p in draw("index.html", name="waiting")["panels"] if p["id"] == "panel-listening")
-        self.assertRegex(li["wait"], r"\w+ needed · plays from \d+ \w+( \d{4})? to \d+ \w+( \d{4})?$")
+        # The fantasy sentence and line name the first unit; listening's, without one, says only that.
+        ws = {p["id"]: p for p in draw("index.html", name="waiting")["panels"]}
+        self.assertTrue(ws["panel-fantasy"]["answer"].endswith("The strength-and-luck chart has nothing to show yet: it needs three weeks of results across my leagues."), ws["panel-fantasy"]["answer"])
+        self.assertEqual(ws["panel-fantasy"]["wait"], "nothing to show yet: needs three weeks of results across my leagues")
+        self.assertEqual(ws["panel-listening"]["wait"], "nothing to show yet")
+        self.assertIn("whether old music lasts longer has nothing to show yet.", ws["panel-listening"]["answer"])
         # Entropy by week lives on the listening page ("Is my taste narrowing?").
         one = next(s for s in draw("lately/listening/", name="films waiting")["sections"] if s["id"] == "entropy")
         self.assertEqual(one["title"], "Is my taste narrowing?")
@@ -707,11 +748,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual(d["attribution"], [{"source": "yahoo", "hidden": True, "text": "Fantasy data provided by Yahoo Fantasy",
                                              "link": ["https://sports.yahoo.com/fantasy/", "_blank", "noopener"]}])
         self.assertEqual(draw("lately/fantasy/", name="yahoo")["attribution"][0]["hidden"], False)
-        # A waiting component is named under the bars of the others, with its n and min_n.
+        # A waiting component is a row under the bars of the others, with a small-sample tag.
         waiting = next(s for s in draw("lately/fantasy/", name="waiting")["sections"] if s["id"] == "manager-score")
         (wb,) = waiting["slots"][0]["blocks"]
         self.assertEqual(wb["status"], "ok")
-        self.assertEqual(wb["wait"], "Moves: not enough data yet · 2 of 4 weeks needed")
+        self.assertIn("Moves · small sample · n = 2 of 4 weeks", wb["tagRows"])
         self.assertIn("Draft", wb["text"])
         self.assertNotIn("+1.6", wb["text"])
         # Under 600px my teams are numbered markers with a key naming them; no label in the plot.
@@ -781,12 +822,12 @@ class Drawing(unittest.TestCase):
         for stat in ("watching.by_director", "watching.crowd_agreement", "watching.blockbuster", "watching.sequels"):
             with self.subTest(stat=stat):
                 (b,) = blocks(w, stat)
-                self.assertRegex(b["wait"], r"^not enough data yet · 12 of \d+ \w+ needed$")
+                self.assertEqual(b["wait"], "nothing to show yet")
         self.assertEqual(w["attributions"], [])  # the taste profile is ok there, but it is not a credited statistic
-        # Retention says when it can start; entropy and nostalgia draw by week while months are few.
+        # Retention names its first unit; entropy and nostalgia draw by week while months are few.
         lw = draw("lately/listening/", name="films waiting")
         (rt,) = blocks(lw, "listening.retention_new_artists")
-        self.assertEqual(rt["wait"], "not enough data yet · available from 10 Nov 2026")
+        self.assertEqual(rt["wait"], "nothing to show yet: needs one month whose 90 days are up")
         self.assertIn("Effective artists (2 to the entropy) by week", blocks(lw, "listening.entropy")[0]["text"])
         self.assertIn("Median release year by week", blocks(lw, "listening.nostalgia")[0]["text"])
         self.assertIn("by month", blocks(draw("lately/listening/"), "listening.entropy")[0]["text"])
@@ -901,7 +942,7 @@ class Drawing(unittest.TestCase):
                         for b in sl["blocks"]:
                             self.assertNotEqual(b["status"], "not in the data yet", (s["id"], sl["stat"]))
                             self.assertNotIn("doesn't draw it yet", b["text"], sl["stat"])
-                self.assertIsNone(d["waiting"] and re.search(r"\d{2,}", d["waiting"]))  # a two-digit count means slots went undrawn
+                self.assertIsNone(d["waiting"])  # the "more statistics" line is gone
         lifting = draw("lately/lifting/")
         self.assertTrue(blocks(lifting, "lifting.relative_strength.*"))
         self.assertTrue(blocks(lifting, "lifting.strength_kept.*"))  # absorbed into "Am I stronger for my size?"

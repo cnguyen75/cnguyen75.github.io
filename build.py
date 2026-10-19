@@ -514,7 +514,6 @@ def render_data_page(meta):
 <p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>
 </section>
 <nav class="ld-toc" aria-label="On this page"><ol>{"".join(nav)}</ol></nav>
-<p class="ld-waiting" hidden></p>
 {"".join(groups)}{attribution}
 </main>
 </div>

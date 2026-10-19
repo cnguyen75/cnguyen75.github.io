@@ -1812,13 +1812,12 @@
     need(isObj(s) && typeof s.status === "string", "statistic");
     var gate = spec.gate ? spec.gate(s, analysis) : null;
     var status = gate ? gate.status : s.status;
-    var n = gate ? gate.n : s.n, minN = gate ? gate.min_n : s.min_n;
     var label = entry.label || spec.label || "";
     var block = h("div", { class: "ld-block ld-block--" + status.replace(/\s+/g, "-"), "data-status": status });
     if (label) block.appendChild(h("h3", { class: "ld-block-title" }, label));
 
     if (status === "not enough data yet") {
-      block.appendChild(h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"), " · " + waitText(s, n, minN, spec.n || "")));
+      block.appendChild(firstLine(s));
       return block;
     }
     if (status !== "ok") {
@@ -1837,7 +1836,7 @@
     if (spec.draw) append(block, spec.draw(v, s, { label: label, weekdays: ctx.weekdays, analysis: analysis, typeClass: TYPE_CLASS[entry.key] ? "fill--" + TYPE_CLASS[entry.key] : null }));
     else if (!val) block.appendChild(h("p", { class: "ld-note" }, "Computed, but this page doesn't draw it yet."));
     block.appendChild(h("p", { class: "ld-n" }, "n = " + plural(s.n, spec.n || "") +
-      (s.as_of && s.as_of !== analysis.as_of ? " · as of " + dateText(s.as_of) : "")));
+      (s.as_of && s.as_of !== analysis.as_of ? " · as of " + dateText(s.as_of) : ""), sampleTag(s) ? [" ", sampleTag(s)] : null));
     return block;
   }
 
@@ -1859,7 +1858,8 @@
     n: WEEKS,
     // The composite as the card's headline (percentile with its interval), then one bar per
     // component: its percentile among managers across my leagues, labelled with the raw
-    // value and rank. A component still waiting is named under the bars with its n of min_n.
+    // value and rank. A component still waiting is a row under the bars with a small-sample
+    // tag ("Lineup · small sample · n = 0 of 2 weeks"), not a wait message.
     absorbs: "fantasy.manager_score.composite",
     draw: function (entries, analysis) {
       var ok = entries.filter(function (e) { return okStat(e.stat) && isNum(e.stat.value) && isObj(e.stat.values) && isNum(e.stat.values.percentile); });
@@ -1873,7 +1873,7 @@
           h("span", { class: "ld-value-unit" }, "composite of the four, among managers across my leagues"),
           iv ? h("span", { class: "ld-interval" }, iv) : null);
       } else if (isObj(comp) && comp.status === "not enough data yet") {
-        head = h("p", { class: "ld-wait" }, h("b", null, "Composite: not enough data yet"), " · " + (isNum(comp.n) ? big(comp.n) + " of " : "") + plural(comp.min_n, WEEKS) + " needed");
+        head = firstLine(comp, "Composite");
       }
       var items = ok.map(function (e) {
         var v = e.stat.values;
@@ -1882,8 +1882,8 @@
       return [head,
         items.length ? bars("Percentile among managers across my leagues", items, { labelHeading: "Component", valueHeading: "Percentile · raw value and rank" }) : null,
         waiting.map(function (e) {
-          return h("p", { class: "ld-wait" }, h("b", null, e.spec.label + ": not enough data yet"),
-            " · " + (isNum(e.stat.n) ? big(e.stat.n) + " of " : "") + plural(e.stat.min_n, WEEKS) + " needed");
+          return h("p", { class: "ld-n ld-n--row" }, e.spec.label + " · ",
+            h("span", { class: "ld-tag" }, "small sample · n = " + (isNum(e.stat.n) ? big(e.stat.n) : "?") + " of " + plural(e.stat.min_n, WEEKS)));
         })];
     }
   };
@@ -1892,9 +1892,8 @@
   Object.keys(GROUPS).forEach(function (k) { if (GROUPS[k].absorbs) ABSORBED[GROUPS[k].absorbs] = k; });
 
   // Statistics still waiting for data ("not enough data yet"): in a "Why" card they are
-  // drawn as the question with a "not enough data yet · n of min_n" box; elsewhere they
-  // aren't drawn, they're counted in ctx.waiting for the page's one line, and a slot left
-  // with nothing to show is hidden.
+  // drawn as the question over one line, "nothing to show yet: needs <first unit>"; elsewhere
+  // they aren't drawn, and a slot left with nothing to show is hidden.
   function fillSlot(slot, analysis, ctx) {
     var entries = [], found = 0;
     var card = !!slot.closest(".ld-section--why");
@@ -1911,7 +1910,7 @@
         e.spec = spec;
         e.path = path;
         found++;
-        if (!card && shownStatus(e, analysis) === "not enough data yet") { ctx.waiting = (ctx.waiting || 0) + 1; return; }
+        if (!card && shownStatus(e, analysis) === "not enough data yet") return;
         entries.push(e);
       });
     });
@@ -1937,14 +1936,13 @@
       var block = h("div", { class: "ld-blocks ld-blocks--one" }), waiting = entries.filter(function (e) { return shownStatus(e, analysis) === "not enough data yet"; });
       try {
         if (waiting.length === entries.length) {
-          var w = waiting[0].stat;
-          block.appendChild(h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not enough data yet" },
-            h("p", { class: "ld-wait" }, h("b", null, "not enough data yet"), " · " + (isNum(w.n) ? big(w.n) + " of " : "") + plural(w.min_n, group.n || "") + " needed")));
+          block.appendChild(h("div", { class: "ld-block ld-block--not-enough-data-yet", "data-status": "not enough data yet" }, firstLine(waiting[0].stat)));
         } else {
           var b = h("div", { class: "ld-block", "data-status": "ok" });
           append(b, group.draw(entries, analysis, ctx));
           var ns = entries.filter(function (e) { return okStat(e.stat); }).map(function (e) { return e.stat.n; }).filter(isNum);
-          if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || "")));
+          var small = entries.filter(function (e) { return okStat(e.stat) && e.stat.small_sample === true; })[0];
+          if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || ""), small ? [" ", sampleTag(small.stat)] : null));
           block.appendChild(b);
         }
         entries.forEach(function (e) { noteHow(e.stat); });
@@ -2052,22 +2050,34 @@
     }));
   }
 
-  // "available from 10 Nov 2026" when the statistic says when it can start; else "n of min_n needed".
-  function waitText(s, n, minN, unit) {
-    var from = isObj(s) && isObj(s.values) && typeof s.values.available_from === "string" ? s.values.available_from : null;
-    if (from) { try { return "available from " + dateText(from); } catch (e) { /* fall through */ } }
-    return (isNum(n) ? big(n) + " of " : "") + plural(minN, unit) + " needed";
+  // Thin data (policy of 2026-10-18). A statistic that is ok on fewer than min_n units carries
+  // small_sample: it is drawn as usual with a mono tag beside its n, "small sample · n = 3 of 10"
+  // (unit: added when the tag stands alone, as on a component row). One still waiting shows a
+  // single line from values.first_unit, "nothing to show yet: needs one album with 10 plays in
+  // its first week", and nothing else: no count of units needed and no date.
+  function sampleTag(s, unit) {
+    if (!isObj(s) || s.small_sample !== true) return null;
+    return h("span", { class: "ld-tag" }, "small sample · n = " + (isNum(s.n) ? big(s.n) : "?") + " of " + (isNum(s.min_n) ? big(s.min_n) : "?") + (unit ? " " + unit : ""));
   }
-
-  // Not-enough-data box for a card or panel: the statistic's n of min_n, or "not in the
-  // data yet" when the file predates the statistic. unit: what n counts.
-  function waitBox(s, unit, extra) {
+  function firstUnitText(s) {
+    var fu = isObj(s) && isObj(s.values) && typeof s.values.first_unit === "string" ? s.values.first_unit.trim().replace(/\.$/, "") : "";
+    if (!fu) return "";
+    fu = fu.replace(/^nothing to show yet:?\s*/i, "");
+    return /^needs?\b/i.test(fu) ? fu : "needs " + fu;
+  }
+  function firstLine(s, label) {
+    var rest = firstUnitText(s);
+    return h("p", { class: "ld-wait" }, h("b", null, (label ? label + ": " : "") + "nothing to show yet"), rest ? ": " + rest : "");
+  }
+  // The line for a card or panel whose statistic isn't drawn: waiting (its first unit), another
+  // status with what is missing, or "not in the data yet" when the file predates the statistic.
+  function waitBox(s) {
     if (!isObj(s)) return h("p", { class: "ld-wait" }, h("b", null, "not in the data yet"), " · appears once the pipeline publishes it");
-    var text = " · " + waitText(s, s.n, s.min_n, unit) + (extra ? " · " + extra : "");
-    return h("p", { class: "ld-wait" }, h("b", null, String(s.status)), text);
+    if (s.status === "not enough data yet") return firstLine(s);
+    return h("p", { class: "ld-wait" }, h("b", null, String(s.status)), s.missing ? ": " + s.missing : "");
   }
 
-  window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat,
+  window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat, sampleTag: sampleTag, firstUnitText: firstUnitText,
     charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
       effectBars: effectBars, survivalChart: survivalChart },
     splitSeries: splitSeries, SPLIT_NAMES: SPLIT_NAMES,
@@ -2098,7 +2108,7 @@
     try { append(row, headlineRow(headline(feed, a))); } catch (e) { /* the sections still draw */ }
     var weekdays = isObj(a.cross) && isObj(a.cross.rhythm) && list(a.cross.rhythm.weekdays).length === 7 ? a.cross.rhythm.weekdays
       : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    var ctx = { weekdays: weekdays, waiting: 0 };
+    var ctx = { weekdays: weekdays };
     Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
     Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
     hideEmpty();
@@ -2115,12 +2125,6 @@
     Array.prototype.forEach.call(document.querySelectorAll(".ld-attribution[data-when-source]"), function (p) {
       p.hidden = included.indexOf(p.getAttribute("data-when-source")) < 0;
     });
-    var more = document.querySelector(".ld-waiting");
-    if (more) {
-      more.hidden = !ctx.waiting;
-      more.textContent = ctx.waiting === 1 ? "1 more statistic appears as data accrues."
-        : ctx.waiting + " more statistics appear as data accrues.";
-    }
   }
 
   // A section whose every slot is hidden is hidden, with its contents entry; a group with
