@@ -1,5 +1,5 @@
 {
- "note": "Placeholder copy of the pipeline's analysis.sample.json for tests: same shapes and numbers, every player, title, artist, album, track and city name replaced.",
+ "note": "Placeholder copy of the pipeline's analysis.sample.json for tests: same shapes and numbers, every player, title, artist, album, track and city name replaced. 2026-10-18, policy: small_sample on eating.contrast_effect and watching.sequels, first_unit on the waiting lifting and backlog statistics, eating.safe_bet and the landing's current-ranking version are hand-written.",
  "analysis": {
   "as_of": "2026-10-13",
   "fantasy": {
@@ -4475,21 +4475,30 @@
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of Incline press"
+     }
     },
     "Shoulder press": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of Shoulder press"
+     }
     },
     "Lat pulldown": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of Lat pulldown"
+     }
     },
     "Row": {
      "status": "ok",
@@ -4522,21 +4531,30 @@
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of Hack squat"
+     }
     },
     "RDL": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of RDL"
+     }
     },
     "Leg extension": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down)."
+     "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+     "values": {
+      "first_unit": "six sessions of Leg extension"
+     }
     }
    },
    "body_weight_rate": {
@@ -4740,21 +4758,30 @@
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of Incline press in weeks with a weigh-in"
+     }
     },
     "Shoulder press": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of Shoulder press in weeks with a weigh-in"
+     }
     },
     "Lat pulldown": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of Lat pulldown in weeks with a weigh-in"
+     }
     },
     "Row": {
      "status": "ok",
@@ -4938,21 +4965,30 @@
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of Hack squat in weeks with a weigh-in"
+     }
     },
     "RDL": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of RDL in weeks with a weigh-in"
+     }
     },
     "Leg extension": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval."
+     "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+     "values": {
+      "first_unit": "four sessions of Leg extension in weeks with a weigh-in"
+     }
     }
    },
    "strength_kept": {
@@ -4988,21 +5024,30 @@
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of Incline press since the cut started"
+     }
     },
     "Shoulder press": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of Shoulder press since the cut started"
+     }
     },
     "Lat pulldown": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of Lat pulldown since the cut started"
+     }
     },
     "Row": {
      "status": "ok",
@@ -5036,21 +5081,30 @@
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of Hack squat since the cut started"
+     }
     },
     "RDL": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of RDL since the cut started"
+     }
     },
     "Leg extension": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 4,
      "as_of": "2026-10-13",
-     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost."
+     "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+     "values": {
+      "first_unit": "six sessions of Leg extension since the cut started"
+     }
     }
    },
    "lag_check": {
@@ -5588,21 +5642,30 @@
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of Incline press since the cut started"
+     }
     },
     "Shoulder press": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of Shoulder press since the cut started"
+     }
     },
     "Lat pulldown": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of Lat pulldown since the cut started"
+     }
     },
     "Row": {
      "status": "ok",
@@ -5626,21 +5689,30 @@
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of Hack squat since the cut started"
+     }
     },
     "RDL": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of RDL since the cut started"
+     }
     },
     "Leg extension": {
      "status": "not enough data yet",
      "n": 0,
      "min_n": 6,
      "as_of": "2026-10-13",
-     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions."
+     "how": "Best e1RM in the latest four weeks against the four weeks before the cut started, with a bootstrap interval over sessions.",
+     "values": {
+      "first_unit": "six sessions of Leg extension since the cut started"
+     }
     }
    },
    "volume_lag": {
@@ -6353,7 +6425,10 @@
     "n": 0,
     "min_n": 5,
     "as_of": "2026-10-13",
-    "how": "From the date each title went on my plan-to-watch list, the median days until its first dated watch (from 5 started titles); and titles added to that list against titles finished, each month (backfilled titles left out)."
+    "how": "From the date each title went on my plan-to-watch list, the median days until its first dated watch (from 5 started titles); and titles added to that list against titles finished, each month (backfilled titles left out).",
+    "values": {
+     "first_unit": "one title finished with both a start and an end date"
+    }
    },
    "first_episode_drops": {
     "status": "ok",
@@ -7782,7 +7857,7 @@
    },
    "sequels": {
     "status": "ok",
-    "n": 5,
+    "n": 2,
     "min_n": 3,
     "as_of": "2026-10-13",
     "how": "For each TMDB collection where I finished the first film and at least one later one, the later films' mean tier minus the first's; the value is the mean change.",
@@ -7898,7 +7973,8 @@
        "first_minus_later": 0.0
       }
      ]
-    }
+    },
+    "small_sample": true
    },
    "language": {
     "status": "ok",
@@ -9094,7 +9170,7 @@
    },
    "contrast_effect": {
     "status": "ok",
-    "n": 261,
+    "n": 20,
     "min_n": 30,
     "as_of": "2026-10-13",
     "how": "Score against the previous place's score (in the order ranked), within cuisine, as the slope with a 95% interval (positive: a good place before lifts the next one).",
@@ -9106,7 +9182,8 @@
     "interval": [
      -0.033,
      0.191
-    ]
+    ],
+    "small_sample": true
    },
    "home_bias": {
     "status": "ok",
@@ -9188,12 +9265,95 @@
    },
    "landing": {
     "status": "ok",
-    "n": 10,
-    "min_n": 3,
+    "n": 20,
+    "min_n": 5,
     "as_of": "2026-10-13",
-    "how": "For places ranked for the first time each month, the percentile of my list each entered at (0 = bottom, 1 = top); the median per month.",
-    "value": 0.58,
+    "how": "The last 20 places I ranked for the first time and the percentile each sits at in my current ranking (1 = top, 0 = bottom); the value is their median; by month of first ranking when there are three months or more.",
+    "value": 0.56,
     "values": {
+     "median_percentile": 0.56,
+     "recent": [
+      {
+       "place": "Place A1",
+       "percentile": 0.98
+      },
+      {
+       "place": "Place A2",
+       "percentile": 0.36
+      },
+      {
+       "place": "Place A3",
+       "percentile": 0.65
+      },
+      {
+       "place": "Place A4",
+       "percentile": 0.53
+      },
+      {
+       "place": "Place A5",
+       "percentile": 0.4
+      },
+      {
+       "place": "Place B1",
+       "percentile": 0.47
+      },
+      {
+       "place": "Place B2",
+       "percentile": 0.48
+      },
+      {
+       "place": "Place B3",
+       "percentile": 0.56
+      },
+      {
+       "place": "Place B4",
+       "percentile": 0.66
+      },
+      {
+       "place": "Place B5",
+       "percentile": 0.78
+      },
+      {
+       "place": "Place C1",
+       "percentile": 0.62
+      },
+      {
+       "place": "Place C2",
+       "percentile": 0.8
+      },
+      {
+       "place": "Place C3",
+       "percentile": 0.66
+      },
+      {
+       "place": "Place C4",
+       "percentile": 0.59
+      },
+      {
+       "place": "Place C5",
+       "percentile": 0.53
+      },
+      {
+       "place": "Place D1",
+       "percentile": 0.38
+      },
+      {
+       "place": "Place D2",
+       "percentile": 0.26
+      },
+      {
+       "place": "Place D3",
+       "percentile": 0.55
+      },
+      {
+       "place": "Place D4",
+       "percentile": 0.54
+      },
+      {
+       "place": "Place D5",
+       "percentile": 0.63
+      }
+     ],
      "months": [
       {
        "month": "2026-01",
@@ -9278,6 +9438,60 @@
        "n": 24,
        "median_change": 0.2,
        "mean_change": 0.19
+      }
+     ]
+    }
+   },
+   "safe_bet": {
+    "status": "ok",
+    "n": 6,
+    "min_n": 3,
+    "as_of": "2026-10-13",
+    "how": "For each cuisine with ten places or more, the middle half of my scores (first to third quartile) and the median; the narrowest middle half is the safest bet, the value.",
+    "value": 1.7,
+    "values": {
+     "rows": [
+      {
+       "cuisine": "Vietnamese",
+       "n": 22,
+       "median": 8.91,
+       "q1": 7.81,
+       "q3": 9.51
+      },
+      {
+       "cuisine": "Japanese",
+       "n": 41,
+       "median": 8.78,
+       "q1": 7.72,
+       "q3": 9.46
+      },
+      {
+       "cuisine": "Chinese",
+       "n": 33,
+       "median": 8.01,
+       "q1": 7.0,
+       "q3": 8.86
+      },
+      {
+       "cuisine": "Poke",
+       "n": 16,
+       "median": 8.53,
+       "q1": 6.93,
+       "q3": 8.88
+      },
+      {
+       "cuisine": "Ramen",
+       "n": 19,
+       "median": 8.52,
+       "q1": 7.19,
+       "q3": 9.53
+      },
+      {
+       "cuisine": "Korean",
+       "n": 16,
+       "median": 7.3,
+       "q1": 5.34,
+       "q3": 8.9
       }
      ]
     }

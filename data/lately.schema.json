@@ -13,7 +13,7 @@
   "properties": {
     "schema_version": {
       "const": 1,
-      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap. 2026-10-18, splits: main_lifts[] gain optional split and tracked; strength_index.values.splits (chest_back, shoulders_arms, legs) beside the overall index; no hand-entered best is published. 2026-10-18, sessions: strength_index.values.tracked [{name, exercise, sessions, split}] carries the rule's session count; main_lifts[].sessions counts the sessions behind the trend."
+      "description": "Version 1. Additive changes keep version 1, so older files still validate. 2026-10-13: rankings lists hold up to ten titles (were five); main_lifts[].best gains optional best_set (which may carry source: manual). 2026-10-13, later: optional top-level analysis (statistics computed from the archive), merged from the pipeline's analysis.schema.json; the lately/ pages draw it. 2026-10-13, re-merge: fantasy.teams[] requires waiver_adds (a statistic), so an analysis block without it no longer validates; lineup_efficiency's values gain waiver_hits_left_on_bench. 2026-10-13, re-merge: no structural change; waiver_adds.values gains all (every add, with best and worst flags) inside the statistic's open values object. 2026-10-17: analysis gains fantasy.quadrant and fantasy.manager_score, teams[].acquisition_split and teams[].draft, watching.s_tier, tier_model, taste_drift, community_gap_by_genre and pace_vs_tier, lifting.strength_index, retention, volume_lag and consistency, listening.entropy, nostalgia, enduring and retention_new_artists, eating.landing and rerank_drift, cross.time_budget and meta.sources_included, all optional; eating.top_ten_churn is removed. 2026-10-18: watching gains by_director, by_studio, by_lead, blockbuster, sequels, language, critics_vs_audience and crowd_agreement; listening's entropy and nostalgia may carry values.weeks and retention_new_artists values.available_from; lifting gains best_held_lift; meta gains attributions. All optional. 2026-10-18, later: tier scores are S = 5 to D = 1 throughout; crowd_agreement's disagreements are {above, below}. 2026-10-18, profiles: watching.taste_profile; listening.artist_survival, artist_survival_all (the pre-sync cohort included), album_listening and discovery_direction. All optional. 2026-10-18, corrections: album_listening rows carry each album's Gini; discovery_direction is by year; hr_b is per five years of release gap. 2026-10-18, splits: main_lifts[] gain optional split and tracked; strength_index.values.splits (chest_back, shoulders_arms, legs) beside the overall index; no hand-entered best is published. 2026-10-18, sessions: strength_index.values.tracked [{name, exercise, sessions, split}] carries the rule's session count; main_lifts[].sessions counts the sessions behind the trend. 2026-10-18, policy: every statistic may carry small_sample (ok, n below min_n, drawn with a tag) and, while not enough data yet, values.first_unit (what the first unit of data is); available_from is removed. eating.safe_bet (optional) and eating.landing's current-ranking version (median_percentile, recent, months)."
     },
     "generated_at": {
       "$ref": "#/$defs/timestamp"
@@ -987,7 +987,7 @@
     "analysis_stat": {
       "type": "object",
       "additionalProperties": false,
-      "description": "One statistic. With a status other than \"ok\" there is no value, values or interval: nothing is published but the reason.",
+      "description": "One statistic. With a status other than \"ok\" there is no value, values or interval: nothing is published but the reason. With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -1004,6 +1004,10 @@
             "not configured"
           ]
         },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
+        },
         "value": {
           "type": [
             "number",
@@ -1013,7 +1017,7 @@
         },
         "values": {
           "type": "object",
-          "description": "The statistic's figures; each one's shape is in analysis.sample.json."
+          "description": "The statistic's figures; each one's shape is in analysis.sample.json. While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
         },
         "interval": {
           "type": "array",
@@ -1340,7 +1344,7 @@
         },
         "retention_new_artists": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "Share of each month's new artists still played 30 and 90 days later: values.months [{month, new_artists, played_30d, played_90d, share_30d, share_90d}]; value: the latest share_30d. While not enough data yet, values.available_from (a date) says when the first month's 90 days are up."
+          "description": "Share of each month's new artists still played 30 and 90 days later: values.months [{month, new_artists, played_30d, played_90d, share_30d, share_90d}]; value: the latest share_30d. While not enough data yet, values.first_unit says what the first month needs."
         },
         "artist_survival": {
           "$ref": "#/$defs/analysis_stat",
@@ -1698,11 +1702,15 @@
         },
         "landing": {
           "$ref": "#/$defs/analysis_stat",
-          "description": "The percentile at which a first-time ranking enters my list, by month: values.months [{month, rankings, median_percentile}] (0 to 1); value: the latest month."
+          "description": "Where new places land in my current ranking: value and values.median_percentile, the median percentile (0 to 1, 1 = top) at which the last 20 places I ranked for the first time sit in the current list; values.recent [{place, percentile}], those 20 in order of first ranking, oldest first (no dates); values.months [{month, rankings, median_percentile}] by month of first ranking when there are enough months, else absent."
         },
         "rerank_drift": {
           "$ref": "#/$defs/analysis_stat",
           "description": "Score change for places I re-ranked, by time since the first ranking: values.buckets [{since, n, median_change, mean_change}]; value: the mean change overall, with interval."
+        },
+        "safe_bet": {
+          "$ref": "#/$defs/analysis_stat",
+          "description": "Which cuisines are a safe bet: values.rows [{cuisine, n, median, q1, q3}], one per cuisine with min_n places or more, the middle half of its scores (q1 to q3) and the median; value: the narrowest middle half (q3 − q1) in points. The page sorts narrowest first and names the safest and the widest."
         }
       },
       "description": "From Beli. Cities may appear; dates never do."
@@ -1805,7 +1813,7 @@
     "analysis_stat_quadrant": {
       "type": "object",
       "additionalProperties": false,
-      "description": "An analysis_stat whose values have a fixed shape. Strength against luck for every team in my leagues: x = all-play win share, y = wins above expected. values.mine are my teams with their week-by-week trail; values.others are the other teams, anonymous.",
+      "description": "An analysis_stat whose values have a fixed shape. Strength against luck for every team in my leagues: x = all-play win share, y = wins above expected. values.mine are my teams with their week-by-week trail; values.others are the other teams, anonymous. With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -1821,6 +1829,10 @@
             "not available from source",
             "not configured"
           ]
+        },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -1979,6 +1991,10 @@
                 }
               },
               "description": "Every other team in my leagues. Carries no names, ids or team names, ever: the schema rejects any other key."
+            },
+            "first_unit": {
+              "type": "string",
+              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
           }
         },
@@ -2017,7 +2033,7 @@
     "analysis_stat_manager_component": {
       "type": "object",
       "additionalProperties": false,
-      "description": "An analysis_stat whose values have a fixed shape. Points per week my roster scores against the league average (value), with rank, of and percentile.",
+      "description": "An analysis_stat whose values have a fixed shape. Points per week my roster scores against the league average (value), with rank, of and percentile. With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -2033,6 +2049,10 @@
             "not available from source",
             "not configured"
           ]
+        },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2064,6 +2084,10 @@
               "minimum": 0,
               "maximum": 1,
               "description": "Share of managers I beat on this component, 0 to 1."
+            },
+            "first_unit": {
+              "type": "string",
+              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
           }
         },
@@ -2102,7 +2126,7 @@
     "analysis_stat_manager_composite": {
       "type": "object",
       "additionalProperties": false,
-      "description": "An analysis_stat whose values have a fixed shape. The four components combined: value and values.percentile are the share of managers I beat (0 to 1), with its interval.",
+      "description": "An analysis_stat whose values have a fixed shape. The four components combined: value and values.percentile are the share of managers I beat (0 to 1), with its interval. With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -2118,6 +2142,10 @@
             "not available from source",
             "not configured"
           ]
+        },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2137,6 +2165,10 @@
               "type": "number",
               "minimum": 0,
               "maximum": 1
+            },
+            "first_unit": {
+              "type": "string",
+              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
           }
         },
@@ -2175,7 +2207,7 @@
     "analysis_stat_acquisition_split": {
       "type": "object",
       "additionalProperties": false,
-      "description": "An analysis_stat whose values have a fixed shape. Points to date by how each player arrived (draft, waiver, trade, other), mine against the league median.",
+      "description": "An analysis_stat whose values have a fixed shape. Points to date by how each player arrived (draft, waiver, trade, other), mine against the league median. With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -2191,6 +2223,10 @@
             "not available from source",
             "not configured"
           ]
+        },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2280,6 +2316,10 @@
                   "description": "The league's median team, same measure."
                 }
               }
+            },
+            "first_unit": {
+              "type": "string",
+              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
           }
         },
@@ -2318,7 +2358,7 @@
     "analysis_stat_draft": {
       "type": "object",
       "additionalProperties": false,
-      "description": "An analysis_stat whose values have a fixed shape. Every pick of mine against the median for its round (value: the residuals summed).",
+      "description": "An analysis_stat whose values have a fixed shape. Every pick of mine against the median for its round (value: the residuals summed). With small_sample true (status ok, n below min_n) the figures are published and tagged as a small sample.",
       "required": [
         "status",
         "n",
@@ -2334,6 +2374,10 @@
             "not available from source",
             "not configured"
           ]
+        },
+        "small_sample": {
+          "type": "boolean",
+          "description": "True when the statistic is published on fewer than min_n units (status ok, n below min_n): the pages draw its chart and numbers as usual and tag the n line \"small sample · n = 3 of 10\". Absent or false otherwise."
         },
         "value": {
           "type": [
@@ -2389,6 +2433,10 @@
                   }
                 }
               }
+            },
+            "first_unit": {
+              "type": "string",
+              "description": "While status is \"not enough data yet\", values.first_unit (a string) names the first unit of data the statistic needs, as a phrase (\"one album with 10 plays in its first week\"); the pages show one line, \"nothing to show yet: needs <first_unit>\", and nothing else: no count of units needed and no date. (available_from is removed.)"
             }
           }
         },

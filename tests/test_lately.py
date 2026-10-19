@@ -117,6 +117,22 @@ class Schema(unittest.TestCase):
                          ["draft", "lineup", "moves", "strength"])
         self.assertEqual(defs["analysis"]["properties"]["meta"]["properties"]["sources_included"]["items"], {"type": "string"})
 
+    # 2026-10-18, policy: small_sample on every statistic shape, first_unit in its values, no available_from;
+    # eating.safe_bet beside the landing's current-ranking version.
+    def test_sample_policy_fields(self):
+        defs = SCHEMA["$defs"]
+        for name, d in defs.items():
+            if name.startswith("analysis_stat"):
+                self.assertEqual(d["properties"]["small_sample"]["type"], "boolean", name)
+                self.assertNotIn("small_sample", d["required"], name)
+                v = d["properties"]["values"]
+                self.assertIn("first_unit", v["properties"] if "properties" in v else v["description"], name)
+        self.assertNotIn("available_from", json.dumps(defs).replace("(available_from is removed.)", ""))
+        self.assertIn("safe_bet", defs["analysis_eating"]["properties"])
+        self.assertNotIn("safe_bet", defs["analysis_eating"]["required"])
+        self.assertIn("median_percentile", defs["analysis_eating"]["properties"]["landing"]["description"])
+        self.assertIn("small_sample", SCHEMA["properties"]["schema_version"]["description"])
+
     # The handoff fragment (what the pipeline syncs from) must not drift from the site's copy.
     def test_handoff_fragment_matches(self):
         frag_path = HANDOFF / "analysis.schema.json"
