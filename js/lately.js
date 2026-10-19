@@ -788,7 +788,8 @@
       h("span", null, same ? "" : dateText(first, withYear)), h("span", null, dateText(last, withYear)));
   }
 
-  function liftTile(lift, unit) {
+  // ruleSessions: the count the tracked set was chosen on (sessions in the rule's window), when the file gives it.
+  function liftTile(lift, unit, ruleSessions) {
     need(isObj(lift), "main lift");
     var name = str(lift.name, "lift.name");
     var exercise = str(lift.exercise, "lift.exercise");
@@ -843,7 +844,8 @@
         h("span", { class: "lift-best" },
           h("span", { title: "On " + dateText(bestDate, true) }, "best ", h("b", null, bestText)),
           bestSet ? h("span", { class: "lift-best-set" }, bestSet) : null),
-        h("span", null, plural(sessions, "session", "sessions"))));
+        h("span", { title: ruleSessions != null ? "Sessions in the last 26 weeks, the count the tracked set was chosen on" : "Sessions with this lift" },
+          plural(ruleSessions != null ? ruleSessions : sessions, "session", "sessions"))));
   }
 
   function volumeChart(weeks, unit) {
@@ -1004,7 +1006,11 @@
     // strength index's tracked set, else every lift (an older file); grouped by split.
     var all = arr(l.main_lifts, "main_lifts").filter(isObj);
     var a = analysisOf(data), si = a && isObj(a.lifting) ? a.lifting.strength_index : null;
-    var indexed = okStat(si) ? list(si.values.lifts).map(String) : [];
+    // values.tracked [{name, sessions, split}] carries the rule's own session count (sessions in its
+    // window), which the tiles show in place of the lift's working-set count.
+    var rule = {};
+    if (okStat(si)) list(si.values.tracked).filter(isObj).forEach(function (t) { rule[String(t.name)] = t; });
+    var indexed = okStat(si) ? list(si.values.lifts).map(String).concat(Object.keys(rule)) : [];
     var tracked = all.some(function (x) { return x.tracked === true; }) ? all.filter(function (x) { return x.tracked === true; })
       : all.some(function (x) { return indexed.indexOf(x.name) >= 0; }) ? all.filter(function (x) { return indexed.indexOf(x.name) >= 0; }) : all;
     var LDm = LD(), names = LDm && LDm.SPLIT_NAMES ? LDm.SPLIT_NAMES : { chest_back: "chest and back", shoulders_arms: "shoulders and arms", legs: "legs" };
@@ -1012,7 +1018,7 @@
     if (okStat(si) && isObj(si.values.splits)) Object.keys(si.values.splits).forEach(function (k) { list(si.values.splits[k].lifts).forEach(function (n) { splitOf[n] = k; }); });
     var groups = [];
     Object.keys(names).concat(["other"]).forEach(function (k) {
-      var items = tracked.filter(function (x) { return (x.split || splitOf[x.name] || "other") === k; });
+      var items = tracked.filter(function (x) { return (x.split || splitOf[x.name] || (rule[x.name] && rule[x.name].split) || "other") === k; });
       if (items.length) groups.push({ key: k, label: k === "other" ? (groups.length ? "Other lifts" : "Tracked lifts") : names[k].charAt(0).toUpperCase() + names[k].slice(1), items: items });
     });
     var left = all.length - tracked.length;
@@ -1026,7 +1032,7 @@
       groups.length ? h("div", { class: "chart-block" },
         h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, tracked lifts")),
         groups.map(function (g) {
-          return h("div", { class: "lift-split" }, h("h4", { class: "lift-split-title" }, g.label), h("div", { class: "lifts" }, g.items.map(function (lift) { return liftTile(lift, b.unit); })));
+          return h("div", { class: "lift-split" }, h("h4", { class: "lift-split-title" }, g.label), h("div", { class: "lifts" }, g.items.map(function (lift) { var t = rule[lift.name]; return liftTile(lift, b.unit, t && typeof t.sessions === "number" ? t.sessions : null); })));
         }),
         h("p", { class: "chart-foot" }, "Tracked lifts have at least 12 sessions in the last 26 weeks" + (left > 0 ? "; " + plural(left, "lift", "lifts") + " below that " + (left === 1 ? "is" : "are") + " not shown" : "") + ". " + EPLEY_NOTE)) : null
     ];

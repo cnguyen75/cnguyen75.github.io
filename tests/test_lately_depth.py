@@ -201,6 +201,10 @@ def variant(name):
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     a = d["analysis"] = copy.deepcopy(ANALYSIS)
+    # The sample's lifts take the fixture's tracked names, so the strength index's rows (session counts,
+    # splits) apply to the tiles as they do with a real file.
+    for lift, lift_name in zip(d["lifting"]["main_lifts"], ("Bench", "Shoulder press", "Hack squat", "RDL")):
+        lift["name"] = lift_name
     # Fields the page doesn't know are never drawn: an opponent's name, a Beli date.
     a["fantasy"]["teams"][0]["margins"]["values"]["opponent"] = "Rival Manager"
     a["fantasy"]["teams"][0]["playoff_odds"]["values"]["manager_name"] = "Rival Manager"
@@ -900,6 +904,10 @@ class Drawing(unittest.TestCase):
         self.assertIn("Estimated one-rep max, tracked lifts", main["text"])
         self.assertIn("Chest and back", main["text"])
         self.assertIn("at least 12 sessions in the last 26 weeks", main["text"])
+        # Each tile shows the rule's session count (values.tracked[].sessions, 14 for the first lift), not the
+        # lift's working-set count (11 in the sample).
+        self.assertIn("14 sessions", main["text"])
+        self.assertNotIn("11 sessions", main["text"])
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
     def test_widths(self):

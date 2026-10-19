@@ -5512,6 +5512,56 @@
      },
      "untracked": [
       "Hack squat"
+     ],
+     "tracked": [
+      {
+       "name": "Bench",
+       "exercise": "Bench",
+       "sessions": 14,
+       "split": "chest_back"
+      },
+      {
+       "name": "Incline press",
+       "exercise": "Incline press",
+       "sessions": 15,
+       "split": "chest_back"
+      },
+      {
+       "name": "Shoulder press",
+       "exercise": "Shoulder press",
+       "sessions": 16,
+       "split": "shoulders_arms"
+      },
+      {
+       "name": "Lat pulldown",
+       "exercise": "Lat pulldown",
+       "sessions": 17,
+       "split": "chest_back"
+      },
+      {
+       "name": "Row",
+       "exercise": "Row",
+       "sessions": 18,
+       "split": "chest_back"
+      },
+      {
+       "name": "Hack squat",
+       "exercise": "Hack squat",
+       "sessions": 19,
+       "split": "legs"
+      },
+      {
+       "name": "RDL",
+       "exercise": "RDL",
+       "sessions": 20,
+       "split": "legs"
+      },
+      {
+       "name": "Leg extension",
+       "exercise": "Leg extension",
+       "sessions": 21,
+       "split": "legs"
+      }
      ]
     }
    },
