@@ -194,6 +194,33 @@ class Progress(unittest.TestCase):
                                     rf'<span class="track-part">{label}</span>')
         self.assertEqual(index.count('class="track-part"'), 4)
 
+    # Side A (work) is three unlinked rows, 01 to 03: number, title, year range and a
+    # sentence or two, with an anchor each and no page, link, status or external link.
+    def test_main_page_work_rows(self):
+        index = (build.ROOT / "index.html").read_text(encoding="utf-8")
+        work = [(n, t) for n, t, _, side in build.read_tracklist(index) if side == "work"]
+        self.assertEqual(work, [("01", "LLM evaluation platform"), ("02", "Underwriting and supervisor agents"),
+                                ("03", "Running coding agents as a team process")])
+        section = re.search(r'<section class="side" id="work".*?</section>', index, re.S).group(0)
+        self.assertIn('<h2 class="side-label" id="work-label">side a. work</h2>', section)
+        self.assertEqual(section.count("Athena"), 1)
+        self.assertNotIn("<a ", section)
+        for cls in ("track-ext", "track-meta", "track-part"):
+            self.assertNotIn(cls, section)
+        for n, when in (("01", "2025–present"), ("02", "2025–present"), ("03", "2026–present")):
+            self.assertRegex(section, rf'<div class="track track--wrap" id="track-{n}">\s*<span class="track-no">{n}</span>\s*'
+                                      rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span class="track-when">{when}</span><span class="track-desc">')
+        self.assertFalse(list((build.ROOT / "content").glob("*/0[123]-*.md")))
+        for n in ("01", "02", "03"):
+            stub = (build.ROOT / n / "index.html").read_text(encoding="utf-8")
+            self.assertIn(f'content="0; url=/#track-{n}"', stub)
+
+    # Every page ends with "Views are my own.": the main page's contact column and the built pages' foot.
+    def test_views_note(self):
+        index = (build.ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
+        self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', self.render())
+
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
     def test_figure_alt_and_overlay(self):
@@ -260,6 +287,11 @@ class Progress(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "track-ext"):
             build.link_rows(index.replace('<div class="track track--wrap">\n<span class="track-no">05',
                                           '<div class="track track--wrap" href="https://x.example">\n<span class="track-no">05'), {"05": "x"})
+        # A row's own anchor (id) is the one attribute allowed beside the class; it stays through both passes.
+        with_id = index.replace('<div class="track track--wrap">\n<span class="track-no">04', '<div class="track track--wrap" id="track-04">\n<span class="track-no">04')
+        linked = build.link_rows(with_id, {"04": "demo-page"})
+        self.assertIn('<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page" id="track-04">', linked)
+        self.assertEqual(build.link_rows(linked, {}), with_id)
 
 def site_links():
     """(page, href, attributes) for every link the build writes or the main page holds:

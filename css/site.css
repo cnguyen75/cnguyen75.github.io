@@ -265,6 +265,8 @@ main {
   color: var(--teal);
 }
 .side-label { margin-bottom: 12px; }
+/* One line under a side's label, e.g. the employer for side A. */
+.side-intro { margin: -6px 0 12px; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
 
 .track {
   display: flex;
@@ -272,7 +274,7 @@ main {
   border-top: 1px solid var(--rule);
   padding: 20px 0;
 }
-.side-label + .track { border-top: 2px solid var(--ink); }
+.side-label + .track, .side-intro + .track { border-top: 2px solid var(--ink); }
 .track--wrap { flex-wrap: wrap; gap: 8px 24px; }
 .track--dated { flex-wrap: wrap; gap: 4px 24px; }
 /* A row whose track page is built is one link (number, title, description and status).
@@ -322,6 +324,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   max-width: 760px;
   padding-top: 4px;
 }
+/* A year range under a row's title (side A's unlinked rows). */
+.track-body .track-when { display: block; flex: none; padding-top: 2px; font-size: 14px; }
 /* Which part of a two-part story a row is, under its title. */
 .track-part { display: block; padding-top: 2px; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
 /* A row's small secondary link to the project elsewhere, while it has no ready page. */
@@ -364,6 +368,9 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 .footer-links a,
 .footer-resume { padding: 10px 0; }
+/* The one-line disclaimer, in the footer's contact column and at the foot of every built page. */
+.views-note { margin: 0; padding: 10px 0; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
+.page-foot { margin-top: 48px; border-top: 1px solid var(--rule); }
 
 /* ---------- Side D, lately ---------- */
 

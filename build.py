@@ -516,6 +516,7 @@ def render_data_page(meta):
 <nav class="ld-toc" aria-label="On this page"><ol>{"".join(nav)}</ol></nav>
 {"".join(groups)}{attribution}
 </main>
+<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>
 </div>
 </div>
 </body>
@@ -1068,13 +1069,15 @@ def link_rows(index_html, pages):
         ext = dict(re.findall(r'data-ext-(href|label)="([^"]*)"', m.group(2)))
         if ext:
             inner = inner.replace("</div>", ext_link(ext["href"], ext["label"]) + "</div>", 1)
-        s = s[:m.start()] + f'<div class="{m.group(1)}">' + inner + "</div>" + s[end:]
+        kept = re.search(r' id="[^"]*"', m.group(2))  # a row's own anchor stays with it
+        s = s[:m.start()] + f'<div class="{m.group(1)}"{kept.group(0) if kept else ""}>' + inner + "</div>" + s[end:]
 
     for number, slug in pages.items():
         m = re.search(rf'<(div|a) class="(track[^"]*)"([^>]*)>\s*<span class="track-no">{number}</span>', s)
         if not m:
             raise ContentError(f"track {number} is not on the main page")
-        if m.group(1) != "div" or m.group(3).strip():
+        attrs = m.group(3).strip()  # only an id (the row's anchor) may sit beside the class
+        if m.group(1) != "div" or (attrs and not re.fullmatch(r'id="[^"]+"', attrs)):
             raise ContentError(f"track {number}'s row on the main page must be a plain <div class=\"track ...\"> "
                                "(an external link goes in a span.track-ext inside it, or on the track page)")
         end = find_close(s, m.start(), "div")
@@ -1086,7 +1089,7 @@ def link_rows(index_html, pages):
             inner = inner[:e.start()] + inner[e.end():]
         if "<a " in inner:
             raise ContentError(f"track {number}'s row has a link other than its span.track-ext; a linked row can't hold one")
-        s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}"{extra}>' + inner + "</a>" + s[end:]
+        s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}"{extra}{" " + attrs if attrs else ""}>' + inner + "</a>" + s[end:]
     return s
 
 
@@ -1291,6 +1294,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 {"".join(nav)}
 </nav>
 </main>
+<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>
 </div>
 </div>
 </body>

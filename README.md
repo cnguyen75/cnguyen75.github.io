@@ -8,6 +8,7 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 
 ```
 index.html                 the whole page: header, hero, sides A–C, previously, Side D (lately), footer
+01/ 02/ 03/                stubs: /01, /02 and /03 send the browser to that row on the main page (#track-01 …); side A has no pages
 css/site.css               all styles; colours are CSS variables at the top (:root)
 js/lately.js               draws the Side D panels from data
 js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
@@ -107,6 +108,10 @@ attribution: …            # optional, repeated under the credits unless they h
 A page in a two-part story (tracks 05 and 06, the two research pages with Prof. Suess; tracks 12 and 13, the NBA pages) takes `part: part one · 2014–15 | 13`: the label, then the other part's number. The hero shows the label under the title, with a link to the other part under the same rule as previous and next (a ready page links it only once that part is ready too). On the main page the row carries the same label by hand, as `<span class="track-part">…</span>` after the title.
 
 Progress pages take `with:` (one line under the title, in place of `one_line:`), `as_of: YYYY-MM-DD`, an optional `link: label | https://…` (a small link under the `with:` line) and `status_label:`.
+
+Side A (work) is three unlinked rows, 01 to 03, in the style of the "previously" section: title, a year range (`span.track-when` under the title) and one or two sentences, with the employer named once in the side's intro line. They have no pages and no drafts; `/01`, `/02` and `/03` are stubs that redirect to the row's anchor (`#track-01` …).
+
+Every page ends with the line "Views are my own.": in the main page's contact column, and as a one-line footer on the track and Lately pages (written by `build.py`).
 
 A draft may be for a track that is not on the main page yet. It needs `side:`, sorts after the listed tracks, and says "not on the tracklist yet". A ready page must be on the main page.
 
