@@ -1,6 +1,6 @@
 /*
  * Lately, in depth. Draws the lately/<feed>/ pages from the "analysis" block of
- * data/lately.json (falling back to data/lately.sample.json), and gives the main
+ * data/lately.json, and gives the main
  * page's panels their headline numbers through window.LatelyDepth.headline.
  *
  * build.py writes each page's frame: a headline row, then one section per
@@ -2158,11 +2158,9 @@
 
   // ---------- the page ----------
 
-  function draw(data, isSample) {
+  function draw(data) {
     var feed = document.body.getAttribute("data-feed");
     var a = isObj(data) ? data.analysis : null;
-    var sample = document.querySelector(".ld-sample");
-    if (sample) sample.hidden = !(isSample || (data && data.sample === true));
     var slots = document.querySelectorAll(".ld-stat");
     if (!isObj(a)) {
       // No analysis block: the feed blocks still draw; every statistic slot is hidden.
@@ -2238,14 +2236,22 @@
     }
   }
 
+  // data/lately.json missing or unreadable: the page's main is one line and nothing else.
+  function unavailable() {
+    var main = document.getElementById("main");
+    Array.prototype.forEach.call(main.children, function (c) { c.hidden = true; c.style.display = "none"; });
+    main.appendChild(h("p", { class: "panel-empty lately-updating" }, "Lately is being updated."));
+  }
+
   function start() {
     if (!document.body.classList.contains("ld-body") || !window.fetch) return;
     redirectAlias();
     var root = document.body.getAttribute("data-root") || "";
     load(root + "data/lately.json")
-      .then(function (d) { draw(d, false); })
-      .catch(function () {
-        return load(root + "data/lately.sample.json").then(function (d) { draw(d, true); }).catch(function () { draw(null, false); });
+      .then(draw)
+      .catch(function (err) {
+        if (window.console) console.warn("lately: data/lately.json unavailable:", err.message);
+        unavailable();
       })
       .catch(function () { /* never break the page */ });
   }

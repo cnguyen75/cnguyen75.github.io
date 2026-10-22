@@ -19,14 +19,17 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
     await page.route("**/data/lately.json*", r => r.fulfill({ status: 200, contentType: "application/json", body }));
     await page.goto(base + "/" + pagePath, { timeout: 90000 });
     // The main page is drawn once every panel has its link; a feed page once a slot or the missing note is in.
-    await page.waitForFunction(() => document.getElementById("lately")
+    await page.waitForFunction(() => document.querySelector(".lately-updating") || (document.getElementById("lately")
       ? document.querySelectorAll("#lately .panel .ld-more").length >= 5
-      : document.querySelector(".ld-stat .ld-blocks, .ld-missing:not([hidden]), .ld-feed:not([hidden]) > *"), null, { timeout: 90000 });
+      : document.querySelector(".ld-stat .ld-blocks, .ld-missing:not([hidden]), .ld-feed:not([hidden]) > *")), null, { timeout: 90000 });
     const facts = await page.evaluate(() => {
       const txt = e => (e ? e.textContent.replace(/\s+/g, " ").trim() : null);
       const de = document.documentElement;
+      const holder = document.getElementById("lately") || document.getElementById("main");
       return {
         scrollX: de.scrollWidth - de.clientWidth,
+        updating: txt(document.querySelector(".lately-updating")),
+        shown: [...holder.children].filter(c => c.offsetParent !== null).map(c => c.className || c.tagName),
         title: txt(document.querySelector("h1")),
         source: txt(document.querySelector(".ld-source")),
         sourceLinks: [...document.querySelectorAll(".ld-source a")].map(a => [a.textContent, a.href]),

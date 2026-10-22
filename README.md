@@ -14,10 +14,9 @@ js/lately.js               draws the Side D panels from data
 js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
 content/lately/            one file per Lately feed page (the "data" register)
 lately/<feed>/             built Lately pages: frames only, no data (committed)
-tests/                     python3 tests/run.py (logs to ~/Personal/site-review-<date>/test-logs/); fixtures/analysis.json has placeholder names only
+tests/                     python3 tests/run.py (logs to ~/Personal/site-review-<date>/test-logs/); fixtures/analysis.json has placeholder names only, fixtures/lately.sample.json is the suite's data file
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
-data/lately.sample.json    sample data matching the approved design's placeholder values
-data/lately.json           live data, written by the pipeline; git-ignored, never committed
+data/lately.json           live data, written by the pipeline; in .gitignore so it is never added by hand, and committed only by the publish workflow (git add -f); the build fails without it
 fonts/                     self-hosted Archivo (latin + vietnamese), Courier Prime, Caveat (latin) woff2 and their OFL licences
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
@@ -42,7 +41,7 @@ The page makes no requests to other hosts at runtime. Fonts, images and data are
 `js/lately.js` runs after the page parses:
 
 1. It fetches `data/lately.json`.
-2. If that file is missing, is not valid JSON, or does not have `schema_version: 1` and a `sources` object, it loads `data/lately.sample.json` instead and shows a visible **sample data** label, plus the sentence "Sample data shown." in the intro.
+2. If that file is missing, is not valid JSON, or does not have `schema_version: 1` and a `sources` object, the section shows one line, "Lately is being updated.", and nothing else; the `lately/<feed>/` pages do the same. There is no sample data on the site.
 3. Each panel (fantasy, watching, listening, eating, lifting) is drawn independently inside its own `try`. If a panel's data is missing it shows "Not connected yet."; if the data is present but malformed it shows "Couldn't draw this panel right now." Other panels and the rest of the page are unaffected.
 4. Each feed has an entry in `sources` with a `status` (`ok`, `error`, `stale`, `pending`, `disabled`) and a `last_ok_at` time:
    - `ok`: the panel draws normally.
@@ -104,6 +103,8 @@ badge: in progress        # optional, shown as "status: …" in the reading bar 
 side: c                   # only for a draft whose track is not on the main page yet
 attribution: …            # optional, repeated under the credits unless they have a data row
 ```
+
+A row may carry an `as of` clause read from the track's results file at build time: `<span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 12 October 2026, </span>`, where `data-src` is a path under `content/tracks/` or `content/drafts/` and `data-key` the field holding a `YYYY-MM-DD` date (`fill_asof()`). Regenerating the file before a build updates the clause; without the file or the date it is left out, with a warning.
 
 A page in a two-part story (tracks 05 and 06, the two research pages with Prof. Suess; tracks 12 and 13, the NBA pages) takes `part: part one · 2014–15 | 13`: the label, then the other part's number. The hero shows the label under the title, with a link to the other part under the same rule as previous and next (a ready page links it only once that part is ready too). On the main page the row carries the same label by hand, as `<span class="track-part">…</span>` after the title.
 
@@ -262,7 +263,7 @@ To check exactly what will be published, serve the folder itself instead (`pytho
 
 **Links.** A link to another site, and the résumé PDFs, open in a new tab with `rel="noopener"` (`new_tab()` in `build.py`, the `h()` helper in `js/lately.js`, and by hand in `index.html`); links within the site stay in the same tab. `tests/test_build.py` checks both rules.
 
-When `data/lately.json` exists (the pipeline writes it), the page shows that data; without it you see the sample. The file is in `.gitignore`.
+The page draws `data/lately.json`, which the pipeline writes. `build.py` stops with an error when the file is absent, so a deploy cannot go out without it; a file that is present but unreadable only prints a warning, and the site then shows "Lately is being updated.". The file is in `.gitignore` so it is never added by hand: after the first publish it is committed by the publish workflow with `git add -f`, and by nothing else. The test suite serves its own copy, `tests/fixtures/lately.sample.json`.
 
 ## Résumés
 
@@ -270,4 +271,4 @@ When `data/lately.json` exists (the pipeline writes it), the page shows that dat
 
 ## Open items
 
-- The "how this is built" link in Side D points at `github.com/cnguyen75/lately`, which is planned as a **private** repo: until it is public, that link is a 404 for everyone else.
+- Side D's footer reads "pipeline: private" as plain text: the pipeline repo (`github.com/cnguyen75/lately`) is private, so there is no link to it.

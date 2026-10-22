@@ -28,7 +28,7 @@ sys.path.insert(0, str(ROOT))
 import build  # noqa: E402
 
 SCHEMA = json.loads((ROOT / build.SCHEMA_PATH).read_text(encoding="utf-8"))
-SAMPLE = json.loads((ROOT / "data/lately.sample.json").read_text(encoding="utf-8"))
+SAMPLE = json.loads((ROOT / "tests/fixtures/lately.sample.json").read_text(encoding="utf-8"))
 ANALYSIS = json.loads((ROOT / "tests/fixtures/analysis.json").read_text(encoding="utf-8"))["analysis"]
 CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 FEEDS = build.DATA_FEEDS
@@ -335,13 +335,17 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
 
 
 @functools.lru_cache(maxsize=None)
-def draw(page, width=1280, name="base"):
+def draw(page, width=1280, name="base", body=None):
+    """body: the raw text served as data/lately.json instead of the named variant."""
     handler = functools.partial(Quiet, directory=str(ROOT))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
-            json.dump(variant(name), f)
+            if body is None:
+                json.dump(variant(name), f)
+            else:
+                f.write(body)
         r = subprocess.run(["node", str(ROOT / "tests/depth_render.js"), f"http://127.0.0.1:{server.server_port}", page, f.name, str(width)],
                              capture_output=True, text=True, timeout=200)
         if r.returncode:
@@ -739,6 +743,16 @@ class Drawing(unittest.TestCase):
         self.assertEqual(si["wait"], "not in the data yet · appears once the pipeline publishes it")
         self.assertTrue(blocks(old, "lifting.body_weight_rate")[0]["value"])
         self.assertEqual(old["errors"], [])
+
+    # data/lately.json unreadable (here: not JSON): the section, and each page's main, is
+    # one line, "Lately is being updated.", and nothing else. There is no sample data.
+    def test_unreadable_data_is_one_line(self):
+        for page in ("index.html", "lately/watching/"):
+            with self.subTest(page=page):
+                facts = draw(page, body="not json")
+                self.assertEqual(facts["updating"], "Lately is being updated.")
+                self.assertEqual(facts["shown"], ["panel-empty lately-updating"])
+        self.assertFalse((ROOT / "data/lately.sample.json").exists())
 
     # The main page is far shorter than before the regrouping (about 8,800px at 1280).
     # The budget allows the sixteen track rows since the research pair (05, 06) joined side B.

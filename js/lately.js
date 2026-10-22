@@ -1,9 +1,10 @@
 /*
- * Side D, lately. Draws the main page's five panels from data/lately.json, falling
- * back to data/lately.sample.json, and the feed blocks (lineup grid, recent lists,
+ * Side D, lately. Draws the main page's five panels from data/lately.json, and the
+ * feed blocks (lineup grid, recent lists,
  * lift tiles, rankings...) that the lately/<feed>/ pages hold under "What's happening",
  * through window.LatelyFeed.block(name, data). Nothing here may break the rest of the
- * page: every failure ends in a "not connected yet" panel, never a throw.
+ * page: every failure ends in a "not connected yet" panel, never a throw, and a missing
+ * or unreadable file leaves the section as one line, "Lately is being updated."
  * Schema: data/lately.schema.json. Charts and number formats shared with the pages
  * come from js/lately-depth.js (window.LatelyDepth).
  */
@@ -11,7 +12,6 @@
   "use strict";
 
   var LIVE_URL = "data/lately.json";
-  var SAMPLE_URL = "data/lately.sample.json";
   var TZ = "America/Los_Angeles";
   var NOT_CONNECTED = "Not connected yet.";
   var BROKEN = "Couldn't draw this panel right now.";
@@ -1408,12 +1408,7 @@
     if (!panel.querySelector(".ld-more")) panel.appendChild(more(FEEDS[panelId]));
   }
 
-  function render(data, isSample) {
-    var sample = isSample || !!(data && data.sample === true);
-    var badge = document.getElementById("lately-sample-badge");
-    var note = document.getElementById("lately-sample-note");
-    if (badge) badge.hidden = !sample;
-    if (note) note.hidden = !sample;
+  function render(data) {
     try { renderChips(data); } catch (e) { /* chips are decoration */ }
     PANELS.forEach(function (p) { fill(p[0], p[1], data); });
     try { renderAttributions(data); } catch (e) { /* credits are a footer line */ }
@@ -1455,15 +1450,20 @@
     });
   }
 
+  // data/lately.json missing or unreadable: the section is one line and nothing else.
+  function unavailable() {
+    var section = document.getElementById("lately");
+    Array.prototype.forEach.call(section.children, function (c) { c.hidden = true; c.style.display = "none"; });
+    section.appendChild(h("p", { class: "panel-empty lately-updating" }, "Lately is being updated."));
+  }
+
   function start() {
     if (!window.fetch || !document.getElementById("lately")) return;
     load(LIVE_URL)
-      .then(function (data) { render(data, false); })
+      .then(render)
       .catch(function (err) {
-        if (window.console && !/ 404$/.test(err.message)) console.warn("lately: using sample data:", err.message);
-        return load(SAMPLE_URL)
-          .then(function (data) { render(data, true); })
-          .catch(function () { render(null, false); });
+        if (window.console) console.warn("lately: data/lately.json unavailable:", err.message);
+        unavailable();
       })
       .catch(function () { /* never let this section break the page */ });
   }

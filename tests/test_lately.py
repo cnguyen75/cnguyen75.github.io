@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA = json.loads((ROOT / "data/lately.schema.json").read_text(encoding="utf-8"))
-SAMPLE = json.loads((ROOT / "data/lately.sample.json").read_text(encoding="utf-8"))
+SAMPLE = json.loads((ROOT / "tests/fixtures/lately.sample.json").read_text(encoding="utf-8"))
 CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 WIDTHS = (360, 390, 1280)
 

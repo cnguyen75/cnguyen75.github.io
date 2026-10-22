@@ -221,6 +221,35 @@ class Progress(unittest.TestCase):
         self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
         self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', self.render())
 
+    # A row's "as of <date>, " clause is read from the track's results file at build time;
+    # without the file or the date the clause is left out.
+    def test_fill_asof(self):
+        row = ('match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 1 January 2000, </span>and it')
+        content = self.dir / "content"
+        def fill(data):
+            (content / "drafts" / "paper-trader").mkdir(parents=True, exist_ok=True)
+            (content / "drafts" / "paper-trader" / "demo.json").write_text(json.dumps(data), encoding="utf-8")
+            return build.fill_asof(row, content)
+        self.assertEqual(fill({"as_of": "2026-10-12"}), 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 12 October 2026, </span>and it')
+        self.assertEqual(fill({"as_of": "2026-01-03"}), 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 3 January 2026, </span>and it')
+        empty = 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of"></span>and it'
+        self.assertEqual(fill({"generated_on": "2026-10-13"}), empty)  # no date under the key
+        self.assertEqual(fill({"as_of": "12 Oct 2026"}), empty)  # not YYYY-MM-DD
+        shutil.rmtree(content)
+        self.assertEqual(build.fill_asof(row, content), empty)  # no file
+        index = (build.ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertRegex(index, r'started match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">(as of \d+ [A-Z][a-z]+ \d{4}, )?</span>and it')
+
+    # Side D: no sample data and no badge for it; the footer names the pipeline as private, unlinked.
+    def test_main_page_lately_text(self):
+        index = (build.ROOT / "index.html").read_text(encoding="utf-8")
+        for word in ("sample data", "sample-badge", "lately.sample", "lately-sample"):
+            self.assertNotIn(word, index)
+        self.assertIn('<footer class="lately-foot"><span class="lately-pipeline">pipeline: private</span>', index)
+        self.assertNotIn("github.com/cnguyen75/lately", index)
+        self.assertIn("With Dr. Roberto Benzo and Dr. Peter Washington. Models that predict when someone will answer a health prompt are scored with a pooled metric that mostly compares different people, so it rewards knowing who tends to respond; within-person discrimination, the part an intervention needs, is much weaker. Backed by a pre-registered personalisation study; results in the manuscript in preparation.", index)
+        self.assertNotIn("sample-badge", build.render(self.read(), list(TRACKLIST), {"04": self.read()}, True, 1)[0])
+
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
     def test_figure_alt_and_overlay(self):
@@ -353,8 +382,21 @@ class Preview(unittest.TestCase):
                 r = subprocess.run([sys.executable, str(site / "build.py"), *args], capture_output=True, text=True, timeout=120)
                 self.assertEqual(r.returncode, 0, r.stderr)
 
+            # The build fails without data/lately.json and only warns when the file is unreadable.
+            live = site / build.LIVE_DATA
+            live.unlink()
+            r = subprocess.run([sys.executable, str(site / "build.py")], capture_output=True, text=True, timeout=120)
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn("data/lately.json is missing", r.stderr)
+            live.write_text("not json", encoding="utf-8")
+            r = subprocess.run([sys.executable, str(site / "build.py")], capture_output=True, text=True, timeout=120)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("warning: data/lately.json is unreadable", r.stderr)
+            live.write_text(json.dumps({"schema_version": 1, "sources": {}}), encoding="utf-8")
+
             run("--drafts")
             prev = site / build.PREVIEW_DIR
+            self.assertFalse((prev / "data" / "lately.sample.json").exists())
             self.assertTrue((prev / "tracks" / "demo-page" / "index.html").is_file())
             self.assertIn('href="tracks/demo-page/" data-page="demo-page"', (prev / "index.html").read_text(encoding="utf-8"))
             for part in ("lately/watching/index.html", "css/site.css", "js/lately.js", "sitemap.xml"):
@@ -362,7 +404,9 @@ class Preview(unittest.TestCase):
             for part in ("content", "tests", "tools", "build.py", "README.md"):
                 self.assertFalse((prev / part).exists(), part)
             self.assertFalse((site / "tracks" / "demo-page").exists())
-            self.assertEqual((site / "index.html").read_text(encoding="utf-8"), index_before)
+            # The copy has no content/drafts, so the "as of" clause read from a results file is
+            # left out there; the rest of index.html is untouched.
+            self.assertEqual(build.ASOF.sub("", (site / "index.html").read_text(encoding="utf-8")), build.ASOF.sub("", index_before))
             self.assertFalse((site / "index.drafts.html").exists())
             run()
             self.assertFalse(prev.exists())

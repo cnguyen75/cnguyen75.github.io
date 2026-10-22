@@ -400,14 +400,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   font-weight: 700;
   color: var(--teal);
 }
-.sample-badge {
-  font-family: var(--font-label);
-  font-size: 13px;
-  line-height: 1.3;
-  color: var(--ink);
-  border: 1px solid var(--ink);
-  padding: 1px 7px;
-}
 .lately-title {
   margin: 0;
   font-size: 40px;
@@ -1018,6 +1010,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   font-size: 13px;
   color: var(--text-3);
 }
+/* The one line shown when data/lately.json is missing or unreadable (nothing else is). */
+.lately-updating { display: block; margin: 0; }
 
 /* ---------- Lately, in depth (lately/<feed>/ and the panels' headline rows) ---------- */
 

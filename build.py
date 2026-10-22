@@ -40,6 +40,8 @@ REQUIRED_BY_REGISTER = {"album": ("one_line",), "plain": ("one_line",), "progres
 PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what's next", "log", "my role")
 PROGRESS_OPTIONAL = ("results",)
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+MONTHS_LONG = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+LIVE_DATA = "data/lately.json"  # written by the pipeline; the site is not built without it
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
 PREVIEW_DIR = "_site-drafts"  # --drafts writes the whole site here, drafts included and linked; git-ignored
 # What isn't part of the site, so isn't copied into the preview.
@@ -508,7 +510,7 @@ def render_data_page(meta):
 <h1 class="ld-title" id="ld-title">{esc(title)}</h1>
 <nav class="ld-feeds" aria-label="Lately pages">{others}</nav>
 <p class="ld-lede">{lede}</p>
-<p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span><span class="sample-badge ld-sample" hidden>sample data</span></p>
+<p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span></p>
 <div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
 <noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
 <p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>
@@ -1093,6 +1095,52 @@ def link_rows(index_html, pages):
     return s
 
 
+# ---------- dates read from a track's results file ----------
+
+ASOF = re.compile(r'<span class="track-asof" data-src="([^"]+)" data-key="([^"]+)">[^<]*</span>')
+
+
+def fill_asof(index_html, content=None):
+    """A row's "as of <date>, " clause reads its date from the track's results file:
+    data-src is a path under content/tracks or content/drafts and data-key the field that
+    holds a YYYY-MM-DD date, so regenerating the file before a build updates the page.
+    Without the file or the date the clause is left out, with a warning."""
+    content = content or ROOT / "content"
+
+    def fill(m):
+        src, key, text = m.group(1), m.group(2), ""
+        path = next((content / f / src for f in ("tracks", "drafts") if (content / f / src).is_file()), None)
+        if path is None:
+            print(f"warning: {src} is not under content/tracks or content/drafts; its 'as of' clause is left out", file=sys.stderr)
+        else:
+            try:
+                value = json.loads(path.read_text(encoding="utf-8")).get(key)
+            except (ValueError, AttributeError):
+                value = None
+            d = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(value or ""))
+            if d and 1 <= int(d.group(2)) <= 12:
+                text = f"as of {int(d.group(3))} {MONTHS_LONG[int(d.group(2)) - 1]} {int(d.group(1))}, "
+            else:
+                print(f"warning: {src} has no {key} date; its 'as of' clause is left out", file=sys.stderr)
+        return f'<span class="track-asof" data-src="{src}" data-key="{key}">{text}</span>'
+    return ASOF.sub(fill, index_html)
+
+
+def check_live_data():
+    """The Lately data file must exist for a build (a deploy can't go out without it); one
+    that is present but unreadable only warns, and the site then shows "Lately is being updated."."""
+    live = ROOT / LIVE_DATA
+    if not live.is_file():
+        raise ContentError(f"{LIVE_DATA} is missing; the site is not built without it "
+                           "(the publish workflow commits it with git add -f; it is never written by hand)")
+    try:
+        d = json.loads(live.read_text(encoding="utf-8"))
+        if not (isinstance(d, dict) and d.get("schema_version") == 1 and isinstance(d.get("sources"), dict)):
+            raise ValueError("not schema_version 1 with a sources object")
+    except ValueError as e:
+        print(f"warning: {LIVE_DATA} is unreadable ({e}); the Lately section and pages will show 'Lately is being updated.'", file=sys.stderr)
+
+
 # ---------- page output ----------
 
 def clock(seconds):
@@ -1331,8 +1379,10 @@ def main():
     ap.add_argument("--drafts", action="store_true", help="also build drafts, for local preview")
     args = ap.parse_args()
 
+    check_live_data()
     index_path = ROOT / "index.html"
-    index_html = index_path.read_text(encoding="utf-8")
+    index_before = index_path.read_text(encoding="utf-8")
+    index_html = fill_asof(index_before)  # dates read from results files
     tracklist = read_tracklist(index_html)
     if not tracklist:
         raise ContentError("no tracks found on the main page")
@@ -1382,7 +1432,7 @@ def main():
         + "".join(f"<url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
 
     new_index = link_rows(index_html, {m["track"]: m["slug"] for m in ready})
-    if new_index != index_html:
+    if new_index != index_before:
         index_path.write_text(new_index, encoding="utf-8")
     if (ROOT / "index.drafts.html").exists():  # the old preview file
         (ROOT / "index.drafts.html").unlink()
