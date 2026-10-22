@@ -173,17 +173,26 @@ class Progress(unittest.TestCase):
             with self.assertRaisesRegex(build.ContentError, "part must be"):
                 self.read(front={"part": bad})
 
-    # The two NBA pages sit together on side C, each row labelled with its part.
-    def test_main_page_nba_parts(self):
+    # The two research pages (05, 06) sit together on side B and the two NBA pages (12, 13)
+    # on side C, each row labelled with its part; LLM 20 Questions closes side C as 16.
+    def test_main_page_parts(self):
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
-        rows = {n: t for n, t, _, side in build.read_tracklist(index) if side == "projects"}
-        self.assertEqual(list(rows), ["09", "10", "11", "12", "13", "14", "15"])
-        self.assertEqual(rows["11"], "Why did they take that shot?")
-        self.assertEqual(rows["12"], "A foot of space is worth eight seconds")
-        for n, label in (("11", "part one · 2014–15"), ("12", "part two · 2015–16")):
+        tracks = build.read_tracklist(index)
+        research = {n: t for n, t, _, side in tracks if side == "research"}
+        self.assertEqual(list(research), ["04", "05", "06", "07", "08", "09"])
+        self.assertEqual(research["05"], "Train it in a quarter of the memory")
+        self.assertEqual(research["06"], "Does the guarantee survive more options?")
+        self.assertEqual(research["07"], "Sleep validation study")
+        projects = {n: t for n, t, _, side in tracks if side == "projects"}
+        self.assertEqual(list(projects), ["10", "11", "12", "13", "14", "15", "16"])
+        self.assertEqual(projects["12"], "Why did they take that shot?")
+        self.assertEqual(projects["13"], "A foot of space is worth eight seconds")
+        self.assertEqual(projects["16"], "LLM 20 Questions")
+        for n, label in (("05", "part one · 2026"), ("06", "part two · 2026–present"),
+                         ("12", "part one · 2014–15"), ("13", "part two · 2015–16")):
             self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
                                     rf'<span class="track-part">{label}</span>')
-        self.assertEqual(index.count('class="track-part"'), 2)
+        self.assertEqual(index.count('class="track-part"'), 4)
 
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.

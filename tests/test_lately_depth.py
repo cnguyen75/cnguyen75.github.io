@@ -741,8 +741,9 @@ class Drawing(unittest.TestCase):
         self.assertEqual(old["errors"], [])
 
     # The main page is far shorter than before the regrouping (about 8,800px at 1280).
+    # The budget allows the sixteen track rows since the research pair (05, 06) joined side B.
     def test_main_page_height(self):
-        self.assertLess(draw("index.html")["pageHeight"], 7600)
+        self.assertLess(draw("index.html")["pageHeight"], 7800)
         self.assertLess(draw("index.html", name="old file")["pageHeight"], 7000)
 
     # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
