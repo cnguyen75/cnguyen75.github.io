@@ -221,24 +221,31 @@ class Progress(unittest.TestCase):
         self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
         self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', self.render())
 
-    # A row's "as of <date>, " clause is read from the track's results file at build time;
-    # without the file or the date the clause is left out.
-    def test_fill_asof(self):
-        row = ('match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 1 January 2000, </span>and it')
+    # A row's live sentence is a template filled from the track's results file at build time:
+    # {decisions:count} counts the decisions since the clock started, {as_of:asof} is the
+    # "as of" clause. No date: the clause is left out. No decisions: the sentence is.
+    def test_fill_live(self):
+        template = "twin: all {decisions:count} decisions since its clock started match, {as_of:asof}and it failed."
+        row = f'<span class="track-live" data-src="paper-trader/demo.json" data-template="{template}">old text</span>'
         content = self.dir / "content"
         def fill(data):
             (content / "drafts" / "paper-trader").mkdir(parents=True, exist_ok=True)
             (content / "drafts" / "paper-trader" / "demo.json").write_text(json.dumps(data), encoding="utf-8")
-            return build.fill_asof(row, content)
-        self.assertEqual(fill({"as_of": "2026-10-12"}), 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 12 October 2026, </span>and it')
-        self.assertEqual(fill({"as_of": "2026-01-03"}), 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">as of 3 January 2026, </span>and it')
-        empty = 'match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of"></span>and it'
-        self.assertEqual(fill({"generated_on": "2026-10-13"}), empty)  # no date under the key
-        self.assertEqual(fill({"as_of": "12 Oct 2026"}), empty)  # not YYYY-MM-DD
+            return re.search(r">([^<]*)</span>", build.fill_live(row, content)).group(1)
+        decisions = [{"date": "2026-08-27", "voided": True}, {"date": "2026-09-03"}, {"date": "2026-09-04"}, {"date": "2026-10-12"}]
+        full = {"as_of": "2026-10-12", "clock_start": {"first_fill": "2026-09-04"}, "decisions": decisions}
+        self.assertEqual(fill(full), "twin: all 2 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        self.assertEqual(fill(dict(full, clock_start=None)), "twin: all 3 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        self.assertEqual(fill(dict(full, as_of=None)), "twin: all 2 decisions since its clock started match, and it failed.")
+        self.assertEqual(fill(dict(full, as_of="12 Oct 2026")), "twin: all 2 decisions since its clock started match, and it failed.")
+        self.assertEqual(fill({"as_of": "2026-10-12"}), "")  # no decisions: no sentence
+        self.assertEqual(fill(dict(full, decisions=[])), "twin: all 0 decisions since its clock started match, as of 12 October 2026, and it failed.")
         shutil.rmtree(content)
-        self.assertEqual(build.fill_asof(row, content), empty)  # no file
+        self.assertIn(">" + "</span>", build.fill_live(row, content))  # no file: nothing
+        self.assertIn(f'data-template="{template}"', build.fill_live(row, content))  # the template stays
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
-        self.assertRegex(index, r'started match, <span class="track-asof" data-src="paper-trader/demo.json" data-key="as_of">(as of \d+ [A-Z][a-z]+ \d{4}, )?</span>and it')
+        self.assertRegex(index, r'<span class="track-live" data-src="paper-trader/demo.json" data-template="Its successor runs [^"]*\{decisions:count\}[^"]*\{as_of:asof\}[^"]*">'
+                                r'(Its successor runs on a paper account against a simulated twin: all \d+ decisions since its clock started match, (as of \d+ [A-Z][a-z]+ \d{4}, )?and it has already failed two of its own criteria\.)?</span>')
 
     # Side D: no sample data and no badge for it; the footer names the pipeline as private, unlinked.
     def test_main_page_lately_text(self):
@@ -404,9 +411,9 @@ class Preview(unittest.TestCase):
             for part in ("content", "tests", "tools", "build.py", "README.md"):
                 self.assertFalse((prev / part).exists(), part)
             self.assertFalse((site / "tracks" / "demo-page").exists())
-            # The copy has no content/drafts, so the "as of" clause read from a results file is
-            # left out there; the rest of index.html is untouched.
-            self.assertEqual(build.ASOF.sub("", (site / "index.html").read_text(encoding="utf-8")), build.ASOF.sub("", index_before))
+            # The copy has no content/drafts, so the sentence read from a results file is left
+            # out there; the rest of index.html is untouched.
+            self.assertEqual(build.LIVE.sub("", (site / "index.html").read_text(encoding="utf-8")), build.LIVE.sub("", index_before))
             self.assertFalse((site / "index.drafts.html").exists())
             run()
             self.assertFalse(prev.exists())
