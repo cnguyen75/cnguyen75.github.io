@@ -38,7 +38,7 @@ REQUIRED = ("track", "slug", "title", "register", "ready")
 REQUIRED_BY_REGISTER = {"album": ("one_line",), "plain": ("one_line",), "progress": ("with", "as_of")}
 # The progress register (ongoing research) has fixed sections, in this order.
 PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what's next", "log", "my role")
-PROGRESS_OPTIONAL = ("results",)
+PROGRESS_OPTIONAL = ("results", "log")
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 MONTHS_LONG = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 LIVE_DATA = "data/lately.json"  # written by the pipeline; the site is not built without it

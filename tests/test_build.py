@@ -65,6 +65,8 @@ class Progress(unittest.TestCase):
             self.read(order=swapped)
         with self.assertRaisesRegex(build.ContentError, "in order"):
             self.read(drop=("my role",))  # a required section is missing
+        self.render(drop=("log",))  # log is optional, like results
+        self.render(drop=("results", "log"))
 
     # "where it stands" carries the as_of stamp next to its heading.
     def test_where_it_stands_shows_as_of(self):
@@ -74,13 +76,18 @@ class Progress(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "as_of"):
             self.read(front={"as_of": "13 October 2026"})
 
-    # ## results is optional; when absent there is no empty block and no placeholder.
+    # ## results and ## log are optional; when absent there is no empty block, no placeholder
+    # and no chapter in the reading bar.
     def test_results_omitted_when_absent(self):
-        self.assertIn('id="results"', self.render())
-        doc = self.render(drop=("results",))
-        self.assertNotIn('id="results"', doc)
-        self.assertNotIn(">results<", doc)
-        self.assertNotIn("results", re.sub(r"<head>.*?</head>", "", doc, flags=re.S).lower())
+        for name in ("results", "log"):
+            with self.subTest(section=name):
+                self.assertIn(f'id="{name}"', self.render())
+                doc = self.render(drop=(name,))
+                self.assertNotIn(f'id="{name}"', doc)
+                self.assertNotIn(f">{name}<", doc)
+                self.assertNotIn(name, re.sub(r"<head>.*?</head>", "", doc, flags=re.S).lower())
+                chapters = re.findall(r'<span class="tp-seg-name">([^<]+)</span>', doc)
+                self.assertEqual(chapters, [t.replace("'", "&#x27;") for t in build.PROGRESS_SECTIONS if t != name])
 
     # ## log: "YYYY-MM-DD | text" or "YYYY-MM | text", a dated list in file order; nothing else.
     def test_log_lines(self):
