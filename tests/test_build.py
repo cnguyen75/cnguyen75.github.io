@@ -221,31 +221,58 @@ class Progress(unittest.TestCase):
         self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
         self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', self.render())
 
-    # A row's live sentence is a template filled from the track's results file at build time:
-    # {decisions:count} counts the decisions since the clock started, {as_of:asof} is the
+    # A row's live sentence is a template filled from the track's results file at build time.
+    # {decisions:matched} reads the counted decisions' match flags ("all N", or "N of M"),
+    # {decisions:unchecked} adds ", K not yet checked" for null flags, {as_of:asof} is the
     # "as of" clause. No date: the clause is left out. No decisions: the sentence is.
     def test_fill_live(self):
-        template = "twin: all {decisions:count} decisions since its clock started match, {as_of:asof}and it failed."
+        template = "twin: {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and it failed."
         row = f'<span class="track-live" data-src="paper-trader/demo.json" data-template="{template}">old text</span>'
         content = self.dir / "content"
         def fill(data):
             (content / "drafts" / "paper-trader").mkdir(parents=True, exist_ok=True)
             (content / "drafts" / "paper-trader" / "demo.json").write_text(json.dumps(data), encoding="utf-8")
             return re.search(r">([^<]*)</span>", build.fill_live(row, content)).group(1)
-        decisions = [{"date": "2026-08-27", "voided": True}, {"date": "2026-09-03"}, {"date": "2026-09-04"}, {"date": "2026-10-12"}]
-        full = {"as_of": "2026-10-12", "clock_start": {"first_fill": "2026-09-04"}, "decisions": decisions}
-        self.assertEqual(fill(full), "twin: all 2 decisions since its clock started match, as of 12 October 2026, and it failed.")
-        self.assertEqual(fill(dict(full, clock_start=None)), "twin: all 3 decisions since its clock started match, as of 12 October 2026, and it failed.")
-        self.assertEqual(fill(dict(full, as_of=None)), "twin: all 2 decisions since its clock started match, and it failed.")
-        self.assertEqual(fill(dict(full, as_of="12 Oct 2026")), "twin: all 2 decisions since its clock started match, and it failed.")
+        decisions = [{"date": "2026-08-27", "voided": True, "match": True}, {"date": "2026-09-02", "match": True},
+                     {"date": "2026-09-03", "match": True}, {"date": "2026-09-04", "match": True}, {"date": "2026-10-12", "match": True}]
+        full = {"as_of": "2026-10-12", "clock_start": {"first_fill": "2026-09-04", "equity_base_snapshot": "2026-09-03"}, "decisions": decisions}
+        self.assertEqual(fill(full), "twin: all 3 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        self.assertEqual(fill(dict(full, clock_start={"first_fill": "2026-09-04"})), "twin: all 2 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        self.assertEqual(fill(dict(full, clock_start=None)), "twin: all 4 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        one_null = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": None}])
+        self.assertEqual(fill(one_null), "twin: 2 of 3 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it failed.")
+        one_false = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": False}])
+        self.assertEqual(fill(one_false), "twin: 2 of 3 decisions since its clock started match, as of 12 October 2026, and it failed.")
+        both = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": False}, {"date": "2026-10-13", "match": None}])
+        self.assertEqual(fill(both), "twin: 2 of 4 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it failed.")
+        self.assertEqual(fill(dict(full, as_of=None)), "twin: all 3 decisions since its clock started match, and it failed.")
+        self.assertEqual(fill(dict(full, as_of="12 Oct 2026")), "twin: all 3 decisions since its clock started match, and it failed.")
         self.assertEqual(fill({"as_of": "2026-10-12"}), "")  # no decisions: no sentence
-        self.assertEqual(fill(dict(full, decisions=[])), "twin: all 0 decisions since its clock started match, as of 12 October 2026, and it failed.")
         shutil.rmtree(content)
         self.assertIn(">" + "</span>", build.fill_live(row, content))  # no file: nothing
         self.assertIn(f'data-template="{template}"', build.fill_live(row, content))  # the template stays
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
-        self.assertRegex(index, r'<span class="track-live" data-src="paper-trader/demo.json" data-template="Its successor runs [^"]*\{decisions:count\}[^"]*\{as_of:asof\}[^"]*">'
-                                r'(Its successor runs on a paper account against a simulated twin: all \d+ decisions since its clock started match, (as of \d+ [A-Z][a-z]+ \d{4}, )?and it has already failed two of its own criteria\.)?</span>')
+        self.assertRegex(index, r'<span class="track-live" data-src="paper-trader/demo.json" data-template="Its successor runs [^"]*\{decisions:matched\}[^"]*\{decisions:unchecked\}[^"]*\{as_of:asof\}[^"]*">'
+                                r'(Its successor runs on a paper account against a simulated twin: (all \d+|\d+ of \d+) decisions since its clock started match(, \d+ not yet checked)?, (as of \d+ [A-Z][a-z]+ \d{4}, )?and it has already failed two of its own criteria\.)?</span>')
+
+    # A page with live: fills the same placeholders from a file in its asset folder; a line
+    # whose count cannot be filled is dropped, a missing date leaves its text out.
+    def test_live_page(self):
+        assets = self.dir / "demo-page"
+        assets.mkdir()
+        stats = "STATS:\n{decisions:ratio} | decisions matching the twin{decisions:unchecked} | {as_of:asofnote}\n3 | other | kept"
+        def render_with(data):
+            (assets / "demo.json").write_text(json.dumps(data), encoding="utf-8")
+            doc = self.render(front={"live": "demo.json"}, sections={"results": stats})
+            return re.findall(r'<div class="tp-stat">(.*?)</div></div>', doc.split('id="results"')[1])
+        data = {"as_of": "2026-10-12", "decisions": [{"date": "2026-09-03", "match": True}, {"date": "2026-09-10", "match": None}, {"date": "2026-09-11", "voided": True}]}
+        self.assertEqual(render_with(data)[0], '<div class="tp-stat-label">decisions matching the twin, 1 not yet checked</div><div class="tp-stat-value">1 of 2</div><div class="tp-stat-label">as of 12 October 2026')
+        self.assertEqual(render_with(dict(data, as_of=None))[0], '<div class="tp-stat-label">decisions matching the twin, 1 not yet checked</div><div class="tp-stat-value">1 of 2')  # no note
+        rows = render_with({"as_of": "2026-10-12"})
+        self.assertEqual(len(rows), 1)  # the live row is dropped, the other kept
+        self.assertIn("kept", rows[0])
+        with self.assertRaisesRegex(build.ContentError, "rows are"):
+            self.render(front={"live": "demo.json"}, sections={"results": "STATS:\n{decisions:ratio} | only row"})  # dropped: an empty block
 
     # Side D: no sample data and no badge for it; the footer names the pipeline as private, unlinked.
     def test_main_page_lately_text(self):

@@ -156,7 +156,10 @@ def read_page(path):
     meta["track"] = meta["track"].zfill(2)
     meta["source"] = path
     meta["assets"] = path.parent / meta["slug"]
-    meta["sections"] = parse_sections(m.group(2), path.name)
+    body = m.group(2)
+    if meta.get("live"):  # {field:kind} placeholders read from a results file in the asset folder
+        body = fill_live_lines(body, meta["assets"] / meta["live"], path.name)
+    meta["sections"] = parse_sections(body, path.name)
     if meta.get("part"):
         # "part: part one · 2014–15 | 12": a page in a two-part story, and the number of the other part.
         label, sep, other = (x.strip() for x in meta["part"].partition("|"))
@@ -1096,68 +1099,118 @@ def link_rows(index_html, pages):
 
 
 # ---------- text read from a track's results file ----------
+# A main-page row (span.track-live with data-template) or a page with "live:" in its front
+# matter fills {field:kind} placeholders from a JSON results file at build time, so that
+# regenerating the file before a build updates the text.
 
 LIVE = re.compile(r'<span class="track-live" data-src="([^"]+)" data-template="([^"]*)">[^<]*</span>')
-PLACEHOLDER = re.compile(r"\{(\w+):(count|asof)\}")
+PLACEHOLDER = re.compile(r"\{(\w+):(count|matched|ratio|unchecked|asof|asofnote|date)\}")
+COUNT_KINDS = ("count", "matched", "ratio", "unchecked")  # need the list; without it the sentence goes
+
+
+def counted(data, field):
+    """The entries of a list that count: not voided and, when the file has a clock_start,
+    dated on or after it (its equity_base_snapshot, else its first_fill). None without the list."""
+    value = data.get(field)
+    if not isinstance(value, list):
+        return None
+    clock = data.get("clock_start") if isinstance(data.get("clock_start"), dict) else {}
+    since = clock.get("equity_base_snapshot") or clock.get("first_fill")
+    return [x for x in value if isinstance(x, dict) and not x.get("voided") and not (since and str(x.get("date", "")) < str(since))]
 
 
 def live_value(data, field, kind):
     """One placeholder's text, or None when the field is missing.
-    count: the entries of a list that count, i.e. not voided and, when the file has
-    clock_start.first_fill, dated on or after it ("decisions since the clock started").
-    asof: a YYYY-MM-DD date as the clause "as of 12 October 2026, "."""
-    value = data.get(field)
-    if kind == "count":
-        if not isinstance(value, list):
+    count: how many entries count. matched: "all 26" when every counted entry's match is
+    true, else "25 of 26" (true ones of counted). ratio: always "25 of 26".
+    unchecked: ", 1 not yet checked" for entries whose match is null, else "".
+    asof: a YYYY-MM-DD date as the clause "as of 12 October 2026, "; asofnote: "as of 12 October
+    2026" with no punctuation, for a cell that may be left empty; date: the date alone."""
+    if kind in COUNT_KINDS:
+        items = counted(data, field)
+        if items is None:
             return None
-        since = data.get("clock_start", {}).get("first_fill") if isinstance(data.get("clock_start"), dict) else None
-        counted = [x for x in value if isinstance(x, dict) and not x.get("voided")
-                   and not (since and str(x.get("date", "")) < str(since))]
-        return f"{len(counted):,}"
-    d = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(value or ""))
-    if d and 1 <= int(d.group(2)) <= 12:
-        return f"as of {int(d.group(3))} {MONTHS_LONG[int(d.group(2)) - 1]} {int(d.group(1))}, "
-    return None
+        n, ok = len(items), sum(1 for x in items if x.get("match") is True)
+        unchecked = sum(1 for x in items if x.get("match") is None)
+        if kind == "count":
+            return f"{n:,}"
+        if kind == "matched":
+            return f"all {n:,}" if ok == n else f"{ok:,} of {n:,}"
+        if kind == "ratio":
+            return f"{ok:,} of {n:,}"
+        return f", {unchecked:,} not yet checked" if unchecked else ""
+    d = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(data.get(field) or ""))
+    if not (d and 1 <= int(d.group(2)) <= 12):
+        return None
+    text = f"{int(d.group(3))} {MONTHS_LONG[int(d.group(2)) - 1]} {int(d.group(1))}"
+    return f"as of {text}, " if kind == "asof" else f"as of {text}" if kind == "asofnote" else text
+
+
+def live_data(path, what):
+    """The results file as a dict, or None with a warning."""
+    if not path.is_file():
+        print(f"warning: {what} is missing; its live text is left out", file=sys.stderr)
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("not an object")
+        return data
+    except ValueError as e:
+        print(f"warning: {what} is unreadable ({e}); its live text is left out", file=sys.stderr)
+        return None
+
+
+def fill_template(template, data):
+    """(text, missing fields): the template with its placeholders filled; text is None when a
+    count placeholder's list is missing (the whole sentence goes), and a missing date leaves
+    its clause out."""
+    text, missing = template, []
+    for field, kind in PLACEHOLDER.findall(template):
+        value = live_value(data, field, kind)
+        if value is None:
+            missing.append(field)
+            if kind in COUNT_KINDS:
+                return None, missing
+        text = text.replace("{" + field + ":" + kind + "}", value or "")
+    return text, missing
 
 
 def fill_live(index_html, content=None):
-    """A row's live sentence is a template filled from the track's results file: data-src is
-    a path under content/tracks or content/drafts, and the template's {field:count} and
-    {field:asof} placeholders are read from it, so regenerating the file before a build
-    updates the page. A missing date leaves its "as of" clause out; a missing count leaves
-    the whole sentence out; either prints a warning. The template stays in the attribute,
-    so a later build with the file restores the text."""
+    """The main page's live rows: data-src is a path under content/tracks or content/drafts,
+    the template stays in the attribute, and the rendered sentence is the span's text."""
     content = content or ROOT / "content"
 
     def fill(m):
         src, template = m.group(1), html.unescape(m.group(2))
         path = next((content / f / src for f in ("tracks", "drafts") if (content / f / src).is_file()), None)
-        data = None
-        if path is None:
-            print(f"warning: {src} is not under content/tracks or content/drafts; its live text is left out", file=sys.stderr)
-        else:
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-                if not isinstance(data, dict):
-                    raise ValueError("not an object")
-            except ValueError as e:
-                print(f"warning: {src} is unreadable ({e}); its live text is left out", file=sys.stderr)
-                data = None
+        data = live_data(path or content / "tracks" / src, src) if path else live_data(content / "tracks" / src, f"{src} (under content/tracks or content/drafts)")
         text = ""
         if data is not None:
-            text, missing = template, []
-            for field, kind in PLACEHOLDER.findall(template):
-                value = live_value(data, field, kind)
-                if value is None:
-                    missing.append(field)
-                    if kind == "count":
-                        text = ""
-                        break
-                text = text.replace("{" + field + ":" + kind + "}", value or "")
+            text, missing = fill_template(template, data)
             if missing:
-                print(f"warning: {src} has no {', '.join(missing)}; " + ("the sentence" if not text else "that clause") + " is left out", file=sys.stderr)
+                print(f"warning: {src} has no {', '.join(missing)}; " + ("the sentence" if text is None else "that clause") + " is left out", file=sys.stderr)
+            text = text or ""
         return f'<span class="track-live" data-src="{src}" data-template="{m.group(2)}">{esc(text)}</span>'
     return LIVE.sub(fill, index_html)
+
+
+def fill_live_lines(body, path, name):
+    """A page's body with its placeholders filled from the page's results file (front matter
+    "live:", a file in the asset folder). A line whose count placeholder cannot be filled is
+    dropped; a missing date leaves its text out."""
+    data = live_data(path, f"{name}: live file {path.name}")
+    out = []
+    for line in body.split("\n"):
+        if not PLACEHOLDER.search(line):
+            out.append(line)
+            continue
+        text, missing = (None, []) if data is None else fill_template(line, data)
+        if missing:
+            print(f"warning: {name}: {path.name} has no {', '.join(missing)}; " + ("a line" if text is None else "that text") + " is left out", file=sys.stderr)
+        if text is not None:
+            out.append(text)
+    return "\n".join(out)
 
 
 def check_live_data():
