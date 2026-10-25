@@ -35,6 +35,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         sourceLinks: [...document.querySelectorAll(".ld-source a")].map(a => [a.textContent, a.href]),
         missing: !!document.querySelector(".ld-missing:not([hidden])"),
         lede: txt(document.querySelector(".ld-lede")),
+        own: txt(document.querySelector(".ld-own")), kicker: txt(document.querySelector(".ld-kicker")), no: txt(document.querySelector(".ld-no")),
         waiting: txt(document.querySelector(".ld-waiting:not([hidden])")),
         hiddenSections: [...document.querySelectorAll(".ld-section[hidden]")].map(sec => sec.id),
         hiddenToc: [...document.querySelectorAll(".ld-toc li[hidden] a")].map(a => a.getAttribute("href")),
@@ -111,7 +112,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
           cls: e.className, bg: getComputedStyle(e).backgroundColor, border: getComputedStyle(e).borderTopStyle })),
         panels: [...document.querySelectorAll("#lately .panel")].map(p => ({
           id: p.id,
-          title: txt(p.querySelector(".panel-head h3")),
+          title: txt(p.querySelector(".panel-head h3")), no: txt(p.querySelector(".panel-head .track-no")), desc: txt(p.querySelector(".panel-head .track-desc")),
           meta: txt(p.querySelector(".panel-meta")),
           metaFont: p.querySelector(".panel-meta") ? getComputedStyle(p.querySelector(".panel-meta")).fontFamily : null,
           question: txt(p.querySelector(".panel-question")),

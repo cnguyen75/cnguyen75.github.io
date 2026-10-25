@@ -2,6 +2,7 @@
 register: data
 feed: watching
 title: Watching, in depth
+one_line: What I watch and rank on Simkl, and what my tiers respond to.
 source: Simkl | https://simkl.com
 attributions_when: watching.by_director, watching.by_studio, watching.by_lead, watching.blockbuster, watching.sequels, watching.crowd_agreement
 ---

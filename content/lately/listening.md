@@ -2,6 +2,7 @@
 register: data
 feed: listening
 title: Listening, in depth
+one_line: What I play, and how long an artist stays in rotation.
 source: Last.fm | https://www.last.fm
 ---
 

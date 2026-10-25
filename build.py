@@ -460,9 +460,17 @@ def render_data_page(meta):
     # source_note: optional text after the credit, e.g. how a source's dates are used
     note = f' · <span class="ld-source-note">{esc(meta["source_note"])}</span>' if meta.get("source_note") else ""
     credit = " and ".join(f'<a href="{esc(u)}"{new_tab(u)}>{esc(n)}</a>' for n, u in meta["sources"])
-    # The page's first line: whose numbers these are and which apps they come from.
+    # Under the title: the one-line description (the panel's, from one_line:), then whose numbers
+    # these are and which apps they come from.
     apps = " and ".join(esc(n) for n, _ in meta["sources"])
-    lede = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
+    own = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
+    lede = f'<p class="ld-lede">{esc(meta["one_line"])}</p>\n<p class="ld-own">{own}</p>' if meta.get("one_line") else f'<p class="ld-lede">{own}</p>'
+    # The track header, as on every other card: side, number and title.
+    num, listed = meta.get("number"), meta.get("listed")
+    kicker = "side d. lately" + (f" · track {num} of {listed}" if num and listed else "") + " · in depth"
+    heading = (f'<div class="ld-heading"><span class="ld-no" aria-hidden="true">{num}</span>'
+               f'<h1 class="ld-title" id="ld-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>' if num
+               else f'<h1 class="ld-title" id="ld-title">{esc(title)}</h1>')
     nav, groups = [], []
     for g in meta["groups"]:
         links = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in g["sections"])
@@ -523,10 +531,10 @@ def render_data_page(meta):
 </header>
 <main id="main" class="ld-main">
 <section class="ld-hero" aria-labelledby="ld-title">
-<p class="ld-kicker">side d. lately · in depth</p>
-<h1 class="ld-title" id="ld-title">{esc(title)}</h1>
+<p class="ld-kicker">{kicker}</p>
+{heading}
 <nav class="ld-feeds" aria-label="Lately pages">{others}</nav>
-<p class="ld-lede">{lede}</p>
+{lede}
 <p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span></p>
 <div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
 <noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
@@ -543,9 +551,23 @@ def render_data_page(meta):
 """
 
 
-def build_data_pages(schema):
+def lately_numbers(index_html):
+    """Side D's panels are tracks too: {feed: the number on its panel}."""
+    return {feed: num for feed, num in re.findall(r'id="panel-(\w+)"[^>]*>\s*<div class="panel-head">\s*<span class="track-no">(\d\d)</span>', index_html)}
+
+
+def build_data_pages(schema, numbers=None, listed=None):
+    """Writes lately/<feed>/ from content/lately/. The track numbers and the count come from
+    the main page (passed in by main(); read from index.html when not)."""
     pages = [read_data_page(p, schema) for p in sorted((ROOT / "content" / "lately").glob("*.md"))]
     check_data_coverage(pages, schema)
+    if numbers is None:
+        index_html = (ROOT / "index.html").read_text(encoding="utf-8")
+        numbers, listed = lately_numbers(index_html), len(read_tracklist(index_html))
+    for m in pages:
+        if m["feed"] not in numbers:
+            raise ContentError(f"the {m['feed']} panel on the main page has no track number")
+        m["number"], m["listed"] = numbers[m["feed"]], listed
     out_root = ROOT / "lately"
     out_root.mkdir(exist_ok=True)
     keep = {m["feed"] for m in pages}
@@ -1052,10 +1074,10 @@ class Page:
 # ---------- the tracklist on the main page ----------
 
 def read_tracklist(index_html):
-    """[(number, title, side_label, side_id)] in page order."""
+    """[(number, title, side_label, side_id)] in page order: sides A to C, then side D's panels."""
     tracks, side, side_id = [], None, None
-    pat = re.compile(r'<h2 class="side-label" id="(\w+)-label">([^<]+)</h2>|<span class="track-no">(\d\d)</span>\s*'
-                     r'<div class="track-body"><h3 class="track-title">(.*?)</h3>')
+    pat = re.compile(r'<(?:h2 class="side-label"|p class="lately-label") id="(\w+)-label">([^<]+)</(?:h2|p)>|<span class="track-no">(\d\d)</span>\s*'
+                     r'<div class="track-body"><h3 class="track-title"(?: id="[^"]*")?>(.*?)</h3>')
     for m in pat.finditer(index_html):
         if m.group(1):
             side_id, side = m.group(1), html.unescape(m.group(2))
@@ -1554,7 +1576,7 @@ def main():
         + "".join(f"!/{m['slug']}/\n" for m in ready) + f"{OUT_MARK}\n", encoding="utf-8")
 
     schema = json.loads((ROOT / SCHEMA_PATH).read_text(encoding="utf-8"))
-    data_pages = build_data_pages(schema)
+    data_pages = build_data_pages(schema, lately_numbers(index_html), listed)
 
     urls = [SITE] + [f"{SITE}lately/{m['feed']}/" for m in data_pages] + [f"{SITE}tracks/{m['slug']}/" for m in ready]
     (ROOT / "sitemap.xml").write_text(

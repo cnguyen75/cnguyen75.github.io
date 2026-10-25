@@ -86,6 +86,9 @@ class Register(unittest.TestCase):
             doc = build.render_data_page(self.read(feed, content(feed)))
             visible = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", doc, flags=re.S)))
             self.assertNotRegex(visible, r"\d", feed)  # no data in the committed page
+            built = (ROOT / "lately" / feed / "index.html").read_text(encoding="utf-8")
+            built = re.sub(r"track \d\d of \d\d|<span class=\"ld-no\"[^>]*>\d\d</span>|Track \d\d: ", "", built)  # the track number is the only figure
+            self.assertNotRegex(html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", built, flags=re.S))), r"\d", feed)
 
     # Kept cards keep their ids; a removed card's id is an alias inside the card that absorbed it.
     def test_deep_links_unchanged(self):
@@ -498,11 +501,22 @@ class Drawing(unittest.TestCase):
         self.assertIsNone(base["tagLine"])
 
     # Each page opens with whose numbers these are and which apps they come from.
+    # Every lately page has the track header: side, number and title, the panel's one-line
+    # description, then whose numbers these are. The main page's panels carry the same number
+    # and description; the track pages count side D in their "of".
     def test_lede(self):
         want = {"fantasy": "Sleeper and ESPN accounts", "watching": "Simkl account", "listening": "Last.fm account",
                 "eating": "Beli account", "lifting": "Hevy account"}
+        numbers = {"fantasy": "22", "watching": "23", "listening": "24", "eating": "25", "lifting": "26"}
+        schema = json.loads((ROOT / build.SCHEMA_PATH).read_text(encoding="utf-8"))
+        panels = {p["id"]: p for p in draw("index.html")["panels"]}
         for feed, apps in want.items():
-            self.assertEqual(draw(f"lately/{feed}/")["lede"], f"These are my own numbers, from my {apps}.")
+            d = draw(f"lately/{feed}/")
+            one_line = build.read_data_page(ROOT / "content/lately" / f"{feed}.md", schema)["one_line"]
+            self.assertEqual((d["kicker"], d["no"], d["lede"], d["own"]), (f"side d. lately · track {numbers[feed]} of 26 · in depth", numbers[feed], one_line,
+                                                                          f"These are my own numbers, from my {apps}."))
+            self.assertEqual((panels[f"panel-{feed}"]["no"], panels[f"panel-{feed}"]["desc"]), (numbers[feed], one_line))
+        self.assertIn("track 09 of 26", (ROOT / "tracks/receptivity-evaluation/index.html").read_text(encoding="utf-8"))
 
     # A window shorter than its label is labelled by its real start: "since 11 Oct".
     def test_listening_window(self):

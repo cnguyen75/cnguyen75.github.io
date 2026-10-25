@@ -2,6 +2,7 @@
 register: data
 feed: fantasy
 title: Fantasy football, in depth
+one_line: My fantasy leagues, judged on strength against luck.
 source: Sleeper | https://sleeper.com, ESPN | https://www.espn.com/fantasy/football/
 attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://sports.yahoo.com/fantasy/
 ---

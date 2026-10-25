@@ -489,18 +489,27 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 .panel--wide { gap: var(--s-4); }
 
+/* A panel's header is the track card's: number | title | source line on the first row, the
+   one-line description spanning under the title; the chart stays inside the panel. */
 .panel-head {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--s-1) var(--s-5);
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 0 var(--s-5);
+  align-items: start;
 }
-.panel-head h3 {
-  margin: 0;
-  font-size: var(--fs-xl);
-  font-weight: 700;
+.panel-head .track-no { grid-column: 1; grid-row: 1; }
+.panel-head .track-body { display: contents; }
+.panel-head .track-title { grid-column: 2; grid-row: 1; min-width: 0; }
+.panel-head .panel-meta { grid-column: 3; grid-row: 1; justify-self: end; text-align: right; padding-top: var(--s-1); }
+.panel-head .track-desc { grid-column: 2 / -1; }
+@media (max-width: 520px) {
+  .panel-head { column-gap: var(--s-4); }
+  .panel-head .panel-meta { max-width: 9em; }
 }
+/* The in-depth page's heading: the number beside the title, as on a track page. */
+.ld-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-6); }
+.ld-no { font-family: var(--font-label); font-size: var(--fs-display); line-height: 1; color: var(--text-3); }
+.ld-own { margin: 0; font-size: var(--fs-m); color: var(--text-2); }
 /* A panel's heading links to its Lately page, with the track rows' hover and focus:
    a slight lift (here one step lighter than the card), the text colour kept, and the
    arrow in teal. */

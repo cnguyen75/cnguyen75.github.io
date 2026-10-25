@@ -2,6 +2,7 @@
 register: data
 feed: lifting
 title: Lifting, in depth
+one_line: Training logged on Hevy, and whether the cut is costing strength.
 source: Hevy | https://www.hevyapp.com
 ---
 

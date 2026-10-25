@@ -2,6 +2,7 @@
 register: data
 feed: eating
 title: Eating, in depth
+one_line: What I eat, ranked on Beli, and what biases my scores.
 source: Beli | https://beliapp.com
 source_note: Beli dates are used only as counts, never tied to a place
 ---

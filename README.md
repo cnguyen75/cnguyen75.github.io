@@ -7,7 +7,7 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 ## Structure
 
 ```
-index.html                 the whole page: header, hero, sides A–C, Side D (lately), footer
+index.html                 the whole page: header, hero, sides A–D (D is lately), footer
 01/ … 08/                  stubs: /01 to /08 send the browser to that row on the main page (#track-01 …); side A has no pages
 css/site.css               all styles; colours, type and spacing are the tokens at the top (:root), described in DESIGN.md
 js/lately.js               draws the Side D panels from data
@@ -193,6 +193,7 @@ Each page comes from `content/lately/<feed>.md` in the **data** register, separa
 register: data
 feed: lifting                       one of fantasy, watching, listening, eating, lifting; matches the file name
 title: Lifting, in depth
+one_line: Training logged on Hevy, and whether the cut is costing strength.   the panel's and the page's one-line description
 source: Hevy | https://www.hevyapp.com     comma-separated "Name | https://" credits
 source_note: ...                    optional, shown after the credit
 attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://sports.yahoo.com/fantasy/
@@ -237,7 +238,7 @@ The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval
 
 ### Side D on the main page
 
-Since 2026-10-17 the main page's Lately section is analysis-first: five panels, fantasy across the width, then watching | listening, then eating | lifting, with the feed-status chips and heading above them. Each panel has its title, the source line (label face, right), a question in bold, a two-sentence answer filled from a fixed template (never free text), two or three current numbers, one chart, and "more about <feed> →":
+Since 2026-10-17 the main page's Lately section is analysis-first: five panels, fantasy across the width, then watching | listening, then eating | lifting, with the feed-status chips and heading above them. The panels are tracks 22 to 26 (fantasy, watching, listening, eating, lifting) and carry the track card's header: the number, the title (linking to the page) and the one-line description from the page's `one_line:`, with the source line (label face) at the right; the in-depth pages open the same way ("side d. lately · track 22 of 26 · in depth", the number beside the title, the description, then "These are my own numbers…"), and every track page's "of" counts them. Each panel then has a question in bold, a two-sentence answer filled from a fixed template (never free text), two or three current numbers, one chart, and "more about <feed> →":
 
 | Panel | Question | Chart | Numbers |
 | --- | --- | --- | --- |
