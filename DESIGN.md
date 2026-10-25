@@ -90,7 +90,7 @@ Named by value like the type tokens (`--s-1-5` is 1.5px). A mark's centring offs
 | Component | Where | Classes |
 |---|---|---|
 | Track card | the main page's sides A to C, the five lately panels | `.track.track--wrap` (a grid: number, title, status on the first row; description and the rest spanning under the title), `.track-no`, `.track-title`, `.track-desc`, `.track-part`, `.track-ext`, `.track-meta.track-meta--status`, `.track-points`; a row whose page is built is an `a.track`. `.side-intro` is an employer's line on side A |
-| Side label | above each side | `.side-label` ("side a. work"); `.lately-label` for side D; `.tp-kicker` and `.ld-kicker` on the built pages |
+| Side label | above each side | `.side-label` ("side a. work"); `.lately-label` for side D; `.tp-kicker` on the built pages (track and lately) |
 | Stat tile | headline numbers on panels and in-depth pages; the stat row on track pages | `.stats` > `.stat` with `.stat-label`, `.stat-value`, `.stat-note` (`.ld-stats`, `.ld-stats--panel` for the compact grid); `.tp-stats` > `.tp-stat` with `.tp-stat-label`, `.tp-stat-value` |
 | Bars | horizontal bar lists | `.bar-list` > `.bar-row` (`.bar-label`, `.bar-track`, `.bar-fill`, `.bar-value`; `.bar-track--diverging`, `.bar-fill--neg` for negatives); in depth `.ld-bars` > `.ld-bar-row` (`.ld-bar-label`, `.ld-bar-track`, `.ld-bar-fill`, `.ld-bar-value`, `.ld-bar-ref` for a comparison tick); on track pages `.tp-bars` > `.tp-bar` |
 | Tier board | the watching page's rankings | `.tier-board` > `.tier-tabs` + `.tier-rows` > `.tier-row` (`.tier-row-head`, `.tier-letter`, `.tier-count`, `.tier-summary`, `.tier-chips` > `.tier-chip`) |
@@ -99,5 +99,5 @@ Named by value like the type tokens (`--s-1-5` is 1.5px). A mark's centring offs
 | View as table | every chart | `button.table-toggle[aria-controls][aria-expanded]` and the hidden `.data-table` it reveals (`.ld-table` in depth) |
 | Details / how | the pipeline's method line under a statistic | `.ld-how` with `.ld-how-label` |
 | Chips | source status under the lately heading; tags | `.chips` > `.chip` (`.chip-dot`); `.tag`, `.ld-tag`, `.tp-tag` for a boxed one-word flag |
-| Card / panel | the lately panels and in-depth sections | `.panel` (`.panel--wide`, `.panel-head`, `.panel-meta`, `.panel-lead`, `.panel-question`, `.panel-answer`); `.ld-section` (`.ld-section-title`, `.ld-blocks` > `.ld-block`) |
-| Reading bar | track pages | `.tp-player` (`.tp-play`, `.tp-speed`, `.tp-clock`, `.tp-segs` > `.tp-seg`), `.tp-mini` once it scrolls away |
+| Card / panel | the lately panels and in-depth sections | `.panel` (`.panel--wide`, `.panel-head` with the track card's number, title, description and `a.ld-more`, `.panel-lead`, `.panel-question`, `.panel-answer`); on the lately pages a section is a track page's `.tp-section` carrying `.ld-section` (`.ld-blocks` > `.ld-block`) |
+| Reading bar | track and lately pages | `.tp-player` (`.tp-play`, `.tp-speed`, `.tp-clock`, `.tp-segs` > `.tp-seg`), `.tp-mini` once it scrolls away; on a lately page the times are measured in the browser |

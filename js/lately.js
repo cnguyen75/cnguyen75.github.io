@@ -1118,7 +1118,6 @@
     if (!d || !d.charts) return h("p", { class: "panel-empty" }, "Couldn't draw this chart right now.");
     return fn(d.charts);
   }
-  function more(feed) { return h("a", { class: "ld-more", href: "lately/" + feed + "/" }, "more about " + feed + " →"); }
   function plus(x, dp) { return fsigned(x, dp); }
 
   function fantasyPanel(data) {
@@ -1156,7 +1155,7 @@
       ];
       chart = waitBox(q);
     }
-    return [fantasyStale(ctx.shown), question("Good, or lucky?", sentences), numbers(nums), sampleLine(q), chart, more("fantasy")];
+    return [fantasyStale(ctx.shown), question("Good, or lucky?", sentences), numbers(nums), sampleLine(q), chart];
   }
 
   var TYPE_NAMES = { film: "films", show: "shows", anime: "anime", films: "films", shows: "shows" };
@@ -1216,7 +1215,7 @@
       nums = [crowd, sNum, okStat(comp) ? { label: "Completion, shows", value: fpct(comp.value), note: comp.values.finished + " finished, " + comp.values.dropped + " dropped" } : null];
       chart = waitBox(tp);
     }
-    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What does my taste look like?", sentences), numbers(nums), sampleLine(tp), chart, more("watching")];
+    return [ws.state.asOf ? staleNote(ws.state.asOf) : null, question("What does my taste look like?", sentences), numbers(nums), sampleLine(tp), chart];
   }
 
   function listeningPanel(data) {
@@ -1260,7 +1259,7 @@
       chart = waitBox(sv);
     }
     var presync = curves.length && d ? [h("span", { class: "ld-tag" }, "pre-sync artists excluded"), " · see the listening page for the version that includes them"] : null;
-    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Does old music last longer than new?", sentences), numbers(nums), sampleLine(sv, presync), chart, more("listening")];
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Does old music last longer than new?", sentences), numbers(nums), sampleLine(sv, presync), chart];
   }
 
   function eatingPanel(data) {
@@ -1303,13 +1302,13 @@
       nums = [{ label: "Restaurants ranked", value: String(num(e.ranked_count, "ranked_count")), note: "on Beli" }, home, order];
       chart = waitBox(sc);
     }
-    return [state.asOf ? staleNote(state.asOf) : null, question("What biases my scores?", sentences), numbers(nums), sampleLine(sc), chart, more("eating")];
+    return [state.asOf ? staleNote(state.asOf) : null, question("What biases my scores?", sentences), numbers(nums), sampleLine(sc), chart];
   }
 
   function liftingPanel(data) {
     var b = liftingBasics(data), l = b.l;
     if (!b.state.show) return [h("p", { class: "panel-empty" }, NOT_CONNECTED)];
-    if (b.count === 0) return [b.state.asOf ? staleNote(b.state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet."), more("lifting")];
+    if (b.count === 0) return [b.state.asOf ? staleNote(b.state.asOf) : null, h("p", { class: "panel-empty" }, "No workouts logged yet.")];
     var a = analysisOf(data), al = a && isObj(a.lifting) ? a.lifting : {};
     var si = al.strength_index, bwr = al.body_weight_rate, ret = isObj(al.retention) ? al.retention : {}, kept = isObj(al.strength_kept) ? al.strength_kept : {};
     var f = F();
@@ -1386,7 +1385,7 @@
       nums = [bwNum, benchNum, okStat(bwr) && isNum(bwr.value) ? { label: "Body weight a week", value: plus(bwr.value, 2) + " " + b.unit, note: f ? f.interval(bwr.interval, function (x) { return f.signed(x, 2); }) || "since the cut started" : "since the cut started" } : null];
       chart = waitBox(si);
     }
-    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is the cut costing strength?", sentences), numbers(nums), sampleLine(si), chart, more("lifting")];
+    return [b.state.asOf ? staleNote(b.state.asOf) : null, question("Is the cut costing strength?", sentences), numbers(nums), sampleLine(si), chart];
   }
 
   // ---------- assembly ----------
@@ -1415,8 +1414,6 @@
       nodes = [h("p", { class: "panel-empty" }, missing ? NOT_CONNECTED : BROKEN)];
     }
     append(panel, nodes);
-    // The link to the feed's page, even when the panel could not be drawn.
-    if (!panel.querySelector(".ld-more")) panel.appendChild(more(FEEDS[panelId]));
   }
 
   function render(data) {

@@ -14,8 +14,9 @@ after the slug next to it. Each file becomes tracks/<slug>/index.html. The build
 also writes sitemap.xml, tracks/.gitignore (so only ready pages can be committed)
 and the links from the main page's track rows. See README.md, "Track pages".
 
-The Lately pages use a separate "data" register: content/lately/<feed>.md, one
-per feed, becomes lately/<feed>/index.html. Those files name statistics, not
+The Lately pages use the "data" register: content/lately/<feed>.md, one per
+feed, becomes lately/<feed>/index.html through the same page template as the
+track pages (they are tracks 22 to 26). Those files name statistics, not
 numbers; js/lately-depth.js draws them from data/lately.json in the browser, so
 no data is ever written into the built pages. See README.md, "Lately in depth".
 """
@@ -322,6 +323,13 @@ def read_data_page(path, schema):
         raise ContentError(f"{path.name}: the {meta['feed']} page must credit {need}")
     meta["sources"] = sources
     meta["source_file"] = path
+    # Shaped like a track page's front matter, so render() and write_pages() take it: always
+    # ready, written to lately/<feed>/, no asset folder (so no preview card), the track number
+    # from the main page's panel (set by read_data_pages()).
+    meta["ready"] = True
+    meta["slug"] = meta["feed"]
+    meta["assets"] = path.parent / meta["feed"]
+    meta["status_label"] = "live · updated daily"
     if meta.get("attribution_when"):
         # "attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://...": a credit
         # line shown only when that source is in analysis.meta.sources_included.
@@ -452,137 +460,49 @@ def check_data_coverage(pages, schema):
             raise ContentError(f"{leaf} is in the analysis schema but on no page; add it to a page or to DATA_LEFT_OUT")
 
 
-def render_data_page(meta):
-    feed = meta["feed"]
-    url = f"{SITE}lately/{feed}/"
-    title = meta["title"]
-    desc = f"{title}: statistics from my {feed} data, drawn from the same nightly file as the Lately section."
-    # source_note: optional text after the credit, e.g. how a source's dates are used
-    note = f' · <span class="ld-source-note">{esc(meta["source_note"])}</span>' if meta.get("source_note") else ""
-    credit = " and ".join(f'<a href="{esc(u)}"{new_tab(u)}>{esc(n)}</a>' for n, u in meta["sources"])
-    # Under the title: the one-line description (the panel's, from one_line:), then whose numbers
-    # these are and which apps they come from.
-    apps = " and ".join(esc(n) for n, _ in meta["sources"])
-    own = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
-    lede = f'<p class="ld-lede">{esc(meta["one_line"])}</p>\n<p class="ld-own">{own}</p>' if meta.get("one_line") else f'<p class="ld-lede">{own}</p>'
-    # The track header, as on every other card: side, number and title.
-    num, listed = meta.get("number"), meta.get("listed")
-    kicker = "side d. lately" + (f" · track {num} of {listed}" if num and listed else "") + " · in depth"
-    heading = (f'<div class="ld-heading"><span class="ld-no" aria-hidden="true">{num}</span>'
-               f'<h1 class="ld-title" id="ld-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>' if num
-               else f'<h1 class="ld-title" id="ld-title">{esc(title)}</h1>')
-    nav, groups = [], []
-    for g in meta["groups"]:
-        links = "".join(f'<li><a href="#{s["id"]}">{esc(s["title"])}</a></li>' for s in g["sections"])
-        nav.append(f'<li class="ld-toc-group" data-group="{g["id"]}"><span class="ld-toc-label">{esc(g["title"])}</span><ol>{links}</ol></li>')
-        secs = []
-        for s in g["sections"]:
-            notes = "".join(f'<p class="ld-section-note">{inline(n)}</p>' for n in s["notes"])
-            notes = (f'<p class="ld-section-source">{esc(s["source"])}</p>' if s["source"] else "") + notes
-            notes = "".join(f'<span class="ld-alias" id="{a}" data-to="{s["id"]}"></span>' for a in s["aliases"]) + notes
-            slots = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
-                            else f'<div class="ld-feed" data-block="{esc(arg)}"></div>' for kind, arg in s["slots"])
-            how = (f' data-how="{esc(s["how"][0])}"' + (" data-how-open" if s["how"][1] else "")) if s["how"] else ""
-            secs.append(f'<section class="ld-section ld-section--{g["id"]}" id="{s["id"]}"{how} aria-labelledby="{s["id"]}-h">'
-                        f'<h3 class="ld-section-title" id="{s["id"]}-h">{esc(s["title"])}</h3>{notes}{slots}</section>')
-        groups.append(f'<section class="ld-group ld-group--{g["id"]}" id="{g["id"]}" aria-labelledby="{g["id"]}-h">'
-                      f'<h2 class="ld-group-title" id="{g["id"]}-h">{esc(g["title"])}</h2>{"".join(secs)}</section>')
-    attribution = ""
-    if meta.get("attribution_when"):
-        src, text, link = meta["attribution_when"]
-        attribution = (f'\n<p class="ld-attribution" data-when-source="{esc(src)}" hidden>'
-                       f'<a href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>')
-    if meta.get("attributions_when"):
-        attribution += f'\n<p class="ld-attributions" data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
-    current = ' aria-current="page"'
-    others = " · ".join(f'<a href="../{f}/"{current if f == feed else ""}>{f}</a>' for f in DATA_FEEDS)
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{esc(title)} · Colin Nguyen</title>
-<meta name="description" content="{esc(desc)}">
-<link rel="canonical" href="{url}">
-<meta name="theme-color" content="#E8E2D3">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Colin Nguyen">
-<meta property="og:url" content="{url}">
-<meta property="og:title" content="{esc(title)}">
-<meta property="og:description" content="{esc(desc)}">
-<meta property="og:image" content="{SITE}images/og-image.png">
-<meta property="og:image:alt" content="Colin Nguyen's site">
-<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-<link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
-<link rel="preload" href="../../fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../../fonts/courier-prime-400-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../../css/site.css">
-<script src="../../js/lately-depth.js" defer></script>
-<script src="../../js/lately.js" defer></script>
-</head>
-<body class="ld-body" data-feed="{feed}" data-root="../../">
-<a class="skip-link" href="#main">Skip to content</a>
-<div class="wrap">
-<div class="page ld-page">
-<header class="site-header">
-<a class="site-name ld-home" href="../../">colin nguyen</a>
-<a class="ld-back" href="../../#panel-{feed}">← back to lately</a>
-</header>
-<main id="main" class="ld-main">
-<section class="ld-hero" aria-labelledby="ld-title">
-<p class="ld-kicker">{kicker}</p>
-{heading}
-<nav class="ld-feeds" aria-label="Lately pages">{others}</nav>
-{lede}
-<p class="ld-source">data from {credit}{note} · <span class="ld-asof">as of <time class="ld-asof-date">…</time></span></p>
-<div class="ld-headline" data-feed="{feed}" aria-label="Headline numbers"></div>
-<noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>
-<p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>
-</section>
-<nav class="ld-toc" aria-label="On this page"><ol>{"".join(nav)}</ol></nav>
-{"".join(groups)}{attribution}
-</main>
-<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>
-</div>
-</div>
-</body>
-</html>
-"""
-
-
 def lately_numbers(index_html):
     """Side D's panels are tracks too: {feed: the number on its panel}."""
     return {feed: num for feed, num in re.findall(r'id="panel-(\w+)"[^>]*>\s*<div class="panel-head">\s*<span class="track-no">(\d\d)</span>', index_html)}
 
 
-def build_data_pages(schema, numbers=None, listed=None):
-    """Writes lately/<feed>/ from content/lately/. The track numbers and the count come from
-    the main page (passed in by main(); read from index.html when not)."""
+def read_data_pages(schema, index_html):
+    """The data pages, numbered from the main page's panels and checked for coverage."""
     pages = [read_data_page(p, schema) for p in sorted((ROOT / "content" / "lately").glob("*.md"))]
     check_data_coverage(pages, schema)
-    if numbers is None:
-        index_html = (ROOT / "index.html").read_text(encoding="utf-8")
-        numbers, listed = lately_numbers(index_html), len(read_tracklist(index_html))
+    numbers = lately_numbers(index_html)
     for m in pages:
         if m["feed"] not in numbers:
             raise ContentError(f"the {m['feed']} panel on the main page has no track number")
-        m["number"], m["listed"] = numbers[m["feed"]], listed
-    out_root = ROOT / "lately"
-    out_root.mkdir(exist_ok=True)
-    keep = {m["feed"] for m in pages}
-    for d in out_root.iterdir():
-        if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
-            shutil.rmtree(d)
-    (out_root / ".gitignore").write_text(f"# Written by build.py.\n{OUT_MARK}\n", encoding="utf-8")
-    for m in pages:
-        out = out_root / m["feed"]
-        if out.exists() and not (out / OUT_MARK).exists():
-            raise ContentError(f"{out.relative_to(ROOT)} exists but was not made by build.py; not touching it")
-        out.mkdir(exist_ok=True)
-        (out / OUT_MARK).write_text("")
-        (out / "index.html").write_text(render_data_page(m), encoding="utf-8")
+        m["track"] = m["number"] = numbers[m["feed"]]
     return pages
+
+
+def ready_track_pages():
+    """The ready track pages' front matter, {number: meta}, for previous and next links."""
+    return {m["track"]: m for m in (read_page(p) for p in sorted((ROOT / "content" / "tracks").glob("*.md")))}
+
+
+def build_data_pages(schema):
+    """Writes lately/<feed>/ from content/lately/ against the committed main page and ready
+    track pages (main() does the same inside the full build). Returns the pages."""
+    index_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    tracklist = read_tracklist(index_html)
+    pages = read_data_pages(schema, index_html)
+    pages_here = dict(ready_track_pages(), **{m["track"]: m for m in pages})
+    write_pages(ROOT / "lately", pages, tracklist, pages_here, False, len(tracklist))
+    (ROOT / "lately" / ".gitignore").write_text(f"# Written by build.py.\n{OUT_MARK}\n", encoding="utf-8")
+    return pages
+
+
+def render_data_page(meta):
+    """One data page's document against the committed main page (tests and tools)."""
+    index_html = (ROOT / "index.html").read_text(encoding="utf-8")
+    tracklist = read_tracklist(index_html)
+    numbers = lately_numbers(index_html)
+    if meta["feed"] not in numbers:
+        raise ContentError(f"the {meta['feed']} panel on the main page has no track number")
+    meta["track"] = meta["number"] = numbers[meta["feed"]]
+    return render(meta, tracklist, {meta["track"]: meta}, False, len(tracklist))[0]
 
 
 # ---------- Markdown subset ----------
@@ -591,8 +511,20 @@ def build_data_pages(schema, numbers=None, listed=None):
 # "::: name args" ... ":::", and the plain-text markers above.
 
 # Track pages a [text](track:NN) link may point at from the page being rendered:
-# {number: slug}, set by render() with the same rule as previous and next.
+# {number: href}, set by render() with the same rule as previous and next.
 TRACK_LINKS = {}
+
+
+def page_folder(meta):
+    return "lately" if meta.get("register") == "data" else "tracks"
+
+
+def href_to(frm, to):
+    """The relative link from one built page to another: both sit two levels deep, in
+    tracks/<slug>/ or lately/<feed>/."""
+    if page_folder(frm) == page_folder(to):
+        return f"../{to['slug']}/"
+    return f"../../{page_folder(to)}/{to['slug']}/"
 
 
 def inline(s):
@@ -605,8 +537,8 @@ def inline(s):
         if track:
             # Another track's page: a link only when that page is linkable from this one,
             # otherwise the text alone.
-            slug = TRACK_LINKS.get(track.group(1).zfill(2))
-            out.append(f'<a href="../{slug}/">{inline_text(m.group(1))}</a>' if slug else inline_text(m.group(1)))
+            href = TRACK_LINKS.get(track.group(1).zfill(2))
+            out.append(f'<a href="{href}">{inline_text(m.group(1))}</a>' if href else inline_text(m.group(1)))
             continue
         if not re.match(r"(https://|mailto:|#|\.\./)", url):
             raise ContentError(f"link {url!r} must be https://, mailto:, #anchor or relative")
@@ -1313,7 +1245,8 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     home = "../../"
     album = meta["register"] == "album"
     progress = meta["register"] == "progress"
-    stamped = album or progress  # reading-time stamps and the clock
+    data = meta["register"] == "data"  # a Lately page: its statistics are drawn in the browser
+    stamped = album or progress or data  # reading-time stamps and the clock (data: filled in the browser)
     num = meta["track"]
     by_no = {t[0]: t for t in tracklist}
     if num not in by_no:
@@ -1323,14 +1256,19 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     side_short = side_label.split(",")[0]
 
     # Links to other track pages follow the previous/next rule below: a ready page links
-    # only ready pages; a draft, in a --drafts build, links any page built with it.
+    # only ready pages, so it builds the same with or without --drafts; a draft, in a
+    # --drafts build, links any page built with it.
+    def linkable_page(m):
+        return m["ready"] or not meta["ready"]
     TRACK_LINKS.clear()
-    TRACK_LINKS.update({n: m["slug"] for n, m in pages_here.items() if m["ready"] or not meta["ready"]})
+    TRACK_LINKS.update({n: href_to(meta, m) for n, m in pages_here.items() if linkable_page(m)})
 
     # sections, their reading time, and the blocks the play control pauses at
     sections, t = [], 0.0
-    for s in meta["sections"]:
-        if progress and s["title"] == "log":
+    for s in (data_sections(meta) if data else meta["sections"]):
+        if data:
+            blocks = s["blocks"]  # slots the browser fills; their reading time is measured there
+        elif progress and s["title"] == "log":
             blocks = page.log(s["lines"])
         else:
             blocks = page.blocks(s["lines"], first=s is meta["sections"][0] and not progress)
@@ -1349,11 +1287,12 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 
     seg_html, sec_html = [], []
     for k, s in enumerate(sections):
-        stamp = f'<span class="tp-seg-time">{clock(s["start"])}</span>' if stamped else ""
+        # Data pages: the times are measured in the browser once the statistics are drawn.
+        stamp = f'<span class="tp-seg-time">{"" if data else clock(s["start"])}</span>' if stamped else ""
         grow = max(1, round(s["secs"] / 20))
         seg_html.append(f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" data-secs="{s["secs"]:.1f}">'
                         f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(s["title"].lower())}</span></a>')
-        label = (f"{clock(s['start'])} · " if stamped else "") + esc(s["title"].lower())
+        label = ('<span class="tp-label-time"></span>' if data else f"{clock(s['start'])} · " if stamped else "") + esc(s["title"].lower())
         if progress and s["title"] == "where it stands":
             iso, shown = meta["as_of_date"]
             label += f' <span class="tp-asof">as of <time datetime="{iso}">{shown}</time></span>'
@@ -1371,36 +1310,46 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
         if cur or not parts:
             parts.append(f'<div class="tp-section-body{" tp-section-body--after" if parts else ""}">{"".join(cur)}</div>')
         body = "".join(parts)
-        sec_html.append(f'<section class="tp-section{" tp-section--first" if k == 0 else ""}" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
+        cls = f'tp-section{" tp-section--first" if k == 0 else ""}' + (f' ld-section ld-section--{s["group"]}' if data and s.get("group") else "")
+        how = (f' data-how="{esc(s["how"][0])}"' + (" data-how-open" if s["how"][1] else "")) if data and s.get("how") else ""
+        sec_html.append(f'<section class="{cls}" id="{s["id"]}"{how} aria-labelledby="{s["id"]}-h">'
                         f'<h2 class="tp-section-label" id="{s["id"]}-h">{label}</h2>'
                         f'{body}</section>')
 
     # previous and next among pages in this build. Ready pages only ever link ready
     # pages, so they come out the same with or without --drafts.
-    linkable = [t for t in tracklist if t[0] in pages_here and (pages_here[t[0]]["ready"] or not meta["ready"])]
+    linkable = [t for t in tracklist if t[0] in pages_here and linkable_page(pages_here[t[0]])]
     order = [t[0] for t in linkable]
     pos = order.index(num)
     nav = []
     if pos > 0:
         p = by_no[order[pos - 1]]
-        nav.append(f'<a class="tp-prev" href="../{pages_here[p[0]]["slug"]}/"><span class="tp-other-label">← previous · {p[0]}</span>'
+        nav.append(f'<a class="tp-prev" href="{href_to(meta, pages_here[p[0]])}"><span class="tp-other-label">← previous · {p[0]}</span>'
                    f'<span class="tp-other-title">{esc(p[1])}</span></a>')
-    if pos < len(order) - 1:
+    if pos < len(order) - 1:  # the last page (26, lifting) has no next
         n = by_no[order[pos + 1]]
-        nav.append(f'<a class="tp-next" href="../{pages_here[n[0]]["slug"]}/" data-stop><span class="tp-other-label">next · {n[0]} →</span>'
+        nav.append(f'<a class="tp-next" href="{href_to(meta, pages_here[n[0]])}" data-stop><span class="tp-other-label">next · {n[0]} →</span>'
                    f'<span class="tp-other-title">{esc(n[1])}</span></a>')
-    else:
-        nav.append(f'<a class="tp-next" href="{home}#{side_id}" data-stop><span class="tp-other-label">back to the tracklist →</span>'
-                   f'<span class="tp-other-title">All tracks</span></a>')
 
-    title = meta["title"]
+    title = by_no[num][1] if data else meta["title"]  # a Lately page is titled as its panel is ("Fantasy football")
     if progress:
         # one_line: is optional in this register; without it the question's opening paragraph describes the page.
         first = next((l for l in meta["sections"][0]["lines"] if l.strip()), "")
         desc = meta.get("description") or meta.get("one_line") or re.sub(r"<[^>]+>", "", html.unescape(inline(first.strip())))
+    elif data:
+        desc = meta.get("one_line") or f"{title}: statistics from my {meta['feed']} data, drawn from the same nightly file as the Lately section."
     else:
         desc = meta.get("description") or meta["one_line"]
-    if progress:
+    if data:
+        # The one-line description, whose numbers these are, then the headline row and the
+        # notes the script shows when the data is missing.
+        apps = " and ".join(esc(n) for n, _ in meta["sources"])
+        own = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
+        lede = (f'<p class="tp-lede">{inline(meta["one_line"])}</p>\n' if meta.get("one_line") else "") + f'<p class="ld-own">{own}</p>\n'
+        lede += (f'<div class="ld-headline" data-feed="{meta["feed"]}" aria-label="Headline numbers"></div>\n'
+                 '<noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>\n'
+                 '<p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>')
+    elif progress:
         # A progress page's hero: its one_line (when given), then who it's with, then the link.
         lede = (f'<p class="tp-lede">{inline(meta["one_line"])}</p>\n' if meta.get("one_line") else "")
         lede += f'<p class="tp-with">{inline(meta["with"])}</p>'
@@ -1411,13 +1360,18 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     # A two-part story: this page's part, and a link to the other part under the same
     # rule as previous and next (a ready page links it only once it is ready too).
     part = ""
-    if meta.get("part_label"):
+    if data:
+        # The Lately pages' own nav, in the part line's slot.
+        current = ' aria-current="page"'
+        others = " · ".join(f'<a href="../{f}/"{current if f == meta["feed"] else ""}>{f}</a>' for f in DATA_FEEDS)
+        part = f'<nav class="tp-part ld-feeds" aria-label="Lately pages">{others}</nav>\n'
+    elif meta.get("part_label"):
         part = esc(meta["part_label"])
         other = pages_here.get(meta["part_other"])
         if other and meta["part_other"] in TRACK_LINKS:
-            part += (f' · <a href="../{other["slug"]}/">{esc(other.get("part_label") or other["title"])} →</a>')
+            part += (f' · <a href="{TRACK_LINKS[meta["part_other"]]}">{esc(other.get("part_label") or other["title"])} →</a>')
         part = f'<p class="tp-part">{part}</p>\n'
-    url = f"{SITE}tracks/{meta['slug']}/"
+    url = f"{SITE}{page_folder(meta)}/{meta['slug']}/"
     own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
     if own_og:
         page.copies.append((meta["assets"] / "og.png", "og.png"))
@@ -1427,6 +1381,10 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     badge = meta.get("badge") or meta.get("status_label")
     scripts = "".join(f'\n<script src="{esc(s)}" defer></script>' for s in page.scripts)
     scripts += "".join(f'\n<link rel="stylesheet" href="{esc(s)}">' for s in page.styles)
+    if data:
+        scripts += '\n<script src="../../js/lately-depth.js" defer></script>\n<script src="../../js/lately.js" defer></script>'
+    body_attrs = f' data-feed="{meta["feed"]}" data-root="{home}"' if data else ""
+    body_class = f"tp-body tp-body--{meta['register']}" + (" ld-body" if data else "")
 
     doc = f"""<!doctype html>
 <html lang="en">
@@ -1460,7 +1418,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 <link rel="stylesheet" href="../../css/track.css">
 <script src="../../js/track.js" defer></script>{scripts}
 </head>
-<body class="tp-body tp-body--{meta['register']}">
+<body class="{body_class}"{body_attrs}>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="wrap">
 <div class="page tp-page">
@@ -1468,7 +1426,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 <a class="site-name tp-home" href="{home}">colin nguyen</a>
 <a class="tp-back" href="{home}#{side_id}">← back to the tracklist</a>
 </header>
-<main id="main" class="tp-main" data-total="{total:.1f}">
+<main id="main" class="tp-main" data-total="{total:.1f}"{" data-live-timing" if data else ""}>
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
 <p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}</p>
 <div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
@@ -1478,7 +1436,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 <div class="tp-controls" hidden>
 <span class="tp-controls-main">
 <button type="button" class="tp-play" aria-describedby="tp-play-help"><span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
-{f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / {clock(total)}</span>' if stamped else ''}
+{f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">{clock(total)}</span></span>' if stamped else ''}
 <button type="button" class="tp-speed" aria-label="Playback speed, 1×">speed 1×</button>
 </span>
 {f'<span class="tp-badge">status: {esc(badge)}</span>' if badge else ''}
@@ -1501,6 +1459,45 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 </html>
 """
     return doc, page.copies
+
+
+def data_sections(meta):
+    """A data page's sections as render() takes them: one per ## entry under What's happening
+    then Why, each a list of (html, words, kind) blocks the browser fills, then a "built with"
+    section (data, attribution, made with, as of) in the track pages' grid."""
+    out = []
+    for s in meta["sections"]:
+        notes = "".join(f'<span class="ld-alias" id="{a}" data-to="{s["id"]}"></span>' for a in s["aliases"])
+        notes += f'<p class="ld-section-source">{esc(s["source"])}</p>' if s["source"] else ""
+        notes += "".join(f'<p class="ld-section-note">{inline(n)}</p>' for n in s["notes"])
+        blocks = [(notes, sum(words(n) for n in s["notes"]), "text")] if notes else []
+        for kind, arg in s["slots"]:
+            blocks.append((f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
+                           else f'<div class="ld-feed" data-block="{esc(arg)}"></div>', 0, "text"))
+        out.append(dict(s, blocks=blocks))
+    out.append({"title": "built with", "id": "built-with", "group": None, "how": None, "blocks": [(data_built_with(meta), 0, "text")]})
+    return out
+
+
+def data_built_with(meta):
+    """The Lately page's "built with" rows: the feed's sources (linked), the licence lines the
+    page needs (filled in the browser while the data calls for them), the pipeline, and the
+    data's as-of date (from the file, in the browser)."""
+    credit = " and ".join(f'<a href="{esc(u)}"{new_tab(u)}>{esc(n)}</a>' for n, u in meta["sources"])
+    if meta.get("source_note"):
+        credit += f' · <span class="ld-source-note">{esc(meta["source_note"])}</span>'
+    rows = [f'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd>{credit}</dd></div>']
+    when = ""
+    if meta.get("attribution_when"):
+        src, text, link = meta["attribution_when"]
+        when += f'<p class="ld-attribution" data-when-source="{esc(src)}" hidden><a href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>'
+    if meta.get("attributions_when"):
+        when += f'<p class="ld-attributions" data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
+    if when:
+        rows.append(f'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd>{when}</dd></div>')
+    rows.append('<div class="tp-built-row"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>')
+    rows.append('<div class="tp-built-row ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div>')
+    return f'<dl class="tp-built">{"".join(rows)}</dl>'
 
 
 def write_pages(out_root, metas, tracklist, pages_here, drafts_build, listed):
@@ -1567,16 +1564,19 @@ def main():
 
     ready = sorted((m for m in metas if m["ready"]), key=lambda m: m["track"])
     building = [m for m in metas if m["ready"] or args.drafts]
+    schema = json.loads((ROOT / SCHEMA_PATH).read_text(encoding="utf-8"))
+    data_pages = read_data_pages(schema, index_html)  # tracks 22 to 26, always ready
+    by_track = {m["track"]: m for m in data_pages}
 
     # The site itself only ever holds ready pages, with or without --drafts.
     out_root = ROOT / "tracks"
-    write_pages(out_root, ready, tracklist, {m["track"]: m for m in ready}, False, listed)
+    write_pages(out_root, ready, tracklist, dict(by_track, **{m["track"]: m for m in ready}), False, listed)
     (out_root / ".gitignore").write_text(
         "# Written by build.py. Only pages marked ready may be committed; drafts stay local.\n*\n!.gitignore\n"
         + "".join(f"!/{m['slug']}/\n" for m in ready) + f"{OUT_MARK}\n", encoding="utf-8")
 
-    schema = json.loads((ROOT / SCHEMA_PATH).read_text(encoding="utf-8"))
-    data_pages = build_data_pages(schema, lately_numbers(index_html), listed)
+    write_pages(ROOT / "lately", data_pages, tracklist, dict(by_track, **{m["track"]: m for m in ready}), False, listed)
+    (ROOT / "lately" / ".gitignore").write_text(f"# Written by build.py.\n{OUT_MARK}\n", encoding="utf-8")
 
     urls = [SITE] + [f"{SITE}lately/{m['feed']}/" for m in data_pages] + [f"{SITE}tracks/{m['slug']}/" for m in ready]
     (ROOT / "sitemap.xml").write_text(
@@ -1600,7 +1600,9 @@ def main():
         shutil.copytree(ROOT, preview, ignore=lambda d, names: [
             n for n in names if (Path(d) == ROOT and n in PREVIEW_SKIP) or n in (".DS_Store", "__pycache__")])
         (preview / OUT_MARK).write_text("")
-        write_pages(preview / "tracks", building, tracklist, {m["track"]: m for m in building}, True, listed)
+        here = dict(by_track, **{m["track"]: m for m in building})
+        write_pages(preview / "tracks", building, tracklist, here, True, listed)
+        write_pages(preview / "lately", data_pages, tracklist, here, True, listed)
         (preview / "index.html").write_text(link_rows(new_index, {m["track"]: m["slug"] for m in building}), encoding="utf-8")
 
     print(f"built {len(data_pages)} lately page(s): " + ", ".join(m["feed"] for m in data_pages))

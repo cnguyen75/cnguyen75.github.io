@@ -2386,6 +2386,7 @@
       Array.prototype.forEach.call(slots, function (s) { s.hidden = true; });
       Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
       hideEmpty();
+      retime();
       return;
     }
     var asof = document.querySelector(".ld-asof-date");
@@ -2415,22 +2416,26 @@
     Array.prototype.forEach.call(document.querySelectorAll(".ld-attribution[data-when-source]"), function (p) {
       p.hidden = included.indexOf(p.getAttribute("data-when-source")) < 0;
     });
+    attributionRow();
+    retime();
   }
 
-  // A section whose every slot is hidden is hidden, with its contents entry; a group with
-  // no open section is hidden too.
+  // The "built with" attribution row shows while one of its licence lines does.
+  function attributionRow() {
+    Array.prototype.forEach.call(document.querySelectorAll(".tp-built-row--when"), function (row) {
+      row.hidden = !Array.prototype.some.call(row.querySelectorAll(".ld-attribution, .ld-attributions"), function (p) { return !p.hidden; });
+    });
+  }
+  // The reading bar (js/track.js) measures the sections once they are drawn.
+  function retime() {
+    try { document.dispatchEvent(new CustomEvent("tp:retime")); } catch (e) { /* no CustomEvent: the bar keeps its first measure */ }
+  }
+
+  // A section whose every slot is hidden is hidden; the reading bar drops its segment when
+  // it measures the page again (js/track.js).
   function hideEmpty() {
     Array.prototype.forEach.call(document.querySelectorAll(".ld-section"), function (sec) {
-      var open = Array.prototype.some.call(sec.querySelectorAll(".ld-stat, .ld-feed"), function (x) { return !x.hidden; });
-      sec.hidden = !open;
-      var link = document.querySelector('.ld-toc a[href="#' + sec.id + '"]');
-      if (link) link.parentNode.hidden = !open;
-    });
-    Array.prototype.forEach.call(document.querySelectorAll(".ld-group"), function (g) {
-      var open = Array.prototype.some.call(g.querySelectorAll(".ld-section"), function (s) { return !s.hidden; });
-      g.hidden = !open;
-      var entry = document.querySelector('.ld-toc-group[data-group="' + g.id + '"]');
-      if (entry) entry.hidden = !open;
+      sec.hidden = !Array.prototype.some.call(sec.querySelectorAll(".ld-stat, .ld-feed"), function (x) { return !x.hidden; });
     });
   }
 

@@ -28,17 +28,65 @@
   var status = document.querySelector(".tp-status");
   var speedBtn = document.querySelector(".tp-speed");
   var clockNow = document.querySelector(".tp-clock-now");
+  var clockTotal = document.querySelector(".tp-clock-total");
+  var live = main.hasAttribute("data-live-timing"); // a Lately page: the sections are drawn in the browser
   if (!sections.length || !segs.length) return;
 
   // ---------- timeline ----------
 
+  var WPM = 230, FIGURE_SECS = 6; // as build.py counts them
   var starts = [], durs = [], total = 0;
-  sections.forEach(function (s, i) {
-    starts.push(total);
-    var d = parseFloat(segs[i] && segs[i].getAttribute("data-secs")) || 0;
-    durs.push(d);
-    total += d;
-  });
+  function timeline() {
+    starts = []; durs = []; total = 0;
+    sections.forEach(function (s, i) {
+      starts.push(total);
+      var d = s.hidden ? 0 : parseFloat(segs[i] && segs[i].getAttribute("data-secs")) || 0;
+      durs.push(d);
+      total += d;
+    });
+  }
+  function clockText(s) {
+    s = Math.round(s / 10) * 10;
+    return Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
+  }
+  // Live timing: each block's reading time from the words it holds (plus a figure's time per
+  // chart or table), written onto the blocks and segments as build.py would have, then the
+  // stamps, the clock and the segment widths. Hidden sections (nothing to draw) leave the bar.
+  function retime() {
+    if (!live) return;
+    sections.forEach(function (s, i) {
+      var blocks = [].slice.call(s.querySelectorAll(".tp-section-body > *, .tp-section-wide > *"));
+      var secs = 0;
+      blocks.forEach(function (b) {
+        var w = (b.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length;
+        var charts = b.querySelectorAll(".ld-chart, .chart-block, table, .meter, .ld-records").length;
+        var d = w / WPM * 60 + charts * FIGURE_SECS;
+        b.setAttribute("data-secs", d.toFixed(2));
+        if (charts) b.setAttribute("data-pause", ""); else b.removeAttribute("data-pause");
+        secs += d;
+      });
+      if (segs[i]) {
+        segs[i].setAttribute("data-secs", secs.toFixed(1));
+        segs[i].style.flexGrow = String(Math.max(1, Math.round(secs / 20)));
+        segs[i].hidden = s.hidden;
+      }
+    });
+    timeline();
+    sections.forEach(function (s, i) {
+      var stamp = segs[i] && segs[i].querySelector(".tp-seg-time");
+      if (stamp) stamp.textContent = clockText(starts[i]);
+      var label = s.querySelector(".tp-label-time");
+      if (label) label.textContent = clockText(starts[i]) + " · ";
+    });
+    if (clockTotal) clockTotal.textContent = clockText(total);
+    if (mini) {
+      [].forEach.call(mini.bar.querySelectorAll(".tp-mini-tick"), function (t) { t.parentNode.removeChild(t); });
+      ticks(mini.bar.querySelector(".tp-mini-track"));
+    }
+    buildKeys();
+    if (!playing) show(tAt(window.pageYOffset));
+  }
+  timeline();
 
   var keys = [];      // [{t, y}] with t and y never decreasing
   var offset = 72;    // the reading line: how far below the top of the window the text being read sits
@@ -52,6 +100,7 @@
     var end = Math.min(maxScroll(), Math.max(0, docTop(stopEl) + stopEl.offsetHeight - window.innerHeight + 32));
     keys = [{ t: -GLIDE, y: 0 }];
     sections.forEach(function (s, i) {
+      if (s.hidden) return;
       var t = starts[i];
       var blocks = [].slice.call(s.querySelectorAll(".tp-section-body > *, .tp-section-wide > *"));
       var secs = blocks.map(function (b) { return parseFloat(b.getAttribute("data-secs")) || 0; });
@@ -101,19 +150,20 @@
   function show(t) {
     // The current section is the one under the reading line.
     var line = window.pageYOffset + offset + 4;
-    var idx = 0;
-    sections.forEach(function (s, i) { if (docTop(s) <= line) idx = i; });
-    if (window.pageYOffset >= maxScroll() - 2) idx = sections.length - 1;
+    var idx = -1, last = -1;
+    sections.forEach(function (s, i) { if (s.hidden) return; last = i; if (docTop(s) <= line) idx = i; });
+    if (idx < 0) idx = sections.findIndex ? Math.max(0, sections.findIndex(function (s) { return !s.hidden; })) : 0;
+    if (window.pageYOffset >= maxScroll() - 2 && last >= 0) idx = last;
     segs.forEach(function (a, i) {
-      var f = t >= starts[i] + durs[i] ? 1 : t <= starts[i] ? 0 : (t - starts[i]) / durs[i];
+      var f = durs[i] <= 0 ? (t >= starts[i] ? 1 : 0) : t >= starts[i] + durs[i] ? 1 : t <= starts[i] ? 0 : (t - starts[i]) / durs[i];
       a.style.setProperty("--fill", f);
       a.classList.toggle("is-current", i === idx);
       if (i === idx) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
     });
     if (clockNow) clockNow.textContent = clock(t);
     if (mini) {
-      mini.fill.style.width = (Math.max(0, Math.min(1, t / total)) * 100) + "%";
-      if (idx !== current) mini.name.textContent = segs[idx].querySelector(".tp-seg-name").textContent;
+      mini.fill.style.width = (total > 0 ? Math.max(0, Math.min(1, t / total)) * 100 : 0) + "%";
+      if (idx !== current && segs[idx]) mini.name.textContent = segs[idx].querySelector(".tp-seg-name").textContent;
     }
     current = idx;
   }
@@ -134,12 +184,7 @@
     var fill = document.createElement("span");
     fill.className = "tp-mini-fill";
     track.appendChild(fill);
-    starts.slice(1).forEach(function (s) {
-      var tick = document.createElement("span");
-      tick.className = "tp-mini-tick";
-      tick.style.left = (s / total) * 100 + "%";
-      track.appendChild(tick);
-    });
+    ticks(track);
     var label = document.createElement("span");
     label.className = "sr-only";
     label.textContent = "Now reading: ";
@@ -157,6 +202,17 @@
       }).observe(player);
     }
     return { bar: bar, name: name, fill: fill };
+  }
+
+  function ticks(track) {
+    if (!(total > 0)) return;
+    starts.slice(1).forEach(function (s, i) {
+      if (!(durs[i + 1] > 0)) return;
+      var tick = document.createElement("span");
+      tick.className = "tp-mini-tick";
+      tick.style.left = (s / total) * 100 + "%";
+      track.appendChild(tick);
+    });
   }
 
   var buttons = [];
@@ -219,13 +275,15 @@
   // Reduced motion: jump to the next section after the current one's reading time.
   function step() {
     var i = 0;
-    starts.forEach(function (s, k) { if (t >= s - 0.01) i = k; });
+    starts.forEach(function (s, k) { if (t >= s - 0.01 && !sections[k].hidden) i = k; });
     var wait = Math.max(0.5, starts[i] + durs[i] - Math.max(t, starts[i])) / speed;
     timer = setTimeout(function () {
       if (!playing) return;
-      if (i + 1 >= sections.length) { t = total; scrollToY(yAt(total)); show(t); return finish(); }
-      t = starts[i + 1];
-      scrollToY(docTop(sections[i + 1]) - offset);
+      var next = i + 1;
+      while (next < sections.length && sections[next].hidden) next++;
+      if (next >= sections.length) { t = total; scrollToY(yAt(total)); show(t); return finish(); }
+      t = starts[next];
+      scrollToY(docTop(sections[next]) - offset);
       show(t);
       step();
     }, wait * 1000);
@@ -351,9 +409,17 @@
   playButton(false);
   mini = makeMini();
   setButtons();
-  function ready() { buildKeys(); show(tAt(window.pageYOffset)); }
+  function ready() { if (live) retime(); else { buildKeys(); show(tAt(window.pageYOffset)); } }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ready); else ready();
   window.addEventListener("load", ready);
   ready();
+  // A Lately page's sections fill in later and change on a tab switch or "show all": the
+  // script that draws them asks for new times, and so does any control that changes a section.
+  if (live) {
+    document.addEventListener("tp:retime", function () { requestAnimationFrame(retime); });
+    document.addEventListener("click", function (e) {
+      if (e.target && e.target.closest && e.target.closest(".tier-tab, .rows-more, .tier-more, .ld-how summary, .table-toggle")) requestAnimationFrame(retime);
+    });
+  }
 
 })();

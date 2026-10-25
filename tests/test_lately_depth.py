@@ -54,41 +54,62 @@ class Register(unittest.TestCase):
         path.write_text(text, encoding="utf-8")
         return build.read_data_page(path, SCHEMA)
 
-    # A page is a frame: headline row, the source with its as_of slot, one section per
-    # STAT: line with a slot naming its statistics. No numbers are written into it.
+    # A page is a track page (the template render() writes for every track): kicker, number
+    # and title, the feed nav in the part line's slot, the lede and the headline row, the
+    # reading bar with one segment per section, one section per ## entry (What's happening,
+    # then Why) with a slot naming its statistics, "built with" last, previous and next, and
+    # the foot. No numbers are written into it beyond its track number.
     def test_page_frame(self):
         doc = build.render_data_page(self.read("fantasy", content("fantasy")))
+        self.assertIn('<p class="tp-kicker">side d. lately · track 22 of 26</p>', doc)
+        self.assertIn('<div class="tp-heading"><span class="tp-no" aria-hidden="true">22</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track 22: </span>Fantasy football</h1></div>', doc)
+        self.assertIn('<nav class="tp-part ld-feeds" aria-label="Lately pages"><a href="../fantasy/" aria-current="page">fantasy</a> · <a href="../watching/">watching</a>', doc)
+        self.assertIn('<p class="tp-lede">My fantasy leagues, judged on strength against luck.</p>\n<p class="ld-own">These are my own numbers, from my Sleeper and ESPN accounts.</p>', doc)
         self.assertIn('<div class="ld-headline" data-feed="fantasy"', doc)
-        self.assertIn('data from <a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a>', doc)
-        self.assertIn('as of <time class="ld-asof-date">', doc)
-        self.assertRegex(doc, r'<h3 class="ld-section-title" id="projection-accuracy-h">Are the projections honest\?</h3>'
-                              r'<span class="ld-alias" id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
-                              r'<div class="ld-stat" data-stat="fantasy\.platforms\.\*\.projection_accuracy"></div><div class="ld-stat" data-stat="grading\.win_chance">')
-        self.assertEqual(len(re.findall(r'<section class="ld-section ', doc)), content("fantasy").count("\n## "))
-        # Two groups, in order, each section inside one; the contents list is grouped the same way.
-        self.assertRegex(doc, r'<section class="ld-group ld-group--whats-happening" id="whats-happening".*?<h2 class="ld-group-title" id="whats-happening-h">What&#x27;s happening</h2>'
-                              r'.*</section><section class="ld-group ld-group--why" id="why".*?<h2 class="ld-group-title" id="why-h">Why</h2>')
-        self.assertRegex(doc, r'<li class="ld-toc-group" data-group="whats-happening"><span class="ld-toc-label">What&#x27;s happening</span><ol><li><a href="#my-teams-week-by-week">')
+        self.assertIn('<section class="tp-player" aria-label="Now reading">', doc)
+        self.assertIn('<span class="tp-badge">status: live · updated daily</span>', doc)
+        self.assertIn('<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">', doc)
+        self.assertIn('<main id="main" class="tp-main" data-total="0.0" data-live-timing>', doc)  # the sections are timed in the browser
+        titles = re.findall(r"^## (.+?)(?: \{#.*)?$", content("fantasy"), re.M)
+        self.assertEqual(re.findall(r'<span class="tp-seg-name">([^<]+)</span>', doc), [html.escape(t.lower()) for t in titles] + ["built with"])
+        self.assertRegex(doc, r'<section class="tp-section ld-section ld-section--why" id="projection-accuracy" aria-labelledby="projection-accuracy-h">'
+                              r'<h2 class="tp-section-label" id="projection-accuracy-h"><span class="tp-label-time"></span>are the projections honest\?</h2>'
+                              r'<div class="tp-section-body"><span data-secs="[\d.]+" class="ld-alias" id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
+                              r'<div data-secs="[\d.]+" class="ld-stat" data-stat="fantasy\.platforms\.\*\.projection_accuracy"></div><div data-secs="[\d.]+" class="ld-stat" data-stat="grading\.win_chance">')
+        self.assertEqual(len(re.findall(r'<section class="tp-section(?: tp-section--first)? ld-section ', doc)), content("fantasy").count("\n## "))
+        # What's happening first, then Why; no contents list and no group headings.
+        ids = re.findall(r'<section class="tp-section(?: tp-section--first)? ld-section ld-section--(whats-happening|why)"', doc)
+        self.assertEqual(ids, sorted(ids, key=["whats-happening", "why"].index))
+        self.assertNotIn("ld-toc", doc)
+        self.assertNotIn("ld-group", doc)
+        self.assertNotIn("ld-hero", doc)
         # An absorbed card's id is an anchor inside the card that holds it now.
-        self.assertIn('<span class="ld-alias" id="strength-of-schedule" data-to="good-or-lucky"></span>', doc)
+        self.assertIn('<span class="ld-alias" id="strength-of-schedule" data-to="good-or-lucky"></span>', doc.replace(' data-secs="0.00"', ""))
         self.assertIn('id="manager-score" data-how="fantasy.manager_score.composite" aria-labelledby', (build.ROOT / "lately/fantasy/index.html").read_text(encoding="utf-8"))
-        # Feed blocks, the conditional credit, and the feed script the blocks need.
-        self.assertIn('<div class="ld-feed" data-block="fantasy.lineup"></div>', doc)
-        self.assertIn('<p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p>', doc)
-        self.assertIn('<script src="../../js/lately.js" defer></script>', doc)
+        # Feed blocks, the scripts the page needs, and "built with" last: data, the conditional
+        # credit, the pipeline, the as-of date the browser fills.
+        self.assertIn('class="ld-feed" data-block="fantasy.lineup"></div>', doc)
+        self.assertIn('<script src="../../js/track.js" defer></script>', doc)
+        self.assertIn('<script src="../../js/lately-depth.js" defer></script>\n<script src="../../js/lately.js" defer></script>', doc)
+        self.assertIn('<body class="tp-body tp-body--data ld-body" data-feed="fantasy" data-root="../../">', doc)
+        self.assertRegex(doc, r'<section class="tp-section" id="built-with" aria-labelledby="built-with-h"><h2 class="tp-section-label" id="built-with-h"><span class="tp-label-time"></span>built with</h2>'
+                              r'<div class="tp-section-body"><dl data-secs="0.00" class="tp-built">'
+                              r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a></dd></div>'
+                              r'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd><p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p></dd></div>'
+                              r'<div class="tp-built-row"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>'
+                              r'<div class="tp-built-row ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div></dl></div></section>')
+        self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', doc)
         doc = build.render_data_page(self.read("watching", content("watching")))
         self.assertIn('data-stat="watching.completion.show watching.completion.film watching.completion.anime"', doc)
-        self.assertIn('<h3 class="ld-section-title" id="completion-h">Do I finish what I start?</h3><p class="ld-section-note">Only finished titles are logged as a rule', doc)
-        self.assertIn('<div class="ld-feed" data-block="watching.tiers"></div>', doc)
+        self.assertRegex(doc, r'<h2 class="tp-section-label" id="completion-h"><span class="tp-label-time"></span>do i finish what i start\?</h2><div class="tp-section-body"><p data-secs="[\d.]+" class="ld-section-note">Only finished titles are logged as a rule')
+        self.assertIn('class="ld-feed" data-block="watching.tiers"></div>', doc)
         self.assertNotIn('class="ld-attribution"', doc)  # only fantasy carries the conditional Yahoo credit
-        self.assertIn('<p class="ld-attributions" data-when-stats="watching.by_director watching.by_studio', doc)
+        self.assertIn('<dd><p class="ld-attributions" data-when-stats="watching.by_director watching.by_studio', doc)
         for feed in FEEDS:
             doc = build.render_data_page(self.read(feed, content(feed)))
-            visible = html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", doc, flags=re.S)))
-            self.assertNotRegex(visible, r"\d", feed)  # no data in the committed page
-            built = (ROOT / "lately" / feed / "index.html").read_text(encoding="utf-8")
-            built = re.sub(r"track \d\d of \d\d|<span class=\"ld-no\"[^>]*>\d\d</span>|Track \d\d: ", "", built)  # the track number is the only figure
-            self.assertNotRegex(html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", built, flags=re.S))), r"\d", feed)
+            for d in (doc, (ROOT / "lately" / feed / "index.html").read_text(encoding="utf-8")):
+                d = re.sub(r"track \d\d of \d\d|<span class=\"tp-no\"[^>]*>\d\d</span>|Track \d\d: |(?:previous|next) · \d\d|\d:\d\d|speed 1×", "", d)  # track numbers, the empty clock and the speed control are the only figures
+                self.assertNotRegex(html.unescape(re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", d, flags=re.S))), r"\d", feed)  # no data in the committed page
 
     # Kept cards keep their ids; a removed card's id is an alias inside the card that absorbed it.
     def test_deep_links_unchanged(self):
@@ -110,12 +131,12 @@ class Register(unittest.TestCase):
                    "lifting": {"workouts-by-weekday": "training", "strength-kept-per-pound-lost": "strength-for-body-weight"}}
         for feed, ids in kept.items():
             doc = build.render_data_page(self.read(feed, content(feed)))
-            found = re.findall(r'<section class="ld-section ld-section--(?:whats-happening|why)" id="([a-z0-9-]+)"', doc)
+            found = re.findall(r'<section class="tp-section(?: tp-section--first)? ld-section ld-section--(?:whats-happening|why)" id="([a-z0-9-]+)"', doc)
             self.assertEqual(found, ids, feed)  # the kept cards, in order, and nothing else
             for old, new in aliases.get(feed, {}).items():
                 with self.subTest(feed=feed, alias=old):
-                    self.assertIn(f'<span class="ld-alias" id="{old}" data-to="{new}"></span>', doc)
-            self.assertEqual(len(re.findall(r'<li><a href="#', doc)), len(ids))  # the index lists the kept cards only
+                    self.assertIn(f'class="ld-alias" id="{old}" data-to="{new}"></span>', doc)
+            self.assertEqual(re.findall(r'<a class="tp-seg" href="#([a-z0-9-]+)"', doc), ids + ["built-with"])  # the reading bar lists the kept cards, then built with
 
     # Watching, listening, eating and lifting must credit Simkl, Last.fm, Beli and Hevy, by link.
     def test_required_attribution(self):
@@ -164,6 +185,7 @@ class Register(unittest.TestCase):
         meta = self.read("lifting", head + "## A\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: lifting.progress.* open\n" + why)
         self.assertEqual(meta["sections"][0]["how"], ("lifting.progress.*", True))
         self.assertIn('id="a" data-how="lifting.progress.*" data-how-open aria-labelledby="a-h"', build.render_data_page(meta))
+        self.assertIn('<section class="tp-section ld-section ld-section--why" id="z"', build.render_data_page(meta))
         self.assertEqual(meta["sections"][1]["group"], "why")
         bad = head.replace("source: Hevy | https://www.hevyapp.com", "source: Hevy | https://www.hevyapp.com\nattribution_when: yahoo | text")
         with self.assertRaisesRegex(build.ContentError, "attribution_when must be"):
@@ -441,7 +463,7 @@ class Drawing(unittest.TestCase):
                 else:
                     self.assertFalse(s["hidden"])
         self.assertIn("genres-by-month", young["hiddenSections"])
-        self.assertEqual(sorted(young["hiddenToc"]), sorted("#" + i for i in young["hiddenSections"]))
+        self.assertEqual(sorted(seg[0] for seg in young["segs"] if seg[2]), sorted("#" + i for i in young["hiddenSections"]))  # hidden sections leave the reading bar
         self.assertEqual(young["headline"], [])
         listening = next(p for p in draw("index.html", name="young archive")["panels"] if p["id"] == "panel-listening")
         self.assertFalse([h for h in listening["headline"] if h[1] == "–"])
@@ -513,8 +535,12 @@ class Drawing(unittest.TestCase):
         for feed, apps in want.items():
             d = draw(f"lately/{feed}/")
             one_line = build.read_data_page(ROOT / "content/lately" / f"{feed}.md", schema)["one_line"]
-            self.assertEqual((d["kicker"], d["no"], d["lede"], d["own"]), (f"side d. lately · track {numbers[feed]} of 26 · in depth", numbers[feed], one_line,
+            self.assertEqual((d["kicker"], d["no"], d["lede"], d["own"]), (f"side d. lately · track {numbers[feed]} of 26", numbers[feed], one_line,
                                                                           f"These are my own numbers, from my {apps}."))
+            self.assertEqual(d["title"], f"Track {numbers[feed]}: " + {"fantasy": "Fantasy football", "watching": "Watching", "listening": "Listening", "eating": "Eating", "lifting": "Lifting"}[feed])
+            self.assertEqual(d["badge"], "status: live · updated daily")
+            self.assertEqual([f for f, _ in d["feedsNav"]], list(FEEDS))
+            self.assertEqual([f for f, cur in d["feedsNav"] if cur == "page"], [feed])
             self.assertEqual((panels[f"panel-{feed}"]["no"], panels[f"panel-{feed}"]["desc"]), (numbers[feed], one_line))
         self.assertIn("track 09 of 26", (ROOT / "tracks/receptivity-evaluation/index.html").read_text(encoding="utf-8"))
 
@@ -620,12 +646,15 @@ class Drawing(unittest.TestCase):
         for feed in FEEDS:
             with self.subTest(feed=feed):
                 d = draw(f"lately/{feed}/")
-                self.assertTrue(d["source"].startswith("data from "))
-                self.assertIn("as of 13 Oct 2026", d["source"])
+                self.assertEqual(d["asof"], "13 Oct 2026")
                 self.assertIn(names[feed], [a for a, _ in d["sourceLinks"]])
                 self.assertTrue(all(u.startswith("https://") for _, u in d["sourceLinks"]))
                 note = "Beli dates are used only as counts, never tied to a place"
                 (self.assertIn if feed == "eating" else self.assertNotIn)(note, d["source"])
+                # The rows of "built with": data, the licence lines while the data calls for them, the pipeline, as of.
+                rows = [(label, hidden) for label, _, hidden in d["builtRows"]]
+                self.assertEqual([l for l, h in rows if not h], ["data"] + (["attribution"] if feed == "watching" else []) + ["made with", "as of"], feed)
+                self.assertEqual(next(v for l, v, _ in d["builtRows"] if l == "made with"), "a nightly pipeline I wrote; the pipeline is private")
                 self.assertEqual(d["errors"], [])
 
     # Wins and losses (the lineup grid) by filled and outlined marks with their letter, never colour alone.
@@ -678,7 +707,7 @@ class Drawing(unittest.TestCase):
     # The win-chance calibration (Brier score from twenty predictions) sits inside "Are the
     # projections honest?", "not enough data yet" before that.
     def test_grading(self):
-        sec = next(s for s in draw("lately/fantasy/")["sections"] if s["title"] == "Are the projections honest?")
+        sec = next(s for s in draw("lately/fantasy/")["sections"] if s["title"] == "are the projections honest?")
         (b,) = slot(draw("lately/fantasy/"), "grading.win_chance")["blocks"]
         self.assertEqual(b["value"], "0.210")
         self.assertIn("Brier score", b["text"])
@@ -705,10 +734,12 @@ class Drawing(unittest.TestCase):
         for feed, q in self.QUESTIONS.items():
             with self.subTest(feed=feed):
                 p = panels[f"panel-{feed}"]
-                self.assertEqual(p["more"], [f"lately/{feed}/", f"more about {feed} →"])
+                # The header is the track card's: number, title, one-line description, the "more →" control.
+                self.assertEqual(p["more"], [f"lately/{feed}/", "more →", f"more about {feed}", "panel-head"])
+                self.assertEqual(sorted(p["headChildren"]), ["ld-more", "track-body", "track-desc", "track-no", "track-title"])
+                self.assertFalse(p["titleLink"])
                 self.assertEqual(p["question"], q)
                 self.assertEqual(p["questionWeight"], "700")
-                self.assertIn("Courier Prime", p["metaFont"])
                 self.assertEqual(len(re.findall(r"[.!?](\s|$)", p["answer"])), 2, p["answer"])
                 self.assertTrue(2 <= len(p["headline"]) <= 3, p["headline"])
                 self.assertFalse([h for h in p["headline"] if h[1] in ("–", "", None)], p["headline"])
@@ -745,7 +776,6 @@ class Drawing(unittest.TestCase):
         # The censoring window comes from the how line (60 days in the fixture, as the pipeline writes it);
         # the source line names the library export beside Last.fm.
         self.assertEqual(li["headline"][0][2], "from first play to 60 days without one")
-        self.assertEqual(li["meta"], "apple music library + last.fm")
         self.assertEqual(next(p for p in draw("index.html", name="no censor days")["panels"] if p["id"] == "panel-listening")["headline"][0][2],
                          "from first play to 60 days without one")
         # The answer leads with the plain reading; the hazard ratio is a tile, not in the sentence.
@@ -826,7 +856,7 @@ class Drawing(unittest.TestCase):
         self.assertIn("whether old music lasts longer has nothing to show yet.", ws["panel-listening"]["answer"])
         # Entropy by week lives on the listening page ("Is my taste narrowing?").
         one = next(s for s in draw("lately/listening/", name="films waiting")["sections"] if s["id"] == "entropy")
-        self.assertEqual(one["title"], "Is my taste narrowing?")
+        self.assertEqual(one["title"], "is my taste narrowing?")
         self.assertIn("by week", one["slots"][0]["blocks"][0]["text"])
         # An old file's feed pages: the new cards say the statistic isn't in the data yet; the rest draws.
         old = draw("lately/lifting/", name="old file")
@@ -948,8 +978,15 @@ class Drawing(unittest.TestCase):
         self.assertEqual(s["value"], "12%")
         self.assertIn("S-tier share by type", s["text"])
         self.assertEqual(len(blocks(d, "watching.community_gap_by_genre")), 1)  # inside the crowd card
-        self.assertEqual(d["toc"][0]["group"], "whats-happening")
-        self.assertEqual(d["toc"][1]["links"][0][:2], ["#taste-profile", "What does my taste look like?"])
+        # The reading bar's segments are the contents list: one per section, in order, plus "built with".
+        self.assertEqual([s[0] for s in d["segs"]], ["#" + i for i in groups["whats-happening"]["sections"] + groups["why"]["sections"]] + ["#built-with"])
+        self.assertEqual(d["segs"][5][:3], ["#taste-profile", "what does my taste look like?", False])
+        self.assertTrue(all(re.fullmatch(r"\d+:\d\d", s[3]) for s in d["segs"]), d["segs"])  # every segment is timed once the page is drawn
+        self.assertEqual([s["time"] for s in d["sections"]][0], "0:00 ·")
+        self.assertTrue(re.fullmatch(r"\d+:\d\d / \d+:\d\d", d["clock"]), d["clock"])
+        self.assertNotEqual(d["clock"], "0:00 / 0:00")
+        self.assertEqual(d["playText"], "play")
+        self.assertEqual([o[:2] for o in d["other"]], [["tp-prev", "../fantasy/"], ["tp-next", "../listening/"]])
 
     # The film cards on the watching page: the crowd plot, the tier bars and tables, the credits
     # in the footer; and their waiting, absent and not-available states.
@@ -1039,7 +1076,7 @@ class Drawing(unittest.TestCase):
         self.assertIn("2023 · 40 additions", dd["text"])
         self.assertIn("per five years of gap between release years", sv["text"])
         self.assertIn("The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.", sv["text"])  # the how line's floor statement, quoted
-        self.assertEqual(next(s for s in l["sections"] if s["id"] == "entropy")["title"], "Is my taste narrowing?")
+        self.assertEqual(next(s for s in l["sections"] if s["id"] == "entropy")["title"], "is my taste narrowing?")
         old = draw("lately/listening/", name="old file")
         for stat in ("listening.artist_survival", "listening.artist_survival_all", "listening.album_listening", "listening.discovery_direction"):
             self.assertEqual(blocks(old, stat)[0]["status"], "not in the data yet", stat)

@@ -18,10 +18,11 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
     const body = fs.readFileSync(fixture, "utf8");
     await page.route("**/data/lately.json*", r => r.fulfill({ status: 200, contentType: "application/json", body }));
     await page.goto(base + "/" + pagePath, { timeout: 90000 });
-    // The main page is drawn once every panel has its link; a feed page once a slot or the missing note is in.
+    // The main page is drawn once every panel has content under its header; a feed page once a slot or the missing note is in.
     await page.waitForFunction(() => document.querySelector(".lately-updating") || (document.getElementById("lately")
-      ? document.querySelectorAll("#lately .panel .ld-more").length >= 5
+      ? [...document.querySelectorAll("#lately .panel")].length >= 5 && [...document.querySelectorAll("#lately .panel")].every(p => p.children.length > 1)
       : document.querySelector(".ld-stat .ld-blocks, .ld-missing:not([hidden]), .ld-feed:not([hidden]) > *")), null, { timeout: 90000 });
+    await page.waitForTimeout(150); // the reading bar re-measures the sections on the next frame
     const facts = await page.evaluate(() => {
       const txt = e => (e ? e.textContent.replace(/\s+/g, " ").trim() : null);
       const de = document.documentElement;
@@ -31,18 +32,22 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         updating: txt(document.querySelector(".lately-updating")),
         shown: [...holder.children].filter(c => c.offsetParent !== null).map(c => c.className || c.tagName),
         title: txt(document.querySelector("h1")),
-        source: txt(document.querySelector(".ld-source")),
-        sourceLinks: [...document.querySelectorAll(".ld-source a")].map(a => [a.textContent, a.href]),
+        // The Lately pages are track pages: the data row of "built with" is the source line.
+        source: txt(document.querySelector(".tp-built-row--data dd")),
+        sourceLinks: [...document.querySelectorAll(".tp-built-row--data a")].map(a => [a.textContent, a.href]),
+        asof: txt(document.querySelector(".ld-asof:not([hidden]) .ld-asof-date")),
+        builtRows: [...document.querySelectorAll(".tp-built-row")].map(r => [txt(r.querySelector("dt")), txt(r.querySelector("dd")), r.hidden]),
         missing: !!document.querySelector(".ld-missing:not([hidden])"),
-        lede: txt(document.querySelector(".ld-lede")),
-        own: txt(document.querySelector(".ld-own")), kicker: txt(document.querySelector(".ld-kicker")), no: txt(document.querySelector(".ld-no")),
+        lede: txt(document.querySelector(".tp-lede")),
+        own: txt(document.querySelector(".ld-own")), kicker: txt(document.querySelector(".tp-kicker")), no: txt(document.querySelector(".tp-no")),
+        badge: txt(document.querySelector(".tp-badge")), clock: txt(document.querySelector(".tp-clock")),
+        player: !!document.querySelector(".tp-player"), playText: txt(document.querySelector(".tp-controls:not([hidden]) .tp-play-text")),
+        feedsNav: [...document.querySelectorAll(".tp-part.ld-feeds a")].map(a => [txt(a), a.getAttribute("aria-current")]),
+        other: [...document.querySelectorAll(".tp-other a")].map(a => [a.className, a.getAttribute("href"), txt(a)]),
+        segs: [...document.querySelectorAll(".tp-seg")].map(a => [a.getAttribute("href"), txt(a.querySelector(".tp-seg-name")), a.hidden, txt(a.querySelector(".tp-seg-time"))]),
         waiting: txt(document.querySelector(".ld-waiting:not([hidden])")),
         hiddenSections: [...document.querySelectorAll(".ld-section[hidden]")].map(sec => sec.id),
-        hiddenToc: [...document.querySelectorAll(".ld-toc li[hidden] a")].map(a => a.getAttribute("href")),
-        toc: [...document.querySelectorAll(".ld-toc-group")].map(g => ({ group: g.dataset.group, hidden: g.hidden,
-          links: [...g.querySelectorAll("a")].map(a => [a.getAttribute("href"), txt(a), a.parentNode.hidden]) })),
-        groups: [...document.querySelectorAll(".ld-group")].map(g => ({ id: g.id, title: txt(g.querySelector(".ld-group-title")), hidden: g.hidden,
-          sections: [...g.querySelectorAll(".ld-section")].map(s => s.id) })),
+        groups: ["whats-happening", "why"].map(id => ({ id, sections: [...document.querySelectorAll(".ld-section--" + id)].map(s => s.id) })),
         feeds: [...document.querySelectorAll(".ld-feed")].map(f => ({ block: f.dataset.block, hidden: f.hidden, text: txt(f),
           charts: f.querySelectorAll(".chart-block, .line-chart, .stack-chart, .heat").length,
           lists: [...f.querySelectorAll(".list-title")].map(txt) })),
@@ -55,7 +60,9 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         links: [...document.querySelectorAll("a[href]")].map(a => [a.getAttribute("href"), a.getAttribute("target"), a.getAttribute("rel")]),
         headline: [...document.querySelectorAll(".ld-headline .stat")].map(s => [txt(s.querySelector(".stat-label")), txt(s.querySelector(".stat-value"))]),
         sections: [...document.querySelectorAll(".ld-section")].map(sec => ({
-          id: sec.id, title: txt(sec.querySelector("h3")), hidden: sec.hidden, group: sec.parentNode.id,
+          id: sec.id, hidden: sec.hidden, group: (sec.className.match(/ld-section--([\w-]+)/) || [])[1],
+          title: [...sec.querySelector(".tp-section-label").childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join("").trim(),
+          time: txt(sec.querySelector(".tp-label-time")),
           notes: [...sec.querySelectorAll(".ld-section-note")].map(txt),
           source: txt(sec.querySelector(".ld-section-source")), sourceFont: sec.querySelector(".ld-section-source") ? getComputedStyle(sec.querySelector(".ld-section-source")).fontFamily : null,
           slots: [...sec.querySelectorAll(".ld-stat")].map(slot => ({
@@ -113,8 +120,8 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         panels: [...document.querySelectorAll("#lately .panel")].map(p => ({
           id: p.id,
           title: txt(p.querySelector(".panel-head h3")), no: txt(p.querySelector(".panel-head .track-no")), desc: txt(p.querySelector(".panel-head .track-desc")),
-          meta: txt(p.querySelector(".panel-meta")),
-          metaFont: p.querySelector(".panel-meta") ? getComputedStyle(p.querySelector(".panel-meta")).fontFamily : null,
+          headChildren: [...p.querySelector(".panel-head").querySelectorAll(":scope > *, :scope > .track-body > *")].map(e => e.className),
+          titleLink: !!p.querySelector(".panel-head h3 a"),
           question: txt(p.querySelector(".panel-question")),
           questionWeight: p.querySelector(".panel-question") ? getComputedStyle(p.querySelector(".panel-question")).fontWeight : null,
           answer: txt(p.querySelector(".panel-answer")),
@@ -145,7 +152,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
           kmMedians: p.querySelectorAll(".km-median-label").length,
           tierTitles: [...p.querySelectorAll(".ld-bars--tier .ld-bar-row[title]")].map(e => e.getAttribute("title")),
           empty: txt(p.querySelector(".panel-empty")),
-          more: p.querySelector(".ld-more") ? [p.querySelector(".ld-more").getAttribute("href"), txt(p.querySelector(".ld-more"))] : null,
+          more: p.querySelector(".ld-more") ? [p.querySelector(".ld-more").getAttribute("href"), txt(p.querySelector(".ld-more")), p.querySelector(".ld-more").getAttribute("aria-label"), p.querySelector(".ld-more").parentNode.className] : null,
           removed: p.querySelectorAll(".teams, .lift, .list, .rankings, .vol-chart, .heat, .stack-chart, .bar-list--wide").length,
         })),
         panelOrder: [...document.querySelectorAll("#lately .panel, #lately .panel-grid")].filter(e => e.parentNode.id === "lately").map(e =>
