@@ -58,6 +58,9 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
           [txt(li.querySelector(".item-name")), txt(li.querySelector(".item-score")), txt(li.querySelector(".item-meta"))]),
         watchingEmpty: txt(document.querySelector('.ld-feed[data-block="watching.hours"] .panel-empty')),
         links: [...document.querySelectorAll("a[href]")].map(a => [a.getAttribute("href"), a.getAttribute("target"), a.getAttribute("rel")]),
+        // The table behind every chart: visually hidden, never display: none, with no toggle.
+        srTables: [...document.querySelectorAll(".data-table.sr-only")].map(t => [getComputedStyle(t).display !== "none", getComputedStyle(t).position, t.querySelectorAll("tbody tr").length]),
+        toggles: document.querySelectorAll(".table-toggle").length,
         headline: [...document.querySelectorAll(".ld-headline .stat")].map(s => [txt(s.querySelector(".stat-label")), txt(s.querySelector(".stat-value"))]),
         sections: [...document.querySelectorAll(".ld-section")].map(sec => ({
           id: sec.id, hidden: sec.hidden, group: (sec.className.match(/ld-section--([\w-]+)/) || [])[1],

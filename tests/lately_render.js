@@ -47,7 +47,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
           few: (l.querySelector(".lift-few") || {}).textContent || null,
           figures: (l.querySelector(".lift-figures") || {}).textContent || null,
           chart: !!l.querySelector(".line-chart"),
-          toggle: !!l.querySelector(".table-toggle"),
+          table: !!l.querySelector(".data-table.sr-only table"), toggle: !!l.querySelector(".table-toggle"),
         })),
       };
     }, [RANKINGS, LIFTS]);

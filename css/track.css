@@ -416,16 +416,6 @@
 .tp-svg .dg-bar { fill: var(--teal); }
 .tp-svg .dg-bar-text { font-family: var(--font-label); font-size: var(--fs-12); font-weight: 700; fill: var(--card); }
 
-.tp-text-alt { font-size: var(--fs-15); color: var(--text-2); }
-.tp-text-alt summary {
-  font-family: var(--font-label);
-  color: var(--text-3);
-  cursor: pointer;
-  padding: var(--s-6) 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.tp-text-alt ol { margin: var(--s-6) 0 0; padding-left: var(--s-22); display: flex; flex-direction: column; gap: var(--s-4); }
 
 /* ---------- Previous and next ---------- */
 

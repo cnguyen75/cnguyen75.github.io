@@ -934,7 +934,8 @@ class Page:
             details = ""
             if desc:
                 lis = "".join(f"<li>{inline(d)}</li>" for d in desc)
-                details = f'<details class="tp-text-alt"><summary>The diagram as text</summary><ol>{lis}</ol></details>'
+                # The text alternative stays in the DOM for screen readers, visually hidden, with no control.
+                details = f'<div class="tp-text-alt sr-only"><p>The diagram as text</p><ol>{lis}</ol></div>'
             return (f'<figure class="tp-figure">{"".join(svgs)}{self.caption(cap)}{details}</figure>', 0, "figure")
 
         if name == "code":

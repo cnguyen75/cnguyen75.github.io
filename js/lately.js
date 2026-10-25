@@ -142,15 +142,14 @@
     });
   }
 
-  // ---------- "view as table" ----------
+  // ---------- the table behind a chart ----------
 
   var uid = 0;
-  // Wires a toggle button to swap `chart` (an element or list of elements)
-  // with a table built from `columns` and `rows`.
-  function tableToggle(caption, columns, rows, chart) {
+  // A chart's numbers as a real table, for screen readers: in the DOM, visually hidden
+  // (.sr-only, never display: none), with no control to reveal it.
+  function tableToggle(caption, columns, rows) {
     var id = "lately-table-" + ++uid;
-    var charts = Array.isArray(chart) ? chart : [chart];
-    var table = h("div", { class: "data-table", id: id, hidden: true },
+    var table = h("div", { class: "data-table sr-only", id: id },
       h("table", null,
         h("caption", { class: "sr-only" }, caption),
         h("thead", null, h("tr", null, columns.map(function (c) {
@@ -163,16 +162,7 @@
               : h("td", { class: columns[i].num ? "num" : null }, cell);
           }));
         }))));
-    append(table, collapse(table, table.querySelectorAll("tbody tr")));
-    var button = h("button", { type: "button", class: "table-toggle", "aria-controls": id, "aria-expanded": "false" }, "view as table");
-    button.addEventListener("click", function () {
-      var showTable = table.hidden;
-      table.hidden = !showTable;
-      charts.forEach(function (c) { c.hidden = showTable; });
-      button.setAttribute("aria-expanded", String(showTable));
-      button.textContent = showTable ? "view as chart" : "view as table";
-    });
-    return { button: button, table: table };
+    return { button: null, table: table };
   }
 
   // A horizontal bar list with a title, as used for players, artists and cuisines.
@@ -324,7 +314,7 @@
     var t = tableToggle("Fantasy teams, week " + week,
       [{ label: "Team" }, { label: "Platform" }, { label: "Record" }, { label: weeksLabel }, { label: "Luck", num: true }, { label: "Win chance", num: true }],
       tableRows, grid);
-    return [fantasyStale(shown), h("div", { class: "chart-block" }, h("div", { class: "chart-head chart-head--end" }, t.button), grid, t.table)];
+    return [fantasyStale(shown), h("div", { class: "chart-block" }, grid, t.table)];
   }
 
   // Who is carrying my teams: points above replacement per game.

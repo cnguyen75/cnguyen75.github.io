@@ -1167,6 +1167,11 @@ class Drawing(unittest.TestCase):
                 with self.subTest(feed=feed, width=w):
                     d = draw("index.html" if feed == "index" else f"lately/{feed}/", w)
                     self.assertLessEqual(d["scrollX"], 0)
+                    # No "view as table" control; the tables stay in the DOM, visually hidden, not display: none.
+                    self.assertEqual(d["toggles"], 0)
+                    self.assertNotIn("view as table", d["bodyText"])
+                    self.assertTrue(d["srTables"], feed)
+                    self.assertTrue(all(shown and pos == "absolute" and rows > 0 for shown, pos, rows in d["srTables"]), d["srTables"])
                     self.assertNotIn("Couldn't draw", d["bodyText"])
                     self.assertNotIn("doesn't draw it yet", d["bodyText"])
                     self.assertEqual(d["errors"], [])

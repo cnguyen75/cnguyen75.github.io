@@ -344,6 +344,11 @@ class Progress(unittest.TestCase):
                               r'<g id="old">old label</g><style>#old \{ display: none; \}</style><text>new label</text></svg>')
         self.assertNotIn("<img", doc.split('id="results"')[1])
         self.assertIn("old label", (assets / "plot.svg").read_text())  # the file itself is untouched
+        # A ::: figure's description: lines are the diagram as text, visually hidden with no control.
+        (assets / "d.svg").write_text('<svg viewBox="0 0 10 5"><title>A diagram</title></svg>')
+        doc = self.render(sections={"results": "::: figure demo-page/f/d.svg\ncaption: a diagram\nalt: A diagram.\ndescription: Box A feeds box B.\ndescription: Box B feeds C.\n:::"})
+        self.assertIn('<div class="tp-text-alt sr-only"><p>The diagram as text</p><ol><li>Box A feeds box B.</li><li>Box B feeds C.</li></ol></div></figure>', doc)
+        self.assertNotIn("<details", doc)
 
     # DEMO: takes one or more data files; the first is data-src, the rest data-more.
     def test_demo_files(self):

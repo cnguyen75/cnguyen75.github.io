@@ -208,8 +208,9 @@ class Drawing(unittest.TestCase):
                 self.assertTrue(first["setUnderBest"])
                 self.assertIsNone(third["bestSet"])
                 self.assertEqual(second["few"], "2 sessions so far")
-                self.assertFalse(second["chart"] or second["toggle"])
-                self.assertTrue(first["chart"] and first["few"] is None)
+                self.assertFalse(second["chart"] or second["table"])
+                self.assertTrue(first["chart"] and first["table"] and first["few"] is None)  # the chart's numbers as a hidden table
+                self.assertFalse(first["toggle"])  # no "view as table" control anywhere
 
     # The lifts are grouped by split (chest and back, shoulders and arms, legs); no hand-entered best is shown.
     def test_lifts_grouped_by_split(self):

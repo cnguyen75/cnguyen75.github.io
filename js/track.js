@@ -58,7 +58,9 @@
       var blocks = [].slice.call(s.querySelectorAll(".tp-section-body > *, .tp-section-wide > *"));
       var secs = 0;
       blocks.forEach(function (b) {
-        var w = (b.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length;
+        var count = function (el) { return (el.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length; };
+        var w = count(b);
+        [].forEach.call(b.querySelectorAll(".sr-only"), function (s) { w -= count(s); }); // the hidden tables are not read
         var charts = b.querySelectorAll(".ld-chart, .chart-block, table, .meter, .ld-records").length;
         var d = w / WPM * 60 + charts * FIGURE_SECS;
         b.setAttribute("data-secs", d.toFixed(2));
@@ -419,7 +421,7 @@
   if (live) {
     document.addEventListener("tp:retime", function () { requestAnimationFrame(retime); });
     document.addEventListener("click", function (e) {
-      if (e.target && e.target.closest && e.target.closest(".tier-tab, .rows-more, .tier-more, .ld-how summary, .table-toggle")) requestAnimationFrame(retime);
+      if (e.target && e.target.closest && e.target.closest(".tier-tab, .rows-more, .tier-more, .ld-how summary, .km-bands-toggle")) requestAnimationFrame(retime);
     });
   }
 

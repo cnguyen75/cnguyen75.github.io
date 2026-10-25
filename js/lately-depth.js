@@ -145,7 +145,7 @@
     });
     return btn;
   }
-  // A chart whose rows collapse: the chart and its button in one box, so "view as table" hides both.
+  // A chart whose rows collapse: the chart and its button in one box.
   function collapsible(chart, rows, opts) {
     var btn = collapseRows(chart, rows, opts);
     return btn ? h("div", { class: "ld-collapsible" }, chart, btn) : chart;
@@ -207,21 +207,13 @@
     if (history.replaceState) history.replaceState(null, "", next);
   }
 
-  // A chart with its "view as table" toggle; the table holds the same numbers.
+  // A chart with the same numbers as a real table behind it, for screen readers: in the DOM,
+  // visually hidden (.sr-only, never display: none), with no control to reveal it.
   function charted(title, chart, cols, rows, after) {
-    var t = table(title, cols, rows, { hidden: true });
-    var id = "ld-table-" + ++uid;
-    t.id = id;
-    var button = h("button", { type: "button", class: "table-toggle", "aria-controls": id, "aria-expanded": "false" }, "view as table");
-    button.addEventListener("click", function () {
-      var show = t.hidden;
-      t.hidden = !show;
-      chart.hidden = show;
-      button.setAttribute("aria-expanded", String(show));
-      button.textContent = show ? "view as chart" : "view as table";
-    });
+    var t = table(title, cols, rows, { cls: "sr-only" });
+    t.id = "ld-table-" + ++uid;
     return h("div", { class: "chart-block ld-chart" },
-      h("div", { class: "chart-head" }, h("div", { class: "ld-chart-title" }, title), button),
+      h("div", { class: "chart-head" }, h("div", { class: "ld-chart-title" }, title)),
       chart, t, after || null);
   }
 
@@ -379,7 +371,7 @@
   // Lines over the same x positions. series: [{name, values: [number|null]}]; labels: x labels
   // (first and last are shown); opts: {fmt, base (a dashed reference line, e.g. 100), height,
   // endLabels (true: each series' last value at the right), title}. Returns the chart with its
-  // "view as table" toggle and, for two or more series, a legend.
+  // table behind it and, for two or more series, a legend.
   // opts.endLabels === false: the series are labelled in the legend only, no value at the line
   // end. A series with breakGap n is drawn as runs: its line breaks where two of its points
   // are more than n steps apart (weigh-ins over four weeks apart).

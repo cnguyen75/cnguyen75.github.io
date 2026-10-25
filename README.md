@@ -77,7 +77,7 @@ npx -p ajv-cli@5 -p ajv-formats@3 ajv validate --spec=draft2020 -c ajv-formats \
 
 ### Charts and accessibility
 
-Charts are HTML and CSS, as in the design. Every mark has a `title` for hover, and each chart container has `role="img"` and an `aria-label` that lists its values. Every chart has a **view as table** button that swaps it for a real `<table>`. Wins and losses use filled versus outlined squares with a W or L, never colour alone.
+Charts are HTML and CSS, as in the design. Every mark has a `title` for hover, and each chart container has `role="img"` and an `aria-label` that lists its values. Behind every chart is the same data as a real `<table>` for screen readers, in the DOM and visually hidden (`.sr-only`, never `display: none`); there is no control to reveal it. Wins and losses use filled versus outlined squares with a W or L, never colour alone.
 
 ## Track pages
 
@@ -119,7 +119,7 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 
 | Component | Body |
 |---|---|
-| `::: figure a.svg [narrow.svg]` | `caption:`, `alt:` and `description:` lines. The SVG is inlined, so it uses the site's colours through `dg-*` classes. A second file is shown instead below 640px. The `description:` lines become "The diagram as text". |
+| `::: figure a.svg [narrow.svg]` | `caption:`, `alt:` and `description:` lines. The SVG is inlined, so it uses the site's colours through `dg-*` classes. A second file is shown instead below 640px. The `description:` lines become "The diagram as text", a visually hidden list (`.tp-text-alt.sr-only`) for screen readers. |
 | `::: code` | the excerpt as written, plus an optional `caption:` |
 | `::: stats` | `label \| value \| note` rows |
 | `::: bars Title` | `label \| number [\| orange]` rows and a `caption:` |
@@ -230,7 +230,7 @@ The built page is a track page: `render()` in `build.py` writes it through the s
   - `not available from source` (or `not configured`): one line with what is `missing`.
 - Only fields the script names are drawn, so nothing else in the file can reach the page; all text goes in with `textContent`.
 - **Tabs** (`tabs(labels, panels)` in `js/lately-depth.js`, the tier board's control): on the watching page the tier board, My rankings and every section whose statistics come one per type (genres, completion, the crowd card's per-type tables) share Films / Shows / Anime tabs, films first, and switch together; statistics that are not per type sit above the tabs. On the fantasy page every section with `teams[]` statistics has one strip of team tabs, labelled with the team's name as the pipeline writes it (platform and format), and shows the selected team only; cross-league statistics (the quadrant, the lineup, the projections) stay above. The selected team is kept in the hash (`#team=<key>`, or `#section&team=<key>`), which the main page's team links set, so they land on the right team. Tab order and defaults are fixed.
-- **Long lists** (`collapseRows`): any list or table with more than ten rows shows ten and a "show all N" button that opens the rest in place and closes them again; the rows stay in the DOM (hidden) and the button carries `aria-expanded` and `aria-controls`. The tier board shows fifteen chips a row and a "+N more" chip. `js/track.js` applies the same rule on track pages. Charts use the site's blue, orange and purple (one hue for one series, a legend for two), each has a "view as table" toggle, and wins and losses are filled and outlined squares with their letter.
+- **Long lists** (`collapseRows`): any list or table with more than ten rows shows ten and a "show all N" button that opens the rest in place and closes them again; the rows stay in the DOM (hidden) and the button carries `aria-expanded` and `aria-controls`. The tier board shows fifteen chips a row and a "+N more" chip. `js/track.js` applies the same rule on track pages. Charts use the site's blue, orange and purple (one hue for one series, a legend for two), each has its numbers as a visually hidden table behind it (`.data-table.sr-only`), and wins and losses are filled and outlined squares with their letter.
 
 The fantasy page's "Waiver adds" shows, per team, the hit rate with its interval, net points available against captured, adds a week, the count in each class, and a table of every add (`values.all`), the best and worst three marked "▲ best" or "▽ worst" from their flags; a file without `all` shows its best and worst lists and says the rest aren't in it. A dropped player's new team is never shown. "Points left on the bench" adds the line "Hit, left on the bench", waiver adds that beat their baseline but sat on the bench. Under Why, "Good, or lucky?" is the strength-against-luck quadrant (every team in my leagues as a point: other teams grey and unlabelled, hover shows a record and all-play share only; mine blue, labelled, with a trail from week 1), "Am I a good manager, or a lucky one?" the four manager-score bars with rank and of and the composite percentile, then the acquisition split (mine against the league median) and the draft table (every pick against the median for its round). "Fantasy data provided by Yahoo Fantasy" appears at the foot only while `yahoo` is in `analysis.meta.sources_included`.
 
