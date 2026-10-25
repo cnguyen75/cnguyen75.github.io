@@ -8,6 +8,8 @@ They use tests/fixtures/analysis.json, a copy of the pipeline's sample with ever
 replaced. Run: python3 -m unittest discover tests
 """
 
+from __future__ import annotations
+
 import copy
 import functools
 import html
@@ -41,19 +43,19 @@ INK = "rgb(35, 31, 27)"
 CLEAR = "rgba(0, 0, 0, 0)"
 
 
-def content(feed):
+def content(feed: str) -> str:
     return (ROOT / "content/lately" / f"{feed}.md").read_text(encoding="utf-8")
 
 
 class Register(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.dir = Path(self.tmp.name)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def read(self, feed, text):
+    def read(self, feed: str, text: str) -> dict:
         path = self.dir / f"{feed}.md"
         path.write_text(text, encoding="utf-8")
         return build.read_data_page(path, SCHEMA)
@@ -63,7 +65,7 @@ class Register(unittest.TestCase):
     # reading bar with one segment per section, one section per ## entry (What's happening,
     # then Why) with a slot naming its statistics, "built with" last, previous and next, and
     # the foot. No numbers are written into it beyond its track number.
-    def test_page_frame(self):
+    def test_page_frame(self) -> None:
         doc = build.render_data_page(self.read("fantasy", content("fantasy")))
         self.assertIn('<p class="tp-kicker">side d. lately · track 22 of 26</p>', doc)
         self.assertIn(
@@ -194,7 +196,7 @@ class Register(unittest.TestCase):
                 )  # no data in the committed page
 
     # Kept cards keep their ids; a removed card's id is an alias inside the card that absorbed it.
-    def test_deep_links_unchanged(self):
+    def test_deep_links_unchanged(self) -> None:
         kept = {
             "fantasy": [
                 "my-teams-week-by-week",
@@ -295,7 +297,7 @@ class Register(unittest.TestCase):
             )  # the reading bar lists the kept cards, then built with
 
     # Watching, listening, eating and lifting must credit Simkl, Last.fm, Beli and Hevy, by link.
-    def test_required_attribution(self):
+    def test_required_attribution(self) -> None:
         for feed, name in build.DATA_ATTRIBUTION.items():
             with self.subTest(feed=feed):
                 self.assertIn(f"source: {name} | https://", content(feed))
@@ -306,7 +308,7 @@ class Register(unittest.TestCase):
                     self.read(feed, re.sub(r"source: .*", f"source: {name}", content(feed)))
 
     # STAT: paths must name statistics in the merged schema; sections hold nothing else.
-    def test_stat_lines(self):
+    def test_stat_lines(self) -> None:
         head = "---\nregister: data\nfeed: lifting\ntitle: T\nsource: Hevy | https://www.hevyapp.com\n---\n\n# What's happening\n\n"
         why = "\n# Why\n\n## Z\nshort: z\nSTAT: lifting.volume_lag\n"
         for body, err in (
@@ -407,7 +409,7 @@ class Register(unittest.TestCase):
             self.read("lifting", bad + "## A\nshort: a\nSTAT: lifting.lag_check\n" + why)
 
     # Every statistic in the schema is on exactly one page, or left out on purpose.
-    def test_every_statistic_placed(self):
+    def test_every_statistic_placed(self) -> None:
         pages = [self.read(f, content(f)) for f in FEEDS]
         build.check_data_coverage(pages, SCHEMA)
         # The trimmed pages leave statistics out on purpose, each with a reason; none is shown anywhere.
@@ -433,7 +435,7 @@ class Register(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "on both"):
             build.check_data_coverage(twice, SCHEMA)
 
-    def test_sitemap_lists_the_pages(self):
+    def test_sitemap_lists_the_pages(self) -> None:
         sitemap = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
         for feed in FEEDS:
             self.assertIn(f"<loc>{build.SITE}lately/{feed}/</loc>", sitemap)
@@ -442,7 +444,7 @@ class Register(unittest.TestCase):
 # ---------- drawing ----------
 
 
-def can_draw():
+def can_draw() -> bool:
     return (
         shutil.which("node")
         and Path(CHROME).exists()
@@ -450,7 +452,7 @@ def can_draw():
     )
 
 
-def variant(name):
+def variant(name: str) -> dict:
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     a = d["analysis"] = copy.deepcopy(ANALYSIS)
@@ -692,12 +694,12 @@ def variant(name):
 
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
-    def log_message(self, *args):
+    def log_message(self, *args: str) -> None:
         pass
 
 
 @functools.cache
-def draw(page, width=1280, name="base", body=None):
+def draw(page: str, width: int = 1280, name: str = "base", body: str | None = None) -> dict:
     """body: the raw text served as data/lately.json instead of the named variant."""
     handler = functools.partial(Quiet, directory=str(ROOT))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -730,7 +732,7 @@ def draw(page, width=1280, name="base", body=None):
         os.unlink(f.name)
 
 
-def blocks(facts, stat):
+def blocks(facts: dict, stat: str) -> list[dict]:
     return [
         b
         for s in facts["sections"]
@@ -740,18 +742,18 @@ def blocks(facts, stat):
     ]
 
 
-def slot(facts, stat):
+def slot(facts: dict, stat: str) -> dict:
     return next(sl for s in facts["sections"] for sl in s["slots"] if stat in sl["stat"].split())
 
 
 @unittest.skipUnless(can_draw(), "needs node, Chrome and tools/node_modules")
 class Drawing(unittest.TestCase):
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         build.build_data_pages(SCHEMA)  # the frames the browser loads
 
     # Each statistic: value and interval, its chart or table, its n, and the "how" sentence in the label face.
-    def test_ok_statistic(self):
+    def test_ok_statistic(self) -> None:
         d = draw("lately/lifting/")
         (b,) = blocks(d, "lifting.body_weight_rate")
         self.assertEqual((b["status"], b["value"]), ("ok", "−0.59"))
@@ -769,7 +771,7 @@ class Drawing(unittest.TestCase):
     # nothing else is hidden with its contents entry. A card under Why keeps its question over one
     # line, "nothing to show yet: needs <first unit>". No count of units needed, no "available from"
     # date and no "more statistics" line anywhere; no headline tile shows a "–".
-    def test_not_enough_data(self):
+    def test_not_enough_data(self) -> None:
         for feed in FEEDS:
             for name in ("base", "films waiting", "waiting", "young archive"):
                 with self.subTest(feed=feed, variant=name):
@@ -829,7 +831,7 @@ class Drawing(unittest.TestCase):
 
     # Eating: "Which cuisines are a safe bet?" (dot-and-range rows, narrowest first, the safest and the
     # widest named) replaces re-rank drift; "Where do new places land?" is the current-ranking version.
-    def test_eating_cards(self):
+    def test_eating_cards(self) -> None:
         d = draw("lately/eating/")
         self.assertEqual(
             [s["id"] for s in d["sections"] if s["group"] == "why"][-2:], ["landing", "safe-bet"]
@@ -858,7 +860,7 @@ class Drawing(unittest.TestCase):
 
     # small_sample: the card draws as usual with the tag beside its n; a waiting manager-score
     # component is a row with the tag; a panel on a small sample carries the tag under its numbers.
-    def test_small_sample(self):
+    def test_small_sample(self) -> None:
         (ce,) = blocks(draw("lately/eating/"), "eating.contrast_effect")
         self.assertEqual(ce["status"], "ok")
         self.assertEqual(ce["tags"], ["small sample, threshold 30"])
@@ -916,7 +918,7 @@ class Drawing(unittest.TestCase):
     # Every lately page has the track header: side, number and title, the panel's one-line
     # description, then whose numbers these are. The main page's panels carry the same number
     # and description; the track pages count side D in their "of".
-    def test_lede(self):
+    def test_lede(self) -> None:
         want = {
             "fantasy": "Sleeper and ESPN accounts",
             "watching": "Simkl account",
@@ -971,7 +973,7 @@ class Drawing(unittest.TestCase):
         )
 
     # A window shorter than its label is labelled by its real start: "since 11 Oct".
-    def test_listening_window(self):
+    def test_listening_window(self) -> None:
         young, base = (
             draw("lately/listening/", name="young archive")["bodyText"],
             draw("lately/listening/")["bodyText"],
@@ -992,7 +994,7 @@ class Drawing(unittest.TestCase):
     # The tier board: films by default, five rows, every row open; a row with more than fifteen
     # titles shows fifteen and a "+N more" chip that opens the rest; chips carry the year and a
     # hover with type, year and community score; a summary per row.
-    def test_tier_board(self):
+    def test_tier_board(self) -> None:
         d = draw("lately/watching/")
         pts = [
             p
@@ -1028,7 +1030,7 @@ class Drawing(unittest.TestCase):
     # hidden; the strips switch together, and #team=<key> in the hash (as the main page's team
     # links write it) picks the team, with a section anchor kept beside it. Watching: My rankings,
     # the tier board and every per-type section share Films / Shows / Anime tabs, films first.
-    def test_tabs(self):
+    def test_tabs(self) -> None:
         d = draw("lately/fantasy/")
         teams = [t["name"] for t in ANALYSIS["fantasy"]["teams"]]
         secs = {s["id"]: s for s in d["tabSections"]}
@@ -1097,7 +1099,7 @@ class Drawing(unittest.TestCase):
 
     # The listening page's survival card keeps its 95% bands behind a "show 95% bands" button,
     # off by default; "Genres by month" waits until three months are in the file.
-    def test_survival_bands_and_genre_months(self):
+    def test_survival_bands_and_genre_months(self) -> None:
         l = draw("lately/listening/")
         (sv,) = blocks(l, "listening.artist_survival")
         self.assertEqual(
@@ -1114,7 +1116,7 @@ class Drawing(unittest.TestCase):
 
     # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
     # the home city is never named (it's "my most-ranked city").
-    def test_eating_places(self):
+    def test_eating_places(self) -> None:
         self.assertEqual(
             draw("lately/eating/", name="places")["places"],
             [
@@ -1136,7 +1138,7 @@ class Drawing(unittest.TestCase):
         )
 
     # "not available from source": a one-line note, nothing else.
-    def test_not_available(self):
+    def test_not_available(self) -> None:
         d = draw("lately/listening/", name="not available")
         (b,) = blocks(d, "listening.enduring")
         self.assertEqual(b["note"], "not available from source: Apple Music lifetime counts")
@@ -1144,7 +1146,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(slot(d, "listening.enduring")["hows"], [])
 
     # Every page states its source, with the required attribution linked, and the as_of date.
-    def test_source_and_as_of(self):
+    def test_source_and_as_of(self) -> None:
         names = dict(build.DATA_ATTRIBUTION, fantasy="Sleeper")
         for feed in FEEDS:
             with self.subTest(feed=feed):
@@ -1170,7 +1172,7 @@ class Drawing(unittest.TestCase):
                 self.assertEqual(d["errors"], [])
 
     # Wins and losses (the lineup grid) by filled and outlined marks with their letter, never colour alone.
-    def test_wins_and_losses(self):
+    def test_wins_and_losses(self) -> None:
         d = draw("lately/fantasy/")
         wins = [s for s in d["squares"] if s["letter"] == "W"]
         losses = [s for s in d["squares"] if s["letter"] == "L"]
@@ -1180,7 +1182,7 @@ class Drawing(unittest.TestCase):
 
     # Waiver adds: hit rate with its interval, net points available against captured, adds a
     # week, then every add with the best and worst three marked, and the how-line under it.
-    def test_waiver_adds(self):
+    def test_waiver_adds(self) -> None:
         d = draw("lately/fantasy/")
         teams = ANALYSIS["fantasy"]["teams"]
         wa = teams[0]["waiver_adds"]
@@ -1222,7 +1224,7 @@ class Drawing(unittest.TestCase):
         )
 
     # Lineup efficiency gains the bench-hit line: waiver hits that sat on my bench.
-    def test_bench_hit_line(self):
+    def test_bench_hit_line(self) -> None:
         le = blocks(draw("lately/fantasy/"), "fantasy.teams[].lineup_efficiency")
         self.assertIn(
             "Hit, left on the bench: 1 add, 26.6 points on my bench, +12.88 net points available.",
@@ -1232,7 +1234,7 @@ class Drawing(unittest.TestCase):
 
     # The win-chance calibration (Brier score from twenty predictions) sits inside "Are the
     # projections honest?", "not enough data yet" before that.
-    def test_grading(self):
+    def test_grading(self) -> None:
         sec = next(
             s
             for s in draw("lately/fantasy/")["sections"]
@@ -1261,7 +1263,7 @@ class Drawing(unittest.TestCase):
     # Each panel: title, source line in the label face, the question in bold, a two-sentence
     # answer, two or three numbers, one chart and "more about <feed> →". The lists and grids
     # that used to be here are gone (they live under What's happening on the feed pages).
-    def test_main_page_panels(self):
+    def test_main_page_panels(self) -> None:
         d = draw("index.html")
         self.assertEqual(
             d["panelOrder"],
@@ -1529,7 +1531,7 @@ class Drawing(unittest.TestCase):
 
     # Every panel still stands when its statistic is "not enough data yet" or the file predates
     # it: the question, one line ("nothing to show yet…" or "not in the data yet"), the numbers, the link.
-    def test_main_page_panels_waiting(self):
+    def test_main_page_panels_waiting(self) -> None:
         for name, box in (
             ("waiting", r"^nothing to show yet(: needs [^.]+)?$"),
             ("old file", r"^not in the data yet · appears once the pipeline publishes it$"),
@@ -1591,7 +1593,7 @@ class Drawing(unittest.TestCase):
 
     # data/lately.json unreadable (here: not JSON): the section, and each page's main, is
     # one line, "Lately is being updated.", and nothing else. There is no sample data.
-    def test_unreadable_data_is_one_line(self):
+    def test_unreadable_data_is_one_line(self) -> None:
         for page in ("index.html", "lately/watching/"):
             with self.subTest(page=page):
                 facts = draw(page, body="not json")
@@ -1605,12 +1607,12 @@ class Drawing(unittest.TestCase):
     # type scale went back to the original sizes), raised by 819px when the six Athena rows
     # took three bullets each (measured 8,888 and 7,902), and by 279px when the thirteen cards on
     # sides B and C took their months under the title (measured 9,167 and 8,181).
-    def test_main_page_height(self):
+    def test_main_page_height(self) -> None:
         self.assertLess(draw("index.html")["pageHeight"], 9398)
         self.assertLess(draw("index.html", name="old file")["pageHeight"], 8498)
 
     # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
-    def test_strength_kept_joins_the_headline(self):
+    def test_strength_kept_joins_the_headline(self) -> None:
         self.assertEqual(
             draw("lately/lifting/")["headline"][-1], ["Bench: e1RM kept per lb lost", "2.39"]
         )
@@ -1624,7 +1626,7 @@ class Drawing(unittest.TestCase):
     # Fantasy page, Why: the manager-score card is four bars with rank and of, and the composite;
     # the acquisition split and the draft table follow. The Yahoo credit appears only when
     # the file includes yahoo.
-    def test_fantasy_cards(self):
+    def test_fantasy_cards(self) -> None:
         d = draw("lately/fantasy/")
         sec = next(s for s in d["sections"] if s["id"] == "manager-score")
         self.assertEqual(sec["group"], "why")
@@ -1721,7 +1723,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(narrow["quadMine"], [])
         self.assertEqual(narrow["quadNums"], ["1", "2", "3"])
 
-        def rec(t):
+        def rec(t: dict) -> str:
             r = t["schedule_what_if"]["values"]["real"]
             return f"{r['wins']}–{r['losses']}"
 
@@ -1735,7 +1737,7 @@ class Drawing(unittest.TestCase):
 
     # Watching page: My rankings leads What's happening; completion and drops sit in Why with
     # the note that only finished titles are logged as a rule; the new cards draw.
-    def test_watching_regrouped(self):
+    def test_watching_regrouped(self) -> None:
         d = draw("lately/watching/")
         groups = {g["id"]: g for g in d["groups"]}
         self.assertEqual(
@@ -1797,7 +1799,7 @@ class Drawing(unittest.TestCase):
 
     # The film cards on the watching page: the crowd plot, the tier bars and tables, the credits
     # in the footer; and their waiting, absent and not-available states.
-    def test_film_cards(self):
+    def test_film_cards(self) -> None:
         d = draw("lately/watching/")
         (cr,) = blocks(d, "watching.crowd_agreement")
         self.assertEqual(cr["value"], "0.41")
@@ -1900,7 +1902,7 @@ class Drawing(unittest.TestCase):
 
     # Profile cards on the track pages: the taste profile with the crowd lines, both survival
     # cohorts, albums or songs, dig back or keep up; and their absent state in an old file.
-    def test_profile_cards(self):
+    def test_profile_cards(self) -> None:
         d = draw("lately/watching/")
         (tp,) = blocks(d, "watching.taste_profile")
         self.assertEqual(tp["value"], "44%")
@@ -1980,7 +1982,7 @@ class Drawing(unittest.TestCase):
         )
 
     # Every feed block that left the main page draws on its feed page.
-    def test_feed_blocks(self):
+    def test_feed_blocks(self) -> None:
         want = {
             "fantasy": ["fantasy.lineup", "fantasy.carry"],
             "watching": ["watching.rankings", "watching.tiers", "watching.recent"],
@@ -2020,7 +2022,7 @@ class Drawing(unittest.TestCase):
 
     # No other managers' names; no Beli dates (cities are fine; new cuisines are counted by
     # month, which ties no date to a place).
-    def test_nothing_the_page_does_not_know(self):
+    def test_nothing_the_page_does_not_know(self) -> None:
         for page in ["index.html"] + [f"lately/{f}/" for f in FEEDS]:
             d = draw(page)
             for text in [d["bodyText"]] + d["titles"]:
@@ -2040,7 +2042,7 @@ class Drawing(unittest.TestCase):
 
     # Every statistic the fixture holds is drawn: no slot falls back to "not in the data yet"
     # (which only an older file should produce) and no spec is missing from the script.
-    def test_every_statistic_has_a_renderer(self):
+    def test_every_statistic_has_a_renderer(self) -> None:
         for feed in FEEDS:
             with self.subTest(feed=feed):
                 d = draw(f"lately/{feed}/")
@@ -2085,7 +2087,7 @@ class Drawing(unittest.TestCase):
         self.assertNotIn("11 sessions", main["text"])
 
     # No sideways scroll and nothing undrawn, on every page at phone and desktop widths.
-    def test_widths(self):
+    def test_widths(self) -> None:
         for feed in FEEDS + ("index",):
             for w in WIDTHS:
                 with self.subTest(feed=feed, width=w):

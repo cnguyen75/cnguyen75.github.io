@@ -1,5 +1,7 @@
 """Tests for build.py's progress register. Run: python3 -m unittest discover tests"""
 
+from __future__ import annotations
+
 import json
 from pathlib import Path
 import re
@@ -39,7 +41,12 @@ SECTIONS = {
 TRACKLIST = [("04", "A study", "side b. research", "research")]
 
 
-def page_text(front=None, sections=None, order=None, drop=()):
+def page_text(
+    front: dict | None = None,
+    sections: dict | None = None,
+    order: list[str] | None = None,
+    drop: tuple[str, ...] = (),
+) -> str:
     f = dict(FRONT, **(front or {}))
     s = dict(SECTIONS, **(sections or {}))
     names = [n for n in (order or build.PROGRESS_SECTIONS) if n not in drop]
@@ -48,26 +55,26 @@ def page_text(front=None, sections=None, order=None, drop=()):
 
 
 class Progress(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
         self.dir = Path(self.tmp.name)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def read(self, **kw):
+    def read(self, **kw: object) -> dict:
         path = self.dir / "04-demo-page.md"
         path.write_text(page_text(**kw), encoding="utf-8")
         return build.read_page(path)
 
-    def render(self, **kw):
+    def render(self, **kw: object) -> str:
         meta = self.read(**kw)
         doc, _ = build.render(meta, list(TRACKLIST), {"04": meta}, True, len(TRACKLIST))
         return doc
 
     # Sections, in order: question, approach, where it stands, results (optional),
     # what's next, log (optional), built with (optional), my role (optional).
-    def test_sections_must_come_in_order(self):
+    def test_sections_must_come_in_order(self) -> None:
         self.render()  # the full set, in order, builds
         swapped = list(build.PROGRESS_SECTIONS)
         swapped[2], swapped[3] = swapped[3], swapped[2]
@@ -80,7 +87,7 @@ class Progress(unittest.TestCase):
 
     # BUILT-WITH: up to four fixed rows in a fixed order, a data row linked when it has a link;
     # an unknown label, a repeated label or a non-https link stops the build.
-    def test_built_with(self):
+    def test_built_with(self) -> None:
         block = (
             "BUILT-WITH:\nmade with | the audit, with an AI coding agent working to my brief\ndata | A public set | https://example.org/data\n"
             "languages and frameworks | Python, NumPy\nattribution | Used under CC BY 4.0.\ncode | Code and README | https://github.com/x/y"
@@ -108,7 +115,7 @@ class Progress(unittest.TestCase):
             self.render(sections={"built with": block + "\n\nA sentence of prose."})
 
     # "where it stands" carries the as_of stamp next to its heading.
-    def test_where_it_stands_shows_as_of(self):
+    def test_where_it_stands_shows_as_of(self) -> None:
         doc = self.render()
         label = re.search(
             r'<h2 class="tp-section-label" id="where-it-stands-h">(.*?)</h2>', doc
@@ -119,7 +126,7 @@ class Progress(unittest.TestCase):
 
     # ## results and ## log are optional; when absent there is no empty block, no placeholder
     # and no chapter in the reading bar.
-    def test_results_omitted_when_absent(self):
+    def test_results_omitted_when_absent(self) -> None:
         for name in ("results", "log"):
             with self.subTest(section=name):
                 self.assertIn(f'id="{name}"', self.render())
@@ -134,7 +141,7 @@ class Progress(unittest.TestCase):
                 )
 
     # ## log: "YYYY-MM-DD | text" or "YYYY-MM | text", a dated list in file order; nothing else.
-    def test_log_lines(self):
+    def test_log_lines(self) -> None:
         doc = self.render()
         items = re.findall(
             r'<time class="tp-log-date" datetime="([^"]+)">([^<]+)</time><span class="tp-log-text">([^<]+)</span>',
@@ -159,7 +166,7 @@ class Progress(unittest.TestCase):
                 self.render(sections={"log": "2026-08-17 | Fine.\n" + bad})
 
     # Front matter: with (under the title), link "label | url" (optional), status_label, as_of.
-    def test_front_matter(self):
+    def test_front_matter(self) -> None:
         doc = self.render()
         hero = re.search(r'<section class="tp-hero".*?</section>', doc, re.S).group(0)
         self.assertRegex(
@@ -195,7 +202,7 @@ class Progress(unittest.TestCase):
             self.read(front={"when": "Aug 2026 — present"})
 
     # A line beginning HELD: is a flagged note in drafts and fails the build when ready: true.
-    def test_held(self):
+    def test_held(self) -> None:
         held = {"where it stands": "Running.\n\nHELD: a number waiting on sign-off."}
         doc = self.render(sections=held)
         self.assertRegex(
@@ -217,7 +224,7 @@ class Progress(unittest.TestCase):
 
     # Everything else works as in the other registers: components, the reading bar,
     # the play control and reading-time stamps.
-    def test_shared_features(self):
+    def test_shared_features(self) -> None:
         doc = self.render()
         self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-steps">')
         self.assertRegex(doc, r'<div data-secs="[\d.]+" class="stats stats--row">')
@@ -235,11 +242,11 @@ class Progress(unittest.TestCase):
 
     # [text](track:NN) links another track's page under the previous/next rule: a draft
     # links any page built with it; a ready page links only ready pages; otherwise text.
-    def test_track_links(self):
+    def test_track_links(self) -> None:
         line = "See [the other page](track:15) for more."
         other = {"slug": "other-page", "ready": False}
 
-        def render_with(ready_self, pages):
+        def render_with(ready_self: bool, pages: dict[int, dict]) -> str:
             meta = self.read(
                 sections={"what's next": line}, front={"ready": "true" if ready_self else "false"}
             )
@@ -261,10 +268,10 @@ class Progress(unittest.TestCase):
 
     # part: marks one page of a two-part story. Its hero shows the label and links the
     # other part under the same rule as previous and next.
-    def test_two_part_story(self):
+    def test_two_part_story(self) -> None:
         other = {"slug": "other-page", "ready": False, "title": "Other", "part_label": "part two"}
 
-        def render_with(ready_self, pages):
+        def render_with(ready_self: bool, pages: dict[int, dict]) -> re.Match[str] | None:
             meta = self.read(
                 front={"part": "part one | 12", "ready": "true" if ready_self else "false"}
             )
@@ -302,7 +309,7 @@ class Progress(unittest.TestCase):
 
     # The two research pages (10, 11) sit together on side B and the two NBA pages (17, 18)
     # on side C, each row labelled with its part; LLM 20 Questions closes side C as 21.
-    def test_main_page_parts(self):
+    def test_main_page_parts(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         tracks = build.read_tracklist(index)
         research = {n: t for n, t, _, side in tracks if side == "research"}
@@ -364,7 +371,7 @@ class Progress(unittest.TestCase):
     # Employer, dates": Athena's six rows 01 to 06, Zeta Global 07 and NationBuilder 08, every
     # one a numbered track (number, title, description) with an anchor and no page, link,
     # status, part or date line of its own.
-    def test_main_page_work_rows(self):
+    def test_main_page_work_rows(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         work = [(n, t) for n, t, _, side in build.read_tracklist(index) if side == "work"]
         self.assertEqual(
@@ -429,7 +436,7 @@ class Progress(unittest.TestCase):
             self.assertIn(f'content="0; url=/#track-{n}"', stub)
 
     # Every page ends with "Views are my own.": the main page's contact column and the built pages' foot.
-    def test_views_note(self):
+    def test_views_note(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
         self.assertIn(
@@ -441,12 +448,12 @@ class Progress(unittest.TestCase):
     # {decisions:matched} reads the counted decisions' match flags ("all N", or "N of M"),
     # {decisions:unchecked} adds ", K not yet checked" for null flags, {as_of:asof} is the
     # "as of" clause. No date: the clause is left out. No decisions: the sentence is.
-    def test_fill_live(self):
+    def test_fill_live(self) -> None:
         template = "twin: {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and it failed."
         row = f'<span class="track-live" data-src="paper-trader/demo.json" data-template="{template}">old text</span>'
         content = self.dir / "content"
 
-        def fill(data, tpl=template):
+        def fill(data: dict, tpl: str = template) -> re.Match[str] | None:
             (content / "drafts" / "paper-trader").mkdir(parents=True, exist_ok=True)
             (content / "drafts" / "paper-trader" / "demo.json").write_text(
                 json.dumps(data), encoding="utf-8"
@@ -531,12 +538,12 @@ class Progress(unittest.TestCase):
 
     # A page with live: fills the same placeholders from a file in its asset folder; a line
     # whose count cannot be filled is dropped, a missing date leaves its text out.
-    def test_live_page(self):
+    def test_live_page(self) -> None:
         assets = self.dir / "demo-page"
         assets.mkdir()
         stats = "STATS:\n{decisions:ratio} | decisions matching the twin{decisions:unchecked} | {as_of:asofnote}\n3 | other | kept"
 
-        def render_with(data):
+        def render_with(data: dict) -> list[str]:
             (assets / "demo.json").write_text(json.dumps(data), encoding="utf-8")
             doc = self.render(front={"live": "demo.json"}, sections={"results": stats})
             return re.findall(r'<div class="stat">(.*?)</div></div>', doc.split('id="results"')[1])
@@ -567,7 +574,7 @@ class Progress(unittest.TestCase):
             )  # dropped: an empty block
 
     # Side D: no sample data and no badge for it; the footer names the pipeline as private, unlinked.
-    def test_main_page_lately_text(self):
+    def test_main_page_lately_text(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         for word in ("sample data", "sample-badge", "lately.sample", "lately-sample"):
             self.assertNotIn(word, index)
@@ -587,7 +594,7 @@ class Progress(unittest.TestCase):
 
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
-    def test_figure_alt_and_overlay(self):
+    def test_figure_alt_and_overlay(self) -> None:
         assets = self.dir / "demo-page" / "f"
         assets.mkdir(parents=True)
         (assets / "plot.svg").write_text(
@@ -630,7 +637,7 @@ class Progress(unittest.TestCase):
         self.assertNotIn("<details", doc)
 
     # DEMO: takes one or more data files; the first is data-src, the rest data-more.
-    def test_demo_files(self):
+    def test_demo_files(self) -> None:
         assets = self.dir / "demo-page"
         assets.mkdir()
         for f in ("a.json", "b.json", "demo.js"):
@@ -648,7 +655,7 @@ class Progress(unittest.TestCase):
         )
 
     # LINKS: rows 'label | https://...' become a short list of links.
-    def test_links(self):
+    def test_links(self) -> None:
         doc = self.render(
             sections={
                 "my role": "All of it.\n\nLINKS:\nCode | https://example.com/code\nThe record | https://example.com/r"
@@ -665,7 +672,7 @@ class Progress(unittest.TestCase):
 
     # PAPERS: a titled list under the results, each entry "Authors (year). Title. arXiv:id" with the
     # id linked to the abstract and an optional note; a bad id, year or short row stops the build.
-    def test_papers(self):
+    def test_papers(self) -> None:
         papers = "PAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. Third | 2021 | Another | block size 256 here"
         lst = (
             r'<ul class="tp-papers-list">'
@@ -716,7 +723,7 @@ class Progress(unittest.TestCase):
     # Main-page rows: a row whose page is built is one link (number, title, description,
     # status); others stay plain <div>s with no label. Idempotent; an external-link row
     # can't be linked to a page.
-    def test_main_page_rows(self):
+    def test_main_page_rows(self) -> None:
         index = (
             '<div class="track track--wrap">\n<span class="track-no">04</span>\n<div class="track-body">'
             '<h3 class="track-title">A study</h3><span class="track-desc">About it.</span></div>\n'
@@ -783,7 +790,7 @@ class Progress(unittest.TestCase):
         self.assertEqual(build.link_rows(linked, {}), with_id)
 
 
-def site_links():
+def site_links() -> list[tuple[str, str, str]]:
     """(page, href, attributes) for every link the build writes or the main page holds:
     the committed index.html, a progress page with every kind of link, and a Lately page."""
     out = []
@@ -821,7 +828,7 @@ def site_links():
 
 class Links(unittest.TestCase):
     # A link to another site (or a résumé PDF) opens in a new tab, with rel="noopener".
-    def test_external_links_open_in_a_new_tab(self):
+    def test_external_links_open_in_a_new_tab(self) -> None:
         ext = [
             (n, h, a) for n, h, a in site_links() if re.match(r"https?://", h) or h.endswith(".pdf")
         ]
@@ -832,7 +839,7 @@ class Links(unittest.TestCase):
                 self.assertRegex(attrs, r'rel="[^"]*\bnoopener\b')
 
     # A link within the site (relative, #anchor, mailto:) stays in the same tab.
-    def test_internal_links_stay_in_the_same_tab(self):
+    def test_internal_links_stay_in_the_same_tab(self) -> None:
         internal = [
             (n, h, a)
             for n, h, a in site_links()
@@ -851,13 +858,11 @@ class Preview(unittest.TestCase):
     # build.py --drafts writes the whole site to _site-drafts/ with every page built and
     # linked; the site itself (tracks/, index.html) only ever holds ready pages, and a
     # plain build removes the preview. Run on a copy of the site, never the real one.
-    def test_drafts_preview(self):
+    def test_drafts_preview(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = Path(tmp) / "site"
 
-            def ignore(
-                d, names
-            ):  # the built tracks/ and content/drafts/ stay behind; content/tracks/ (ready pages) comes along
+            def ignore(d: str, names: list[str]) -> list[str]:
                 skip = {".git", "node_modules", "_site-drafts", ".DS_Store"}
                 skip |= (
                     {"tracks"}
@@ -878,7 +883,7 @@ class Preview(unittest.TestCase):
             )
             index_before = (site / "index.html").read_text(encoding="utf-8")
 
-            def run(*args):
+            def run(*args: str) -> None:
                 r = subprocess.run(
                     [sys.executable, str(site / "build.py"), *args],
                     capture_output=True,

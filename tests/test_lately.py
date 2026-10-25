@@ -7,6 +7,8 @@ Chrome through tools/node_modules (cd tools && npm install) and are skipped with
 Run: python3 -m unittest discover tests
 """
 
+from __future__ import annotations
+
 import copy
 import functools
 import http.server
@@ -27,7 +29,7 @@ CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacO
 WIDTHS = (360, 390, 1280)
 
 
-def can_draw():
+def can_draw() -> bool:
     return (
         shutil.which("node")
         and Path(CHROME).exists()
@@ -35,7 +37,7 @@ def can_draw():
     )
 
 
-def fixture():
+def fixture() -> dict:
     """The committed sample with twelve films, seven shows, five anime; lift 1 with a best
     set, lift 2 with two sessions."""
     d = copy.deepcopy(SAMPLE)
@@ -57,12 +59,12 @@ def fixture():
 
 
 class Quiet(http.server.SimpleHTTPRequestHandler):
-    def log_message(self, *args):
+    def log_message(self, *args: str) -> None:
         pass
 
 
 @functools.cache
-def draw(width):
+def draw(width: int) -> dict:
     handler = functools.partial(Quiet, directory=str(ROOT))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -118,7 +120,7 @@ ADDED_2026_10_17 = [
 
 
 class Schema(unittest.TestCase):
-    def test_ranked_list_holds_ten(self):
+    def test_ranked_list_holds_ten(self) -> None:
         ranked = SCHEMA["$defs"]["ranked_list"]
         self.assertEqual(ranked["maxItems"], 10)
         self.assertNotIn("minItems", ranked)  # unchanged: an empty list is still allowed
@@ -126,7 +128,7 @@ class Schema(unittest.TestCase):
 
     # 2026-10-17: the analysis-first statistics, all optional so older files still validate;
     # top_ten_churn is gone; a sample for each is in the handoff folder for the pipeline.
-    def test_analysis_first_statistics(self):
+    def test_analysis_first_statistics(self) -> None:
         defs = SCHEMA["$defs"]
         for d, prop in ADDED_2026_10_17:
             with self.subTest(prop=prop):
@@ -177,7 +179,7 @@ class Schema(unittest.TestCase):
 
     # 2026-10-18, policy: small_sample on every statistic shape, first_unit in its values, no available_from;
     # eating.safe_bet beside the landing's current-ranking version.
-    def test_sample_policy_fields(self):
+    def test_sample_policy_fields(self) -> None:
         defs = SCHEMA["$defs"]
         for name, d in defs.items():
             if name.startswith("analysis_stat"):
@@ -211,7 +213,7 @@ class Schema(unittest.TestCase):
         self.assertIn("small_sample", SCHEMA["properties"]["schema_version"]["description"])
 
     # The handoff fragment (what the pipeline syncs from) must not drift from the site's copy.
-    def test_handoff_fragment_matches(self):
+    def test_handoff_fragment_matches(self) -> None:
         frag_path = HANDOFF / "analysis.schema.json"
         if not frag_path.is_file():
             self.skipTest("handoff folder not present")
@@ -245,7 +247,7 @@ class Schema(unittest.TestCase):
             all(set(o) <= {"all_play", "label", "league_key", "luck", "record"} for o in others)
         )
 
-    def test_best_set_is_optional(self):
+    def test_best_set_is_optional(self) -> None:
         best = SCHEMA["$defs"]["lifting"]["properties"]["main_lifts"]["items"]["properties"]["best"]
         self.assertEqual(best["required"], ["date", "e1rm"])
         bs = best["properties"]["best_set"]
@@ -261,7 +263,7 @@ class Drawing(unittest.TestCase):
     # Rankings, under "What's happening" on lately/watching/: one tab group (Films first), the
     # selected type's list with ten shown and "show all N" for the rest, which opens in place;
     # keyboard works; same on phones.
-    def test_rankings_tabs_then_all(self):
+    def test_rankings_tabs_then_all(self) -> None:
         for w in WIDTHS:
             with self.subTest(width=w):
                 d = draw(w)
@@ -294,7 +296,7 @@ class Drawing(unittest.TestCase):
                 )
 
     # Lift tiles (lately/lifting/): best set under the best e1RM when present; under three sessions, a count, not a chart.
-    def test_lift_best_set_and_few_sessions(self):
+    def test_lift_best_set_and_few_sessions(self) -> None:
         for w in WIDTHS:
             with self.subTest(width=w):
                 first, second, third = draw(w)["before"]["lifts"][:3]
@@ -309,7 +311,7 @@ class Drawing(unittest.TestCase):
                 self.assertFalse(first["toggle"])  # no "view as table" control anywhere
 
     # The lifts are grouped by split (chest and back, shoulders and arms, legs); no hand-entered best is shown.
-    def test_lifts_grouped_by_split(self):
+    def test_lifts_grouped_by_split(self) -> None:
         d = draw(1280)["before"]
         self.assertEqual(d["splits"], ["Chest and back", "Shoulders and arms", "Legs"])
         self.assertEqual(d["splitCounts"], [1, 1, 2])

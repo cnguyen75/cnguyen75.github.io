@@ -21,6 +21,8 @@ numbers; js/lately-depth.js draws them from data/lately.json in the browser, so
 no data is ever written into the built pages. See README.md, "Lately in depth".
 """
 
+from __future__ import annotations
+
 import argparse
 import html
 import json
@@ -209,11 +211,11 @@ class ContentError(Exception):
     pass
 
 
-def esc(s):
+def esc(s: str) -> str:
     return html.escape(str(s), quote=True)
 
 
-def new_tab(url):
+def new_tab(url: str) -> str:
     """Attributes for a link: one to another site opens in a new tab with rel="noopener";
     a link within the site (relative, #anchor, mailto:, or this site's own URL) stays put."""
     return (
@@ -226,7 +228,7 @@ def new_tab(url):
 # ---------- reading content files ----------
 
 
-def read_page(path):
+def read_page(path: Path) -> dict:
     text = path.read_text(encoding="utf-8")
     m = re.match(r"---\n(.*?)\n---\n(.*)$", text, re.S)
     if not m:
@@ -271,7 +273,7 @@ def read_page(path):
     return meta
 
 
-def check_progress(meta, name):
+def check_progress(meta: dict, name: str) -> None:
     """Front matter and section order for the progress register."""
     meta["as_of_date"] = parse_date(meta["as_of"], f"{name}: as_of", month_only=False)
     if meta.get("link"):
@@ -291,7 +293,7 @@ def check_progress(meta, name):
         )
 
 
-def parse_date(s, what, month_only=True):
+def parse_date(s: str, what: str, month_only: bool = True) -> tuple[str, str]:
     """(datetime attribute, display text) for YYYY-MM-DD, or YYYY-MM when month_only is allowed."""
     m = re.fullmatch(r"(\d{4})-(\d{2})(?:-(\d{2}))?", s)
     if not m or (m.group(3) is None and not month_only):
@@ -312,7 +314,7 @@ def parse_date(s, what, month_only=True):
     return s, f"{int(m.group(3))} {MONTHS[mo - 1]} {y}"
 
 
-def parse_sections(body, name):
+def parse_sections(body: str, name: str) -> list[dict]:
     sections, cur = [], None
     for line in body.splitlines():
         h = re.match(r"## (.+?)(?:\s+\{#([a-z0-9-]+)\})?\s*$", line)
@@ -332,14 +334,14 @@ def parse_sections(body, name):
     return sections
 
 
-def slugify(s):
+def slugify(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
 
 # ---------- the data register ----------
 
 
-def _schema_node(schema, node):
+def _schema_node(schema: dict, node: dict) -> dict:
     while "$ref" in node:
         node = schema["$defs"][node["$ref"].split("/")[-1]]
     return node
@@ -350,11 +352,11 @@ def _schema_node(schema, node):
 STAT_FIELDS = {"status", "n", "min_n", "as_of", "how"}
 
 
-def _is_stat(node):
+def _is_stat(node: dict) -> bool:
     return isinstance(node.get("properties"), dict) and set(node["properties"]) >= STAT_FIELDS
 
 
-def stat_paths(schema, pattern=None):
+def stat_paths(schema: dict, pattern: str | None = None) -> list[str]:
     """Every statistic under analysis, as paths such as fantasy.teams[].playoff_odds,
     lifting.progress.* (a map keyed by the data) or watching.completion.show. With a
     pattern, only the ones it names: "teams[]" steps into a list, and "*" takes a map's
@@ -370,7 +372,7 @@ def stat_paths(schema, pattern=None):
     )
     out = []
 
-    def walk(node, path, steps):
+    def walk(node: dict, path: list[str], steps: list[str] | None) -> None:
         node = _schema_node(schema, node)
         if _is_stat(node):
             if steps:
@@ -406,7 +408,7 @@ def stat_paths(schema, pattern=None):
     return out
 
 
-def read_data_page(path, schema):
+def read_data_page(path: Path, schema: dict) -> dict:
     text = path.read_text(encoding="utf-8")
     m = re.match(r"---\n(.*?)\n---\n(.*)$", text, re.S)
     if not m:
@@ -569,7 +571,7 @@ def read_data_page(path, schema):
     return meta
 
 
-def parse_data_body(body, name):
+def parse_data_body(body: str, name: str) -> list[dict]:
     """A data page's body: "# What's happening" and "# Why", each holding ## sections (a
     section may fix its id with {#id} so a retitled card keeps its deep link)."""
     groups, cur = [], None
@@ -602,7 +604,7 @@ def parse_data_body(body, name):
     return groups
 
 
-def check_aliases(meta):
+def check_aliases(meta: dict) -> None:
     """An alias never repeats a section id or another alias."""
     ids = {s["id"] for s in meta["sections"]}
     seen = set()
@@ -615,7 +617,7 @@ def check_aliases(meta):
             seen.add(a)
 
 
-def check_data_coverage(pages, schema):
+def check_data_coverage(pages: list[dict], schema: dict) -> None:
     """Every statistic is on exactly one page, or listed in DATA_LEFT_OUT."""
     seen = {}
     for meta in pages:
@@ -632,7 +634,7 @@ def check_data_coverage(pages, schema):
             )
 
 
-def lately_numbers(index_html):
+def lately_numbers(index_html: str) -> dict[str, int]:
     """Side D's panels are tracks too: {feed: the number on its panel}."""
     return {
         feed: num
@@ -643,7 +645,7 @@ def lately_numbers(index_html):
     }
 
 
-def read_data_pages(schema, index_html):
+def read_data_pages(schema: dict, index_html: str) -> list[dict]:
     """The data pages, numbered from the main page's panels and checked for coverage."""
     pages = [read_data_page(p, schema) for p in sorted((ROOT / "content" / "lately").glob("*.md"))]
     check_data_coverage(pages, schema)
@@ -655,7 +657,7 @@ def read_data_pages(schema, index_html):
     return pages
 
 
-def ready_track_pages():
+def ready_track_pages() -> dict[int, dict]:
     """The ready track pages' front matter, {number: meta}, for previous and next links."""
     return {
         m["track"]: m
@@ -663,7 +665,7 @@ def ready_track_pages():
     }
 
 
-def build_data_pages(schema):
+def build_data_pages(schema: dict) -> list[dict]:
     """Writes lately/<feed>/ from content/lately/ against the committed main page and ready
     track pages (main() does the same inside the full build). Returns the pages."""
     index_html = (ROOT / "index.html").read_text(encoding="utf-8")
@@ -677,7 +679,7 @@ def build_data_pages(schema):
     return pages
 
 
-def render_data_page(meta):
+def render_data_page(meta: dict) -> str:
     """One data page's document against the committed main page (tests and tools)."""
     index_html = (ROOT / "index.html").read_text(encoding="utf-8")
     tracklist = read_tracklist(index_html)
@@ -698,11 +700,11 @@ def render_data_page(meta):
 TRACK_LINKS = {}
 
 
-def page_folder(meta):
+def page_folder(meta: dict) -> str:
     return "lately" if meta.get("register") == "data" else "tracks"
 
 
-def href_to(frm, to):
+def href_to(frm: dict, to: dict) -> str:
     """The relative link from one built page to another: both sit two levels deep, in
     tracks/<slug>/ or lately/<feed>/."""
     if page_folder(frm) == page_folder(to):
@@ -710,7 +712,7 @@ def href_to(frm, to):
     return f"../../{page_folder(to)}/{to['slug']}/"
 
 
-def inline(s):
+def inline(s: str) -> str:
     out, last = [], 0
     for m in re.finditer(r"\[([^\]]+)\]\(([^)\s]+)\)", s):
         out.append(inline_text(s[last : m.start()]))
@@ -734,7 +736,7 @@ def inline(s):
     return "".join(out)
 
 
-def inline_text(s):
+def inline_text(s: str) -> str:
     s = esc(s)
     s = re.sub(r"`([^`]+)`", r"<code>\1</code>", s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
@@ -742,11 +744,11 @@ def inline_text(s):
     return s
 
 
-def words(s):
+def words(s: str) -> int:
     return len(re.findall(r"[\w’'–-]+", re.sub(r"<[^>]+>", " ", s)))
 
 
-def stat_row(cells):
+def stat_row(cells: list[tuple[str, str, str]]) -> str:
     """The stat tiles of a track page, (value, label, note) each, in the shared .stats component."""
     items = "".join(
         f'<div class="stat"><div class="stat-label">{inline(label)}</div><div class="stat-value">{inline(value)}</div>'
@@ -760,7 +762,7 @@ def stat_row(cells):
 class Page:
     """Renders one page's body and keeps what the page head needs."""
 
-    def __init__(self, meta):
+    def __init__(self, meta: dict) -> None:
         self.meta = meta
         self.figures = 0
         self.scripts = []  # page-only scripts (demo slots)
@@ -768,7 +770,7 @@ class Page:
         self.copies = []  # asset files to copy next to the page
         self.held = 0  # HELD: notes (content waiting on a collaborator); a ready page may have none
 
-    def asset(self, name, inline_svg=False, copy=True):
+    def asset(self, name: str, inline_svg: bool = False, copy: bool = True) -> str:
         """A file in the page's asset folder. Marker drafts name it as <slug>/path."""
         if name.startswith(self.meta["slug"] + "/"):
             name = name[len(self.meta["slug"]) + 1 :]
@@ -789,12 +791,12 @@ class Page:
             self.copies.append((path, name))
         return name
 
-    def blocks(self, lines, first=False):
+    def blocks(self, lines: list[str], first: bool = False) -> list[tuple[str, int, str]]:
         """Returns [(html, words, kind)] for one section; kind marks figures for the play control."""
         out, i = [], 0
         para = []
 
-        def flush():
+        def flush() -> None:
             if para:
                 text = " ".join(l.strip() for l in para)
                 if " HELD:" in text:
@@ -875,13 +877,13 @@ class Page:
         return out
 
     @staticmethod
-    def held_note(text, tag):
+    def held_note(text: str, tag: str) -> str:
         return (
             f'<{tag} class="tp-held-note"><span class="tp-held-flag">held: needs a collaborator\'s agreement</span> '
             f"{inline(text.strip())}</{tag}>"
         )
 
-    def log(self, lines):
+    def log(self, lines: list[str]) -> list[tuple[str, int, str]]:
         """A progress page's ## log: 'YYYY-MM-DD | text' or 'YYYY-MM | text' per line, in file order."""
         name = self.meta["source"].name
         items, n = "", 0
@@ -900,16 +902,16 @@ class Page:
             raise ContentError(f"{name}: ## log has no entries")
         return [(f'<ol class="tp-log">{items}</ol>', n, "text")]
 
-    def caption(self, text):
+    def caption(self, text: str) -> str:
         self.figures += 1
         return f'<figcaption class="tp-caption">fig. {self.figures} · {inline(text)}</figcaption>'
 
     @staticmethod
-    def given_caption(text):
+    def given_caption(text: str) -> str:
         """A caption written in full by the draft, numbering included."""
         return f'<figcaption class="tp-caption">{inline(text)}</figcaption>' if text else ""
 
-    def marker(self, group):
+    def marker(self, group: list[str]) -> tuple[str, int, str]:
         name = self.meta["source"].name
         head = MARKER.match(group[0])
         kind, arg = head.group(1), head.group(2).strip()
@@ -951,7 +953,7 @@ class Page:
             if fields.get(f)
         )
 
-        def need(ok, what):
+        def need(ok: bool, what: str) -> None:
             if not ok:
                 raise ContentError(f"{name}: {kind}: {what}")
 
@@ -1062,7 +1064,7 @@ class Page:
             head_html = "".join(f'<th scope="col">{inline(c)}</th>' for c in cells[0])
             numeric = re.compile(r"^[+\u2212-]?[\d,]+(\.\d+)?%?$")
 
-            def cell(h, x):
+            def cell(h: str, x: str) -> str:
                 num_class = ' class="num"' if numeric.match(x.strip()) else ""
                 return f'<td data-label="{esc(h)}"{num_class}>{inline(x)}</td>'
 
@@ -1193,7 +1195,7 @@ class Page:
             f"{name}: {kind}: has no renderer"
         )  # unreachable: MARKER_BLOCKS is complete
 
-    def clip(self, f, label, tags, aria):
+    def clip(self, f: dict, label: str, tags: str, aria: str) -> str:
         kinds = "".join(
             f'<span class="tp-clip-kind">{esc(t)}</span>'
             if t == "synthetic"
@@ -1206,7 +1208,7 @@ class Page:
             + f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(", ".join([aria] + tags))}"></audio></div>'
         )
 
-    def audio_manifest(self, any_clip):
+    def audio_manifest(self, any_clip: bool) -> dict[str, dict] | None:
         """{file name: clip} from manifest.json next to the clips, if there is one. Only the
         fields the page needs are read; the manifest itself is never published."""
         import json
@@ -1224,7 +1226,7 @@ class Page:
             return None
         return {c["file"]: c for c in json.loads(path.read_text(encoding="utf-8"))["clips"]}
 
-    def audio_grid(self, arg, cap, notes):
+    def audio_grid(self, arg: str, cap: str, notes: list[str]) -> str:
         """Sentences as rows, systems as columns. Column labels come from grid-columns.txt
         next to the manifest: 'system | label | real or synthetic' per line, in order."""
         import json
@@ -1284,7 +1286,7 @@ class Page:
             f'<figure class="tp-figure tp-figure--wide tp-figure--grid">{grid}{cap}{notes}</figure>'
         )
 
-    def component(self, head, body):
+    def component(self, head: str, body: list[str]) -> tuple[str, int, str]:
         name, _, args = head.partition(" ")
         fields, rows = {}, []
         for l in body:
@@ -1424,7 +1426,7 @@ class Page:
 # ---------- the tracklist on the main page ----------
 
 
-def read_tracklist(index_html):
+def read_tracklist(index_html: str) -> list[tuple[int, str, str, str]]:
     """[(number, title, side_label, side_id)] in page order: sides A to C, then side D's panels."""
     tracks, side, side_id = [], None, None
     pat = re.compile(
@@ -1441,7 +1443,7 @@ def read_tracklist(index_html):
     return tracks
 
 
-def find_close(s, start, tag):
+def find_close(s: str, start: int, tag: str) -> int:
     """Index just past the tag that closes the element opening at `start`."""
     depth, pat = 0, re.compile(rf"<(/?){tag}\b[^>]*>")
     for m in pat.finditer(s, start):
@@ -1457,11 +1459,11 @@ EXT_LINK = re.compile(
 )
 
 
-def ext_link(href, label):
+def ext_link(href: str, label: str) -> str:
     return f'<span class="track-ext"><a href="{href}" target="_blank" rel="noopener">{label}</a></span>'
 
 
-def link_rows(index_html, pages):
+def link_rows(index_html: str, pages: dict[int, str]) -> str:
     """Makes each track row whose page is built ({number: slug}) one link to that page:
     number, title, description and status together. A row's secondary external link
     (span.track-ext, inside the track body) can't sit inside that link, so it is kept in
@@ -1531,7 +1533,9 @@ def link_rows(index_html, pages):
     return s
 
 
-def when_rows(index_html, metas, tracklist):
+def when_rows(
+    index_html: str, metas: list[dict], tracklist: list[tuple[int, str, str, str]]
+) -> str:
     """Writes each side B or C track's months (when:) onto its row on the main page, as
     span.track-when right after the title. Idempotent: an existing span is replaced; a row
     whose content file is not here (a draft on another machine) keeps the span it has.
@@ -1576,13 +1580,13 @@ COUNT_KINDS = (
 )  # need the list; without it the sentence goes
 
 
-def entries(data, field):
+def entries(data: dict, field: str) -> list[dict] | None:
     """Every entry of a list, voided ones included. None without the list."""
     value = data.get(field)
     return [x for x in value if isinstance(x, dict)] if isinstance(value, list) else None
 
 
-def counted(data, field):
+def counted(data: dict, field: str) -> list[dict] | None:
     """The entries of a list that count: not voided and, when the file has a clock_start,
     dated on or after it (its equity_base_snapshot, else its first_fill). None without the list."""
     value = entries(data, field)
@@ -1597,7 +1601,7 @@ def counted(data, field):
     ]
 
 
-def live_value(data, field, kind):
+def live_value(data: dict, field: str, kind: str) -> str | None:
     """One placeholder's text, or None when the field is missing.
     count: how many entries count. matched: "all 26" when every counted entry's match is
     true, else "25 of 26" (true ones of counted). ratio: always "25 of 26".
@@ -1637,7 +1641,7 @@ def live_value(data, field, kind):
     return f"as of {text}, " if kind == "asof" else f"as of {text}" if kind == "asofnote" else text
 
 
-def live_data(path, what):
+def live_data(path: Path, what: str) -> dict | None:
     """The results file as a dict, or None with a warning."""
     if not path.is_file():
         print(f"warning: {what} is missing; its live text is left out", file=sys.stderr)
@@ -1652,7 +1656,7 @@ def live_data(path, what):
         return None
 
 
-def fill_template(template, data):
+def fill_template(template: str, data: dict) -> tuple[str | None, list[str]]:
     """(text, missing fields): the template with its placeholders filled; text is None when a
     count placeholder's list is missing (the whole sentence goes), and a missing date leaves
     its clause out."""
@@ -1667,12 +1671,12 @@ def fill_template(template, data):
     return text, missing
 
 
-def fill_live(index_html, content=None):
+def fill_live(index_html: str, content: Path | None = None) -> str:
     """The main page's live rows: data-src is a path under content/tracks or content/drafts,
     the template stays in the attribute, and the rendered sentence is the span's text."""
     content = content or ROOT / "content"
 
-    def fill(m):
+    def fill(m: re.Match[str]) -> str:
         src, template = m.group(1), html.unescape(m.group(2))
         path = next(
             (content / f / src for f in ("tracks", "drafts") if (content / f / src).is_file()), None
@@ -1700,7 +1704,7 @@ def fill_live(index_html, content=None):
     return LIVE.sub(fill, index_html)
 
 
-def fill_live_lines(body, path, name):
+def fill_live_lines(body: str, path: Path, name: str) -> str:
     """A page's body with its placeholders filled from the page's results file (front matter
     "live:", a file in the asset folder). A line whose count placeholder cannot be filled is
     dropped; a missing date leaves its text out."""
@@ -1723,7 +1727,7 @@ def fill_live_lines(body, path, name):
     return "\n".join(out)
 
 
-def check_live_data():
+def check_live_data() -> None:
     """The Lately data file must exist for a build (a deploy can't go out without it); one
     that is present but unreadable only warns, and the site then shows "Lately is being updated."."""
     live = ROOT / LIVE_DATA
@@ -1750,12 +1754,12 @@ def check_live_data():
 # ---------- page output ----------
 
 
-def clock(seconds):
+def clock(seconds: int) -> str:
     seconds = int(round(seconds / 10.0) * 10)
     return f"{seconds // 60}:{seconds % 60:02d}"
 
 
-def side_for(tracklist, letter):
+def side_for(tracklist: list[tuple[int, str, str, str]], letter: str) -> tuple[str, str]:
     """(side label, side id) for a draft's "side: c", for tracks not on the main page yet."""
     for _, _, label, side_id in tracklist:
         if label.lower().startswith(f"side {letter.lower()}."):
@@ -1763,7 +1767,13 @@ def side_for(tracklist, letter):
     raise ContentError(f"no side {letter!r} on the main page")
 
 
-def render(meta, tracklist, pages_here, drafts_build, listed):
+def render(
+    meta: dict,
+    tracklist: list[tuple[int, str, str, str]],
+    pages_here: dict[int, dict],
+    drafts_build: bool,
+    listed: int,
+) -> tuple[str, list[tuple[Path, str]]]:
     page = Page(meta)
     home = "../../"
     album = meta["register"] == "album"
@@ -1793,7 +1803,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     # Links to other track pages follow the previous/next rule below: a ready page links
     # only ready pages, so it builds the same with or without --drafts; a draft, in a
     # --drafts build, links any page built with it.
-    def linkable_page(m):
+    def linkable_page(m: re.Match[str]) -> bool:
         return m["ready"] or not meta["ready"]
 
     TRACK_LINKS.clear()
@@ -2056,7 +2066,9 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     return doc, page.copies
 
 
-def built_with_grid(blocks, title, name):
+def built_with_grid(
+    blocks: list[tuple[str, int, str]], title: str, name: str
+) -> list[tuple[str, int, str]]:
     """The "built with" section is one grid: a PAPERS: block there becomes the grid's papers row
     (after a papers | text row's text, when both are given), and the section may hold nothing
     else but the grid and a LINKS: list. A PAPERS: block anywhere else stops the build."""
@@ -2111,7 +2123,7 @@ def built_with_grid(blocks, title, name):
     ] + rest
 
 
-def data_sections(meta):
+def data_sections(meta: dict) -> list[dict]:
     """A data page's sections as render() takes them: one per ## entry under What's happening
     then Why, each a list of (html, words, kind) blocks the browser fills, then a "built with"
     section (data, attribution, made with, as of) in the track pages' grid."""
@@ -2147,7 +2159,7 @@ def data_sections(meta):
     return out
 
 
-def data_built_with(meta):
+def data_built_with(meta: dict) -> str:
     """The Lately page's "built with" rows: the feed's sources (linked), the licence lines the
     page needs (filled in the browser while the data calls for them), the pipeline, and the
     data's as-of date (from the file, in the browser)."""
@@ -2176,7 +2188,14 @@ def data_built_with(meta):
     return f'<dl class="tp-built">{"".join(rows)}</dl>'
 
 
-def write_pages(out_root, metas, tracklist, pages_here, drafts_build, listed):
+def write_pages(
+    out_root: Path,
+    metas: list[dict],
+    tracklist: list[tuple[int, str, str, str]],
+    pages_here: dict[int, dict],
+    drafts_build: bool,
+    listed: int,
+) -> None:
     """Writes each page in metas to out_root/<slug>/, removing earlier output there that
     this build doesn't produce. Only folders build.py made (with OUT_MARK) are touched."""
     out_root.mkdir(exist_ok=True)
@@ -2201,7 +2220,7 @@ def write_pages(out_root, metas, tracklist, pages_here, drafts_build, listed):
             shutil.copy2(src, out / rel)
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--drafts", action="store_true", help="also build drafts, for local preview")
     args = ap.parse_args()

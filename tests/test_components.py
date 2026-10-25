@@ -3,6 +3,8 @@ parallel .ld-* and .tp-* versions of the bars, tables, stat tiles, legends, axes
 how line were folded into one set, never come back in the stylesheets, the scripts, the build
 or the built pages. Run: python3 -m unittest discover tests"""
 
+from __future__ import annotations
+
 from pathlib import Path
 import re
 import unittest
@@ -103,7 +105,7 @@ CURRENT = [
 ]
 
 
-def sources():
+def sources() -> list[Path]:
     files = (
         [ROOT / "build.py", ROOT / "index.html"]
         + sorted((ROOT / "css").glob("*.css"))
@@ -114,7 +116,7 @@ def sources():
 
 
 class OneFamily(unittest.TestCase):
-    def test_retired_class_names_are_gone(self):
+    def test_retired_class_names_are_gone(self) -> None:
         found = []
         for path in sources():
             text = path.read_text(encoding="utf-8")
@@ -124,7 +126,7 @@ class OneFamily(unittest.TestCase):
                     found.append(f"{path.relative_to(ROOT)}:{line}: {name}")
         self.assertEqual(found, [], "\n".join(found))
 
-    def test_the_family_is_in_use(self):
+    def test_the_family_is_in_use(self) -> None:
         css = (ROOT / "css/site.css").read_text(encoding="utf-8")
         for name in CURRENT:
             with self.subTest(name=name):

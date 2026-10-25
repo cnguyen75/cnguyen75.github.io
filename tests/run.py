@@ -9,6 +9,8 @@ are logged, then every failure's full traceback and the slowest tests. The exit 
 the suite's.
 """
 
+from __future__ import annotations
+
 import argparse
 import datetime as dt
 from pathlib import Path
@@ -16,6 +18,7 @@ import platform
 import subprocess
 import sys
 import time
+from typing import TextIO
 import unittest
 
 
@@ -25,16 +28,16 @@ ROOT = Path(__file__).resolve().parent.parent
 class Tee:
     """A text stream that writes to the terminal and the log, flushing both."""
 
-    def __init__(self, *streams):
+    def __init__(self, *streams: TextIO) -> None:
         self.streams = streams
 
-    def write(self, text):
+    def write(self, text: str) -> int:
         for s in self.streams:
             s.write(text)
             s.flush()
         return len(text)
 
-    def flush(self):
+    def flush(self) -> None:
         for s in self.streams:
             s.flush()
 
@@ -44,17 +47,17 @@ class TimedResult(unittest.TextTestResult):
 
     durations = []
 
-    def startTest(self, test):
+    def startTest(self, test: unittest.TestCase) -> None:
         self._started = time.monotonic()
         self.stream.write(f"[{dt.datetime.now():%H:%M:%S}] ")
         super().startTest(test)
 
-    def stopTest(self, test):
+    def stopTest(self, test: unittest.TestCase) -> None:
         super().stopTest(test)
         self.durations.append((time.monotonic() - self._started, test.id()))
 
 
-def git(*args):
+def git(*args: str) -> str:
     try:
         return subprocess.run(
             ["git", *args], cwd=ROOT, capture_output=True, text=True
@@ -63,14 +66,14 @@ def git(*args):
         return "?"
 
 
-def tool_version(cmd):
+def tool_version(cmd: str) -> str:
     try:
         return subprocess.run([cmd, "--version"], capture_output=True, text=True).stdout.strip()
     except OSError:
         return "not found"
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "names",
