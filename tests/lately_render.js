@@ -36,6 +36,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
         }),
         splits: [...document.querySelectorAll(LIFTS + " .lift-split-title")].map(e => e.textContent),
         splitCounts: [...document.querySelectorAll(LIFTS + " .lift-split")].map(e => e.querySelectorAll(".lift").length),
+        tabs: [...document.querySelectorAll(RANKINGS + " .tier-tab")].map(b => [b.textContent, b.getAttribute("aria-pressed")]),
         rankingsSection: (() => { const s = document.querySelector(RANKINGS); return s ? [s.closest(".ld-group").id, s.closest(".ld-section").id] : null; })(),
         lifts: [...document.querySelectorAll(LIFTS + " .lift")].map(l => ({
           best: l.querySelector(".lift-best").textContent,

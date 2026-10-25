@@ -1342,6 +1342,12 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   cursor: pointer;
 }
 .tier-more:hover { color: var(--ink); border-color: var(--ink); }
+/* Tabs (the tier board's control, shared): the strip, then the panels */
+.tabs { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+.tab-panels { display: flex; flex-direction: column; min-width: 0; }
+.tab-panel { min-width: 0; }
+.tier-chip--tier { flex: none; padding: 0 var(--s-1); font-family: var(--font-label); font-size: var(--fs-xs); color: var(--text-3); }
+.team-link { color: inherit; }
 /* A long list or table: ten rows, then "show all N" */
 .rows-more { align-self: flex-start; }
 .ld-collapsible { display: flex; flex-direction: column; gap: var(--s-2); }

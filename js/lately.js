@@ -466,34 +466,32 @@
     return h("div", { class: "list" }, h("div", { class: "list-title" }, "Watching now"), ul, collapse(ul, ul.children));
   }
 
-  // My rankings: Films, Shows and Anime, the first five with a toggle for the rest.
-  var RANKINGS = [["films", "Films"], ["shows", "Shows"], ["anime", "Anime"]];
-  var RANK_SHOWN = 5, RANK_MAX = 10;
-  var NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  // My rankings: one tab group (Films, Shows, Anime; films first) with that type's ranking as
+  // a numbered list, each title with its tier chip when the analysis tiers it, the first ten
+  // shown and "show all N" for the rest. The tabs switch with the tier board's.
+  var RANKINGS = [["films", "Films", "film"], ["shows", "Shows", "show"], ["anime", "Anime", "anime"]];
 
-  function ranking(g) {
+  // title -> tier, by type, from the analysis's tiered titles (watching.tiers, else the crowd points).
+  function tierLookup(data) {
+    var a = analysisOf(data), aw = a && isObj(a.watching) ? a.watching : {};
+    var src = Array.isArray(aw.tiers) ? aw.tiers : okStat(aw.crowd_agreement) ? list(aw.crowd_agreement.values.points) : [];
+    var by = {};
+    src.forEach(function (p) { if (isObj(p) && typeof p.title === "string" && typeof p.tier === "string") by[p.type + "|" + p.title] = p.tier; });
+    return function (type, title) { return by[type + "|" + title] || null; };
+  }
+  function ranking(g, tierOf) {
     var listId = "lately-ranking-" + g.key;
-    var list = h("ol", { class: "list-items list-items--numbered", id: listId, "aria-label": "My top " + g.label.toLowerCase() },
+    var list = h("ol", { class: "list-items list-items--numbered", id: listId, "aria-label": "My " + g.label.toLowerCase() + ", ranked" },
       g.items.map(function (it, i) {
-        return h("li", { class: "list-item", hidden: i >= RANK_SHOWN },
+        var tier = tierOf(g.type, it.title);
+        return h("li", { class: "list-item" },
           h("span", { class: "item-rank", "aria-hidden": "true" }, i + 1),
           h("span", { class: "item-name" }, titleLink(it)),
+          tier ? h("span", { class: "tier-chip tier-chip--tier", title: "tier " + tier }, tier) : null,
           typeof it.year === "number" ? h("span", { class: "item-meta" }, it.year) : null);
       }));
-    var button = null;
-    if (g.items.length > RANK_SHOWN) {
-      var more = "show all " + NUMBER_WORDS[g.items.length], less = "show top " + NUMBER_WORDS[RANK_SHOWN];
-      button = h("button", { type: "button", class: "table-toggle ranking-more", "aria-controls": listId, "aria-expanded": "false" }, more);
-      button.addEventListener("click", function () {
-        var open = button.getAttribute("aria-expanded") !== "true";
-        Array.prototype.forEach.call(list.children, function (li, i) { if (i >= RANK_SHOWN) li.hidden = !open; });
-        button.setAttribute("aria-expanded", String(open));
-        button.textContent = open ? less : more;
-      });
-    }
-    return h("div", { class: "ranking" },
-      h("div", { class: "ranking-head" }, h("span", { class: "legend-swatch fill--" + g.key, "aria-hidden": "true" }), g.label),
-      list, button);
+    var button = collapse(list, list.children, { cls: "ranking-more" });
+    return h("div", { class: "ranking" }, g.items.length ? [list, button] : h("p", { class: "panel-empty" }, "No " + g.label.toLowerCase() + " ranked yet."));
   }
 
   function watchingRankings(data) {
@@ -503,10 +501,15 @@
     if (!state.show) return null;
     var r = w.rankings;
     var groups = RANKINGS.map(function (g) {
-      return { key: g[0], label: g[1], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled).slice(0, RANK_MAX) : [] };
-    }).filter(function (g) { return g.items.length; });
-    if (!groups.length) return null;
-    return [state.asOf ? staleNote(state.asOf) : null, h("div", { class: "rankings" }, groups.map(ranking))];
+      return { key: g[0], label: g[1], type: g[2], items: Array.isArray(r[g[0]]) ? r[g[0]].filter(titled) : [] };
+    });
+    if (!groups.some(function (g) { return g.items.length; })) return null;
+    var tierOf = tierLookup(data);
+    var panels = groups.map(function (g) { return ranking(g, tierOf); });
+    var d = LD();
+    var body = d && d.tabs ? d.tabs(groups.map(function (g) { return g.label; }), panels,
+      { sync: "watching-type", keys: groups.map(function (g) { return g.type; }), label: "Films, shows or anime" }).root : h("div", { class: "rankings" }, panels);
+    return [state.asOf ? staleNote(state.asOf) : null, body];
   }
 
   // The tier board: five rows of title chips for films, shows or anime, from the tiered
@@ -532,7 +535,6 @@
       if (bits.length) summaries[t.tier] = bits.join(" · ");
     });
     var board = h("div", { class: "tier-board" });
-    var tabs = h("div", { class: "tier-tabs", role: "group", "aria-label": "Films, shows or anime" });
     var rows = h("div", { class: "tier-rows" });
     function chip(p) {
       var hover = [p.type, isNum(p.year) ? String(p.year) : null, isNum(p.community) ? "community " + p.community.toFixed(1) : null].filter(Boolean).join(" · ");
@@ -565,15 +567,14 @@
         }
         rows.appendChild(row);
       });
-      Array.prototype.forEach.call(tabs.children, function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-type") === type)); });
     }
-    TIER_TYPES.forEach(function (t) {
-      var b = h("button", { type: "button", class: "tier-tab", "data-type": t[0], "aria-pressed": "false" }, t[1] + " · " + titles.filter(function (p) { return p.type === t[0]; }).length);
-      b.addEventListener("click", function () { draw(t[0]); });
-      tabs.appendChild(b);
-    });
+    var labels = TIER_TYPES.map(function (t) { return t[1] + " · " + titles.filter(function (p) { return p.type === t[0]; }).length; });
+    var d = LD();
     draw("film");
-    append(board, [tabs, rows]);
+    if (d && d.tabs) {
+      append(board, d.tabs(labels, [rows], { sync: "watching-type", keys: TIER_TYPES.map(function (t) { return t[0]; }), label: "Films, shows or anime",
+        render: function (i) { draw(TIER_TYPES[i][0]); } }).root);
+    } else append(board, rows);
     return [ws.state.asOf ? staleNote(ws.state.asOf) : null, board];
   }
 
@@ -1081,9 +1082,15 @@
   // enough data yet" or not in the file leaves the question standing over a box that
   // says so, with its n and min_n; the numbers still show.
 
+  // sentences: strings, or arrays of strings and nodes (a sentence with a link in it).
   function question(text, sentences) {
-    return h("div", { class: "panel-lead" }, h("p", { class: "panel-question" }, text), h("p", { class: "panel-answer" }, sentences.join(" ")));
+    var p = h("p", { class: "panel-answer" });
+    sentences.forEach(function (s, i) { if (i) append(p, " "); append(p, s); });
+    return h("div", { class: "panel-lead" }, h("p", { class: "panel-question" }, text), p);
   }
+  function slug(s) { var d = LD(); return d && d.slug ? d.slug(s) : String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  // A team's name as a link to its tab on the fantasy page.
+  function teamLink(label, root) { return h("a", { class: "team-link", href: (root || "") + "lately/fantasy/#team=" + slug(label) }, String(label)); }
   function numbers(items) {
     items = items.filter(Boolean).slice(0, 3);
     var d = LD();
@@ -1137,8 +1144,8 @@
       sentences = [
         good + " of my " + plural(mine.length, "team", "teams") + (good === 1 ? " sits" : " sit") + " in the good half by all-play, and together they have won " +
           fnum(Math.abs(wae), 1) + " " + (wae >= 0 ? "more" : "fewer") + " games than that strength predicts.",
-        mine.length > 1 ? "The luckiest is " + L.label + " at " + plus(L.luck, 1) + "; the least lucky is " + U.label + " at " + plus(U.luck, 1) + "."
-          : L.label + " is at " + plus(L.luck, 1) + " wins above expected."
+        mine.length > 1 ? ["The luckiest is ", teamLink(L.label), " at " + plus(L.luck, 1) + "; the least lucky is ", teamLink(U.label), " at " + plus(U.luck, 1) + "."]
+          : [teamLink(L.label), " is at " + plus(L.luck, 1) + " wins above expected."]
       ];
       chart = chartOr(function (c) { return c.quadrant(q.values); });
     } else {

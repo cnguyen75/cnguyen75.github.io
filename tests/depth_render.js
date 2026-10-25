@@ -97,6 +97,11 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
           };
         })(),
         aliases: [...document.querySelectorAll(".ld-alias")].map(e => [e.id, e.dataset.to]),
+        tabSections: [...document.querySelectorAll(".ld-section")].map(s => ({ id: s.id, strips: s.querySelectorAll(".tier-tabs").length,
+          pressed: [...s.querySelectorAll('.tier-tab[aria-pressed="true"]')].map(txt), tabs: [...s.querySelectorAll(".tier-tabs:first-of-type .tier-tab")].map(txt),
+          panels: s.querySelectorAll(".tab-panel").length, hiddenPanels: s.querySelectorAll(".tab-panel[hidden]").length })),
+        hash: location.hash,
+        teamLinks: [...document.querySelectorAll("a.team-link")].map(a => [txt(a), a.getAttribute("href")]),
         squares: [...document.querySelectorAll(".results .result")].map(e => ({
           letter: e.textContent, bg: getComputedStyle(e).backgroundColor, border: getComputedStyle(e).borderTopStyle })),
         recordParts: [...document.querySelectorAll(".ld-record-bar > span")].map(e => ({

@@ -535,6 +535,37 @@ class Drawing(unittest.TestCase):
         self.assertTrue(all(c for c in s_row["years"]))
         self.assertEqual(d["sections"][1]["id"], "tiers")
 
+    # Tabs. Fantasy: every section with per-team statistics has one strip of team tabs (the
+    # team's name as the pipeline labels it), the selected team's blocks shown and the rest
+    # hidden; the strips switch together, and #team=<key> in the hash (as the main page's team
+    # links write it) picks the team, with a section anchor kept beside it. Watching: My rankings,
+    # the tier board and every per-type section share Films / Shows / Anime tabs, films first.
+    def test_tabs(self):
+        d = draw("lately/fantasy/")
+        teams = [t["name"] for t in ANALYSIS["fantasy"]["teams"]]
+        secs = {s["id"]: s for s in d["tabSections"]}
+        for sid, panels in (("playoff-odds", 3), ("draft-value", 6), ("waiver-adds", 3), ("good-or-lucky", 6), ("manager-score", 3), ("acquisition-split", 3), ("points-left-on-the-bench", 3)):
+            with self.subTest(section=sid):
+                s = secs[sid]
+                self.assertEqual((s["strips"], s["tabs"], s["pressed"]), (1, teams, [teams[0]]))
+                self.assertEqual((s["panels"], s["hiddenPanels"]), (panels, panels - panels // 3))
+        for sid in ("my-teams-week-by-week", "projection-accuracy"):  # cross-league: no tabs
+            self.assertEqual(secs[sid]["strips"], 0)
+        picked = draw("lately/fantasy/#good-or-lucky&team=espn-10-team-1-flex")
+        self.assertEqual(picked["hash"], "#good-or-lucky&team=espn-10-team-1-flex")
+        self.assertTrue(all(s["pressed"] == [teams[2]] for s in picked["tabSections"] if s["strips"]))
+        home = draw("index.html")
+        self.assertEqual(home["teamLinks"], [[teams[0], "lately/fantasy/#team=sleeper-12-team-ppr"], [teams[1], "lately/fantasy/#team=espn-10-team-2-flex"]])
+        w = draw("lately/watching/")
+        wsecs = {s["id"]: s for s in w["tabSections"]}
+        for sid, panels in (("my-rankings", 3), ("genres", 3), ("crowd-agreement", 6), ("completion", 3)):
+            with self.subTest(section=sid):
+                self.assertEqual((wsecs[sid]["strips"], wsecs[sid]["tabs"], wsecs[sid]["pressed"]), (1, ["Films", "Shows", "Anime"], ["Films"]))
+                self.assertEqual((wsecs[sid]["panels"], wsecs[sid]["hiddenPanels"]), (panels, panels - panels // 3))
+        self.assertEqual(wsecs["tiers"]["pressed"], ["Films · " + str(len([p for p in ANALYSIS["watching"]["crowd_agreement"]["values"]["points"] if p["type"] == "film"]))])
+        for sid in ("taste-profile", "whose-films", "blockbuster", "sequels"):
+            self.assertEqual(wsecs[sid]["strips"], 0)
+
     # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
     # the home city is never named (it's "my most-ranked city").
     def test_eating_places(self):

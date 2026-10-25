@@ -151,6 +151,62 @@
     return btn ? h("div", { class: "ld-collapsible" }, chart, btn) : chart;
   }
 
+  // ---------- tabs ----------
+  // One tab control for a set of panels, in the tier board's look: buttons with aria-pressed,
+  // the selected panel shown and the rest hidden. Groups that share a sync key switch
+  // together (the tier board, My rankings and the per-type sections of the watching page;
+  // every fantasy section's team tabs). A group may hold panels only (strip: false) and follow
+  // a strip elsewhere in its section; with render(i) it keeps one live panel and redraws it.
+  var TAB_GROUPS = {};
+  function tabs(labels, panels, opts) {
+    opts = opts || {};
+    var selected = isNum(opts.selected) ? opts.selected : 0;
+    var strip = opts.strip === false ? null : h("div", { class: "tier-tabs", role: "group", "aria-label": opts.label || "Choose", "data-sync": opts.sync || null },
+      labels.map(function (l, i) {
+        return h("button", { type: "button", class: "tier-tab", "data-tab": String(i), "data-type": opts.keys ? opts.keys[i] : null, "aria-pressed": String(i === selected) }, l);
+      }));
+    var box = h("div", { class: "tab-panels" }, panels.map(function (p, i) {
+      var d = h("div", { class: "tab-panel", hidden: !opts.render && i !== selected });
+      append(d, p);
+      return d;
+    }));
+    var group = { strip: strip, box: box, keys: opts.keys || null, selected: selected, select: function (i) {
+      group.selected = i;
+      if (strip) Array.prototype.forEach.call(strip.children, function (b, k) { b.setAttribute("aria-pressed", String(k === i)); });
+      if (opts.render) opts.render(i);
+      else Array.prototype.forEach.call(box.children, function (p, k) { p.hidden = k !== i; });
+    } };
+    if (strip) Array.prototype.forEach.call(strip.children, function (b, i) {
+      b.addEventListener("click", function () {
+        if (opts.sync) selectTabs(opts.sync, i); else group.select(i);
+        if (opts.onSelect) opts.onSelect(i, opts.keys ? opts.keys[i] : null);
+      });
+    });
+    if (opts.sync) (TAB_GROUPS[opts.sync] = TAB_GROUPS[opts.sync] || []).push(group);
+    group.root = h("div", { class: "tabs" }, strip, box);
+    return group;
+  }
+  function selectTabs(key, i) { list(TAB_GROUPS[key]).forEach(function (g) { g.select(i); }); }
+  // Select by a tab's key (a team's slug) in every group with that sync key; false when unknown.
+  function selectTabKey(sync, k) {
+    var i = -1;
+    list(TAB_GROUPS[sync]).forEach(function (g) { if (i < 0 && g.keys) i = g.keys.indexOf(k); });
+    if (i < 0) return false;
+    selectTabs(sync, i);
+    return true;
+  }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+  // The hash: "#section", "#team=key" or "#section&team=key".
+  function hashParts() {
+    var parts = (location.hash || "").slice(1).split("&"), team = null;
+    parts.forEach(function (p) { var m = /^team=(.+)$/.exec(p); if (m) team = decodeURIComponent(m[1]); });
+    return { id: /=/.test(parts[0]) ? "" : parts[0], team: team };
+  }
+  function setTeamHash(key) {
+    var hp = hashParts(), next = (hp.id ? "#" + hp.id + "&" : "#") + "team=" + key;
+    if (history.replaceState) history.replaceState(null, "", next);
+  }
+
   // A chart with its "view as table" toggle; the table holds the same numbers.
   function charted(title, chart, cols, rows, after) {
     var t = table(title, cols, rows, { hidden: true });
@@ -1884,17 +1940,17 @@
         var v = isObj(o.node) ? o.node[key] : undefined;
         if (v === undefined) return;
         if (arr) {
-          list(v).forEach(function (item) {
+          list(v).forEach(function (item, idx) {
             var label = isObj(item) && typeof item.name === "string" ? item.name : "";
-            next.push({ node: item, labels: o.labels.concat(label), keys: o.keys.concat(key) });
+            next.push({ node: item, labels: o.labels.concat(label), keys: o.keys.concat(key), index: idx });
           });
-        } else next.push({ node: v, labels: o.labels, keys: o.keys.concat(key) });
+        } else next.push({ node: v, labels: o.labels, keys: o.keys.concat(key), index: o.index });
       });
       out = next;
     });
     return out.map(function (o) {
-      // On a list item, the statistic lives under the last key.
-      return { stat: o.node, label: o.labels.filter(Boolean).join(" · "), key: o.keys[o.keys.length - 1] };
+      // On a list item, the statistic lives under the last key; index is its place in the list.
+      return { stat: o.node, label: o.labels.filter(Boolean).join(" · "), key: o.keys[o.keys.length - 1], index: o.index };
     });
   }
 
@@ -2051,25 +2107,67 @@
       }
       slot.appendChild(block);
     } else {
-      // One block, or blocks whose tables need the width: one to a row.
-      var one = entries.length === 1 || entries.some(function (e) { return e.spec.wide; });
-      var grid = h("div", { class: "ld-blocks" + (one ? " ld-blocks--one" : "") });
-      slot.appendChild(grid);
-      entries.forEach(function (e) {
-        var spec = e.spec, path = e.path;
-        try {
-          grid.appendChild(statBlock(e, spec, analysis, ctx));
-        } catch (err) {
-          if (window.console) console.warn("lately-depth: " + path + " not drawn:", err.message);
-          grid.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
-        }
-      });
+      // One block, or blocks whose tables need the width: one to a row. Blocks that come one
+      // per type (films, shows, anime) or one per fantasy team go under the section's tabs,
+      // after anything that doesn't.
+      var tabbed = entries.filter(function (e) { return tabSpec(e, analysis) !== null; });
+      var plain = entries.filter(function (e) { return tabSpec(e, analysis) === null; });
+      if (plain.length) {
+        var one = plain.length === 1 || plain.some(function (e) { return e.spec.wide; });
+        var grid = h("div", { class: "ld-blocks" + (one ? " ld-blocks--one" : "") });
+        slot.appendChild(grid);
+        plain.forEach(function (e) { drawInto(grid, e, analysis, ctx); });
+      }
+      if (tabbed.length) slot.appendChild(tabbedBlocks(slot, tabbed, analysis, ctx));
     }
     // The pipeline's "how" sentence: one per section, for its primary statistic, under the slot
     // that holds it (or the slot that absorbed it).
     var sec = slot.closest(".ld-section");
     if (sec && holdsPrimary(slot, sec)) append(slot, sectionHow(sec, analysis));
   }
+
+  function drawInto(grid, e, analysis, ctx) {
+    try {
+      grid.appendChild(statBlock(e, e.spec, analysis, ctx));
+    } catch (err) {
+      if (window.console) console.warn("lately-depth: " + e.path + " not drawn:", err.message);
+      grid.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
+    }
+  }
+
+  // Which tab set an entry belongs to: the watching type (its key is show, film or anime, in
+  // either number) or the fantasy team (a fantasy.teams[] path); null for anything else.
+  var TYPE_KEY = { film: "film", films: "film", show: "show", shows: "show", anime: "anime" };
+  var TYPE_TABS = { sync: "watching-type", keys: ["film", "show", "anime"], labels: ["Films", "Shows", "Anime"], label: "Films, shows or anime" };
+  function teamTabs(analysis) {
+    var teams = isObj(analysis.fantasy) ? list(analysis.fantasy.teams).filter(isObj) : [];
+    var labels = teams.map(function (t, i) { return typeof t.name === "string" && t.name ? t.name : "Team " + (i + 1); });
+    return { sync: "fantasy-team", keys: labels.map(slug), labels: labels, label: "My teams", onSelect: function (i, key) { setTeamHash(key); } };
+  }
+  function tabSpec(e, analysis) {
+    if (/^fantasy\.teams\[\]/.test(e.path) && isNum(e.index)) return teamTabs(analysis);
+    if (/^watching\./.test(e.path) && TYPE_KEY[e.key]) return TYPE_TABS;
+    return null;
+  }
+  function tabIndex(e, spec) { return spec.sync === "fantasy-team" ? e.index : spec.keys.indexOf(TYPE_KEY[e.key]); }
+  // The entries of one slot under tabs: one panel per tab, the strip on the section's first
+  // tabbed slot only; later slots in the section follow it.
+  function tabbedBlocks(slot, entries, analysis, ctx) {
+    var spec = tabSpec(entries[0], analysis);
+    var panels = spec.labels.map(function () { return []; });
+    entries.forEach(function (e) { var i = tabIndex(e, spec); if (i >= 0 && i < panels.length) panels[i].push(e); });
+    var nodes = panels.map(function (es) {
+      if (!es.length) return h("p", { class: "ld-note" }, "Nothing for this one yet.");
+      var grid = h("div", { class: "ld-blocks ld-blocks--one" });
+      es.forEach(function (e) { drawInto(grid, e, analysis, ctx); });
+      return grid;
+    });
+    var sec = slot.closest(".ld-section");
+    var first = !(sec && sec.querySelector('.tier-tabs[data-sync="' + spec.sync + '"]'));
+    var g = tabs(spec.labels, nodes, { sync: spec.sync, keys: spec.keys, strip: first, label: spec.label, onSelect: spec.onSelect, selected: selectedIndex(spec.sync) });
+    return g.root;
+  }
+  function selectedIndex(sync) { var g = list(TAB_GROUPS[sync])[0]; return g ? g.selected : 0; }
 
   // A section's primary statistic: its data-how (a HOW: line in the content file), else the
   // first statistic listed. Its "how" sentence is folded under a "how" summary, closed unless
@@ -2205,7 +2303,7 @@
   }
 
   window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat, sampleTag: sampleTag, firstUnitText: firstUnitText,
-    collapseRows: collapseRows, collapsible: collapsible,
+    collapseRows: collapseRows, collapsible: collapsible, tabs: tabs, selectTabs: selectTabs, selectTabKey: selectTabKey, slug: slug,
     charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
       effectBars: effectBars, survivalChart: survivalChart },
     splitSeries: splitSeries, SPLIT_NAMES: SPLIT_NAMES,
@@ -2238,6 +2336,10 @@
     Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
     Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
     hideEmpty();
+    // The team in the hash (#team=key, from the main page or the lineup) picks the team tabs.
+    function followHash() { var t = hashParts().team; if (t) selectTabKey("fantasy-team", t); }
+    followHash();
+    window.addEventListener("hashchange", followHash);
     // The credits in meta.attributions, while any of the statistics they cover is drawn.
     var attrs = isObj(a.meta) ? list(a.meta.attributions).filter(function (x) { return isObj(x) && typeof x.text === "string"; }) : [];
     Array.prototype.forEach.call(document.querySelectorAll(".ld-attributions[data-when-stats]"), function (p) {
@@ -2282,7 +2384,7 @@
 
   // #old-id (a card absorbed into another) becomes #new-id, scrolled to.
   function redirectAlias() {
-    var id = (location.hash || "").slice(1);
+    var id = hashParts().id;
     if (!id) return;
     var el = document.getElementById(id);
     if (!el || !el.classList.contains("ld-alias")) return;

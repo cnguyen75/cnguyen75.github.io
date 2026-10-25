@@ -32,12 +32,12 @@ def can_draw():
 
 
 def fixture():
-    """The committed sample with ten films, seven shows, five anime; lift 1 with a best
+    """The committed sample with twelve films, seven shows, five anime; lift 1 with a best
     set, lift 2 with two sessions."""
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     r = d["watching"]["rankings"]
-    r["films"] = [{"title": f"Film {i}", "year": 2000 + i, "url": f"https://simkl.com/movies/{i}"} for i in range(1, 11)]
+    r["films"] = [{"title": f"Film {i}", "year": 2000 + i, "url": f"https://simkl.com/movies/{i}"} for i in range(1, 13)]
     r["shows"] = [{"title": f"Show {i}", "year": None, "url": f"https://simkl.com/tv/{i}"} for i in range(1, 8)]
     lifts = d["lifting"]["main_lifts"]
     lifts[0]["best"]["best_set"] = {"weight_lb": 185, "reps": 4, "date": "2026-09-26"}
@@ -177,24 +177,26 @@ class Schema(unittest.TestCase):
 
 @unittest.skipUnless(can_draw(), "needs node, Chrome and tools/node_modules")
 class Drawing(unittest.TestCase):
-    # Rankings, under "What's happening" on lately/watching/: five shown, "show all ten" opens
-    # the rest in place; keyboard works; same on phones.
-    def test_rankings_show_five_then_all(self):
+    # Rankings, under "What's happening" on lately/watching/: one tab group (Films first), the
+    # selected type's list with ten shown and "show all N" for the rest, which opens in place;
+    # keyboard works; same on phones.
+    def test_rankings_tabs_then_all(self):
         for w in WIDTHS:
             with self.subTest(width=w):
                 d = draw(w)
                 self.assertEqual(d["before"]["rankingsSection"], ["whats-happening", "my-rankings"])
+                self.assertEqual(d["before"]["tabs"], [["Films", "true"], ["Shows", "false"], ["Anime", "false"]])
                 films, shows, anime = d["before"]["rankings"]
-                self.assertEqual(films["visible"], [str(i) for i in range(1, 6)])
-                self.assertEqual(films["button"], {"text": "show all ten", "expanded": "false", "controls": True})
-                self.assertEqual(shows["button"]["text"], "show all seven")
-                self.assertIsNone(anime["button"])  # five or fewer: no toggle
+                self.assertEqual(films["visible"], [str(i) for i in range(1, 11)])
+                self.assertEqual(films["button"], {"text": "show all 12", "expanded": "false", "controls": True})
+                self.assertEqual(shows["visible"], [])  # the other types' panels are hidden until their tab is pressed
+                self.assertIsNone(shows["button"])  # ten or fewer: no toggle
+                self.assertIsNone(anime["button"])
                 opened = d["opened"]["rankings"][0]
-                self.assertEqual(opened["visible"], [str(i) for i in range(1, 11)])
-                self.assertEqual(opened["button"], {"text": "show top five", "expanded": "true", "controls": True})
+                self.assertEqual(opened["visible"], [str(i) for i in range(1, 13)])
+                self.assertEqual(opened["button"], {"text": "show fewer", "expanded": "true", "controls": True})
                 self.assertIn("ranking-more", d["focused"])  # focus stays on the button
                 self.assertEqual(d["closed"]["rankings"][0], films)
-                self.assertEqual(d["before"]["rankings"][1]["visible"], [str(i) for i in range(1, 6)])
                 self.assertLessEqual(max(d["before"]["scrollX"], d["opened"]["scrollX"], d["before"]["liftsScrollX"]), 0)
 
     # Lift tiles (lately/lifting/): best set under the best e1RM when present; under three sessions, a count, not a chart.

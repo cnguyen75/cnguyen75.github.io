@@ -64,7 +64,8 @@ Ties round up (6 → 8, 10 → 12, 14 → 16, 20 → 24, 28 → 32, 40 → 48). 
 | Stat tile | headline numbers on panels and in-depth pages; the stat row on track pages | `.stats` > `.stat` with `.stat-label`, `.stat-value`, `.stat-note` (`.ld-stats`, `.ld-stats--panel` for the compact grid); `.tp-stats` > `.tp-stat` with `.tp-stat-label`, `.tp-stat-value` |
 | Bars | horizontal bar lists | `.bar-list` > `.bar-row` (`.bar-label`, `.bar-track`, `.bar-fill`, `.bar-value`; `.bar-track--diverging`, `.bar-fill--neg` for negatives); in depth `.ld-bars` > `.ld-bar-row` (`.ld-bar-label`, `.ld-bar-track`, `.ld-bar-fill`, `.ld-bar-value`, `.ld-bar-ref` for a comparison tick); on track pages `.tp-bars` > `.tp-bar` |
 | Tier board | the watching page's rankings | `.tier-board` > `.tier-tabs` + `.tier-rows` > `.tier-row` (`.tier-row-head`, `.tier-letter`, `.tier-count`, `.tier-summary`, `.tier-chips` > `.tier-chip`) |
-| Tabs | the tier board (films, shows, anime) | `.tier-tabs` > `button.tier-tab[aria-pressed]` |
+| Tabs | the tier board, My rankings, the per-type and per-team sections | `.tabs` > `.tier-tabs` (`button.tier-tab[aria-pressed]`) + `.tab-panels` > `.tab-panel` (`tabs(labels, panels)` in `js/lately-depth.js`; groups with a sync key switch together) |
+| Show all | lists and tables over ten rows; a tier row over fifteen chips | `button.table-toggle.rows-more[aria-expanded]`; `.tier-chip-more > button.tier-more` |
 | View as table | every chart | `button.table-toggle[aria-controls][aria-expanded]` and the hidden `.data-table` it reveals (`.ld-table` in depth) |
 | Details / how | the pipeline's method line under a statistic | `.ld-how` with `.ld-how-label` |
 | Chips | source status under the lately heading; tags | `.chips` > `.chip` (`.chip-dot`); `.tag`, `.ld-tag`, `.tp-tag` for a boxed one-word flag |
