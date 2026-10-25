@@ -70,8 +70,9 @@ class Register(unittest.TestCase):
         self.assertIn('<span class="tp-badge">status: live · updated daily</span>', doc)
         self.assertIn('<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">', doc)
         self.assertIn('<main id="main" class="tp-main" data-total="0.0" data-live-timing>', doc)  # the sections are timed in the browser
-        titles = re.findall(r"^## (.+?)(?: \{#.*)?$", content("fantasy"), re.M)
-        self.assertEqual(re.findall(r'<span class="tp-seg-name">([^<]+)</span>', doc), [html.escape(t.lower()) for t in titles] + ["built with"])
+        shorts = re.findall(r"^short: (.+)$", content("fantasy"), re.M)
+        self.assertEqual(shorts, ["teams", "carrying", "odds", "draft", "waivers", "luck", "manager", "points", "bench", "projections"])
+        self.assertEqual(re.findall(r'<span class="tp-seg-name">([^<]+)</span>', doc), shorts + ["built with"])
         self.assertRegex(doc, r'<section class="tp-section ld-section ld-section--why" id="projection-accuracy" aria-labelledby="projection-accuracy-h">'
                               r'<h2 class="tp-section-label" id="projection-accuracy-h"><span class="tp-label-time"></span>are the projections honest\?</h2>'
                               r'<div class="tp-section-body"><span data-secs="[\d.]+" class="ld-alias" id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
@@ -152,29 +153,35 @@ class Register(unittest.TestCase):
     # STAT: paths must name statistics in the merged schema; sections hold nothing else.
     def test_stat_lines(self):
         head = "---\nregister: data\nfeed: lifting\ntitle: T\nsource: Hevy | https://www.hevyapp.com\n---\n\n# What's happening\n\n"
-        why = "\n# Why\n\n## Z\nSTAT: lifting.volume_lag\n"
+        why = "\n# Why\n\n## Z\nshort: z\nSTAT: lifting.volume_lag\n"
         for body, err in (("## A\nSTAT: lifting.nope\n", "not a statistic"),
                           ("## A\nSTAT: lifting.progress\n", "not a statistic"),
                           ("## A\nSTAT: fantasy.teams.margins\n", "write it with \\[\\]"),
-                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines"),
-                          ("## A\nSTAT: lifting.lag_check\nHOW: lifting.volume_lag\n", "HOW: lifting.volume_lag is not one of the statistics"),
+                          ("## A\nSome words.\n", "only short:, STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines"),
+                          ("## A\nSTAT: lifting.lag_check\n", "lacks short:"),
+                          ("## A\nshort: three word name\nSTAT: lifting.lag_check\n", "at most 2 lowercase words"),
+                          ("## A\nshort: Caps\nSTAT: lifting.lag_check\n", "at most 2 lowercase words"),
+                          ("## A\nshort: a\nshort: b\nSTAT: lifting.lag_check\n", "only one short: line"),
+                          ("## A\nshort: a\nSTAT: lifting.lag_check\nHOW: lifting.volume_lag\n", "HOW: lifting.volume_lag is not one of the statistics"),
                           ("## A\nSTAT: lifting.lag_check\nHOW: lifting.lag_check\nHOW: lifting.lag_check\n", "only one HOW: line"),
                           ("## A\nSTAT: lifting.lag_check\nHOW: lifting.lag_check shut\n", "at most, the word open"),
                           ("## A\nFEED: lifting.nope\n", "not a block js/lately.js draws"),
                           ("## A\nNOTE: only a note\n", "has no STAT: or FEED: line"),
                           ("## A\n\n## B\nSTAT: lifting.lag_check\n", "has no STAT"),
                           ("## A\nSTAT: lifting.lag_check\n## A\nSTAT: lifting.lag_check\n", "share an id"),
-                          ("## A\nSTAT: lifting.lag_check\n\n# Why\n\n## A\nSTAT: lifting.volume_lag\n", "share an id"),
+                          ("## A\nshort: a\nSTAT: lifting.lag_check\n\n# Why\n\n## A\nshort: a\nSTAT: lifting.volume_lag\n", "share an id"),
                           ("## A\nALIAS: Not An Id\nSTAT: lifting.lag_check\n", "must be a section id"),
-                          ("## A\nALIAS: z\nSTAT: lifting.lag_check\n", "already a section id or alias"),
+                          ("## A\nshort: a\nALIAS: z\nSTAT: lifting.lag_check\n", "already a section id or alias"),
                           ("# Extra\n## A\nSTAT: lifting.lag_check\n", "groups are")):
             with self.subTest(body=body), self.assertRaisesRegex(build.ContentError, err):
                 self.read("lifting", head + body + ("" if "# Why" in body else why))
         with self.assertRaisesRegex(build.ContentError, "once each"):
-            self.read("lifting", head + "## A\nSTAT: lifting.lag_check\n")  # no Why group
+            self.read("lifting", head + "## A\nshort: a\nSTAT: lifting.lag_check\n")  # no Why group
         with self.assertRaisesRegex(build.ContentError, "match the file name"):
-            self.read("eating", head + "## A\nSTAT: lifting.lag_check\n" + why)
-        meta = self.read("lifting", head + "## A\nNOTE: a line under the title\nALIAS: an-old-card\nSTAT: lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n" + why)
+            self.read("eating", head + "## A\nshort: a\nSTAT: lifting.lag_check\n" + why)
+        meta = self.read("lifting", head + "## A\nshort: two words\nNOTE: a line under the title\nALIAS: an-old-card\nSTAT: lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n" + why)
+        self.assertEqual(meta["sections"][0]["short"], "two words")
+        self.assertIn('<span class="tp-seg-name">two words</span>', build.render_data_page(meta))
         self.assertEqual(meta["sections"][0]["aliases"], ["an-old-card"])
         self.assertEqual(meta["sections"][0]["stats"], [["lifting.progress.*"], ["cross.rhythm.workouts"]])
         self.assertEqual(meta["sections"][0]["slots"], [("stat", ["lifting.progress.*"]), ("feed", "lifting.lifts"), ("stat", ["cross.rhythm.workouts"])])
@@ -182,14 +189,14 @@ class Register(unittest.TestCase):
         self.assertIsNone(meta["sections"][0]["how"])  # no HOW: line: the first statistic's how is shown
         self.assertEqual([g["id"] for g in meta["groups"]], ["whats-happening", "why"])
         # HOW: names the section's primary statistic, and "open" unfolds its line by default.
-        meta = self.read("lifting", head + "## A\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: lifting.progress.* open\n" + why)
+        meta = self.read("lifting", head + "## A\nshort: a\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: lifting.progress.* open\n" + why)
         self.assertEqual(meta["sections"][0]["how"], ("lifting.progress.*", True))
         self.assertIn('id="a" data-how="lifting.progress.*" data-how-open aria-labelledby="a-h"', build.render_data_page(meta))
         self.assertIn('<section class="tp-section ld-section ld-section--why" id="z"', build.render_data_page(meta))
         self.assertEqual(meta["sections"][1]["group"], "why")
         bad = head.replace("source: Hevy | https://www.hevyapp.com", "source: Hevy | https://www.hevyapp.com\nattribution_when: yahoo | text")
         with self.assertRaisesRegex(build.ContentError, "attribution_when must be"):
-            self.read("lifting", bad + "## A\nSTAT: lifting.lag_check\n" + why)
+            self.read("lifting", bad + "## A\nshort: a\nSTAT: lifting.lag_check\n" + why)
 
     # Every statistic in the schema is on exactly one page, or left out on purpose.
     def test_every_statistic_placed(self):
@@ -994,7 +1001,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(len(blocks(d, "watching.community_gap_by_genre")), 1)  # inside the crowd card
         # The reading bar's segments are the contents list: one per section, in order, plus "built with".
         self.assertEqual([s[0] for s in d["segs"]], ["#" + i for i in groups["whats-happening"]["sections"] + groups["why"]["sections"]] + ["#built-with"])
-        self.assertEqual(d["segs"][5][:3], ["#taste-profile", "what does my taste look like?", False])
+        self.assertEqual(d["segs"][5][:3], ["#taste-profile", "taste", False])
         self.assertTrue(all(re.fullmatch(r"\d+:\d\d", s[3]) for s in d["segs"]), d["segs"])  # every segment is timed once the page is drawn
         self.assertEqual([s["time"] for s in d["sections"]][0], "0:00 ·")
         self.assertTrue(re.fullmatch(r"\d+:\d\d / \d+:\d\d", d["clock"]), d["clock"])

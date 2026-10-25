@@ -73,6 +73,7 @@ FEED_BLOCKS = ("fantasy.lineup", "fantasy.carry", "watching.hours", "watching.re
                "listening.recent", "eating.recent", "lifting.lifts", "lifting.training", "lifting.body_weight")
 # Each page credits its source by name and link; these four require it.
 DATA_ATTRIBUTION = {"watching": "Simkl", "listening": "Last.fm", "eating": "Beli", "lifting": "Hevy"}
+SHORT_WORDS = 2  # a data-page section's short: name, the reading bar's segment label
 # Statistics in the analysis schema that no page shows, as {path: reason}. Every other
 # statistic must be on exactly one page. 2026-10-18: the pages were trimmed to the cards
 # that have data or a dated arrival and answer something no other card does; the pipeline
@@ -356,13 +357,22 @@ def read_data_page(path, schema):
     meta["stats"] = []
     for sec in meta["sections"]:
         sec["stats"], sec["slots"], sec["notes"], sec["aliases"], sec["source"], sec["how"] = [], [], [], [], None, None
+        sec["short"] = None
         for line in sec["lines"]:
             if not line.strip():
                 continue
-            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE|HOW):\s*(\S.*?)\s*", line)
+            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE|HOW|short):\s*(\S.*?)\s*", line)
             if not mm:
-                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines are allowed, not {line.strip()!r}")
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only short:, STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines are allowed, not {line.strip()!r}")
             kind, arg = mm.group(1), mm.group(2)
+            if kind == "short":
+                # The section's name in the reading bar: at most two words, so the bar fits one row.
+                if sec["short"] is not None:
+                    raise ContentError(f"{path.name}: under '## {sec['title']}' only one short: line is allowed")
+                if len(arg.split()) > SHORT_WORDS or not re.fullmatch(r"[a-z0-9][a-z0-9' -]*", arg):
+                    raise ContentError(f"{path.name}: short: {arg!r} must be at most {SHORT_WORDS} lowercase words")
+                sec["short"] = arg
+                continue
             if kind == "NOTE":
                 sec["notes"].append(arg)
                 continue
@@ -403,6 +413,8 @@ def read_data_page(path, schema):
             meta["stats"] += leaves
         if not sec["slots"]:
             raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: or FEED: line")
+        if not sec["short"]:
+            raise ContentError(f"{path.name}: '## {sec['title']}' lacks short: (its name in the reading bar, at most two words)")
         if sec["how"] and sec["how"][0] not in [leaf for leaves in sec["stats"] for leaf in leaves]:
             raise ContentError(f"{path.name}: HOW: {sec['how'][0]} is not one of the statistics '## {sec['title']}' shows")
     check_aliases(meta)
@@ -1322,8 +1334,9 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
         # Data pages: the times are measured in the browser once the statistics are drawn.
         stamp = f'<span class="tp-seg-time">{"" if data else clock(s["start"])}</span>' if stamped else ""
         grow = max(1, round(s["secs"] / 20))
+        seg_name = s.get("short") or s["title"].lower()
         seg_html.append(f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" data-secs="{s["secs"]:.1f}">'
-                        f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(s["title"].lower())}</span></a>')
+                        f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(seg_name)}</span></a>')
         label = ('<span class="tp-label-time"></span>' if data else f"{clock(s['start'])} · " if stamped else "") + esc(s["title"].lower())
         if progress and s["title"] == "where it stands":
             iso, shown = meta["as_of_date"]
@@ -1544,7 +1557,8 @@ def data_sections(meta):
             blocks.append((f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
                            else f'<div class="ld-feed" data-block="{esc(arg)}"></div>', 0, "text"))
         out.append(dict(s, blocks=blocks))
-    out.append({"title": "built with", "id": "built-with", "group": None, "how": None, "blocks": [(data_built_with(meta), 0, "text")]})
+    out.append({"title": "built with", "short": "built with", "id": "built-with", "group": None, "how": None,
+                "blocks": [(data_built_with(meta), 0, "text")]})
     return out
 
 

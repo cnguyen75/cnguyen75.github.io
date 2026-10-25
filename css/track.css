@@ -133,6 +133,15 @@
 }
 .tp-seg-time { display: block; color: var(--text-3); }
 .tp-seg.is-current .tp-seg-name { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+/* A lately page's bar is one row: short section names (short: in the content file), a smaller
+   label, and at phone width the names and times are read, not shown. */
+.ld-body .tp-segs { flex-wrap: nowrap; }
+.ld-body .tp-seg { flex: 1 1 0; min-width: 0; font-size: var(--fs-12); }
+.ld-body .tp-seg-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) {
+  .ld-body .tp-seg-name, .ld-body .tp-seg-time { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .ld-body .tp-seg { padding-bottom: var(--s-4); min-height: var(--s-16); }
+}
 
 /* Compact bar, fixed to the top once the full bar has scrolled away */
 .tp-mini {
