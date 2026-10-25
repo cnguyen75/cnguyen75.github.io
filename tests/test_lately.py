@@ -103,9 +103,12 @@ class Schema(unittest.TestCase):
         self.assertNotIn("top_ten_churn", defs["analysis_eating"]["required"])
         self.assertIn("2026-10-17", SCHEMA["properties"]["schema_version"]["description"])
         self.assertIn("top_ten_churn is removed", SCHEMA["properties"]["schema_version"]["description"])
-        # The quadrant's other teams carry no names: only these keys are allowed.
+        # The quadrant's other teams carry no names: only these keys are allowed, the label a
+        # per-league pseudonym ("Team C") since 2026-10-25.
         others = defs["analysis_stat_quadrant"]["properties"]["values"]["anyOf"][0]["properties"]["others"]["items"]
-        self.assertEqual(sorted(others["properties"]), ["all_play", "league_key", "luck", "record"])
+        self.assertEqual(sorted(others["properties"]), ["all_play", "label", "league_key", "luck", "record"])
+        self.assertNotIn("label", others["required"])
+        self.assertEqual(others["properties"]["label"]["pattern"], "^Team [A-Z]+$")
         self.assertFalse(others["additionalProperties"])
         self.assertEqual(defs["analysis_fantasy"]["properties"]["quadrant"]["$ref"], "#/$defs/analysis_stat_quadrant")
         # Every fixed-shape variant keeps the statistic's fields.
@@ -162,7 +165,7 @@ class Schema(unittest.TestCase):
         self.assertNotIn("top_ten_churn", sample["eating"])
         others = sample["fantasy"]["quadrant"]["values"]["others"]
         self.assertTrue(others)
-        self.assertTrue(all(set(o) == {"all_play", "league_key", "luck", "record"} for o in others))
+        self.assertTrue(all(set(o) <= {"all_play", "label", "league_key", "luck", "record"} for o in others))
 
     def test_best_set_is_optional(self):
         best = SCHEMA["$defs"]["lifting"]["properties"]["main_lifts"]["items"]["properties"]["best"]
