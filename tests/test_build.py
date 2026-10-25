@@ -347,6 +347,17 @@ class Progress(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "LINKS"):
                 self.render(sections={"my role": "LINKS:\n" + bad})
 
+    # PAPERS: a titled list under the results, each entry "Authors (year). Title. arXiv:id" with the
+    # id linked to the abstract and an optional note; a bad id, year or short row stops the build.
+    def test_papers(self):
+        doc = self.render(sections={"results": "Found.\n\nPAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. Third | 2021 | Another | block size 256 here"})
+        self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-papers"><div class="tp-papers-title">Papers this builds on</div><ul class="tp-papers-list">'
+                              r'<li>A\. Author and B\. Other \(2017\)\. <cite>A Title</cite>\. <a href="https://arxiv\.org/abs/1706\.03762" target="_blank" rel="noopener">arXiv:1706\.03762</a>\.</li>'
+                              r'<li>C\. Third \(2021\)\. <cite>Another</cite>\. <a href="https://arxiv\.org/abs/2110\.02861" target="_blank" rel="noopener">arXiv:2110\.02861</a>\. <span class="tp-paper-note">block size 256 here</span></li></ul></div>')
+        for bad in ("1706.037 | A | 2017 | T", "1706.03762 | A | 17 | T", "1706.03762 | A | 2017", "1706.03762 | | 2017 | T"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "PAPERS"):
+                self.render(sections={"results": "PAPERS:\n" + bad})
+
     # Main-page rows: a row whose page is built is one link (number, title, description,
     # status); others stay plain <div>s with no label. Idempotent; an external-link row
     # can't be linked to a page.

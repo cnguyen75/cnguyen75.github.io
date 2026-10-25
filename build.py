@@ -52,7 +52,7 @@ PREVIEW_SKIP = {".git", "content", "tests", "tools", PREVIEW_DIR, "build.py", "R
 # A marker starts a block that runs to the next blank line; the second group only
 # ever follows one of the first.
 MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
-MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "LINKS", "AUDIO-PAIR", "AUDIO-GRID")
+MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "LINKS", "PAPERS", "AUDIO-PAIR", "AUDIO-GRID")
 MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE", "ALT", "OVERLAY")
 
 
@@ -793,6 +793,20 @@ class Page:
                  "rows are 'label | https://...'")
             items = "".join(f'<li><a href="{esc(c[1])}"{new_tab(c[1])}>{inline_text(c[0])} →</a></li>' for c in cells)
             return (f'<ul class="tp-links">{items}</ul>', sum(words(c[0]) for c in cells), "text")
+
+        if kind == "PAPERS":
+            # "Papers this builds on": 'arXiv id | authors | year | title [| note]' per row, the title
+            # and authors as the arXiv abstract page gives them; the id links to the abstract.
+            need(cells and all(4 <= len(c) <= 5 and re.fullmatch(r"\d{4}\.\d{4,5}", c[0]) and c[1] and re.fullmatch(r"\d{4}", c[2]) and c[3]
+                               for c in cells), "rows are 'arXiv id | authors | year | title [| note]'")
+            items = ""
+            for c in cells:
+                url = f"https://arxiv.org/abs/{c[0]}"
+                note = f' <span class="tp-paper-note">{inline(c[4])}</span>' if len(c) > 4 and c[4] else ""
+                items += (f'<li>{inline(c[1])} ({esc(c[2])}). <cite>{inline(c[3])}</cite>. '
+                          f'<a href="{url}"{new_tab(url)}>arXiv:{esc(c[0])}</a>.{note}</li>')
+            return (f'<div class="tp-papers"><div class="tp-papers-title">Papers this builds on</div><ul class="tp-papers-list">{items}</ul></div>',
+                    sum(words(" ".join(c)) for c in cells), "text")
 
         if kind == "TABLE":
             need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")

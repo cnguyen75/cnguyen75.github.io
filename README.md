@@ -141,6 +141,7 @@ The body is `## Section` headings (an `{#id}` after the heading sets its anchor)
 | `CREDITS:` | `role \| text` | credits, with a bare `https://` value linked; the front matter's `attribution:` is repeated under them unless a `data` row already credits the data |
 | `DEMO: path.json [more.json …]` | `BEHAVIOUR:` (not shown), `DEMO-CAPTION:`, `ATTRIBUTION:` | demo slot; needs `demo.js` (and optionally `demo.css`) in the asset folder, added to that page only. The first file is the slot's `data-src`; any others are published too and listed in `data-more` |
 | `LINKS:` | `label \| https://…` | a short list of labelled links ("label →"), e.g. under the credits |
+| `PAPERS:` | `arXiv id \| authors \| year \| title [\| note]` | "Papers this builds on", a titled list under the results: "Authors (year). Title. arXiv:id", the id linking to the abstract, with the note after it in the label face. Titles and author lists are copied from the arXiv abstract page, never typed from memory |
 | `AUDIO-PAIR:` | `file \| label [\| synthetic[, failed to stop]]` and `CAPTION:` | audio clips; tags are checked against a `manifest.json` beside the clips when there is one |
 | `AUDIO-GRID: manifest.json` | `BEHAVIOUR:` (not shown), `AUDIO-NOTE:`, `ATTRIBUTION:` | a table of clips, sentences as rows; columns come from `grid-columns.txt` beside the manifest (`system \| label \| real or synthetic`). Only file names, systems and `stop_failure` are read, and the manifest is not published. It takes the section's full width; below 640px it shows one sentence at a time. |
 

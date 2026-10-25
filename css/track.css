@@ -318,6 +318,13 @@
 }
 .tp-credit dd { flex: 1 1 240px; margin: 0; }
 
+/* Papers this builds on: a titled list, one entry a line, the arXiv id linked */
+.tp-papers { display: flex; flex-direction: column; gap: 8px; }
+.tp-papers-title { font-weight: 700; }
+.tp-papers-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 15px; color: var(--text-2); }
+.tp-papers-list cite { font-style: normal; color: var(--ink); }
+.tp-paper-note { font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
+
 /* Links: a short labelled list, e.g. under the credits */
 .tp-section-body .tp-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: var(--font-label); font-size: 15px; }
 .tp-links a { overflow-wrap: anywhere; }
