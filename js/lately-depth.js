@@ -482,8 +482,9 @@
         return h("span", { class: "quad-trail-dot", "aria-hidden": "true", title: "week " + d.week, style: { left: d.left + "%", top: d.top + "%", opacity: d.opacity } });
       }),
       others.map(function (t) {
-        return h("span", { class: "quad-dot quad-dot--other", title: hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
-          h("span", { class: "sr-only" }, "another team, " + hover(t)));
+        var labelled = typeof t.label === "string" && t.label;
+        return h("span", { class: "quad-dot quad-dot--other", title: (labelled ? t.label + " · " : "") + hover(t), style: { left: x(t.all_play) + "%", top: y(t.luck) + "%" } },
+          h("span", { class: "sr-only" }, otherLabel(t) + ", " + hover(t)));
       }),
       mine.map(function (t, i) {
         // Wide: the label beside the point. Under 600px (CSS): a numbered marker and the key below.
@@ -504,7 +505,7 @@
         return h("span", { style: { left: x(a) + "%" } }, pct(a));
       }), h("span", { class: "quad-x-label" }, "all-play win share →")));
     var rows = mine.map(function (t) { return [String(t.label), record(t.record), pct(t.all_play), signed(t.luck, 1)]; })
-      .concat(others.map(function (t) { return ["another team", record(t.record), pct(t.all_play), signed(t.luck, 1)]; }));
+      .concat(others.map(function (t) { return [otherLabel(t), record(t.record), pct(t.all_play), signed(t.luck, 1)]; }));
     var key = mine.length ? h("ol", { class: "quad-key", "aria-label": "My teams, by marker number" }, mine.map(function (t, i) {
       return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), String(t.label) + " · " + record(t.record));
     })) : null;
@@ -730,6 +731,23 @@
     }), { labelHeading: "Week", valueHeading: "Points on the bench" });
   }
 
+  // "With any other team's schedule I'd be 3–3 once, 2–4 twice and 1–5 eight times; no schedule
+  // would have done better than my own." (or "; N of M schedules would have done better."), from
+  // the distribution of records over the league's other schedules.
+  var TIMES = ["", "once", "twice", "three times", "four times", "five times", "six times", "seven times", "eight times", "nine times", "ten times"];
+  function timesText(n) { return TIMES[n] || n + " times"; }
+  function scheduleSentence(v) {
+    var dist = list(v.distribution).filter(function (d) { return isObj(d) && isNum(d.schedules) && d.schedules > 0; });
+    var parts = dist.map(function (d) { return record(d) + " " + timesText(d.schedules); });
+    var text = parts.length < 2 ? parts.join("") : parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1];
+    var total = dist.reduce(function (a, d) { return a + d.schedules; }, 0);
+    var better = isNum(v.better) ? v.better : 0;
+    return "With any other team's schedule I'd be " + text + "; " +
+      (better === 0 ? "no schedule would have done better than my own." : better + " of " + total + " schedules would have done better.");
+  }
+  // Another team in my league: its label when the file gives one ("Team C"), never a name.
+  function otherLabel(t) { return typeof t.label === "string" && t.label ? t.label : "another team"; }
+
   function rankText(rank, size, oneIs) {
     return isNum(rank) && isNum(size) ? rank + " of " + size + " (1 = " + oneIs + ")" : null;
   }
@@ -791,16 +809,7 @@
     "fantasy.teams[].schedule_what_if": {
       n: WEEKS,
       value: function (s) { return [record(s.values.real), "my real record"]; },
-      draw: function (v) {
-        var real = record(v.real);
-        return [
-          bars("Records from the other schedules", list(v.distribution).map(function (d) {
-            var r = record(d);
-            return { label: r + (r === real ? " (mine)" : ""), value: d.schedules, text: plural(d.schedules, "schedules").replace(/^1 schedules$/, "1 schedule") };
-          }), { labelHeading: "Record", valueHeading: "Schedules" }),
-          facts([["schedules with a better record", String(v.better)], ["the same", String(v.same)], ["worse", String(v.worse)]])
-        ];
-      }
+      draw: function (v) { return h("p", { class: "ld-sentence" }, scheduleSentence(v)); }
     },
     "fantasy.teams[].strength_of_schedule": {
       n: WEEKS,

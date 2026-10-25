@@ -324,6 +324,10 @@ def variant(name):
         d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
                                  {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
                                  {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
+    if name == "better schedules":
+        a["fantasy"]["teams"][0]["schedule_what_if"]["values"].update(better=3, same=1, worse=7)
+    if name == "labelled others":
+        a["fantasy"]["quadrant"]["values"]["others"][0]["label"] = "Team C"
     if name == "crowded tier":
         # Twenty more S-tier films, so the S row folds to fifteen chips and a "+N more" chip.
         pts = a["watching"]["crowd_agreement"]["values"]["points"]
@@ -843,7 +847,19 @@ class Drawing(unittest.TestCase):
         self.assertEqual(draft[0]["rows"], 15)
         self.assertEqual((draft[0]["hiddenRows"], draft[0]["more"]), (5, [["show all 15", "false", True]]))
         self.assertEqual(draft[0]["cells"][0][:3], ["1", "7", "Player A1"])
+        # The schedule replayed: one sentence from the distribution, never a bar chart.
+        sw = blocks(d, "fantasy.teams[].schedule_what_if")[0]
+        self.assertIn("With any other team's schedule I'd be 3–2 once, 2–3 once, 1–4 eight times and 0–5 once; no schedule would have done better than my own.", sw["text"])
+        self.assertEqual(sw["charts"], 0)
+        better = blocks(draw("lately/fantasy/", name="better schedules"), "fantasy.teams[].schedule_what_if")[0]
+        self.assertIn("; 3 of 11 schedules would have done better.", better["text"])
+        # Another team shows its label when the file gives one, else "another team"; never a name.
         (q,) = blocks(d, "fantasy.quadrant")
+        self.assertEqual(q["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "another team")
+        lq = blocks(draw("lately/fantasy/", name="labelled others"), "fantasy.quadrant")[0]
+        self.assertEqual(lq["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "Team C")
+        self.assertIn("Team C · ", lq["quadTitles"][0])
+        self.assertNotIn("Rival", lq["text"] + " ".join(lq["quadTitles"]))
         self.assertEqual(q["quadOthers"], len(ANALYSIS["fantasy"]["quadrant"]["values"]["others"]))
         # Trails: weeks 3 to 5 of the fixture's five, two segments a team, with the fading dots in between.
         self.assertEqual(q["quadTrails"], 6)
