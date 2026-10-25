@@ -57,7 +57,7 @@ class Progress(unittest.TestCase):
         return doc
 
     # Sections, in order: question, approach, where it stands, results (optional),
-    # what's next, log (optional), my role, built with (optional).
+    # what's next, log (optional), built with (optional), my role (optional).
     def test_sections_must_come_in_order(self):
         self.render()  # the full set, in order, builds
         swapped = list(build.PROGRESS_SECTIONS)
@@ -65,9 +65,9 @@ class Progress(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "in order"):
             self.read(order=swapped)
         with self.assertRaisesRegex(build.ContentError, "in order"):
-            self.read(drop=("my role",))  # a required section is missing
+            self.read(drop=("question",))  # a required section is missing
         self.render(drop=("log",))  # log is optional, like results
-        self.render(drop=("results", "log", "built with"))
+        self.render(drop=("results", "log", "built with", "my role"))
 
     # BUILT-WITH: up to four fixed rows in a fixed order, a data row linked when it has a link;
     # an unknown label, a repeated label or a non-https link stops the build.
