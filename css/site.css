@@ -325,7 +325,6 @@ main {
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--ink);
-  border-radius: 0;
   text-decoration: none;
   cursor: pointer;
   list-style: none;
@@ -388,7 +387,6 @@ a.track::before {
   position: absolute;
   inset: 0 -12px;
   z-index: -1;
-  border-radius: 2px;
 }
 a.track:hover::before, a.track:focus-visible::before { background: var(--card); }
 a.track:hover .track-no, a.track:focus-visible .track-no { color: var(--teal); }
@@ -549,7 +547,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .chip-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   background: var(--ink);
 }
 
@@ -653,8 +650,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   align-items: baseline;
   gap: var(--s-4) var(--s-16);
 }
-.chart-title { font-size: var(--fs-15); font-weight: 600; }
-.chart--depth .chart-title { font-size: var(--fs-14); }
+/* The title is the question the chart answers: text face, bold, 15px everywhere. */
+.chart-title { font-size: var(--fs-15); font-weight: 700; }
 .chart-body {
   display: flex;
   flex-direction: column;
@@ -663,7 +660,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .chart-body--tight { gap: var(--s-8); }
 /* A track page's bar panel: a card with a bold title. */
 .chart--card { background: var(--card); padding: var(--s-18) var(--s-20); }
-.chart--card .chart-title { font-size: var(--fs-17); font-weight: 700; }
 
 /* Table: a header row, numeric columns right-aligned; .table--depth is the lately pages' smaller
    table, .table--stack the track pages' (each row a block at phone width). */
@@ -763,39 +759,37 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .meter-value {
   width: 44px;
   text-align: right;
-  font-weight: 600;
+  font-family: var(--font-label);
+  font-size: var(--fs-11);
 }
 .luck-track {
   position: relative;
   flex: 1;
-  height: 14px;
+  height: 8px;
 }
 .luck-zero {
   position: absolute;
   left: 50%;
   top: -3px;
   width: 1px;
-  height: 20px;
+  height: 14px;
   background: var(--axis);
 }
 .luck-bar {
   position: absolute;
   top: 0;
-  height: 14px;
-  border-radius: 2px;
+  height: 8px;
 }
 .luck-bar--pos { background: var(--blue); }
 .luck-bar--neg { background: var(--orange); }
 .chance-track {
   flex: 1;
-  height: 14px;
+  height: 8px;
   background: var(--track);
-  border-radius: 2px;
 }
 .chance-bar {
-  height: 14px;
+  height: 8px;
   background: var(--blue);
-  border-radius: 2px;
 }
 
 /* Bars: rows share one grid, so every track in a chart has the same length and scale. A row
@@ -812,25 +806,28 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 .bar, .ld-iv-row, .ld-range-row, .axis-row { display: contents; }
 .bar-label, .ld-iv-label { overflow-wrap: anywhere; }
-.bar-track, .ld-iv-track, .ld-margin-track { position: relative; height: 14px; }
-.bar-fill { position: absolute; top: 0; left: 0; height: 14px; background: var(--blue); border-radius: 0 3px 3px 0; }
+/* A bar is 8px tall with square ends: the track colour with an ink mark at its end, blue only
+   when the row is the subject (me, a positive, the thing the question is about), orange when
+   negative. Films, shows and anime keep their colours. */
+.bar-track, .ld-iv-track, .ld-margin-track { position: relative; height: 8px; }
+.bar-fill { position: absolute; top: 0; left: 0; height: 8px; background: var(--track); }
+.bar-fill::after { content: ""; position: absolute; top: 0; right: 0; width: var(--s-2); height: 100%; background: var(--ink); }
+.bar--subject .bar-fill { background: var(--blue); }
+.bar--neg .bar-fill { background: var(--orange); }
+.bar--neg .bar-fill::after { right: auto; left: 0; }
 .bar-fill.fill--films { background: var(--blue); }
 .bar-fill.fill--shows { background: var(--orange); }
 .bar-fill.fill--anime { background: var(--purple); }
-.bar--neg .bar-fill { background: var(--orange); border-radius: 3px 0 0 3px; }
 .bar--faded > * { opacity: 0.35; }
-.bar-zero, .ld-iv-zero { position: absolute; top: -3px; width: 1px; height: 20px; background: var(--axis); }
-.bar-ref { position: absolute; top: -4px; width: 4px; height: 22px; margin-left: calc(-1 * var(--s-2)); background: var(--card); border: 2px solid var(--ink); }
-.bar-value, .ld-iv-value { text-align: right; font-weight: 600; white-space: nowrap; }
+.bar-zero, .ld-iv-zero { position: absolute; top: -3px; width: 1px; height: 14px; background: var(--axis); }
+.bar-ref { position: absolute; top: -3px; width: 4px; height: 14px; margin-left: calc(-1 * var(--s-2)); background: var(--card); border: 2px solid var(--ink); }
+.bar-value, .ld-iv-value { text-align: right; font-family: var(--font-label); font-size: var(--fs-11); white-space: nowrap; }
 .bars--fixed {
   grid-template-columns: 120px minmax(0, 1fr) 40px;
   gap: var(--s-10) var(--s-12);
-  font-size: var(--fs-14);
 }
 .bars--fixed .bar-value { white-space: normal; }
 .bars--fixed .bar-label { overflow-wrap: normal; }
-.bars--fixed .bar-fill { border-radius: 0 4px 4px 0; }
-.bars--fixed .bar--neg .bar-fill { border-radius: 4px 0 0 4px; }
 .bars--wide {
   grid-template-columns: 200px minmax(0, 1fr) 52px;
   column-gap: var(--s-16);
@@ -838,16 +835,13 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .bars--track {
   grid-template-columns: 96px minmax(0, 1fr) 44px;
   gap: var(--s-10) var(--s-12);
-  font-size: var(--fs-15);
 }
-.bars--track .bar-track { height: 20px; }
-.bars--track .bar-fill { height: 20px; border-radius: 0 4px 4px 0; }
-.bars--track .bar--neg .bar-fill { border-radius: 4px 0 0 4px; }
-.bars--track .bar-value { font-weight: 700; }
 /* Legend keys beside the swatches: a bar, a comparison tick, a dot, a range box, a median line. */
-.legend-bar { display: inline-block; width: 18px; height: 10px; background: var(--blue); vertical-align: middle; }
+.legend-bar { display: inline-block; position: relative; width: 18px; height: 8px; background: var(--track); vertical-align: middle; }
+.legend-bar::after { content: ""; position: absolute; top: 0; right: 0; width: var(--s-2); height: 100%; background: var(--ink); }
+.legend-bar--subject { background: var(--blue); }
 .legend-ref { display: inline-block; width: 4px; height: 14px; border: 2px solid var(--ink); vertical-align: middle; }
-.legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); vertical-align: middle; }
+.legend-dot { display: inline-block; width: 8px; height: 8px; background: var(--ink); vertical-align: middle; }
 .legend-box { display: inline-block; width: 18px; height: 8px; background: var(--heat-2); vertical-align: middle; }
 .legend-median { display: inline-block; width: 2px; height: 12px; background: var(--ink); vertical-align: middle; }
 
@@ -866,22 +860,24 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 
 /* Watching: legend and stacked weekly bars */
+/* Legends sit below their chart, left, in the label face at 11px. */
 .legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-6) var(--s-18);
-  font-size: var(--fs-13);
+  font-family: var(--font-label);
+  font-size: var(--fs-11);
+  color: var(--text-3);
 }
 .legend-item {
   display: inline-flex;
   align-items: center;
   gap: var(--s-6);
 }
-.legend-swatch { width: 12px; height: 12px; }
-/* The lately pages' legend: the label face, below the chart. */
-.legend--mono { margin: 0; font-family: var(--font-label); color: var(--text-3); gap: var(--s-4) var(--s-14); white-space: pre; }
-.legend--mono .legend-item { font-family: var(--font-label); white-space: normal; min-width: 0; }
+.legend-swatch { width: 10px; height: 10px; }
+.legend--mono { margin: 0; gap: var(--s-4) var(--s-14); white-space: pre; }
+.legend--mono .legend-item { white-space: normal; min-width: 0; }
 
 .stack-chart {
   display: flex;
@@ -897,7 +893,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   justify-content: flex-end;
   gap: var(--s-2);
 }
-.seg--anime { background: var(--purple); border-radius: 3px 3px 0 0; }
+.seg--anime { background: var(--purple); }
 .seg--shows { background: var(--orange); }
 .seg--films { background: var(--blue); }
 .fill--film, .fill--films { background: var(--blue); }
@@ -909,7 +905,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .axis {
   display: flex;
   justify-content: space-between;
-  font-size: var(--fs-12);
+  font-family: var(--font-label);
+  font-size: var(--fs-11);
   color: var(--text-3);
 }
 .axis-ticks { position: relative; height: 14px; margin-top: calc(-1 * var(--s-4)); font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
@@ -991,7 +988,16 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   grid-template-columns: repeat(24, minmax(0, 1fr));
   gap: var(--s-2);
 }
+/* The strip's hours are outlined squares filled from the bottom in steps, like the W/L marks;
+   the weekday-by-hour grid on the listening page keeps the heat ramp (intensity). */
 .heat-cell { height: 26px; }
+.heat .heat-cell { position: relative; border: 1px solid var(--axis); background: transparent; }
+.heat .heat-cell::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: var(--fill, 0%); background: var(--ink); }
+.heat .heat-1 { --fill: 20%; }
+.heat .heat-2 { --fill: 40%; }
+.heat .heat-3 { --fill: 60%; }
+.heat .heat-4 { --fill: 80%; }
+.heat .heat-5 { --fill: 100%; }
 .heat-0 { background: var(--heat-0); }
 .heat-1 { background: var(--heat-1); }
 .heat-2 { background: var(--heat-2); }
@@ -1064,28 +1070,27 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   height: 100%;
   overflow: visible;
 }
+/* Lines connect every point and mark each one with a square. */
 .line-svg polyline {
   fill: none;
   stroke: var(--blue);
   stroke-width: 2;
-  stroke-linejoin: round;
-  stroke-linecap: round;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
 }
 .line-dot {
   position: absolute;
-  width: 7px;
-  height: 7px;
-  margin: calc(-1 * var(--s-3-5)) 0 0 calc(-1 * var(--s-3-5));
-  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+  margin: calc(-1 * var(--s-3)) 0 0 calc(-1 * var(--s-3));
   background: var(--blue);
 }
-.line-dot--last { width: 9px; height: 9px; margin: calc(-1 * var(--s-4-5)) 0 0 calc(-1 * var(--s-4-5)); }
-.line-end { position: relative; flex: none; font-size: var(--fs-13); }
+.line-dot--last { width: 8px; height: 8px; margin: calc(-1 * var(--s-4)) 0 0 calc(-1 * var(--s-4)); }
+.line-end { position: relative; flex: none; font-family: var(--font-label); font-size: var(--fs-11); }
 .line-end-label {
   position: absolute;
   left: 0;
   transform: translateY(-50%);
-  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -1113,13 +1118,13 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 .vol-count {
   text-align: center;
-  font-size: var(--fs-12);
-  font-weight: 600;
+  font-family: var(--font-label);
+  font-size: var(--fs-11);
   line-height: 1;
 }
 .vol-bar {
   background: var(--blue);
-  border-radius: 3px 3px 0 0;
+  border-top: 2px solid var(--ink);
 }
 .vol-bar--partial { background: var(--heat-2); }
 
@@ -1180,6 +1185,12 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   font-size: var(--fs-13);
   color: var(--text-3);
 }
+/* After a section's first headline, a statistic's value is one mono line: number, unit, interval. */
+.ld-value--line { gap: 0 var(--s-6); font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
+.ld-value--line .ld-value-num { font-size: var(--fs-13); line-height: 1.45; font-weight: 700; color: var(--ink); }
+.ld-value--line .ld-value-unit { font-size: var(--fs-13); color: var(--text-3); }
+.ld-value--line .ld-interval { flex-basis: auto; }
+.ld-value--line .ld-interval::before { content: "· "; }
 .ld-n, .how, .ld-wait, .ld-note, .ld-small {
   margin: 0;
   font-family: var(--font-label);
@@ -1218,9 +1229,10 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   margin-bottom: var(--s-20);
 }
 .ld-col { position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; height: 100%; min-width: 0; }
-.ld-col-value { font-size: var(--fs-12); font-weight: 600; text-align: center; line-height: 18px; white-space: nowrap; }
-.ld-col-bar { background: var(--blue); border-radius: 3px 3px 0 0; min-height: 0; }
-.ld-col-stack { display: flex; flex-direction: column; gap: var(--s-1); border-radius: 3px 3px 0 0; overflow: hidden; }
+.ld-col-value { font-family: var(--font-label); font-size: var(--fs-11); text-align: center; line-height: 18px; white-space: nowrap; }
+/* A column is the track colour with an ink mark on top. */
+.ld-col-bar { background: var(--track); border-top: 2px solid var(--ink); min-height: 0; }
+.ld-col-stack { display: flex; flex-direction: column; gap: var(--s-1); overflow: hidden; }
 .ld-col-stack > span { flex-basis: 0; min-height: 1px; }
 .ld-col-label {
   position: absolute;
@@ -1238,12 +1250,12 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .ld-margins { display: flex; flex-direction: column; gap: var(--s-8); }
 
 /* Estimates with intervals; ranges (median and middle half) */
-.ld-iv-line { position: absolute; top: 6px; height: 2px; background: var(--ink); }
-.ld-iv-dot { position: absolute; top: 2px; width: 10px; height: 10px; margin-left: calc(-1 * var(--s-5)); border-radius: 50%; background: var(--ink); }
-.ld-range-box { position: absolute; top: 3px; height: 8px; background: var(--heat-2); }
+.ld-iv-line { position: absolute; top: 3px; height: 2px; background: var(--ink); }
+.ld-iv-dot { position: absolute; top: 0; width: 8px; height: 8px; margin-left: calc(-1 * var(--s-4)); background: var(--ink); }
+.ld-range-box { position: absolute; top: 0; height: 8px; background: var(--heat-2); }
 .ld-strip .ld-iv-track { background: var(--heat-1, var(--rule)); }
 .ld-strip-dot { opacity: 0.6; }
-.ld-strip-median { position: absolute; top: -2px; width: 2px; height: 18px; margin-left: calc(-1 * var(--s-1)); background: var(--ink); }
+.ld-strip-median { position: absolute; top: -3px; width: 2px; height: 14px; margin-left: calc(-1 * var(--s-1)); background: var(--ink); }
 
 /* Wins and losses: filled and outlined squares with their letter */
 .ld-margin-row { display: grid; grid-template-columns: 3em 22px minmax(60px, 1fr) 4.5em; gap: var(--s-10); align-items: center; font-size: var(--fs-13); }
@@ -1261,7 +1273,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 /* Plays by weekday and hour */
 .ld-heat { display: flex; flex-direction: column; gap: var(--s-2); }
 .ld-heat-row { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); gap: var(--s-6); align-items: center; }
-.ld-heat-day { font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); }
+.ld-heat-day { font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
 .ld-heat-cells { display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: var(--s-2); }
 .ld-heat .heat-cell { height: 18px; }
 .ld-heat-axis .ld-heat-cells span { font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
@@ -1278,21 +1290,21 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .line-dot.s-orange { background: var(--orange); }
 .line-dot.s-purple { background: var(--purple); }
 .line-end-label.s-blue::before, .line-end-label.s-orange::before, .line-end-label.s-purple::before {
-  content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--s-5); background: var(--blue); vertical-align: middle;
+  content: ""; display: inline-block; width: 8px; height: 8px; margin-right: var(--s-5); background: var(--blue); vertical-align: middle;
 }
 .line-end-label.s-orange::before { background: var(--orange); }
 .line-end-label.s-purple::before { background: var(--purple); }
 .legend-swatch.s-blue { background: var(--blue); }
 .legend-swatch.s-orange { background: var(--orange); }
 .legend-swatch.s-purple { background: var(--purple); }
-.legend-swatch.s-grey { background: var(--axis); opacity: 0.6; border-radius: 50%; }
+.legend-swatch.s-grey { background: var(--axis); opacity: 0.6; }
 .legend-swatch.s-teal { background: var(--teal); }
 .line-svg polyline.s-teal { stroke: var(--teal); }
 .line-svg polyline.s-grey { stroke: var(--axis); }
 .line-dot.s-teal { background: var(--teal); }
 .line-dot.s-grey { background: var(--axis); }
-.line-end-label.s-teal::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--s-5); background: var(--teal); vertical-align: middle; }
-.line-end-label.s-grey::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: var(--s-5); background: var(--axis); vertical-align: middle; }
+.line-end-label.s-teal::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: var(--s-5); background: var(--teal); vertical-align: middle; }
+.line-end-label.s-grey::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: var(--s-5); background: var(--axis); vertical-align: middle; }
 .lift-split { display: flex; flex-direction: column; gap: var(--s-10); }
 .lift-split-title { margin: 0; font-size: var(--fs-14); font-weight: 600; color: var(--text-2); }
 .legend-swatch.s-trail { height: 0; border-top: 1px solid var(--blue); opacity: 0.6; }
@@ -1305,13 +1317,16 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 
 /* Strength against luck: other teams grey and unlabelled, mine blue with labels and trails */
 .quad { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-4) var(--s-8); }
-.quad-y { grid-row: 1; writing-mode: vertical-rl; transform: rotate(180deg); align-self: center; font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); }
+.quad-y { grid-row: 1; writing-mode: vertical-rl; transform: rotate(180deg); align-self: center; font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
 .quad-plot { position: relative; height: 320px; border: 1px solid var(--rule-soft); }
 .quad-plot .line-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .quad-axis { stroke: var(--axis); stroke-width: 1; stroke-dasharray: 4 4; }
-.quad-trail { stroke: var(--blue); stroke-width: 1; stroke-linecap: round; stroke-dasharray: 1 4; }
-.quad-trail-dot { position: absolute; width: 3px; height: 3px; margin: calc(-1 * var(--s-1-5)) 0 0 calc(-1 * var(--s-1-5)); border-radius: 50%; background: var(--blue); }
-.quad-dot { position: absolute; width: 9px; height: 9px; margin: calc(-1 * var(--s-4-5)) 0 0 calc(-1 * var(--s-4-5)); border-radius: 50%; }
+.quad-trail { stroke: var(--blue); stroke-width: 1; stroke-linecap: square; stroke-dasharray: 1 4; }
+/* Trails are off until the "show trail" control is pressed. */
+.quad-trail, .quad-trail-dot { display: none; }
+.quad--trails .quad-trail, .quad--trails .quad-trail-dot { display: block; }
+.quad-trail-dot { position: absolute; width: 3px; height: 3px; margin: calc(-1 * var(--s-1-5)) 0 0 calc(-1 * var(--s-1-5)); background: var(--blue); }
+.quad-dot { position: absolute; width: 9px; height: 9px; margin: calc(-1 * var(--s-4-5)) 0 0 calc(-1 * var(--s-4-5)); }
 .quad-dot--other { background: var(--axis); opacity: 0.55; }
 .quad-dot--mine { width: 12px; height: 12px; margin: calc(-1 * var(--s-6)) 0 0 calc(-1 * var(--s-6)); background: var(--blue); box-shadow: 0 0 0 2px var(--card); z-index: 1; }
 .quad-label { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: var(--fs-13); font-weight: 600; color: var(--ink); }
@@ -1321,9 +1336,9 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .quad-corner--tr { right: 0; top: 0; }
 .quad-corner--bl { left: 0; bottom: 0; }
 .quad-corner--br { right: 0; bottom: 0; }
-.quad-x { grid-column: 2; position: relative; height: 38px; font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); }
+.quad-x { grid-column: 2; position: relative; height: 38px; font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
 .quad-x > span { position: absolute; top: 0; transform: translateX(-50%); }
-.quad-x > .quad-x-label { left: 50%; top: 18px; }
+.quad-x > .quad-x-label { left: 50%; top: 18px; font-size: var(--fs-13); }
 /* Tier bars: the fixed D..S scale under the bars */
 .bars--tier .axis-ticks { margin-top: 0; }
 /* A deep link to an absorbed card lands at the card that holds it now */
@@ -1338,7 +1353,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .tier-count { font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
 .tier-summary { font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); }
 .tier-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-6); }
-.tier-chip { display: inline-flex; align-items: baseline; gap: var(--s-5); padding: var(--s-3) var(--s-8); background: var(--paper); border: 1px solid var(--rule-soft); border-radius: 3px; font-size: var(--fs-13); }
+.tier-chip { display: inline-flex; align-items: baseline; gap: var(--s-5); padding: var(--s-3) var(--s-8); background: var(--paper); border: 1px solid var(--rule-soft); font-size: var(--fs-13); }
 .tier-chip-year { font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
 .tier-chip-more { display: inline-flex; }
 /* Tabs (the tier board's control, shared): the strip, then the panels */
@@ -1351,7 +1366,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .rows-more { align-self: flex-start; }
 .ld-collapsible { display: flex; flex-direction: column; gap: var(--s-8); }
 /* Effect bars: zero centred, a thin interval line */
-.ld-iv-line--thin { height: 1px; top: 6.5px; background: var(--ink); }
+.ld-iv-line--thin { height: 1px; top: 3.5px; background: var(--ink); }
 .ld-disagree { color: var(--text-2); }
 .ld-disagree b { color: var(--ink); }
 /* Kaplan–Meier curves */
@@ -1361,9 +1376,9 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .km-band { stroke: none; fill: var(--blue); fill-opacity: 0.12; display: none; }
 .km--bands .km-band { display: block; }
 .km-guide { stroke: var(--axis); stroke-width: 1; stroke-dasharray: 4 4; }
-.km-cross { position: absolute; width: 10px; height: 10px; margin: calc(-1 * var(--s-4)) 0 0 calc(-1 * var(--s-4)); border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 2px var(--card); }
+.km-cross { position: absolute; width: 10px; height: 10px; margin: calc(-1 * var(--s-4)) 0 0 calc(-1 * var(--s-4)); background: var(--blue); box-shadow: 0 0 0 2px var(--card); }
 .km-cross.s-orange { background: var(--orange); }
-.km-ylabel { position: absolute; left: 0; top: 50%; transform: rotate(180deg) translateX(50%); transform-origin: left top; writing-mode: vertical-rl; font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); white-space: nowrap; }
+.km-ylabel { position: absolute; left: 0; top: 50%; transform: rotate(180deg) translateX(50%); transform-origin: left top; writing-mode: vertical-rl; font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); white-space: nowrap; }
 .km-plot .line-plot { inset: 4px 2.4em 0 1.4em; }
 .ld-stacked { display: flex; flex-direction: column; gap: var(--s-16); }
 .km-band.s-orange { fill: var(--orange); }
@@ -1374,7 +1389,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .km-median-label { position: absolute; transform: translateX(-50%); white-space: nowrap; }
 /* The crowd plot: five tier rows, the community score across */
 .crowd-plot { height: 300px; }
-.crowd-y { position: relative; align-self: stretch; writing-mode: horizontal-tb; transform: none; width: 1.2em; font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); }
+.crowd-y { position: relative; align-self: stretch; writing-mode: horizontal-tb; transform: none; width: 1.2em; font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
 .crowd-y > span { position: absolute; left: 0; transform: translateY(-50%); }
 .ld-attributions, #lately-attributions { font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
 .ld-attributions { margin: 0; }
@@ -1388,7 +1403,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   .quad-num { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-family: var(--font-label); font-size: var(--fs-11); font-weight: 700; color: var(--card); }
   .quad-key { display: flex; flex-direction: column; gap: var(--s-4); margin: 0; padding: 0; list-style: none; font-size: var(--fs-13); }
   .quad-key li { display: flex; align-items: center; gap: var(--s-8); }
-  .quad-key-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--blue); color: var(--card); font-family: var(--font-label); font-size: var(--fs-11); font-weight: 700; flex: none; }
+  .quad-key-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: var(--blue); color: var(--card); font-family: var(--font-label); font-size: var(--fs-11); font-weight: 700; flex: none; }
 }
 
 @media (max-width: 520px) {
@@ -1397,6 +1412,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   .quad-label { font-size: var(--fs-12); }
   .ld-section { padding: var(--s-20) var(--s-16); }
   .ld-value-num { font-size: var(--fs-30); }
+  .ld-value--line .ld-value-num { font-size: var(--fs-13); }
   .bars, .ld-ivs, .ld-ranges { grid-template-columns: fit-content(7em) minmax(48px, 1fr) auto; gap: var(--s-8); }
   .bars--fixed { grid-template-columns: 120px minmax(0, 1fr) 40px; gap: var(--s-10) var(--s-12); }
   .bars--wide { grid-template-columns: 120px minmax(0, 1fr) 44px; column-gap: var(--s-12); }

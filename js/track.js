@@ -421,7 +421,7 @@
   if (live) {
     document.addEventListener("tp:retime", function () { requestAnimationFrame(retime); });
     document.addEventListener("click", function (e) {
-      if (e.target && e.target.closest && e.target.closest(".tab, .rows-more, .tier-more, .how summary, .km-bands-toggle")) requestAnimationFrame(retime);
+      if (e.target && e.target.closest && e.target.closest(".tab, .rows-more, .tier-more, .how summary, .km-bands-toggle, .quad-trails-toggle")) requestAnimationFrame(retime);
     });
   }
 

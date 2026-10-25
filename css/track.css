@@ -375,6 +375,7 @@
   .table--stack thead { display: none; }
   .table--stack tr { padding: var(--s-10) 0; border-bottom: 1px solid var(--rule); }
   .table--stack th, .table--stack td { border: 0; padding: var(--s-2) 0; }
+  .table--stack .num { text-align: left; }
   .table--stack td::before {
     content: attr(data-label) ": ";
     font-family: var(--font-label);

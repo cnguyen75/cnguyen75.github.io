@@ -86,6 +86,10 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
               quadKey: [...b.querySelectorAll(".quad-key li")].filter(e => e.offsetParent !== null).map(txt),
               quadOthers: b.querySelectorAll(".quad-dot--other").length,
               quadTrails: b.querySelectorAll(".quad-trail").length,
+              quadTrailsShown: [...b.querySelectorAll(".quad-trail")].filter(x => getComputedStyle(x).display !== "none").length,
+              quadToggle: txt(b.querySelector(".quad-trails-toggle")),
+              quadTrailsOn: (() => { const t = b.querySelector(".quad-trails-toggle"); if (!t) return null; t.click();
+                const n = [...b.querySelectorAll(".quad-trail")].filter(x => getComputedStyle(x).display !== "none").length; t.click(); return n; })(),
               kmBands: b.querySelectorAll(".km-band").length, kmBandsShown: [...b.querySelectorAll(".km-band")].filter(x => getComputedStyle(x).display !== "none").length,
               kmToggle: txt(b.querySelector(".km-bands-toggle")), kmGuide: b.querySelectorAll(".km-guide").length,
               chartTitles: [...b.querySelectorAll(".chart-title")].map(txt), endLabels: b.querySelectorAll(".line-end-label").length,

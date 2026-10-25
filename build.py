@@ -801,7 +801,12 @@ class Page:
         if kind == "TABLE":
             need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")
             head_html = "".join(f'<th scope="col">{inline(c)}</th>' for c in cells[0])
-            body_html = "".join("<tr>" + f'<th scope="row">{inline(c[0])}</th>' + "".join(f'<td data-label="{esc(h)}">{inline(x)}</td>' for h, x in zip(cells[0][1:], c[1:])) + "</tr>"
+            numeric = re.compile(r"^[+\u2212-]?[\d,]+(\.\d+)?%?$")
+
+            def cell(h, x):
+                num_class = ' class="num"' if numeric.match(x.strip()) else ""
+                return f'<td data-label="{esc(h)}"{num_class}>{inline(x)}</td>'
+            body_html = "".join("<tr>" + f'<th scope="row">{inline(c[0])}</th>' + "".join(cell(h, x) for h, x in zip(cells[0][1:], c[1:])) + "</tr>"
                                 for c in cells[1:])
             return (f'<div class="table table--stack" role="region" aria-label="Table: {esc(" · ".join(cells[0]))}">'
                     f'<table><thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>',

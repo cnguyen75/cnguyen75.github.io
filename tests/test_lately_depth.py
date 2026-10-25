@@ -495,8 +495,8 @@ class Drawing(unittest.TestCase):
         self.assertTrue(ld["value"].endswith("%"))
         self.assertEqual(ld["rows"], 20 + len(ANALYSIS["eating"]["landing"]["values"]["months"]))  # the 20 places' table and the months' table
         self.assertEqual(len([t for t in d["titles"] if t and t.endswith("% up my list")]), 20)
-        self.assertIn("The last 20 places I ranked, where each sits in my list now", ld["text"])
-        self.assertIn("Median landing percentile by month of first ranking", ld["text"])
+        self.assertIn("Where did the last 20 places I ranked land in my list?", ld["text"])
+        self.assertIn("Where did new places land, by month of first ranking?", ld["text"])
 
     # small_sample: the card draws as usual with the tag beside its n; a waiting manager-score
     # component is a row with the tag; a panel on a small sample carries the tag under its numbers.
@@ -557,14 +557,14 @@ class Drawing(unittest.TestCase):
     # A window shorter than its label is labelled by its real start: "since 11 Oct".
     def test_listening_window(self):
         young, base = draw("lately/listening/", name="young archive")["bodyText"], draw("lately/listening/")["bodyText"]
-        for label in ("Plays, ", "Top artists, ", "When I listen, by hour of day, "):
+        for label in ("Plays, ", "Who did I play most, ", "When do I listen, by hour of day, "):
             self.assertIn(label + "since 11 Oct", young)
             self.assertIn(label + "last 30 days", base)
         self.assertNotIn("last 30 days", young)
         home_young, home = draw("index.html", name="young archive"), draw("index.html")
         self.assertIn("Plays, since 11 Oct", home_young["bodyText"])  # entropy is waiting there: the window's plays
         self.assertIn("Hazard ratio, new vs catalog", home["bodyText"])  # the panel asks about rotation now
-        self.assertNotIn("Top artists", home["bodyText"])  # the list left the main page
+        self.assertNotIn("Who did I play most", home["bodyText"])  # the list left the main page
 
 
     # The tier board: films by default, five rows, every row open; a row with more than fifteen
@@ -781,7 +781,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(one, "Beyond the crowd's score, only Horror clearly moves my tiers, downward. Nothing else is distinguishable from noise at 276 titles.")
         none = next(p for p in draw("index.html", name="none clear")["panels"] if p["id"] == "panel-watching")["answer"]
         self.assertEqual(none, "Beyond the crowd's score, nothing clearly moves my tiers. No feature is distinguishable from noise at 276 titles.")
-        for gone in ("Mean tier by director", "Anime studios: ", "Effective artists by week"):
+        for gone in ("by director?", "Anime studios: ", "really listening to, by week?"):
             self.assertNotIn(gone, d["bodyText"], gone)  # these live on the track pages now
         li = panels["panel-listening"]
         sv = ANALYSIS["listening"]["artist_survival"]["values"]
@@ -824,14 +824,16 @@ class Drawing(unittest.TestCase):
         # Body weight on its own small panel above the strength panel (one thin line through every
         # weigh-in, a marker at each), the strength index and three thin split lines under it,
         # every series labelled in the legend only, both with the dashed 100 baseline.
-        self.assertEqual(lf["chartTitles"], ["Body weight since the cut, indexed to 100", "Strength since the cut, indexed to 100"])
+        self.assertEqual(lf["chartTitles"], ["How has my body weight moved since the cut started?", "Has my strength held since the cut started?"])
         self.assertEqual(lf["lineCount"], 5)
         self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
         weeks = ANALYSIS["lifting"]["strength_index"]["values"]["weeks"]
-        self.assertEqual(lf["pointDots"], len([w for w in weeks if w["body_weight"] is not None]))
+        # Every point is marked: the strength index and its three splits every week, body weight at each weigh-in.
+        full = 4 * len(weeks)
+        self.assertEqual(lf["pointDots"], full + len([w for w in weeks if w["body_weight"] is not None]))
         # Six weeks without a weigh-in: still one connected line, a marker at each weigh-in that is there.
         gap = next(p for p in draw("index.html", name="weigh-in gap")["panels"] if p["id"] == "panel-lifting")
-        self.assertEqual((gap["lineCount"], gap["thinCount"], gap["pointDots"]), (5, 4, len(weeks) - 6))
+        self.assertEqual((gap["lineCount"], gap["thinCount"], gap["pointDots"]), (5, 4, full + len(weeks) - 6))
         self.assertEqual(lf["endLabels"], 0)
         for name in ("chest and back", "shoulders and arms", "legs", "body weight", "100 = cut start"):
             self.assertIn(name, lf["legendAll"] or "")
@@ -842,7 +844,7 @@ class Drawing(unittest.TestCase):
         old = next(p for p in draw("index.html", name="no splits")["panels"] if p["id"] == "panel-lifting")
         self.assertEqual((old["lineCount"], old["thinCount"]), (2, 1))  # body weight (thin, points) and strength
         self.assertNotIn("legs are", old["answer"])
-        for gone in ("Restaurants ranked", "Recently tried", "Who is carrying my teams", "Estimated one-rep max, main lifts", "Sets by muscle group", "My rankings", "Recently"):
+        for gone in ("Restaurants ranked", "Recently tried", "Who is carrying my teams", "Estimated one-rep max, main lifts", "Which muscle groups got the work", "My rankings", "Recently"):
             self.assertNotIn(gone, d["bodyText"], gone)
         self.assertIn("Restaurants ranked", draw("lately/eating/")["bodyText"])  # moved, not deleted
 
@@ -921,7 +923,7 @@ class Drawing(unittest.TestCase):
         (b,) = bars["blocks"]
         # Bars are percentiles; each label is the raw value and the rank; the composite heads the card.
         for bit in ("Draft", "+3.4 pts/wk · rank 9 of 32", "Lineup", "−2.1 pts/wk · rank 24 of 32", "Moves", "+1.6 pts/wk · rank 12 of 32",
-                    "Strength", ".58 all-play · rank 6 of 32", "Percentile among managers"):
+                    "Strength", ".58 all-play · rank 6 of 32", "Where do I rank among managers"):
             self.assertIn(bit, b["text"])
         self.assertEqual((b["value"], b["interval"]), ("61st percentile", "95% 41–78"))
         # One how line per section, the composite's (HOW: in fantasy.md); the component rows have none.
@@ -944,7 +946,9 @@ class Drawing(unittest.TestCase):
         self.assertIn("; 3 of 11 schedules would have done better.", better["text"])
         # Another team shows its label when the file gives one, else "another team"; never a name.
         (q,) = blocks(d, "fantasy.quadrant")
-        self.assertEqual(q["quadTrails"], 6)  # the page keeps the trails, dotted and faded
+        self.assertEqual(q["quadTrails"], 6)  # the page keeps the trails, dotted and faded, behind a control
+        self.assertEqual((q["quadTrailsShown"], q["quadToggle"]), (0, "show trail"))
+        self.assertEqual(q["quadTrailsOn"], 6)  # pressing the control shows every segment
         self.assertEqual(q["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "another team")
         lq = blocks(draw("lately/fantasy/", name="labelled others"), "fantasy.quadrant")[0]
         self.assertEqual(lq["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "Team C")
@@ -990,14 +994,14 @@ class Drawing(unittest.TestCase):
         # The S-by-type and S-by-decade bars sit under the taste profile.
         taste = next(s for s in d["sections"] if s["id"] == "taste-profile")
         self.assertEqual([sl["stat"] for sl in taste["slots"]], ["watching.taste_profile", "watching.s_tier"])
-        self.assertIn("S-tier share by release decade", taste["slots"][1]["blocks"][0]["text"])
+        self.assertIn("Which decades earn an S most often?", taste["slots"][1]["blocks"][0]["text"])
         self.assertNotIn("Genres in S against B", taste["slots"][1]["blocks"][0]["text"])
         feeds = {f["block"]: f for f in d["feeds"]}
         self.assertFalse(feeds["watching.rankings"]["hidden"])
         self.assertIn("Films", feeds["watching.rankings"]["text"])
         (s,) = blocks(d, "watching.s_tier")
         self.assertEqual(s["value"], "12%")
-        self.assertIn("S-tier share by type", s["text"])
+        self.assertIn("Which type earns an S most often?", s["text"])
         self.assertEqual(len(blocks(d, "watching.community_gap_by_genre")), 1)  # inside the crowd card
         # The reading bar's segments are the contents list: one per section, in order, plus "built with".
         self.assertEqual([s[0] for s in d["segs"]], ["#" + i for i in groups["whats-happening"]["sections"] + groups["why"]["sections"]] + ["#built-with"])
@@ -1022,7 +1026,7 @@ class Drawing(unittest.TestCase):
         self.assertIn("Comedy", cr["text"])
         whose = next(s for s in d["sections"] if s["id"] == "whose-films")
         self.assertEqual([sl["stat"] for sl in whose["slots"]], ["watching.by_director", "watching.by_studio", "watching.by_lead"])
-        self.assertIn("Mean tier by lead actor", whose["slots"][2]["blocks"][0]["text"])
+        self.assertIn("Whose films earn the highest tiers, by lead actor?", whose["slots"][2]["blocks"][0]["text"])
         (bb,) = blocks(d, "watching.blockbuster")
         self.assertEqual(bb["value"], "+0.12")
         self.assertIn("most popular quarter", bb["text"])
@@ -1045,8 +1049,8 @@ class Drawing(unittest.TestCase):
         lw = draw("lately/listening/", name="films waiting")
         (rt,) = blocks(lw, "listening.retention_new_artists")
         self.assertEqual(rt["wait"], "nothing to show yet: needs one month whose 90 days are up")
-        self.assertIn("Effective artists (2 to the entropy) by week", blocks(lw, "listening.entropy")[0]["text"])
-        self.assertIn("Median release year by week", blocks(lw, "listening.nostalgia")[0]["text"])
+        self.assertIn("How many artists was I really listening to, by week?", blocks(lw, "listening.entropy")[0]["text"])
+        self.assertIn("How old was the music I played, by week?", blocks(lw, "listening.nostalgia")[0]["text"])
         self.assertIn("by month", blocks(draw("lately/listening/"), "listening.entropy")[0]["text"])
         # Under 600px the disagreements are numbered markers with a key.
         narrow = blocks(draw("lately/watching/", 390), "watching.crowd_agreement")[0]
@@ -1067,7 +1071,7 @@ class Drawing(unittest.TestCase):
         d = draw("lately/watching/")
         (tp,) = blocks(d, "watching.taste_profile")
         self.assertEqual(tp["value"], "44%")
-        self.assertIn("What my tiers respond to", tp["text"])
+        self.assertIn("What do my tiers respond to?", tp["text"])
         self.assertIn("Above the crowd: ", tp["text"])
         l = draw("lately/listening/")
         (sv,) = blocks(l, "listening.artist_survival")
@@ -1093,7 +1097,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(al["rows"], len(rows))
         (dd,) = blocks(l, "listening.discovery_direction")
         self.assertEqual(dd["value"], "58%")
-        self.assertIn("Share digging back, by the year I found them", dd["text"])
+        self.assertIn("Was I digging back or keeping up, by the year I found them?", dd["text"])
         self.assertIn("2023 · 40 additions", dd["text"])
         self.assertIn("per five years of gap between release years", sv["text"])
         self.assertIn("The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.", sv["text"])  # the how line's floor statement, quoted
@@ -1118,14 +1122,14 @@ class Drawing(unittest.TestCase):
         # The time budget: an older file holds totals and is labelled so; a file with the window's
         # "to" date holds mean hours per week.
         (tb,) = blocks(draw("lately/lifting/"), "cross.time_budget")
-        self.assertIn("Hours by weekday, total over the last 8 weeks", tb["text"])
+        self.assertIn("How do my hours fall across the week, in total over the last 8 weeks?", tb["text"])
         self.assertIn("totals over the window", tb["text"])
         (tbw,) = blocks(draw("lately/lifting/", name="per week"), "cross.time_budget")
-        self.assertIn("Hours per week by weekday, last 8 weeks", tbw["text"])
+        self.assertIn("How do my hours fall across the week, per week over the last 8 weeks?", tbw["text"])
         self.assertIn("mean hours per week", tbw["text"])
         lifting = {f["block"]: f for f in draw("lately/lifting/")["feeds"]}
         self.assertEqual(lifting["lifting.training"]["lists"], ["Recent personal records"])
-        self.assertIn("Body weight", lifting["lifting.body_weight"]["text"])
+        self.assertIn("Where is my body weight heading?", lifting["lifting.body_weight"]["text"])
         # The strength-index card and its two indexed lines, with the dashed 100 line in the legend.
         (si,) = blocks(draw("lately/lifting/"), "lifting.strength_index")
         self.assertIn("100 = cut start", si["text"])
@@ -1168,12 +1172,12 @@ class Drawing(unittest.TestCase):
         self.assertEqual([sl["stat"] for sl in next(s for s in lifting["sections"] if s["id"] == "training")["slots"]], ["cross.rhythm.workouts"])
         # The strength index keeps the per-lift change list inside its card, draws the split lines, and its how line quotes the rule.
         (sidx,) = blocks(lifting, "lifting.strength_index")
-        self.assertIn("Best e1RM since the cut started, by lift", sidx["text"])
+        self.assertIn("Which lifts have held up since the cut started?", sidx["text"])
         self.assertIn("legs", sidx["text"])
         self.assertIn("at least 12 sessions in the last 26 weeks", slot(lifting, "lifting.strength_index")["hows"][0])
         # Main lifts: the tracked set grouped by split, with sessions; the tracking rule under them.
         main = {f["block"]: f for f in lifting["feeds"]}["lifting.lifts"]
-        self.assertIn("Estimated one-rep max, tracked lifts", main["text"])
+        self.assertIn("How are my tracked lifts moving?", main["text"])
         self.assertIn("Chest and back", main["text"])
         self.assertIn("at least 12 sessions in the last 26 weeks", main["text"])
         # Each tile shows the rule's session count (values.tracked[].sessions, 14 for the first lift), not the

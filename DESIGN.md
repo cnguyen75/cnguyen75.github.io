@@ -107,3 +107,25 @@ Named by value like the type tokens (`--s-1-5` is 1.5px). A mark's centring offs
 | Built with | the last section of every track and lately page | `dl.tp-built`, a two-column grid of `.tp-built-row` (`dt` label in the label face, 13px, text-3; `dd` value in the text face; 1px `--rule-soft` between rows; one column under 520px): code, languages and frameworks, data, compute, papers (`ul.tp-papers-list`), attribution, made with; the lately pages' data, attribution, made with, as of |
 | Two-part bar | under a two-part track page's title | `nav.tp-part-bar` > `.tp-part-seg` (two segments, the current one `.is-current` filled ink, the other a link when its page is linkable) |
 | Reading bar | track and lately pages | `.tp-player` (`.tp-play.control`, `.tp-speed.control`, `.tp-clock`, `.tp-segs` > `.tp-seg`), `.tp-mini` once it scrolls away; on a lately page the times are measured in the browser, the bar is one row and each segment is named by the section's `short:` line (12px); under 640px the names and times are read, not shown |
+
+## Charts and tables
+
+Every chart on the site, on the main page, the five lately pages and the track pages, follows these rules. The renderers are `js/lately.js` (the main page's panels and the feed blocks), `js/lately-depth.js` (the lately pages' statistics) and `build.py` (the track pages' bars and tables).
+
+**Colour.** Ink and paper first. One accent per chart. `--blue` is me, a positive, films, or the thing the question is about; `--orange` is a negative, or shows; `--purple` is anime; `--axis` grey is other teams and context. The heat ramp (`--heat-0` to `--heat-5`) marks intensity only, as in the weekday-by-hour grid. Colour is never the only cue: a negative keeps its minus sign, an estimate whose interval includes zero is faded and says so in its hover, and every chart has its table.
+
+**Bars.** The default bar is `--track` with a 2px ink mark at its end (`.bar-fill::after`). A bar is blue only when the row is the subject (`.bar--subject`: me against the league's marks, or a positive in a list that also has negatives) and orange when negative (`.bar--neg`, growing left of the zero line). Films, shows and anime bars keep their type colour (`.fill--films`, `.fill--shows`, `.fill--anime`). A column (`.ld-col-bar`, `.vol-bar`) is the same idea upright: track colour with a 2px ink top.
+
+**Geometry.** Bars and tracks are 8px tall with square ends. Chips, controls, swatches, markers and heat cells are square. No rounded corners anywhere: `border-radius` does not appear in the stylesheets.
+
+**Type.** Ticks, value labels and legends are the label face at `--fs-11` (`.bar-value`, `.axis`, `.legend`, `.ld-col-value`, `.vol-count`, `.line-end-label`, `.meter-value`, the quadrant's tick labels). Axis titles are `--fs-13` (`.quad-x-label`, `.quad-y`, `.km-ylabel`). The chart title is the text face, bold, `--fs-15`, the same on every page, and is phrased as the question the chart answers ("Who is carrying my teams, in points above replacement per game?", not "Points above replacement").
+
+**Numbers.** A true minus sign (U+2212), never a hyphen. Thousands separators from 1,000 up. Decimals as the pipeline gives them, or the statistic's stated precision. Percentages are whole numbers; a share under 10 points keeps one decimal, where it tells 4% from 4.9%.
+
+**Lines.** A line connects every point and marks each one with a square (`.line-dot`, the last one larger). Bands and trails are off by default. A lately page may offer a control to show them (the retention chart's bands, the quadrant's "show trail"); the main page never does.
+
+**Stat tiles.** At most three on a main-page panel. On a lately page, one headline figure per section: the first value in the section (or the first in each tab panel, when the section is only tabs) keeps its size, and every other value is a one-line mono fact (`.ld-value--line`: number, unit, interval).
+
+**Around a chart.** The legend sits below the chart, on the left. Every chart has an sr-only table with the same numbers under it. One collapsed "how" per section. Small samples render per the existing policy (the status line and the faded interval). The hour-of-day strip is 24 outlined squares, each filled from the bottom in steps like the W/L marks.
+
+**Tables.** A header row; numeric columns right-aligned (`.num`, which the track-page builder adds to any cell that is a number or a percentage); over ten rows collapsed behind "show all N". At phone width the track pages' tables stack each row into a labelled block and the numbers go back to the left.

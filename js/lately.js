@@ -55,10 +55,11 @@
   function arr(v, what) { need(Array.isArray(v), what); return v; }
   function list(v) { return Array.isArray(v) ? v : []; }
 
-  function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
-  // 31 -> "31", 38.4 -> "38.4", 12.25 -> "12.3"
-  function short(n) { return String(Math.round(n * 10) / 10); }
-  function signed(n) { return (n > 0 ? "+" : "") + n.toFixed(1); }
+  var MINUS = "\u2212";
+  function plural(n, one, many) { return (isNum(n) ? n.toLocaleString("en-US") : n) + " " + (n === 1 ? one : many); }
+  // 31 -> "31", 38.4 -> "38.4", 12.25 -> "12.3", 1234 -> "1,234"
+  function short(n) { return (Math.round(n * 10) / 10).toLocaleString("en-US").replace("-", MINUS); }
+  function signed(n) { return (n > 0 ? "+" : "") + n.toFixed(1).replace("-", MINUS); }
   function pct(n, max) { return max > 0 ? (n / max) * 100 + "%" : "0%"; }
   function record(w, l, t) { return w + "–" + l + (t ? "–" + t : ""); }
 
@@ -89,7 +90,7 @@
   function F() { var d = LD(); return d && d.fmt ? d.fmt : null; }
   // Formats with a real minus sign and the data's precision, falling back to the local ones.
   function fnum(x, dp) { var f = F(); return f ? f.num(x, dp) : (dp === undefined ? String(x) : x.toFixed(dp)); }
-  function fsigned(x, dp) { var f = F(); return f ? f.signed(x, dp) : (x > 0 ? "+" : "") + (dp === undefined ? String(x) : x.toFixed(dp)); }
+  function fsigned(x, dp) { var f = F(); return f ? f.signed(x, dp) : (x > 0 ? "+" : "") + (dp === undefined ? String(x) : x.toFixed(dp)).replace("-", MINUS); }
   function fpct(x) { var f = F(); return f ? f.pct(x) : Math.round(x * 100) + "%"; }
   function okStat(s) { return isObj(s) && s.status === "ok"; }
   function analysisOf(data) { return isObj(data) && isObj(data.analysis) ? data.analysis : null; }
@@ -184,7 +185,8 @@
     var summary = items.map(function (i) { return i.label + " " + opts.text(i.value); }).join("; ");
     var list = h("div", { class: "bars bars--fixed" + (opts.wide ? " bars--wide" : ""), role: "img", "aria-label": opts.title + ": " + summary },
       items.map(function (i) {
-        return h("div", { class: "bar" + (i.value < 0 ? " bar--neg" : ""), title: i.label + ": " + opts.text(i.value) },
+        var cls = i.value < 0 ? " bar--neg" : opts.subject || min < 0 ? " bar--subject" : "";
+        return h("div", { class: "bar" + cls, title: i.label + ": " + opts.text(i.value) },
           h("div", { class: "bar-label" }, i.label),
           h("div", { class: "bar-track" }, fill(i.value)),
           h("div", { class: "bar-value" }, short(i.value)));
@@ -323,7 +325,7 @@
     var players = arr(ctx.f.top_players, "fantasy.top_players");
     if (!players.length) return null;
     return barChart({
-      title: "Who is carrying my teams: points above replacement, per game",
+      title: "Who is carrying my teams, in points above replacement per game?",
       wide: true,
       labelHeading: "Player",
       valueHeading: "Points above replacement, per game",
@@ -628,16 +630,16 @@
       hours.map(function (v, i) { return [i + ":00", String(v)]; }), [strip, axis]);
     return [
       b.state.asOf ? staleNote(b.state.asOf) : null,
-      stat("Plays, " + win, String(b.plays)),
+      stat("Plays, " + win, thousands(b.plays)),
       barChart({
-        title: "Top artists, " + win,
+        title: "Who did I play most, " + win + "?",
         labelHeading: "Artist",
         valueHeading: "Plays",
         items: artists.map(function (a) { return { label: str(a.name, "artist"), value: num(a.plays, "plays") }; }),
         text: function (v) { return plural(v, "play", "plays"); }
       }),
       h("div", { class: "chart chart--hours" },
-        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day, " + win), t.button),
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When do I listen, by hour of day, " + win + "?"), t.button),
         strip, axis, t.table)
     ];
   }
@@ -691,10 +693,10 @@
     }));
     return [
       state.asOf ? staleNote(state.asOf) : null,
-      stat("Restaurants ranked", String(num(e.ranked_count, "ranked_count"))),
+      stat("Restaurants ranked", thousands(num(e.ranked_count, "ranked_count"))),
       h("div", { class: "list" }, h("div", { class: "list-title" }, "Recently tried"), ul, collapse(ul, ul.children)),
       barChart({
-        title: "What I rank most",
+        title: "Which cuisines do I rank most?",
         labelHeading: "Cuisine",
         valueHeading: "Places",
         items: cuisines.bars,
@@ -742,7 +744,7 @@
   // A small line chart over time: points [{date: Date, value, title}], oldest
   // first. The line is SVG stretched to the box; dots and the end label are
   // HTML placed in percentages, so they keep their shape at any width.
-  // opts: {label (aria), endText, dots (mark every point), height}
+  // opts: {label (aria), endText, height}; every point is marked.
   function lineChart(points, opts) {
     var xs = points.map(function (p) { return dayNumber(p.date); });
     var ys = points.map(function (p) { return p.value; });
@@ -764,7 +766,6 @@
     }
     points.forEach(function (p, i) {
       var last = i === points.length - 1;
-      if (!last && !opts.dots) return;
       plot.appendChild(h("span", { class: "line-dot" + (last ? " line-dot--last" : ""), title: p.title,
         style: { left: x(i) + "%", top: y(i) + "%" } }));
     });
@@ -866,7 +867,7 @@
         return [i === n - 1 ? "this week (so far)" : "week of " + dateText(w.start, true), String(w.sessions), thousands(w.volume)];
       }), figure);
     return h("div", { class: "chart" },
-      h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Sessions and volume, last " + n + " weeks"), t.button),
+      h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "How much did I train each week, last " + n + " weeks?"), t.button),
       figure, t.table,
       h("p", { class: "chart-foot" }, "Bar height is volume (weight × reps over working sets, in " + unit + "); the number on each bar is sessions. The lighter bar is this week, still in progress."));
   }
@@ -888,7 +889,7 @@
       ? h("p", { class: "chart-foot" }, "Other: " + folded.map(function (g) { return g.label.toLowerCase(); }).join(", ") + ".")
       : null;
     return barChart({
-      title: "Sets by muscle group, last 4 weeks",
+      title: "Which muscle groups got the work, last 4 weeks?",
       labelHeading: "Muscle group",
       valueHeading: "Working sets",
       items: items,
@@ -942,7 +943,7 @@
     }
     if (!points.length) return null;
     points.forEach(function (p) { p.title = dateText(p.date, true) + ": " + short(p.value) + " " + unit; });
-    var title = "Body weight";
+    var title = "Where is my body weight heading?";
 
     if (points.length < 3) {
       return h("div", { class: "list" },
@@ -956,7 +957,6 @@
     var first = points[0], last = points[points.length - 1];
     var figure = h("div", { class: "lift-figure" },
       lineChart(points, {
-        dots: true,
         height: 96,
         endText: short(last.value) + " " + unit,
         label: "Body weight, " + plural(points.length, "measurement", "measurements") + " from " + dateText(first.date, true) + " to " +
@@ -1024,7 +1024,7 @@
           minSessions === 1 ? "weeks with a workout" : "weeks at " + minSessions + "+ sessions"),
         stat("Sessions, last 4 weeks", String(recent4), "including this week so far")),
       groups.length ? h("div", { class: "chart" },
-        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, tracked lifts")),
+        h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "How are my tracked lifts moving?")),
         groups.map(function (g) {
           return h("div", { class: "lift-split" }, h("h4", { class: "lift-split-title" }, g.label), h("div", { class: "lifts" }, g.items.map(function (lift) { var t = rule[lift.name]; return liftTile(lift, b.unit, t && typeof t.sessions === "number" ? t.sessions : null); })));
         }),
@@ -1045,7 +1045,7 @@
     return h("div", { class: "lift-grid" },
       active ? volumeChart(weeks, b.unit)
         : h("div", { class: "chart" },
-            h("div", { class: "chart-title" }, "Sessions and volume, last " + weeks.length + " weeks"),
+            h("div", { class: "chart-title" }, "How much did I train each week, last " + weeks.length + " weeks?"),
             h("p", { class: "panel-empty" }, "No workouts logged in the last " + weeks.length + " weeks")),
       muscleChart(l.muscle_sets),
       prList(l.recent_prs));
@@ -1191,7 +1191,7 @@
       }
       nums = [crowd, isNum(v.model_accuracy) ? { label: "Predictable from metadata", value: fpct(v.model_accuracy), note: isNum(v.baseline) ? "vs " + fpct(v.baseline) + " baseline guessing" : "leave-one-out" } : null, sNum];
       chart = chartOr(function (c) {
-        var block = c.effectBars("What my tiers respond to", rows);
+        var block = c.effectBars("What do my tiers respond to?", rows);
         append(block, d.disagreementLines(v.disagreements));
         return block;
       });
@@ -1277,7 +1277,7 @@
       ];
       nums = [{ label: "Median score", value: fnum(med, 2), note: "middle half " + fnum(sc.values.overall.q1, 2) + " to " + fnum(sc.values.overall.q3, 2) }, home, order];
       chart = chartOr(function (c) {
-        var block = c.bars("Median score against my overall median, by cuisine", items, { labelHeading: "Cuisine", valueHeading: "Points against the median" });
+        var block = c.bars("Which cuisines do I score above my median?", items, { labelHeading: "Cuisine", valueHeading: "Points against the median" });
         block.appendChild(h("p", { class: "chart-foot" }, "Bars are each cuisine's median minus my overall median of " + fnum(med, 2) +
           " (cuisines with " + MIN_CUISINE_PLACES + " or more places)" + (home ? "; the last bar is home against away, same cuisine" : "") + "."));
         return block;

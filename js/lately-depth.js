@@ -48,20 +48,24 @@
   function list(v) { return Array.isArray(v) ? v : []; }
   function need(cond, what) { if (!cond) throw new Error("lately-depth: bad " + what); }
 
-  // Numbers: a real minus sign, and the data's own precision unless dp is given.
+  // Numbers: a real minus sign, thousands separators, and the data's own precision unless dp
+  // is given.
   function num(x, dp) {
     need(isNum(x), "number");
     var s = dp === undefined ? String(Math.round(x * 1000) / 1000) : x.toFixed(dp);
     if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+    s = s.replace(/^(-?)(\d{4,})/, function (m, sign, digits) { return sign + digits.replace(/\B(?=(\d{3})+$)/g, ","); });
     return s.charAt(0) === "-" ? MINUS + s.slice(1) : s;
   }
   function signed(x, dp) { var s = num(x, dp); return x > 0 && s !== num(0, dp) ? "+" + s : s; }
   function big(x) { return Math.round(x).toLocaleString("en-US"); }
+  // Shares are whole percentages; under 10 points one decimal, where it tells 4% from 4.9%.
   function pct(x) {
     need(isNum(x), "share");
-    var r = Math.round(x * 100);
-    if (x > 0 && r === 0) return "<1%";
+    var p = x * 100, r = Math.round(p);
+    if (x > 0 && Math.round(p * 10) === 0) return "<1%";
     if (x < 1 && r === 100) return ">99%";
+    if (p > 0 && p < 10) return num(p, 1).replace(/\.0$/, "") + "%";
     return r + "%";
   }
   function plural(n, unit) {
@@ -235,8 +239,10 @@
   }
 
   // Horizontal bars. items: {label, value, text, ref, cls}; ref draws an outlined marker
-  // (a comparison value) on the same scale. Negative values grow left in orange and keep
-  // their minus sign in the text, so colour is never the only cue.
+  // (a comparison value) on the same scale. A bar is the track colour with an ink end-mark;
+  // blue when the row is me against others (opts.subject, with the others as ref marks) or a
+  // positive among negatives, orange when negative, which also keeps its minus sign in the
+  // text, so colour is never the only cue.
   function bars(title, items, opts) {
     opts = opts || {};
     var vals = items.map(function (i) { return i.value; }).concat(items.map(function (i) { return isNum(i.ref) ? i.ref : 0; }));
@@ -246,7 +252,8 @@
       "aria-label": title + ": " + items.map(function (i) { return i.label + " " + i.text + (i.refText ? " (" + i.refText + ")" : ""); }).join("; ") },
       items.map(function (i) {
         var w = Math.abs(i.value) / span * 100;
-        return h("div", { class: "bar" + (i.value < 0 ? " bar--neg" : ""), title: i.label + ": " + i.text + (i.refText ? " (" + i.refText + ")" : "") },
+        var cls = i.value < 0 ? " bar--neg" : opts.subject || min < 0 ? " bar--subject" : "";
+        return h("div", { class: "bar" + cls, title: i.label + ": " + i.text + (i.refText ? " (" + i.refText + ")" : "") },
           h("span", { class: "bar-label" }, i.label),
           h("span", { class: "bar-track" },
             min < 0 ? h("span", { class: "bar-zero", style: { left: zero + "%" } }) : null,
@@ -258,7 +265,7 @@
     var cols = [{ label: opts.labelHeading || "" }, { label: opts.valueHeading || "", num: true }];
     if (opts.refHeading) cols.push({ label: opts.refHeading, num: true });
     var legend = opts.refHeading ? h("p", { class: "legend legend--mono" },
-      h("span", { class: "legend-bar", "aria-hidden": "true" }), " " + opts.valueHeading + " (first number)   ",
+      h("span", { class: "legend-bar" + (opts.subject ? " legend-bar--subject" : ""), "aria-hidden": "true" }), " " + opts.valueHeading + " (first number)   ",
       h("span", { class: "legend-ref", "aria-hidden": "true" }), " " + opts.refHeading + " (second)") : null;
     return charted(title, collapsible(chart, chart.querySelectorAll(".bar")), cols, items.map(function (i) {
       var r = [i.label, i.text];
@@ -333,7 +340,10 @@
       "aria-label": title + ", " + n + " points from " + first.label + " to " + last.label + ": " + fmt(first.value) + " to " + fmt(last.value) },
       h("div", { class: "line-chart", style: { height: "90px" } },
         h("div", { class: "line-area" }, h("div", { class: "line-plot" }, svg,
-          h("span", { class: "line-dot line-dot--last", style: { left: "100%", top: y(last.value) + "%" } }))),
+          points.map(function (p, i) {
+            return h("span", { class: "line-dot" + (i === n - 1 ? " line-dot--last" : " line-dot--point"), title: p.label + ": " + fmt(p.value),
+              style: { left: x(i) + "%", top: y(p.value) + "%" } });
+          }))),
         h("div", { class: "line-end", style: { width: (fmt(last.value).length * 0.62 + 0.4) + "em" } },
           h("span", { class: "line-end-label", style: { top: Math.min(Math.max(y(last.value), 10), 90) + "%" } }, fmt(last.value)))),
       h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, first.label), h("span", null, last.label)));
@@ -393,22 +403,16 @@
     series.forEach(function (s, k) {
       var pts = [];
       s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
-      // A sparse series (s.points: measurements at some weeks only) is drawn as points
-      // joined by one 1px line; a full series as a 2px line.
+      // A sparse series (s.points: measurements at some weeks only) and a thin one are 1px
+      // lines, a full series 2px; every series marks every point it has.
       if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : "")));
-      if (s.points) {
-        var at = 0;
-        s.values.forEach(function (v, i) { if (isNum(v)) { points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : null }); at++; } });
-      }
+      s.values.forEach(function (v, i) { if (isNum(v)) points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : labels[i] + ": " + fmt(v) }); });
       var lastIdx = -1;
       s.values.forEach(function (v, i) { if (isNum(v)) lastIdx = i; });
       if (lastIdx >= 0) ends.push({ k: k, v: s.values[lastIdx], top: y(s.values[lastIdx]), left: x(lastIdx) });
     });
     var plot = h("div", { class: "line-plot" }, svg,
-      points.map(function (d) { return h("span", { class: "line-dot line-dot--point " + SERIES[d.k % SERIES.length], title: d.title || null, style: { left: d.left + "%", top: d.top + "%" } }); }),
-      ends.filter(function (e) { return !series[e.k].points; }).map(function (e) {  // a dotted series already marks its last point
-        return h("span", { class: "line-dot line-dot--last " + SERIES[e.k % SERIES.length], style: { left: e.left + "%", top: e.top + "%" } });
-      }));
+      points.map(function (d) { return h("span", { class: "line-dot line-dot--point " + SERIES[d.k % SERIES.length], title: d.title || null, style: { left: d.left + "%", top: d.top + "%" } }); }));
     // End labels: nudged apart when two sit within 14% of each other.
     ends.sort(function (a, b) { return a.top - b.top; });
     for (var i = 1; i < ends.length; i++) if (ends[i].top - ends[i - 1].top < 14) ends[i].top = ends[i - 1].top + 14;
@@ -434,8 +438,10 @@
   }
 
   // Strength against luck: every team in my leagues as a point, mine in blue with their
-  // labels and a faint trail from week 1, the others grey and unlabelled. Hover on any
-  // point shows its record and all-play share only; no name of another team ever appears.
+  // labels, the others grey with their label at most. A faint trail from week 3 is drawn but
+  // hidden until the "show trail" control (opts.trailToggle) is pressed; opts.trails false
+  // leaves it out. Hover on any point shows a label, record and all-play share only; no name
+  // of another team ever appears.
   function quadrant(v, opts) {
     opts = opts || {};
     var mine = list(v.mine).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck); });
@@ -504,8 +510,18 @@
     var key = mine.length ? h("ol", { class: "quad-key", "aria-label": "My teams, by marker number" }, mine.map(function (t, i) {
       return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), String(t.label) + " · " + record(t.record));
     })) : null;
-    return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
-      [h("p", { class: "legend legend--mono" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), opts.trails !== false ? legendItem("s-trail", "my trail, last 5 weeks") : null), key]);
+    var toggle = null;
+    if (opts.trails !== false && opts.trailToggle) {
+      toggle = h("button", { type: "button", class: "control quad-trails-toggle", "aria-pressed": "false" }, "show trail");
+      toggle.addEventListener("click", function () {
+        var on = toggle.getAttribute("aria-pressed") !== "true";
+        chart.classList.toggle("quad--trails", on);
+        toggle.setAttribute("aria-pressed", String(on));
+        toggle.textContent = on ? "hide trail" : "show trail";
+      });
+    }
+    return charted("Which of my teams are good, and which are lucky?", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
+      [h("p", { class: "legend legend--mono" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), toggle ? legendItem("s-trail", "my trail, last 5 weeks") : null, toggle), key]);
   }
 
   // ---------- films: tier bars and the crowd plot ----------
@@ -574,7 +590,7 @@
     var key = marks.length ? h("ol", { class: "quad-key", "aria-label": "The disagreements, by marker number" }, marks.map(function (p, i) {
       return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), hover(p));
     })) : null;
-    return charted("Community score against my tier", chart, [{ label: "Title" }, { label: "Year", num: true }, { label: "My tier" }, { label: "Community", num: true }],
+    return charted("Where do my tiers part from the community's score?", chart, [{ label: "Title" }, { label: "Year", num: true }, { label: "My tier" }, { label: "Community", num: true }],
       pts.map(function (p) { return [String(p.title), isNum(p.year) ? String(p.year) : "–", String(p.tier), num(p.community, 1)]; }),
       [h("p", { class: "legend legend--mono" }, legendItem("s-grey", "every tiered title"), legendItem("s-blue", "the six largest disagreements")), key]);
   }
@@ -590,7 +606,7 @@
       rows.map(function (r) {
         var iv = Array.isArray(r.interval) && isNum(r.interval[0]) && isNum(r.interval[1]) ? r.interval : null;
         var w = Math.abs(r.effect) / span * 50;
-        return h("div", { class: "bar" + (r.clear === false ? " bar--faded" : "") + (r.effect < 0 ? " bar--neg" : ""), title: r.name + ": " + signed(r.effect, 2) + (iv ? " (95% " + signed(iv[0], 2) + " to " + signed(iv[1], 2) + ")" : "") + (r.clear === false ? "; the interval includes zero" : "") },
+        return h("div", { class: "bar" + (r.clear === false ? " bar--faded" : "") + (r.effect < 0 ? " bar--neg" : " bar--subject"), title: r.name + ": " + signed(r.effect, 2) + (iv ? " (95% " + signed(iv[0], 2) + " to " + signed(iv[1], 2) + ")" : "") + (r.clear === false ? "; the interval includes zero" : "") },
           h("span", { class: "bar-label" }, String(r.name)),
           h("span", { class: "bar-track" },
             h("span", { class: "bar-zero", style: { left: "50%" } }),
@@ -752,7 +768,7 @@
   var WEEKS = "weeks";
 
   function weeklyBench(v) {
-    return columns("Points left on the bench by week", list(v.weekly).map(function (w) {
+    return columns("How many points did I leave on the bench each week?", list(v.weekly).map(function (w) {
       return { label: "wk " + w.week, title: "Week " + w.week, value: w.bench_points, text: num(w.bench_points, 1) };
     }), { labelHeading: "Week", valueHeading: "Points on the bench" });
   }
@@ -826,7 +842,7 @@
                 h("span", { class: "bar-fill", style: { left: (m.margin < 0 ? 50 - w : 50) + "%", width: w + "%" } })),
               h("span", { class: "bar-value" }, signed(m.margin, 1)));
           }));
-        return [charted("Margin by week", chart, [{ label: "Week" }, { label: "Result" }, { label: "Margin", num: true }],
+        return [charted("By how much did I win or lose each week?", chart, [{ label: "Week" }, { label: "Result" }, { label: "Margin", num: true }],
           rows.map(function (m) { return ["Week " + m.week, m.margin > 0 ? "W" : m.margin < 0 ? "L" : "T", signed(m.margin, 2)]; })),
           facts([["close games (under 5 points)", String(v.under_5)], ["record in close games", v.under_5 ? record(v.under_5_record) : null]])];
       }
@@ -857,7 +873,7 @@
             hits.adds === 0 ? "no waiver adds." : plural(hits.adds, "adds").replace(/^1 adds$/, "1 add") + ", " + num(hits.benched_points, 1) +
               " points on my bench, " + signed(hits.points_available, 2) + " net points available.") : null,
           weeklyBench(v),
-          slots.length ? bars("Points left on the bench by slot", slots.map(function (k) {
+          slots.length ? bars("Which slot cost me the most points?", slots.map(function (k) {
             return { label: k, value: v.regret_by_slot[k], text: num(v.regret_by_slot[k], 1) };
           }), { labelHeading: "Slot", valueHeading: "Points" }) : null
         ];
@@ -968,15 +984,15 @@
       n: WEEKS,
       draw: function (v) {
         need(isObj(v.mine) && isObj(v.league), "position_share");
-        return bars("Share of my starters' points by position", Object.keys(v.mine).map(function (k) {
+        return bars("Where do my starters' points come from, by position?", Object.keys(v.mine).map(function (k) {
           return { label: k, value: v.mine[k], text: pct(v.mine[k]), ref: v.league[k], refText: isNum(v.league[k]) ? pct(v.league[k]) : null };
-        }), { labelHeading: "Position", valueHeading: "mine", refHeading: "league average" });
+        }), { labelHeading: "Position", valueHeading: "mine", refHeading: "league average", subject: true });
       }
     },
     "fantasy.quadrant": {
       n: WEEKS,
       wide: true,
-      draw: function (v) { return quadrant(v); }
+      draw: function (v) { return quadrant(v, { trailToggle: true }); }
     },
     "fantasy.manager_score.components.draft": managerComponent("Draft", "my drafted starters against the median player taken in the same round"),
     "fantasy.manager_score.components.lineup": managerComponent("Lineup", "my lineup against the best possible one from my roster"),
@@ -996,9 +1012,9 @@
       n: WEEKS,
       draw: function (v) {
         var keys = ["draft", "waiver", "trade", "other"].filter(function (k) { return isObj(v[k]) && isNum(v[k].mine); });
-        return bars("Points to date by how the player arrived", keys.map(function (k) {
+        return bars("How did the players scoring my points arrive?", keys.map(function (k) {
           return { label: k, value: v[k].mine, text: num(v[k].mine, 1), ref: v[k].league_median, refText: isNum(v[k].league_median) ? num(v[k].league_median, 1) : null };
-        }), { labelHeading: "Arrived by", valueHeading: "mine", refHeading: "league median" });
+        }), { labelHeading: "Arrived by", valueHeading: "mine", refHeading: "league median", subject: true });
       }
     },
     "fantasy.teams[].draft": {
@@ -1083,7 +1099,7 @@
     "listening.discovery": {
       n: "months",
       draw: function (v) {
-        return columns("Share of plays by artists new that month", list(v.months).map(function (m) {
+        return columns("How much of each month's listening went to new artists?", list(v.months).map(function (m) {
           return { label: monthText(m.month, true), title: monthText(m.month), value: m.share, text: pct(m.share) };
         }), { labelHeading: "Month", valueHeading: "Share by new artists" });
       }
@@ -1093,7 +1109,7 @@
       n: "months",
       draw: function (v) {
         var d = v.most_in_a_day;
-        return [columns("Top five artists' share of plays", list(v.months).map(function (m) {
+        return [columns("How much of each month went to my top five artists?", list(v.months).map(function (m) {
           return { label: monthText(m.month, true), title: monthText(m.month), value: m.top_five_share, text: pct(m.top_five_share) };
         }), { labelHeading: "Month", valueHeading: "Top five's share" }),
           isObj(d) ? facts([["most plays of one track in a day", d.plays + ", “" + d.track + "” by " + d.artist + ", " + dateText(d.date)]]) : null];
@@ -1116,7 +1132,7 @@
             h("span", { class: "ld-heat-cells" }, [0, 6, 12, 18].map(function (hr) { return h("span", { style: { gridColumn: (hr + 1) + " / span 6" } }, hr + ":00"); }))));
         var hours = [];
         for (var hr = 0; hr < 24; hr++) hours.push({ label: hr + ":00", num: true });
-        var t = charted("Plays by weekday and hour", chart, [{ label: "Weekday" }].concat(hours),
+        var t = charted("When do I listen, by weekday and hour?", chart, [{ label: "Weekday" }].concat(hours),
           days.map(function (d, i) { return [d].concat(list(grid[i]).map(String)); }));
         return [t, facts([["plays a weekday", num(v.per_weekday, 1)], ["plays a weekend day", num(v.per_weekend_day, 1)]])];
       }
@@ -1156,8 +1172,8 @@
       n: "plays",
       draw: function (v, s, ctx) {
         var hours = list(v.by_hour);
-        return [weekdayColumns("Plays by weekday", ctx.weekdays, v.by_weekday, "Plays"),
-          hours.length ? columns("Plays by hour, Pacific", hours.map(function (c, i) { return { label: String(i), title: i + ":00", value: c, text: big(c) }; }),
+        return [weekdayColumns("On which weekdays do I listen?", ctx.weekdays, v.by_weekday, "Plays"),
+          hours.length ? columns("At which hours do I listen?", hours.map(function (c, i) { return { label: String(i), title: i + ":00", value: c, text: big(c) }; }),
             { labelHeading: "Hour", valueHeading: "Plays", every: 6 }) : null];
       }
     },
@@ -1188,7 +1204,7 @@
         return [facts([["digging back", isNum(v.back) ? big(v.back) + " additions" : null], ["keeping up", isNum(v.keep_up) ? big(v.keep_up) + " additions" : null],
           ["median gap to the release years", isNum(v.median_release_gap_years) ? num(v.median_release_gap_years, 1) + " years" : null],
           ["left out: added by the sync, not found", isNum(v.sync_additions_left_out) ? big(v.sync_additions_left_out) : null]]),
-          years.length ? bars("Share digging back, by the year I found them", years.map(function (y) {
+          years.length ? bars("Was I digging back or keeping up, by the year I found them?", years.map(function (y) {
             return { label: String(y.year) + (isNum(y.n) ? " · " + big(y.n) + " additions" : ""), value: y.share_dig_back, text: pct(y.share_dig_back) };
           }), { labelHeading: "Year", valueHeading: "Digging back" }) : null];
       }
@@ -1202,7 +1218,7 @@
         var weekly = weeks.length > 0 && months.length < 3;
         var rows = weekly ? weeks : months;
         function eff(r) { return isNum(r.effective_artists) ? r.effective_artists : Math.pow(2, r.entropy_bits); }
-        return rows.length ? columns("Effective artists (2 to the entropy) by " + (weekly ? "week" : "month") + (weekly ? "" : ", months with 50 or more plays"), rows.map(function (r) {
+        return rows.length ? columns("How many artists was I really listening to, by " + (weekly ? "week" : "month") + "?", rows.map(function (r) {
           return { label: weekly ? dateText(r.week_start, false) : monthText(r.month, true), title: (weekly ? "week of " + dateText(r.week_start) : monthText(r.month)) + " (" + plural(r.plays, "plays") + ", " + plural(r.artists, "artists") + ")",
             value: eff(r), text: num(eff(r), 1) };
         }), { labelHeading: weekly ? "Week of" : "Month", valueHeading: "Effective artists" }) : null;
@@ -1215,7 +1231,7 @@
         var months = list(v.months).filter(isObj), weeks = list(v.weeks).filter(isObj);
         var weekly = weeks.length > 0 && months.length < 3;
         var rows = (weekly ? weeks : months).filter(function (r) { return isNum(r.median_release_year); });
-        return rows.length ? lineChart("Median release year by " + (weekly ? "week" : "month"), rows.map(function (r) {
+        return rows.length ? lineChart("How old was the music I played, by " + (weekly ? "week" : "month") + "?", rows.map(function (r) {
           return { label: weekly ? dateText(r.week_start) : monthText(r.month), value: r.median_release_year };
         }), function (x) { return String(Math.round(x)); }) : null;
       }
@@ -1226,7 +1242,7 @@
         var lib = isObj(v.library) ? v.library : {};
         return [facts([["artists in the library", isNum(lib.artists) ? big(lib.artists) : null], ["lifetime plays", isNum(lib.plays) ? big(lib.plays) : null],
           ["library since", typeof lib.since === "string" ? monthText(lib.since) : null]]),
-          bars("Plays a year since first added", list(v.artists).map(function (a) {
+          bars("Which artists have lasted, in plays a year?", list(v.artists).map(function (a) {
             return { label: a.artist, value: a.plays_per_year, text: big(a.plays_per_year) + " (" + big(a.plays) + " over " + num(a.years, 1) + " years)" };
           }), { labelHeading: "Artist", valueHeading: "Plays a year" })];
       }
@@ -1236,7 +1252,7 @@
       value: function (s) { return isNum(s.value) ? [pct(s.value), "of a month's new artists played again within 30 days, latest"] : null; },
       draw: function (v) {
         var months = list(v.months);
-        return months.length ? multiLine("New artists still played 30 and 90 days later", months.map(function (m) { return monthText(m.month); }),
+        return months.length ? multiLine("Do I keep playing a month's new artists 30 and 90 days later?", months.map(function (m) { return monthText(m.month); }),
           [{ name: "after 30 days", values: months.map(function (m) { return m.share_30d; }) },
            { name: "after 90 days", values: months.map(function (m) { return m.share_90d; }) }],
           { fmt: pct, labelHeading: "Month", height: 110 }) : null;
@@ -1292,7 +1308,7 @@
         var change = isObj(v.lifts_change) ? Object.keys(v.lifts_change).filter(function (k) { return isObj(v.lifts_change[k]) && isNum(v.lifts_change[k].change_pct); })
           .sort(function (x, y) { return v.lifts_change[y].change_pct - v.lifts_change[x].change_pct; }) : [];
         return [weeks.length > 1 ? indexedLines(weeks, null, v) : null,
-          change.length ? bars("Best e1RM since the cut started, by lift", change.map(function (k) {
+          change.length ? bars("Which lifts have held up since the cut started?", change.map(function (k) {
             var c = v.lifts_change[k];
             return { label: k, value: c.change_pct * 100, text: signed(c.change_pct * 100, 1) + "%" + (isNum(c.start) && isNum(c.latest) ? " (" + num(c.start, 1) + " to " + num(c.latest, 1) + " lb)" : "") };
           }), { labelHeading: "Lift", valueHeading: "Change" }) : null,
@@ -1329,7 +1345,7 @@
       draw: function (v) {
         // A bucket with no following week has a null mean and is left out.
         var rows = list(v.buckets).filter(function (b) { return isObj(b) && isNum(b.mean_e1rm_change); });
-        return rows.length ? bars("Mean e1RM change by sessions a week", rows.map(function (b) {
+        return rows.length ? bars("Does a week with more sessions move my strength more?", rows.map(function (b) {
           return { label: String(b.sessions_per_week) + (String(b.sessions_per_week) === "1" ? " session" : " sessions") + " · " + plural(b.weeks, WEEKS),
             value: b.mean_e1rm_change, text: signed(b.mean_e1rm_change, 1) + " lb" };
         }), { labelHeading: "Sessions a week", valueHeading: "Mean e1RM change" }) : null;
@@ -1344,7 +1360,7 @@
         // The pipeline now writes each weekday's mean hours per week (and the window's "to"
         // date); an older file holds the window's totals, and says so. Nothing is divided here.
         var perWeek = typeof v.to === "string";
-        var title = perWeek ? "Hours per week by weekday, last " + span + " weeks" : "Hours by weekday, total over the last " + span + " weeks";
+        var title = perWeek ? "How do my hours fall across the week, per week over the last " + span + " weeks?" : "How do my hours fall across the week, in total over the last " + span + " weeks?";
         var unit = perWeek ? "hours a week" : "hours in total";
         var totals = days.map(function (d, i) { return kinds.reduce(function (a, k) { return a + (isNum(list(hrs[k])[i]) ? hrs[k][i] : 0); }, 0); });
         var max = Math.max.apply(null, totals.concat(0));
@@ -1375,7 +1391,7 @@
       draw: function (v, s, ctx) {
         var series = list(v.series);
         return [facts([["latest", isNum(v.latest) ? num(v.latest, 3) + " lb e1RM per lb" : null]]),
-          series.length > 1 ? lineChart(ctx.label + ": e1RM per lb of body weight", series.map(function (p) {
+          series.length > 1 ? lineChart("How is my " + ctx.label + " moving, in e1RM per lb of body weight?", series.map(function (p) {
             return { label: dateText(p.date), value: p.ratio };
           }), function (x) { return num(x, 3); }) : null];
       }
@@ -1383,7 +1399,7 @@
     "lifting.lag_check": {
       n: WEEKS,
       draw: function (v) {
-        return intervals("Correlation, weight change against e1RM change", list(v.lags).map(function (l) {
+        return intervals("Does a change in weight show up in strength weeks later?", list(v.lags).map(function (l) {
           return { label: l.lag_weeks + (l.lag_weeks === 1 ? " week" : " weeks") + " later", value: l.r, lo: l.interval[0], hi: l.interval[1],
             text: "r " + num(l.r, 2) + " (" + num(l.interval[0], 2) + " to " + num(l.interval[1], 2) + "), n " + l.n };
         }), { min: -1, max: 1, labelHeading: "Lag" });
@@ -1396,15 +1412,15 @@
         return [facts([["plays during workouts", big(v.plays_in_workouts)],
           ["workouts with music", v.workouts_with_music + " of " + v.workouts_since_first_play + " since my first play"],
           ["sessions with a best e1RM and music", isNum(v.best_sessions_with_music) ? String(v.best_sessions_with_music) : null]]),
-          top.length ? bars("Most played in workouts this month", top.map(function (a) { return { label: a.artist, value: a.plays, text: String(a.plays) }; }),
+          top.length ? bars("What did I play most in workouts this month?", top.map(function (a) { return { label: a.artist, value: a.plays, text: String(a.plays) }; }),
             { labelHeading: "Artist", valueHeading: "Plays" }) : h("p", { class: "panel-empty" }, "No plays during workouts this month."),
-          bests.length ? bars("Played in sessions where a best was set", bests.map(function (a) { return { label: a.artist, value: a.plays, text: String(a.plays) }; }),
+          bests.length ? bars("What was playing when a best was set?", bests.map(function (a) { return { label: a.artist, value: a.plays, text: String(a.plays) }; }),
             { labelHeading: "Artist", valueHeading: "Plays" }) : null];
       }
     },
     "cross.rhythm.workouts": {
       n: "workouts",
-      draw: function (v, s, ctx) { return weekdayColumns("Workouts by weekday", ctx.weekdays, v.by_weekday, "Workouts"); }
+      draw: function (v, s, ctx) { return weekdayColumns("On which weekdays do I train?", ctx.weekdays, v.by_weekday, "Workouts"); }
     },
 
     // ----- watching -----
@@ -1427,7 +1443,7 @@
                 types.map(function (t) { return m.share[t] ? h("span", { class: "fill--" + TYPE_CLASS[t], style: { flexGrow: m.share[t] } }) : null; }).reverse()),
               h("span", { class: "ld-col-label", "aria-hidden": "true" }, monthText(m.month, true)));
           }));
-        return charted("Hours watched by month", chart,
+        return charted("How many hours did I watch each month?", chart,
           [{ label: "Month" }, { label: "Hours", num: true }].concat(types.map(function (t) { return { label: nameOf(t), num: true }; })),
           months.map(function (m) { return [monthText(m.month), num(m.hours, 1)].concat(types.map(function (t) { return pct(m.share[t] || 0); })); }),
           h("p", { class: "legend legend--mono" }, types.map(function (t) {
@@ -1480,7 +1496,7 @@
     "watching.release_decades": {
       n: "films",
       draw: function (v) {
-        return columns("Films finished by decade of release", list(v.decades).map(function (d) {
+        return columns("Which decades do my films come from?", list(v.decades).map(function (d) {
           return { label: d.decade, value: d.films, text: String(d.films), title: d.decade + " (" + pct(d.share) + ")" };
         }), { labelHeading: "Decade", valueHeading: "Films" });
       }
@@ -1509,7 +1525,7 @@
     "watching.tier_distribution.*": {
       n: "titles",
       draw: function (v, s, ctx) {
-        return bars("Titles by tier", list(v.tiers).map(function (t) {
+        return bars("How do my titles split across tiers?", list(v.tiers).map(function (t) {
           return { label: t.tier, value: t.titles, text: t.titles + " (" + pct(t.share) + ")", cls: ctx.typeClass };
         }), { labelHeading: "Tier", valueHeading: "Titles" });
       }
@@ -1545,17 +1561,17 @@
     "watching.by_director": {
       n: "films",
       wide: true,
-      draw: function (v) { return tierBars("Mean tier by director", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Director" }); }
+      draw: function (v) { return tierBars("Whose films earn the highest tiers, by director?", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Director" }); }
     },
     "watching.by_studio": {
       n: "titles",
       wide: true,
-      draw: function (v) { return tierBars("Mean tier by anime studio", list(v.rows).filter(isObj), { unit: "titles", labelHeading: "Studio", cls: "fill--anime" }); }
+      draw: function (v) { return tierBars("Which anime studios earn the highest tiers?", list(v.rows).filter(isObj), { unit: "titles", labelHeading: "Studio", cls: "fill--anime" }); }
     },
     "watching.by_lead": {
       n: "films",
       wide: true,
-      draw: function (v) { return tierBars("Mean tier by lead actor", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Lead" }); }
+      draw: function (v) { return tierBars("Whose films earn the highest tiers, by lead actor?", list(v.rows).filter(isObj), { unit: "films", labelHeading: "Lead" }); }
     },
     "watching.crowd_agreement": {
       n: "titles",
@@ -1579,7 +1595,7 @@
         var qs = list(v.by_popularity_quartile).filter(function (q) { return isObj(q) && isNum(q.mean_tier); });
         var names = { 1: "least popular quarter", 2: "second quarter", 3: "third quarter", 4: "most popular quarter" };
         return [facts([["films with revenue and budget", isNum(v.films_with_money) ? String(v.films_with_money) : null], ["films with a popularity", isNum(v.films_with_popularity) ? String(v.films_with_popularity) : null]]),
-          tierBars("Mean tier by TMDB popularity quartile", qs.map(function (q) { return { name: names[q.quartile] || "quartile " + q.quartile, mean_tier: q.mean_tier, n: q.n }; }), { unit: "films", labelHeading: "Quartile" })];
+          tierBars("Do more popular films earn higher tiers?", qs.map(function (q) { return { name: names[q.quartile] || "quartile " + q.quartile, mean_tier: q.mean_tier, n: q.n }; }), { unit: "films", labelHeading: "Quartile" })];
       }
     },
     "watching.sequels": {
@@ -1602,7 +1618,7 @@
         var rows = [["English", m.english], ["Other languages", m.other]].filter(function (r) { return isObj(r[1]) && isNum(r[1].mean_tier); })
           .map(function (r) { return { name: r[0], mean_tier: r[1].mean_tier, n: r[1].n }; });
         return [facts([["films not in English", isNum(v.share_non_english) ? pct(v.share_non_english) : null]]),
-          rows.length ? tierBars("Mean tier by original language", rows, { unit: "films", labelHeading: "Language" }) : null];
+          rows.length ? tierBars("Do films in other languages earn higher tiers?", rows, { unit: "films", labelHeading: "Language" }) : null];
       }
     },
     "watching.critics_vs_audience": {
@@ -1623,7 +1639,7 @@
       value: function (s) { return isNum(s.value) ? [pct(s.value), "of tiers predicted from metadata, leave-one-out"] : null; },
       draw: function (v) {
         var rows = list(v.rows).filter(function (r) { return isObj(r) && isNum(r.effect) && typeof r.name === "string"; });
-        return [rows.length ? effectBars("What my tiers respond to", rows) : null,
+        return [rows.length ? effectBars("What do my tiers respond to?", rows) : null,
           facts([["always guessing the commonest tier", isNum(v.baseline) ? pct(v.baseline) : null]]),
           disagreementLines(v.disagreements)];
       }
@@ -1635,7 +1651,7 @@
       draw: function (v) {
         var feats = list(v.features).filter(function (f) { return isObj(f) && isNum(f.effect) && Array.isArray(f.interval); });
         return [facts([["always guessing the commonest tier", isNum(v.baseline_accuracy) ? pct(v.baseline_accuracy) : null]]),
-          feats.length ? intervals("Each feature's effect on my tier, with 95% intervals", feats.map(function (f) {
+          feats.length ? intervals("Which features move my tier, and by how much?", feats.map(function (f) {
             return { label: String(f.name), value: f.effect, lo: f.interval[0], hi: f.interval[1],
               text: signed(f.effect, 2) + " (" + signed(f.interval[0], 2) + " to " + signed(f.interval[1], 2) + ")" };
           }), { labelHeading: "Feature" }) : null];
@@ -1646,7 +1662,7 @@
       value: function (s) { return isNum(s.value) ? [signed(s.value, 2), "tier points a year (S = 5, D = 1)"] : null; },
       intervalFmt: function (x) { return signed(x, 2); },
       draw: function (v) {
-        return columns("Mean tier score by the year I watched", list(v.years).map(function (y) {
+        return columns("Are my tiers drifting, by the year I watched?", list(v.years).map(function (y) {
           return { label: String(y.year), title: y.year + " (" + plural(y.n, "titles") + ")", value: y.mean_tier_score, text: num(y.mean_tier_score, 1) };
         }), { labelHeading: "Year", valueHeading: "Mean tier score" });
       }
@@ -1655,7 +1671,7 @@
       n: "titles",
       draw: function (v) {
         var gs = list(v.genres).filter(function (g) { return isObj(g) && isNum(g.gap) && Array.isArray(g.interval); });
-        return intervals("My tier against the community's, by genre (tier points; positive = I rate higher)", gs.map(function (g) {
+        return intervals("Where do I rate above or below the community, by genre?", gs.map(function (g) {
           return { label: g.genre + " · " + plural(g.n, "titles"), value: g.gap, lo: g.interval[0], hi: g.interval[1],
             text: signed(g.gap, 2) + " (" + signed(g.interval[0], 2) + " to " + signed(g.interval[1], 2) + ")" };
         }), { labelHeading: "Genre" });
@@ -1665,7 +1681,7 @@
       n: "titles",
       draw: function (v) {
         var names = { binge: "binge (3+ episodes a week)", steady: "steady (1 to 3)", slow: "slow (under 1)" };
-        return bars("Mean tier score by pace", list(v.buckets).map(function (b) {
+        return bars("Do the shows I binge earn higher tiers?", list(v.buckets).map(function (b) {
           return { label: (names[b.bucket] || String(b.bucket)) + " · " + plural(b.n, "titles"), value: b.mean_tier_score, text: num(b.mean_tier_score, 1) };
         }), { labelHeading: "Pace", valueHeading: "Mean tier score" });
       }
@@ -1720,14 +1736,14 @@
         }
         var o = v.overall;
         return [facts([["middle half of scores", num(o.q1, 2) + " to " + num(o.q3, 2)]]),
-          ranges("By cuisine", v.by_cuisine), ranges("By city", v.by_city)];
+          ranges("How do my scores spread, by cuisine?", v.by_cuisine), ranges("How do my scores spread, by city?", v.by_city)];
       }
     },
     "eating.choice_vs_taste": {
       n: "places",
       draw: function (v) {
         return [facts([["my top quartile starts at", num(v.top_quartile_from, 2)]]),
-          bars("Share of places tried, against share of my top quartile", list(v.cuisines).map(function (c) {
+          bars("Do I try the cuisines I rate highest?", list(v.cuisines).map(function (c) {
             return { label: c.cuisine, value: c.tried, text: pct(c.tried), ref: c.top_quartile, refText: pct(c.top_quartile) };
           }), { labelHeading: "Cuisine", valueHeading: "share of places tried", refHeading: "share of my top quartile" })];
       }
@@ -1747,7 +1763,7 @@
     "eating.new_cuisines": {
       n: "months",
       draw: function (v) {
-        return columns("Cuisines ranked for the first time, by month", list(v.months).map(function (m) {
+        return columns("How many new cuisines did I try each month?", list(v.months).map(function (m) {
           return { label: monthText(m.month, true), title: monthText(m.month), value: m.new_cuisines, text: String(m.new_cuisines) };
         }), { labelHeading: "Month", valueHeading: "New cuisines" });
       }
@@ -1778,13 +1794,13 @@
               h("span", { class: "bar-value" }, med !== null ? "median " + pct(med) : "")),
             h("div", { class: "ld-range-row axis-row", "aria-hidden": "true" }, h("span"),
               h("span", { class: "axis-ticks" }, [[0, "0 · bottom", "axis-start"], [50, "50", ""], [100, "top · 100", "axis-end"]].map(function (t) { return h("span", { class: t[2] || null, style: { left: t[0] + "%" } }, t[1]); })), h("span")));
-          strip = charted("The last 20 places I ranked, where each sits in my list now", chart,
+          strip = charted("Where did the last 20 places I ranked land in my list?", chart,
             [{ label: "Place" }, { label: "Percentile", num: true }],
             recent.map(function (r) { return [typeof r.place === "string" ? r.place : "", pct(r.percentile)]; }),
             h("p", { class: "legend legend--mono" }, h("span", { class: "legend-dot", "aria-hidden": "true" }), " one place   ", h("span", { class: "legend-median", "aria-hidden": "true" }), " median"));
         }
         var months = list(v.months).filter(function (m) { return isObj(m) && isNum(m.median_percentile); });
-        return [strip, months.length ? columns("Median landing percentile by month of first ranking", months.map(function (m) {
+        return [strip, months.length ? columns("Where did new places land, by month of first ranking?", months.map(function (m) {
           return { label: monthText(m.month, true), title: monthText(m.month) + (isNum(m.rankings) ? " (" + plural(m.rankings, "places") + ")" : ""), value: m.median_percentile, text: pct(m.median_percentile) };
         }), { labelHeading: "Month", valueHeading: "Median percentile" }) : null];
       }
@@ -1820,7 +1836,7 @@
           h("div", { class: "ld-range-row axis-row", "aria-hidden": "true" }, h("span"),
             h("span", { class: "axis-ticks" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
         return [h("p", { class: "ld-sentence" }, sentence),
-          charted("Middle half of scores by cuisine, narrowest first", chart,
+          charted("Which cuisines are a safe bet, narrowest spread first?", chart,
             [{ label: "Cuisine" }, { label: "Median", num: true }, { label: "Middle half", num: true }, { label: "Spread", num: true }, { label: "Places", num: true }],
             rows.map(function (r) { return [r.cuisine, num(r.median, 2), num(r.q1, 2) + " to " + num(r.q3, 2), num(r.spread, 2), r.n !== null ? String(r.n) : ""]; }),
             h("p", { class: "legend legend--mono" }, h("span", { class: "legend-dot", "aria-hidden": "true" }), " median   ",
@@ -1839,7 +1855,7 @@
     },
     "cross.rhythm.restaurants": {
       n: "places",
-      draw: function (v, s, ctx) { return weekdayColumns("Places ranked by weekday", ctx.weekdays, v.by_weekday, "Places"); }
+      draw: function (v, s, ctx) { return weekdayColumns("On which weekdays do I rank places?", ctx.weekdays, v.by_weekday, "Places"); }
     }
   };
 
@@ -1858,7 +1874,7 @@
       n: "titles",
       draw: function (v) {
         var g = isObj(v.genres) ? v.genres : {};
-        return bars("Share carrying each genre", Object.keys(g).map(function (k) {
+        return bars("Which genres do I watch most?", Object.keys(g).map(function (k) {
           return { label: k, value: g[k], text: pct(g[k]), cls: "fill--" + TYPE_CLASS[type] };
         }), { labelHeading: "Genre", valueHeading: "Share" });
       }
@@ -1869,7 +1885,7 @@
       n: "titles",
       draw: function (v) {
         var c = isObj(v.countries) ? v.countries : {}, ex = list(v.excluded);
-        return [bars("Share by country of origin", Object.keys(c).map(function (k) {
+        return [bars("Where do the titles I watch come from?", Object.keys(c).map(function (k) {
           return { label: k, value: c[k], text: pct(c[k]), cls: "fill--" + TYPE_CLASS[type] };
         }), { labelHeading: "Country", valueHeading: "Share" }),
           ex.length ? h("p", { class: "ld-small" }, "Left out: " + ex.join("; ") + ".") : null];
@@ -1921,10 +1937,10 @@
   function sTierBars(v) {
     var types = list(v.by_type).filter(function (t) { return isObj(t) && isNum(t.share); });
     var decades = list(v.by_decade).filter(function (d) { return isObj(d) && isNum(d.share); });
-    return [types.length ? bars("S-tier share by type", types.map(function (t) {
+    return [types.length ? bars("Which type earns an S most often?", types.map(function (t) {
       return { label: nameOf(t.type), value: t.share, text: pct(t.share) + " (" + t.s + " of " + t.titles + ")", cls: TYPE_CLASS[t.type] ? "fill--" + TYPE_CLASS[t.type] : null };
     }), { labelHeading: "Type", valueHeading: "S share" }) : null,
-      decades.length ? bars("S-tier share by release decade", decades.map(function (d) {
+      decades.length ? bars("Which decades earn an S most often?", decades.map(function (d) {
         return { label: String(d.decade), value: d.share, text: pct(d.share) + " (" + d.s + " of " + d.titles + ")" };
       }), { labelHeading: "Decade", valueHeading: "S share" }) : null];
   }
@@ -1948,10 +1964,10 @@
     var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
     var labels = weeks.map(function (w) { return dateText(w.week_start); });
     var common = { fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", endLabels: false };
-    var weight = multiLine("Body weight since the cut, indexed to 100", labels,
+    var weight = multiLine("How has my body weight moved since the cut started?", labels,
       [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true }],
       Object.assign({}, common, { height: Math.round((opts.height || 130) * 0.55), legend: true }));
-    var strength = multiLine("Strength since the cut, indexed to 100", labels,
+    var strength = multiLine("Has my strength held since the cut started?", labels,
       [{ name: "strength index", values: weeks.map(function (w) { return w.strength; }) }].concat(splitSeries(v, weeks)),
       Object.assign({}, common, { height: opts.height || 130 }));
     return h("div", { class: "ld-stacked" }, weight, strength);
@@ -1963,7 +1979,7 @@
       value: function (s) { return [signed(s.value, dp), unit]; },
       intervalFmt: function (x) { return signed(x, dp); },
       draw: function (v, s) {
-        return [Array.isArray(s.interval) ? intervals("Estimate and 95% interval", [{ label: "estimate", value: s.value, lo: s.interval[0], hi: s.interval[1],
+        return [Array.isArray(s.interval) ? intervals("How big is the effect, and how sure is it?", [{ label: "estimate", value: s.value, lo: s.interval[0], hi: s.interval[1],
           text: signed(s.value, dp) + " (" + signed(s.interval[0], dp) + " to " + signed(s.interval[1], dp) + ")" }]) : null,
           facts(more(v))];
       }
@@ -2087,7 +2103,7 @@
         return { label: e.spec.label, value: v.percentile * 100, text: e.spec.raw(e.stat.value) + (isNum(v.rank) && isNum(v.of) ? " · rank " + v.rank + " of " + v.of : "") };
       });
       return [head,
-        items.length ? bars("Percentile among managers across my leagues", items, { labelHeading: "Component", valueHeading: "Percentile · raw value and rank" }) : null,
+        items.length ? bars("Where do I rank among managers across my leagues?", items, { labelHeading: "Component", valueHeading: "Percentile · raw value and rank", subject: true }) : null,
         waiting.map(function (e) {
           return h("p", { class: "ld-n ld-n--row" }, e.spec.label + " · n = " + plural(isNum(e.stat.n) ? e.stat.n : 0, WEEKS) + " · ",
             h("span", { class: "ld-tag" }, "small sample, threshold " + (isNum(e.stat.min_n) ? big(e.stat.min_n) : "?")));
@@ -2383,6 +2399,7 @@
     var ctx = { weekdays: weekdays };
     Array.prototype.forEach.call(slots, function (slot) { fillSlot(slot, a, ctx); });
     Array.prototype.forEach.call(document.querySelectorAll(".ld-feed"), function (slot) { fillFeed(slot, data); });
+    oneHeadline();
     hideEmpty();
     // The team in the hash (#team=key, from the main page or the lineup) picks the team tabs.
     function followHash() { var t = hashParts().team; if (t) selectTabKey("fantasy-team", t); }
@@ -2414,6 +2431,24 @@
   // The reading bar (js/track.js) measures the sections once they are drawn.
   function retime() {
     try { document.dispatchEvent(new CustomEvent("tp:retime")); } catch (e) { /* no CustomEvent: the bar keeps its first measure */ }
+  }
+
+  // One headline number per section: the first value outside the tabs keeps its size, or, in a
+  // section of tabbed blocks only, the first value in each tab panel; every other value in the
+  // section is a mono fact line.
+  function oneHeadline() {
+    Array.prototype.forEach.call(document.querySelectorAll(".ld-section"), function (sec) {
+      var values = Array.prototype.slice.call(sec.querySelectorAll(".ld-value"));
+      var outside = values.filter(function (v) { return !v.closest(".tab-panel"); });
+      var kept = outside.slice(0, 1);
+      if (!outside.length) {
+        Array.prototype.forEach.call(sec.querySelectorAll(".tab-panel"), function (panel) {
+          var first = panel.querySelector(".ld-value");
+          if (first) kept.push(first);
+        });
+      }
+      values.forEach(function (v) { if (kept.indexOf(v) < 0) v.classList.add("ld-value--line"); });
+    });
   }
 
   // A section whose every slot is hidden is hidden; the reading bar drops its segment when
