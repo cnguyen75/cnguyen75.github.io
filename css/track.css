@@ -300,23 +300,23 @@
 .tp-step-title { font-weight: 700; }
 .tp-step-text { color: var(--text-2); font-size: 15px; }
 
-/* Credits */
-.tp-credits { margin: 0; display: flex; flex-direction: column; }
-.tp-credit {
+/* Built with */
+.tp-built { margin: 0; display: flex; flex-direction: column; }
+.tp-built-row {
   display: flex;
   flex-wrap: wrap;
   gap: 2px 24px;
   padding: 10px 0;
   border-bottom: 1px solid var(--rule);
 }
-.tp-credit:last-child { border-bottom: 0; }
-.tp-credit dt {
+.tp-built-row:last-child { border-bottom: 0; }
+.tp-built-row dt {
   flex: 0 0 150px;
   font-family: var(--font-label);
   font-size: 15px;
   color: var(--text-3);
 }
-.tp-credit dd { flex: 1 1 240px; margin: 0; }
+.tp-built-row dd { flex: 1 1 240px; margin: 0; }
 
 /* Papers this builds on: a titled list, one entry a line, the arXiv id linked */
 .tp-papers { display: flex; flex-direction: column; gap: 8px; }
@@ -325,7 +325,7 @@
 .tp-papers-list cite { font-style: normal; color: var(--ink); }
 .tp-paper-note { font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
 
-/* Links: a short labelled list, e.g. under the credits */
+/* Links: a short labelled list, e.g. under Built with */
 .tp-section-body .tp-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-family: var(--font-label); font-size: 15px; }
 .tp-links a { overflow-wrap: anywhere; }
 
@@ -397,7 +397,6 @@
 /* Notes that sit directly under audio or a demo */
 .tp-note, .tp-attribution { margin: 0; font-size: 15px; color: var(--text-2); }
 .tp-attribution { font-family: var(--font-label); color: var(--text-3); }
-.tp-credits-block { display: flex; flex-direction: column; gap: 10px; }
 
 /* Demo slot */
 .tp-demo { background: var(--card); padding: 16px 18px; min-width: 0; overflow-x: auto; }

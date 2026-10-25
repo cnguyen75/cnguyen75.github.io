@@ -25,6 +25,7 @@ SECTIONS = {
     "what's next": "Finish.",
     "log": "2026-08-17 | First commit.\n2026-05 | A month-only entry.",
     "my role": "All of it.",
+    "built with": "BUILT-WITH:\nlanguages and frameworks | Python",
 }
 TRACKLIST = [("04", "A study", "side b. research", "research")]
 
@@ -56,7 +57,7 @@ class Progress(unittest.TestCase):
         return doc
 
     # Sections, in order: question, approach, where it stands, results (optional),
-    # what's next, log, my role.
+    # what's next, log (optional), my role, built with (optional).
     def test_sections_must_come_in_order(self):
         self.render()  # the full set, in order, builds
         swapped = list(build.PROGRESS_SECTIONS)
@@ -66,7 +67,19 @@ class Progress(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "in order"):
             self.read(drop=("my role",))  # a required section is missing
         self.render(drop=("log",))  # log is optional, like results
-        self.render(drop=("results", "log"))
+        self.render(drop=("results", "log", "built with"))
+
+    # BUILT-WITH: up to four fixed rows in a fixed order, a data row linked when it has a link;
+    # an unknown label, a repeated label or a non-https link stops the build.
+    def test_built_with(self):
+        block = "BUILT-WITH:\ndata | A public set | https://example.org/data\nlanguages and frameworks | Python, NumPy\nattribution | Used under CC BY 4.0."
+        doc = self.render(sections={"built with": block})
+        self.assertRegex(doc, r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row"><dt>languages and frameworks</dt><dd>Python, NumPy</dd></div>'
+                              r'<div class="tp-built-row"><dt>data</dt><dd><a href="https://example\.org/data" target="_blank" rel="noopener">A public set</a></dd></div>'
+                              r'<div class="tp-built-row"><dt>attribution</dt><dd>Used under CC BY 4\.0\.</dd></div></dl>')
+        for bad in ("models | SmolLM2", "data | x\ndata | y", "data | x | http://example.org", "compute |"):
+            with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "BUILT-WITH"):
+                self.render(sections={"built with": "BUILT-WITH:\n" + bad})
 
     # "where it stands" carries the as_of stamp next to its heading.
     def test_where_it_stands_shows_as_of(self):
@@ -400,7 +413,7 @@ def site_links():
         path = Path(tmp) / "04-demo-page.md"
         path.write_text(page_text(sections=dict(SECTIONS, **{
             "results": "See [the code](https://github.com/x/y), [a section](#log), [another page](track:04) and [mail](mailto:a@b.c).\n\n"
-                       "CREDITS:\nsource | https://github.com/x/y\n\nLINKS:\nCode and README | https://github.com/x/y"})), encoding="utf-8")
+                       "BUILT-WITH:\ndata | A public set | https://github.com/x/y\n\nLINKS:\nCode and README | https://github.com/x/y"})), encoding="utf-8")
         meta = build.read_page(path)
         pages["track page"] = build.render(meta, list(TRACKLIST), {"04": meta}, True, len(TRACKLIST))[0]
     data_meta = build.read_data_page(build.ROOT / "content/lately/watching.md", json.loads((build.ROOT / build.SCHEMA_PATH).read_text()))

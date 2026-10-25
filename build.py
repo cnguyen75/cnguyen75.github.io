@@ -37,8 +37,8 @@ REGISTERS = ("album", "plain", "progress")
 REQUIRED = ("track", "slug", "title", "register", "ready")
 REQUIRED_BY_REGISTER = {"album": ("one_line",), "plain": ("one_line",), "progress": ("with", "as_of")}
 # The progress register (ongoing research) has fixed sections, in this order.
-PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what's next", "log", "my role")
-PROGRESS_OPTIONAL = ("results", "log")
+PROGRESS_SECTIONS = ("question", "approach", "where it stands", "results", "what's next", "log", "my role", "built with")
+PROGRESS_OPTIONAL = ("results", "log", "built with")
 MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 MONTHS_LONG = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 LIVE_DATA = "data/lately.json"  # written by the pipeline; the site is not built without it
@@ -52,7 +52,8 @@ PREVIEW_SKIP = {".git", "content", "tests", "tools", PREVIEW_DIR, "build.py", "R
 # A marker starts a block that runs to the next blank line; the second group only
 # ever follows one of the first.
 MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
-MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "CREDITS", "LINKS", "PAPERS", "AUDIO-PAIR", "AUDIO-GRID")
+MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "BUILT-WITH", "LINKS", "PAPERS", "AUDIO-PAIR", "AUDIO-GRID")
+BUILT_WITH_ROWS = ("languages and frameworks", "data", "compute", "attribution")  # the only rows a BUILT-WITH: block takes
 MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE", "ALT", "OVERLAY")
 
 
@@ -774,18 +775,19 @@ class Page:
                 for c in cells)
             return (f'<div class="tp-stats">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
 
-        if kind == "CREDITS":
-            need(cells and all(len(c) == 2 for c in cells), "rows are 'role | name'")
-            def value(v):
-                return f'<a href="{esc(v)}"{new_tab(v)}>{esc(v)}</a>' if re.fullmatch(r"https://\S+", v) else inline(v)
-            items = "".join(f'<div class="tp-credit"><dt>{inline(c[0])}</dt><dd>{value(c[1])}</dd></div>' for c in cells)
-            # The page's attribution line, if any, is repeated with the credits, unless a
-            # "data" row already credits the data.
-            has_data = any(c[0].lower() == "data" for c in cells)
-            attribution = (f'<p class="tp-attribution">{inline(self.meta["attribution"])}</p>'
-                           if self.meta.get("attribution") and not has_data else "")
-            return (f'<div class="tp-credits-block"><dl class="tp-credits">{items}</dl>{attribution}</div>',
-                    sum(words(" ".join(c)) for c in cells) + (words(self.meta["attribution"]) if attribution else 0), "text")
+        if kind == "BUILT-WITH":
+            # "Built with": up to four rows, 'label | text [| https://link]', the labels fixed
+            # (languages and frameworks, data, compute, attribution), each at most once.
+            need(cells and all(2 <= len(c) <= 3 and c[0] in BUILT_WITH_ROWS and c[1] for c in cells),
+                 "rows are 'label | text [| https://link]' with a label among " + ", ".join(BUILT_WITH_ROWS))
+            need(len({c[0] for c in cells}) == len(cells), "has a label twice")
+            need(all(len(c) < 3 or re.fullmatch(r"https://\S+", c[2]) for c in cells), "a link is https://")
+            order = {l: i for i, l in enumerate(BUILT_WITH_ROWS)}
+            items = ""
+            for c in sorted(cells, key=lambda c: order[c[0]]):
+                text = f'<a href="{esc(c[2])}"{new_tab(c[2])}>{inline_text(c[1])}</a>' if len(c) > 2 else inline(c[1])
+                items += f'<div class="tp-built-row"><dt>{esc(c[0])}</dt><dd>{text}</dd></div>'
+            return (f'<dl class="tp-built">{items}</dl>', sum(words(" ".join(c[:2])) for c in cells), "text")
 
         if kind == "LINKS":
             # A short list of labelled links, e.g. under the credits: 'label | https://...' per row.
@@ -1007,11 +1009,6 @@ class Page:
                 f'<div class="tp-step-title">{inline(c[1])}</div><div class="tp-step-text">{inline(c[2])}</div></div>'
                 for c in cells)
             return (f'<div class="tp-steps">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
-
-        if name == "credits":
-            items = "".join(
-                f'<div class="tp-credit"><dt>{inline(c[0])}</dt><dd>{inline(c[1])}</dd></div>' for c in cells)
-            return (f'<dl class="tp-credits">{items}</dl>', sum(words(" ".join(c)) for c in cells), "text")
 
         if name == "audio":
             if len(cells) != 2 or not cap:
