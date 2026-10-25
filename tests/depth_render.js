@@ -150,6 +150,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
           kmYLabel: txt(p.querySelector(".km-ylabel")), chartTitles: [...p.querySelectorAll(".ld-chart-title")].map(txt),
           quadTrails: p.querySelectorAll(".quad-trail").length,
           lineCount: p.querySelectorAll(".line-svg polyline").length,
+          pointDots: p.querySelectorAll(".line-dot--point").length,
           thinCount: p.querySelectorAll(".line-svg polyline.line-thin").length,
           endLabels: p.querySelectorAll(".line-end-label").length,
           kmMedians: p.querySelectorAll(".km-median-label").length,

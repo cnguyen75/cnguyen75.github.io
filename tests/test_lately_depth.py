@@ -366,6 +366,9 @@ def variant(name):
         a["cross"]["time_budget"]["values"]["to"] = a["as_of"]
     if name == "no splits":
         del a["lifting"]["strength_index"]["values"]["splits"]
+    if name == "weigh-in gap":  # six weeks without a weigh-in in the middle of the series
+        for w in a["lifting"]["strength_index"]["values"]["weeks"][2:8]:
+            w["body_weight"] = None
     if name == "kept includes zero":
         for s in a["lifting"]["strength_kept"].values():
             if s["status"] == "ok":
@@ -807,12 +810,17 @@ class Drawing(unittest.TestCase):
         self.assertEqual([h[0] for h in lf["headline"]], ["Body weight since the cut", "Strength index since the cut", "Best-held lift"])
         self.assertEqual(lf["headline"][2][1:], [ANALYSIS["lifting"]["best_held_lift"]["name"], "+12.4% since the cut"])
         self.assertNotIn("logged by hand", d["bodyText"])  # no hand-entered best anywhere
-        # Body weight on its own small panel above the strength panel (markers, a thin line that breaks
-        # over gaps of more than four weeks), the strength index and three thin split lines under it,
+        # Body weight on its own small panel above the strength panel (one thin line through every
+        # weigh-in, a marker at each), the strength index and three thin split lines under it,
         # every series labelled in the legend only, both with the dashed 100 baseline.
         self.assertEqual(lf["chartTitles"], ["Body weight since the cut, indexed to 100", "Strength since the cut, indexed to 100"])
         self.assertEqual(lf["lineCount"], 5)
         self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
+        weeks = ANALYSIS["lifting"]["strength_index"]["values"]["weeks"]
+        self.assertEqual(lf["pointDots"], len([w for w in weeks if w["body_weight"] is not None]))
+        # Six weeks without a weigh-in: still one connected line, a marker at each weigh-in that is there.
+        gap = next(p for p in draw("index.html", name="weigh-in gap")["panels"] if p["id"] == "panel-lifting")
+        self.assertEqual((gap["lineCount"], gap["thinCount"], gap["pointDots"]), (5, 4, len(weeks) - 6))
         self.assertEqual(lf["endLabels"], 0)
         for name in ("chest and back", "shoulders and arms", "legs", "body weight", "100 = cut start"):
             self.assertIn(name, lf["legendAll"] or "")

@@ -373,8 +373,7 @@
   // endLabels (true: each series' last value at the right), title}. Returns the chart with its
   // table behind it and, for two or more series, a legend.
   // opts.endLabels === false: the series are labelled in the legend only, no value at the line
-  // end. A series with breakGap n is drawn as runs: its line breaks where two of its points
-  // are more than n steps apart (weigh-ins over four weeks apart).
+  // end. A series' line runs through every point it has, however far apart they are.
   function multiLine(title, labels, series, opts) {
     opts = opts || {};
     var fmt = opts.fmt || function (x) { return num(x, 1); };
@@ -392,16 +391,11 @@
     if (isNum(opts.base)) svg.appendChild(sv("line", { class: "line-base", x1: 0, x2: 100, y1: y(opts.base).toFixed(2), y2: y(opts.base).toFixed(2), "vector-effect": "non-scaling-stroke" }));
     var ends = [], points = [];
     series.forEach(function (s, k) {
-      var runs = [[]], lastI = null;
-      s.values.forEach(function (v, i) {
-        if (!isNum(v)) return;
-        if (lastI !== null && isNum(s.breakGap) && i - lastI > s.breakGap) runs.push([]);
-        runs[runs.length - 1].push([x(i), y(v)]);
-        lastI = i;
-      });
+      var pts = [];
+      s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
       // A sparse series (s.points: measurements at some weeks only) is drawn as points
-      // joined by a 1px line; a full series as a 2px line.
-      runs.forEach(function (pts) { if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : ""))); });
+      // joined by one 1px line; a full series as a 2px line.
+      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : "")));
       if (s.points) {
         var at = 0;
         s.values.forEach(function (v, i) { if (isNum(v)) { points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : null }); at++; } });
@@ -1947,16 +1941,16 @@
     });
   }
   // Body weight and strength since the cut, both indexed to 100 at the cut's first week: body
-  // weight on its own small panel above (markers, the line broken where weigh-ins are over four
-  // weeks apart), the strength index with the three splits under it, labelled in the legend
-  // only; both keep the dashed 100 baseline.
+  // weight on its own small panel above (one line through every weigh-in, a marker at each),
+  // the strength index with the three splits under it, labelled in the legend only; both keep
+  // the dashed 100 baseline.
   function indexedLines(weeks, opts, v) {
     opts = opts || {};
     var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
     var labels = weeks.map(function (w) { return dateText(w.week_start); });
     var common = { fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", endLabels: false };
     var weight = multiLine("Body weight since the cut, indexed to 100", labels,
-      [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true, breakGap: 4 }],
+      [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true }],
       Object.assign({}, common, { height: Math.round((opts.height || 130) * 0.55), legend: true }));
     var strength = multiLine("Strength since the cut, indexed to 100", labels,
       [{ name: "strength index", values: weeks.map(function (w) { return w.strength; }) }].concat(splitSeries(v, weeks)),
