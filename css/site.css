@@ -267,6 +267,8 @@ main {
 .side-label { margin-bottom: 12px; }
 /* One line under a side's label, e.g. the employer for side A. */
 .side-intro { margin: -6px 0 12px; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
+/* The next employer's line, after the rows before it. */
+.track + .side-intro { margin-top: 32px; }
 
 .track {
   display: flex;
@@ -276,7 +278,6 @@ main {
 }
 .side-label + .track, .side-intro + .track { border-top: 2px solid var(--ink); }
 .track--wrap { flex-wrap: wrap; gap: 8px 24px; }
-.track--dated { flex-wrap: wrap; gap: 4px 24px; }
 /* A row whose track page is built is one link (number, title, description and status).
    Hover and keyboard focus lift it slightly off the paper: a faint card background that
    reaches a little past the text on both sides, and the number in teal. Text colours stay
@@ -296,20 +297,17 @@ a.track:focus-visible { outline: none; }
 a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 
 .track-no,
-.track-meta,
-.track-when {
+.track-meta {
   font-family: var(--font-label);
   font-size: 15px;
   padding-top: 5px;
 }
 .track-no { flex: 0 0 36px; color: var(--text-3); }
-.track-when { flex: 1 1 170px; color: var(--text-3); }
 .track-meta { white-space: nowrap; }
 .track-meta--status { color: var(--text-3); }
 
 .track-body { flex: 1; min-width: 0; }
 .track--wrap .track-body { flex: 999 1 420px; }
-.track--dated .track-body { flex: 999 1 480px; }
 
 .track-title {
   display: block;
@@ -324,8 +322,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   max-width: 760px;
   padding-top: 4px;
 }
-/* A year range under a row's title (side A's unlinked rows). */
-.track-body .track-when { display: block; flex: none; padding-top: 2px; font-size: 14px; }
 /* Which part of a two-part story a row is, under its title. */
 .track-part { display: block; padding-top: 2px; font-family: var(--font-label); font-size: 14px; color: var(--text-3); }
 /* A row's small secondary link to the project elsewhere, while it has no ready page. */
@@ -727,6 +723,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   .track--wrap .track-body { display: contents; }
   .track--wrap .track-title { flex: 1 1 0; min-width: 0; }
   .track--wrap .track-part, .track--wrap .track-desc { flex: 1 1 100%; margin-left: 60px; }
+  .track--wrap .track-points { flex: 1 1 100%; margin-left: 60px; }
   .track--wrap .track-ext { flex: 1 1 auto; margin: 0 0 0 60px; }
   .track--wrap .track-meta--status { padding-top: 4px; margin-left: 60px; }
   .track--wrap:has(.track-ext) .track-meta--status { margin-left: 0; }

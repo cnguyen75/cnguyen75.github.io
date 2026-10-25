@@ -201,23 +201,35 @@ class Progress(unittest.TestCase):
                                     rf'<span class="track-part">{label}</span>')
         self.assertEqual(index.count('class="track-part"'), 4)
 
-    # Side A (work) is three unlinked rows, 01 to 03: number, title, year range and a
-    # sentence or two, with an anchor each and no page, link, status or external link.
+    # Side A (work) is three employers, newest first, each under a side-intro line "Title,
+    # Employer, dates": Athena's six rows 01 to 06, Zeta Global 07 and NationBuilder 08, every
+    # one a numbered track (number, title, description) with an anchor and no page, link,
+    # status, part or date line of its own.
     def test_main_page_work_rows(self):
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         work = [(n, t) for n, t, _, side in build.read_tracklist(index) if side == "work"]
-        self.assertEqual(work, [("01", "LLM evaluation platform"), ("02", "Underwriting and supervisor agents"),
-                                ("03", "Running coding agents as a team process")])
+        self.assertEqual(work, [("01", "Evaluation platform for LLM agents"), ("02", "Making model outputs reliable enough to act on"),
+                                ("03", "Underwriting and follow-up agents"), ("04", "Co-borrower and joint applications"),
+                                ("05", "Mobile banking apps"), ("06", "Disclosure timing and compliance"),
+                                ("07", "Zeta Global"), ("08", "NationBuilder")])
         section = re.search(r'<section class="side" id="work".*?</section>', index, re.S).group(0)
         self.assertIn('<h2 class="side-label" id="work-label">side a. work</h2>', section)
-        self.assertEqual(section.count("Athena"), 1)
+        intros = re.findall(r'<p class="side-intro">([^<]+)</p>', section)
+        self.assertEqual(intros, ["Founding AI Engineer, Athena Money, November 2025 to present",
+                                  "Data Science and Generative AI Intern, Zeta Global, June to August 2025",
+                                  "Capstone, then AI Research Intern, NationBuilder, January to November 2025"])
+        athena_block = section[:section.index(intros[1])]
+        self.assertEqual(athena_block.count("Athena"), 1)
         self.assertNotIn("<a ", section)
-        for cls in ("track-ext", "track-meta", "track-part"):
+        self.assertNotIn("previously", index)
+        for cls in ("track-ext", "track-meta", "track-part", "track-when", "track--dated"):
             self.assertNotIn(cls, section)
-        for n, when in (("01", "2025–present"), ("02", "2025–present"), ("03", "2026–present")):
+        for n, _ in work:
             self.assertRegex(section, rf'<div class="track track--wrap" id="track-{n}">\s*<span class="track-no">{n}</span>\s*'
-                                      rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span class="track-when">{when}</span><span class="track-desc">')
-        self.assertFalse(list((build.ROOT / "content").glob("*/0[123]-*.md")))
+                                      rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span class="track-desc">')
+        self.assertEqual(section.count('<ul class="track-points">'), 2)
+        for f in (build.ROOT / "content").glob("*/*.md"):  # side A has no pages or drafts
+            self.assertNotRegex(f.read_text(encoding="utf-8").split("\n---\n")[0], r"\nside: a\b")
         for n in ("01", "02", "03"):
             stub = (build.ROOT / n / "index.html").read_text(encoding="utf-8")
             self.assertIn(f'content="0; url=/#track-{n}"', stub)

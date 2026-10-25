@@ -1035,7 +1035,7 @@ def read_tracklist(index_html):
     for m in pat.finditer(index_html):
         if m.group(1):
             side_id, side = m.group(1), html.unescape(m.group(2))
-        elif side and side_id != "previously":
+        elif side:
             tracks.append((m.group(3), html.unescape(re.sub(r"<[^>]+>", "", m.group(4))), side, side_id))
     return tracks
 

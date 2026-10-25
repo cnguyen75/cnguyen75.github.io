@@ -7,7 +7,7 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 ## Structure
 
 ```
-index.html                 the whole page: header, hero, sides A–C, previously, Side D (lately), footer
+index.html                 the whole page: header, hero, sides A–C, Side D (lately), footer
 01/ 02/ 03/                stubs: /01, /02 and /03 send the browser to that row on the main page (#track-01 …); side A has no pages
 css/site.css               all styles; colours are CSS variables at the top (:root)
 js/lately.js               draws the Side D panels from data
@@ -110,7 +110,7 @@ A page in a two-part story (tracks 05 and 06, the two research pages with Prof. 
 
 Progress pages take `with:` (one line under the title, in place of `one_line:`), `as_of: YYYY-MM-DD`, an optional `link: label | https://…` (a small link under the `with:` line) and `status_label:`.
 
-Side A (work) is three unlinked rows, 01 to 03, in the style of the "previously" section: title, a year range (`span.track-when` under the title) and one or two sentences, with the employer named once in the side's intro line. They have no pages and no drafts; `/01`, `/02` and `/03` are stubs that redirect to the row's anchor (`#track-01` …).
+Side A (work) is three employers, newest first (Athena, Zeta Global, NationBuilder), each under its own `<p class="side-intro">` line "Title, Employer, dates in words" (the employer is named there and nowhere else in its block). Every row under an employer is a numbered track with the same markup as sides B and C: `span.track-no`, `h3.track-title`, `span.track-desc`. Athena has six rows, 01 to 06; Zeta Global is 07 and NationBuilder 08, each one row whose description carries its dates and whose bullet list (`ul.track-points`) sits in the track body under the description. No row on side A shows a date line of its own. They have no pages and no drafts; `/01` to `/03` are stubs that redirect to the row's anchor (`#track-01` …).
 
 Every page ends with the line "Views are my own.": in the main page's contact column, and as a one-line footer on the track and Lately pages (written by `build.py`).
 

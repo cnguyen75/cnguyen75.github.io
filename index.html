@@ -45,7 +45,6 @@
 <a href="#work">work</a>
 <a href="#research">research</a>
 <a href="#projects">projects</a>
-<a href="#previously">previously</a>
 <a href="#lately">lately</a>
 <a href="#contact">contact</a>
 </nav>
@@ -71,18 +70,50 @@
 
 <section class="side" id="work" aria-labelledby="work-label">
 <h2 class="side-label" id="work-label">side a. work</h2>
-<p class="side-intro">Founding AI Engineer, Athena Money, 2025–present</p>
+<p class="side-intro">Founding AI Engineer, Athena Money, November 2025 to present</p>
 <div class="track track--wrap" id="track-01">
 <span class="track-no">01</span>
-<div class="track-body"><h3 class="track-title">LLM evaluation platform</h3><span class="track-when">2025–present</span><span class="track-desc">Designed and built the evaluation platform the team uses for multi-turn agents in regulated mortgage underwriting: scripted scenarios, a simulated user, and separate graders for outcomes, judgement and per-turn quality, with repeated trials and regression gates so a change is measured before it ships.</span></div>
+<div class="track-body"><h3 class="track-title">Evaluation platform for LLM agents</h3><span class="track-desc">Multi-turn evaluation of production agents against cloned, sandboxed loan data: scenario graders, rubric-based LLM judges, a simulated user, CI tiers and regression gates.</span></div>
 </div>
 <div class="track track--wrap" id="track-02">
 <span class="track-no">02</span>
-<div class="track-body"><h3 class="track-title">Underwriting and supervisor agents</h3><span class="track-when">2025–present</span><span class="track-desc">Built and shipped production agents on Google ADK and Temporal, designed so that every action is validated inside the agent's turn, fails closed, and is approved by a person before it takes effect.</span></div>
+<div class="track-body"><h3 class="track-title">Making model outputs reliable enough to act on</h3><span class="track-desc">An experiments platform for comparing extraction and judgement approaches: field-level consensus across runs, LLM-as-judge scoring, and validation inside the turn before an output is used.</span></div>
 </div>
 <div class="track track--wrap" id="track-03">
 <span class="track-no">03</span>
-<div class="track-body"><h3 class="track-title">Running coding agents as a team process</h3><span class="track-when">2026–present</span><span class="track-desc">Scheduled coding agents that audit the product and open pull requests, held below the merge step by the dispatcher rather than by a prompt; a person reviews every change.</span></div>
+<div class="track-body"><h3 class="track-title">Underwriting and follow-up agents</h3><span class="track-desc">Agents that request, check and adjudicate borrower documents and conditions, with a supervising layer that reviews their decisions and a borrower override path.</span></div>
+</div>
+<div class="track track--wrap" id="track-04">
+<span class="track-no">04</span>
+<div class="track-body"><h3 class="track-title">Co-borrower and joint applications</h3><span class="track-desc">The joint-application lifecycle end to end: inviting or standing in for a co-borrower, joining an application at rate lock, and disclosures scoped to each applicant.</span></div>
+</div>
+<div class="track track--wrap" id="track-05">
+<span class="track-no">05</span>
+<div class="track-body"><h3 class="track-title">Mobile banking apps</h3><span class="track-desc">Building the Android app to match the iOS app, snapshot testing on both platforms, and the CI and release pipelines behind them.</span></div>
+</div>
+<div class="track track--wrap" id="track-06">
+<span class="track-no">06</span>
+<div class="track-body"><h3 class="track-title">Disclosure timing and compliance</h3><span class="track-desc">Generating and tracking the regulated disclosures a mortgage requires: delivery dates, business-day rules, re-disclosure triggers, and tests that guard the sequencing.</span></div>
+</div>
+<p class="side-intro">Data Science and Generative AI Intern, Zeta Global, June to August 2025</p>
+<div class="track track--wrap" id="track-07">
+<span class="track-no">07</span>
+<div class="track-body"><h3 class="track-title">Zeta Global</h3><span class="track-desc">A summer internship from June to August 2025, working on agent orchestration, an assistant platform and evaluation.</span>
+<ul class="track-points">
+<li><strong>Supervisor agent.</strong> Built a LangGraph supervisor that interprets a task and routes it to specialised sub-agents, cutting manual workflow setup by 70%.</li>
+<li><strong>Assistant platform.</strong> Built a multi-vendor orchestration service across OpenAI, Anthropic and Amazon Bedrock, on FastAPI with PostgreSQL checkpointing.</li>
+<li><strong>Evaluation.</strong> Developed a framework tracking accuracy, consistency, latency and cost.</li>
+<li><strong>Patent.</strong> First-named inventor on "Adaptive Neural Content Generation", a U.S. provisional patent application filed by Zeta Global in December 2025.</li>
+</ul></div>
+</div>
+<p class="side-intro">Capstone, then AI Research Intern, NationBuilder, January to November 2025</p>
+<div class="track track--wrap" id="track-08">
+<span class="track-no">08</span>
+<div class="track-body"><h3 class="track-title">NationBuilder</h3><span class="track-desc">Began as my UC Santa Barbara capstone project, from January 2025 until I graduated in June, and continued as an internship until I joined Athena that November.</span>
+<ul class="track-points">
+<li><strong>Capstone: scraping and extraction.</strong> Collected election information from public sources and built an agentic system that extracts it from PDFs into strict JSON schemas.</li>
+<li><strong>Internship: relevance ranking.</strong> Built a retrieval pipeline that ranks documents by relevance at 93% classification accuracy, so irrelevant PDFs are skipped before processing.</li>
+</ul></div>
 </div>
 </section>
 
@@ -151,28 +182,6 @@
 <div class="track track--wrap">
 <span class="track-no">16</span>
 <div class="track-body"><h3 class="track-title">LLM 20 Questions</h3><span class="track-desc">A two-model agent for Kaggle's LLM 20 Questions competition (2024): one 8-billion-parameter model asks and guesses, another answers, with scripted openings and a fixed list of candidate answers. It finished 495th of 832 teams. Replayed against itself on 12 secret words, it won none, though the secret word was on its list every time; the same agent with a 2025 model won 1 of 12.</span><span class="track-ext"><a href="https://github.com/cnguyen75/MLProjects" target="_blank" rel="noopener">github →</a></span></div>
-</div>
-</section>
-
-<section class="side" id="previously" aria-labelledby="previously-label">
-<h2 class="side-label" id="previously-label">previously</h2>
-<div class="track track--dated">
-<span class="track-when">jun to aug 2025</span>
-<div class="track-body"><h3 class="track-title">Zeta Global · Data Science and Generative AI Intern</h3>
-<ul class="track-points">
-<li><strong>Supervisor agent.</strong> Built a LangGraph supervisor that interprets a task and routes it to specialised sub-agents, cutting manual workflow setup by 70%.</li>
-<li><strong>Assistant platform.</strong> Built a multi-vendor orchestration service across OpenAI, Anthropic and Amazon Bedrock, on FastAPI with PostgreSQL checkpointing.</li>
-<li><strong>Evaluation.</strong> Developed a framework tracking accuracy, consistency, latency and cost.</li>
-<li><strong>Patent.</strong> First-named inventor on "Adaptive Neural Content Generation", a U.S. provisional patent application filed by Zeta Global in December 2025.</li>
-</ul></div>
-</div>
-<div class="track track--dated">
-<span class="track-when">jan to nov 2025</span>
-<div class="track-body"><h3 class="track-title">NationBuilder · Capstone, then AI Research Intern</h3><span class="track-desc">Began as my UC Santa Barbara capstone project, from January 2025 until I graduated in June, and continued as an internship until I joined Athena that November.</span>
-<ul class="track-points">
-<li><strong>Capstone: scraping and extraction.</strong> Collected election information from public sources and built an agentic system that extracts it from PDFs into strict JSON schemas.</li>
-<li><strong>Internship: relevance ranking.</strong> Built a retrieval pipeline that ranks documents by relevance at 93% classification accuracy, so irrelevant PDFs are skipped before processing.</li>
-</ul></div>
 </div>
 </section>
 
