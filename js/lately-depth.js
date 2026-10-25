@@ -380,6 +380,9 @@
   // (first and last are shown); opts: {fmt, base (a dashed reference line, e.g. 100), height,
   // endLabels (true: each series' last value at the right), title}. Returns the chart with its
   // "view as table" toggle and, for two or more series, a legend.
+  // opts.endLabels === false: the series are labelled in the legend only, no value at the line
+  // end. A series with breakGap n is drawn as runs: its line breaks where two of its points
+  // are more than n steps apart (weigh-ins over four weeks apart).
   function multiLine(title, labels, series, opts) {
     opts = opts || {};
     var fmt = opts.fmt || function (x) { return num(x, 1); };
@@ -397,11 +400,16 @@
     if (isNum(opts.base)) svg.appendChild(sv("line", { class: "line-base", x1: 0, x2: 100, y1: y(opts.base).toFixed(2), y2: y(opts.base).toFixed(2), "vector-effect": "non-scaling-stroke" }));
     var ends = [], points = [];
     series.forEach(function (s, k) {
-      var pts = [];
-      s.values.forEach(function (v, i) { if (isNum(v)) pts.push([x(i), y(v)]); });
+      var runs = [[]], lastI = null;
+      s.values.forEach(function (v, i) {
+        if (!isNum(v)) return;
+        if (lastI !== null && isNum(s.breakGap) && i - lastI > s.breakGap) runs.push([]);
+        runs[runs.length - 1].push([x(i), y(v)]);
+        lastI = i;
+      });
       // A sparse series (s.points: measurements at some weeks only) is drawn as points
       // joined by a 1px line; a full series as a 2px line.
-      if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : "")));
+      runs.forEach(function (pts) { if (pts.length > 1) svg.appendChild(polyline(pts, SERIES[k % SERIES.length] + (s.points || s.thin ? " line-thin" : ""))); });
       if (s.points) {
         var at = 0;
         s.values.forEach(function (v, i) { if (isNum(v)) { points.push({ k: k, left: x(i), top: y(v), title: Array.isArray(s.titles) ? s.titles[i] : null }); at++; } });
@@ -427,11 +435,11 @@
     var chart = h("div", { class: "ld-line", role: "img", "aria-label": title + ", " + n + " points from " + labels[0] + " to " + labels[n - 1] + ": " + summary },
       h("div", { class: "line-chart", style: { height: (opts.height || 120) + "px" } },
         h("div", { class: "line-area" }, plot),
-        h("div", { class: "line-end", style: { width: (width * 0.62 + 0.4) + "em" } }, ends.map(function (e) {
+        opts.endLabels === false ? null : h("div", { class: "line-end", style: { width: (width * 0.62 + 0.4) + "em" } }, ends.map(function (e) {
           return h("span", { class: "line-end-label " + SERIES[e.k % SERIES.length], style: { top: Math.min(Math.max(e.top, 6), 94) + "%" } }, fmt(e.v));
         }))),
       h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, labels[0]), h("span", null, n > 1 ? labels[n - 1] : "")));
-    var legend = series.length > 1 ? h("p", { class: "ld-legend" }, series.map(function (s, k) { return legendItem(SERIES[k % SERIES.length], s.name); }),
+    var legend = series.length > 1 || opts.legend ? h("p", { class: "ld-legend" }, series.map(function (s, k) { return legendItem(SERIES[k % SERIES.length], s.name); }),
       isNum(opts.base) ? legendItem("s-base", opts.baseText || String(opts.base)) : null) : null;
     var cols = [{ label: opts.labelHeading || "" }].concat(series.map(function (s) { return { label: s.name, num: true }; }));
     return charted(title, chart, cols, labels.map(function (l, i) {
@@ -442,7 +450,8 @@
   // Strength against luck: every team in my leagues as a point, mine in blue with their
   // labels and a faint trail from week 1, the others grey and unlabelled. Hover on any
   // point shows its record and all-play share only; no name of another team ever appears.
-  function quadrant(v) {
+  function quadrant(v, opts) {
+    opts = opts || {};
     var mine = list(v.mine).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck); });
     var others = list(v.others).filter(function (t) { return isObj(t) && isNum(t.all_play) && isNum(t.luck); });
     var xs = mine.concat(others).map(function (t) { return t.all_play; });
@@ -461,7 +470,7 @@
     // A team's trail: complete weeks from week 3 on, the last five of them, ending at the
     // team's point. Older weeks fade toward 0.25; none is drawn under three complete weeks.
     var trailDots = [];
-    mine.forEach(function (t) {
+    if (opts.trails !== false) mine.forEach(function (t) {
       var done = list(t.trail).filter(function (p) { return isObj(p) && isNum(p.week) && isNum(p.all_play) && isNum(p.luck) && (!isNum(v.week) || p.week <= v.week); })
         .sort(function (a, b) { return a.week - b.week; });
       if (done.length < 3) return;
@@ -510,7 +519,7 @@
       return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), String(t.label) + " · " + record(t.record));
     })) : null;
     return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
-      [h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), legendItem("s-trail", "my trail, last 5 weeks")), key]);
+      [h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), opts.trails !== false ? legendItem("s-trail", "my trail, last 5 weeks") : null), key]);
   }
 
   // ---------- films: tier bars and the crowd plot ----------
@@ -624,65 +633,96 @@
   // Kaplan–Meier step curves, catalog against new: months since discovery across, the share
   // still in rotation up, a shaded 95% band, the median marked with a dropped line and label.
   // curves: [{type, n, median, points: [{months, survival, lower, upper, at_risk}]}]
+  // opts.bands: the 95% bands drawn from the start; opts.bandToggle: a "show 95% bands" button,
+  // off by default (the listening page); opts.guide: one horizontal 50% guide with each curve's
+  // crossing point marked and labelled from its median (the main page's panel), in place of
+  // the dropped median lines. The title is the question the chart answers.
   function survivalChart(title, curves, opts) {
     opts = opts || {};
     curves = list(curves).filter(function (c) { return isObj(c) && list(c.points).length; });
     var maxM = Math.max.apply(null, curves.map(function (c) { return Math.max.apply(null, c.points.map(function (p) { return p.months; })); }).concat(1));
+    title = title || "Of the artists I start playing, how many am I still playing " + maxM + " months later?";
     function x(m) { return m / maxM * 100; }
     function y(v) { return (1 - v) * 100; }
     var svg = plotSvg();
+    if (opts.guide) svg.appendChild(sv("line", { class: "km-guide", x1: 0, x2: 100, y1: 50, y2: 50, "vector-effect": "non-scaling-stroke" }));
     curves.forEach(function (c, k) {
       var pts = c.points.filter(function (p) { return isObj(p) && isNum(p.months) && isNum(p.survival); }).slice().sort(function (a, b) { return a.months - b.months; });
       var cls = SERIES[k % SERIES.length];
-      // The band: the upper bound stepped forward, the lower stepped back.
-      var up = [], lo = [];
-      pts.forEach(function (p, i) {
-        var prev = i ? pts[i - 1] : null;
-        if (prev) { up.push([x(p.months), y(isNum(prev.upper) ? prev.upper : prev.survival)]); lo.push([x(p.months), y(isNum(prev.lower) ? prev.lower : prev.survival)]); }
-        up.push([x(p.months), y(isNum(p.upper) ? p.upper : p.survival)]); lo.push([x(p.months), y(isNum(p.lower) ? p.lower : p.survival)]);
-      });
-      if (up.length > 1) svg.appendChild(sv("polygon", { class: "km-band " + cls, points: up.concat(lo.slice().reverse()).map(function (q) { return q[0].toFixed(2) + "," + q[1].toFixed(2); }).join(" ") }));
+      if (opts.bands !== false) {
+        // The band: the upper bound stepped forward, the lower stepped back.
+        var up = [], lo = [];
+        pts.forEach(function (p, i) {
+          var prev = i ? pts[i - 1] : null;
+          if (prev) { up.push([x(p.months), y(isNum(prev.upper) ? prev.upper : prev.survival)]); lo.push([x(p.months), y(isNum(prev.lower) ? prev.lower : prev.survival)]); }
+          up.push([x(p.months), y(isNum(p.upper) ? p.upper : p.survival)]); lo.push([x(p.months), y(isNum(p.lower) ? p.lower : p.survival)]);
+        });
+        if (up.length > 1) svg.appendChild(sv("polygon", { class: "km-band " + cls, points: up.concat(lo.slice().reverse()).map(function (q) { return q[0].toFixed(2) + "," + q[1].toFixed(2); }).join(" ") }));
+      }
       var step = [];
       pts.forEach(function (p, i) { if (i) step.push([x(p.months), y(pts[i - 1].survival)]); step.push([x(p.months), y(p.survival)]); });
       if (step.length > 1) svg.appendChild(polyline(step, cls + " km-step"));
-      if (isNum(c.median)) {
+      if (isNum(c.median) && !opts.guide) {
         svg.appendChild(sv("line", { class: "km-median " + cls, x1: x(c.median).toFixed(2), x2: x(c.median).toFixed(2), y1: 50, y2: 100, "vector-effect": "non-scaling-stroke" }));
       }
     });
-    // Each curve's median label on its own line, so close medians never overlap.
+    // The crossing points on the guide (the panel), or each curve's median label on its own
+    // line under the plot, so close medians never overlap.
+    var crossings = opts.guide ? curves.filter(function (c) { return isNum(c.median); }).map(function (c) {
+      var k = curves.indexOf(c);
+      return h("span", { class: "km-cross " + SERIES[k % SERIES.length], style: { left: x(c.median) + "%", top: "50%" }, title: c.type + " " + c.median + " mo" });
+    }) : null;
     var labels = curves.filter(function (c) { return isNum(c.median); }).map(function (c) {
       var k = curves.indexOf(c);
-      return h("span", { class: "km-median-label " + SERIES[k % SERIES.length], style: { left: x(c.median) + "%", top: (k * 14) + "px" } }, c.type + " median " + c.median + " mo");
+      return h("span", { class: "km-median-label " + SERIES[k % SERIES.length], style: { left: x(c.median) + "%", top: (k * 14) + "px" } },
+        opts.guide ? c.type + " " + c.median + " mo" : c.type + " median " + c.median + " mo");
     });
-    var chart = h("div", { class: "ld-line km", role: "img", "aria-label": title + ": " + curves.map(function (c) {
+    var chart = h("div", { class: "ld-line km" + (opts.bands !== false && !opts.bandToggle ? " km--bands" : ""), role: "img", "aria-label": title + " " + curves.map(function (c) {
       var last = c.points[c.points.length - 1];
-      return c.type + " (n = " + c.n + ")" + (isNum(c.median) ? ", median " + c.median + " months" : ", median not reached") + ", " + pct(last.survival) + " still in rotation at " + last.months + " months";
+      return c.type + " (n = " + c.n + ")" + (isNum(c.median) ? ", half still playing at " + c.median + " months" : ", half still playing beyond the data") + ", " + pct(last.survival) + " still in rotation at " + last.months + " months";
     }).join("; ") },
-      h("div", { class: "km-plot" }, h("div", { class: "line-plot" }, svg), h("div", { class: "km-y", "aria-hidden": "true" }, [1, 0.5, 0].map(function (v) { return h("span", { style: { top: y(v) + "%" } }, pct(v)); }))),
+      h("div", { class: "km-plot" }, h("div", { class: "km-ylabel", "aria-hidden": "true" }, "still in rotation"), h("div", { class: "line-plot" }, svg, crossings),
+        h("div", { class: "km-y", "aria-hidden": "true" }, [1, 0.5, 0].map(function (v) { return h("span", { style: { top: y(v) + "%" } }, pct(v)); }))),
       h("div", { class: "km-medians", "aria-hidden": "true" }, labels),
       h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "0 months since first play"), h("span", null, maxM + " months")));
     var months = [];
     curves.forEach(function (c) { c.points.forEach(function (p) { if (months.indexOf(p.months) < 0) months.push(p.months); }); });
     months.sort(function (a, b) { return a - b; });
     function at(c, m) { var p = c.points.filter(function (q) { return q.months <= m; }).slice(-1)[0]; return p ? pct(p.survival) : "–"; }
+    var legend = h("p", { class: "ld-legend" }, curves.map(function (c, k) { return legendItem(SERIES[k % SERIES.length], c.type + " · n = " + c.n); }),
+      opts.guide ? legendItem("s-base", "guide: half still playing") : legendItem("s-base", "dropped line: median"));
+    var toggle = null;
+    if (opts.bandToggle) {
+      toggle = h("button", { type: "button", class: "table-toggle km-bands-toggle", "aria-pressed": "false" }, "show 95% bands");
+      toggle.addEventListener("click", function () {
+        var on = toggle.getAttribute("aria-pressed") !== "true";
+        chart.classList.toggle("km--bands", on);
+        toggle.setAttribute("aria-pressed", String(on));
+        toggle.textContent = on ? "hide 95% bands" : "show 95% bands";
+      });
+    }
     return charted(title, chart, [{ label: "Months" }].concat(curves.map(function (c) { return { label: c.type + " still in rotation", num: true }; })),
-      months.map(function (m) { return [String(m)].concat(curves.map(function (c) { return at(c, m); })); }),
-      h("p", { class: "ld-legend" }, curves.map(function (c, k) { return legendItem(SERIES[k % SERIES.length], c.type + " · n = " + c.n); }), legendItem("s-base", "dropped line: median")));
+      months.map(function (m) { return [String(m)].concat(curves.map(function (c) { return at(c, m); })); }), [legend, toggle]);
   }
 
-  // The hazard-ratio sentence: new against catalog, by whether the interval crosses 1.
-  function hazardSentence(hr, medians) {
+  // The plain reading of the survival curves, from whether the hazard ratio's interval crosses 1
+  // and the medians (the ratio itself is a stat tile): "After 16 months I'm still playing about
+  // half of both groups; no real difference yet", or which group fades faster.
+  function hazardSentence(hr, medians, curves) {
     if (!isObj(hr) || !isNum(hr.value)) return null;
     var iv = Array.isArray(hr.interval) && isNum(hr.interval[0]) && isNum(hr.interval[1]) ? hr.interval : null;
-    var ivText = iv ? " (95% " + num(iv[0], 2) + " to " + num(iv[1], 2) + ")" : "";
-    var crosses = iv && iv[0] <= 1 && iv[1] >= 1;
+    var crosses = !iv || (iv[0] <= 1 && iv[1] >= 1);
     var med = isObj(medians) ? medians : {};
-    // One sentence: the ratio, then the medians after a semicolon.
-    var tail = isNum(med.catalog) && isNum(med.new) ? "; half of my catalog discoveries last " + med.catalog + " months, against " + med.new + " for new ones."
-      : isNum(med.catalog) ? "; half of my catalog discoveries last " + med.catalog + " months, while over half of the new ones are still in rotation." : ".";
-    if (crosses) return "No clear difference: new artists leave rotation at " + num(hr.value, 2) + "× the catalog rate, with an interval" + ivText.replace(" (", " of ").replace(")", "") + " that crosses 1" + tail;
-    if (hr.value > 1) return "New artists drop out of rotation " + num(hr.value, 2) + "× as fast as catalog ones" + ivText + tail;
-    return "New artists outlast catalog ones: they leave rotation at " + num(hr.value, 2) + "× the catalog rate" + ivText + tail;
+    if (crosses) {
+      var m = isNum(med.catalog) && isNum(med.new) ? Math.max(med.catalog, med.new) : isNum(med.catalog) ? med.catalog : isNum(med.new) ? med.new : null;
+      if (m !== null) return "After " + num(m, 1).replace(/\.0$/, "") + " months I'm still playing about half of both groups; no real difference yet.";
+      var last = list(curves).filter(function (c) { return isObj(c) && list(c.points).length; }).map(function (c) { var p = c.points[c.points.length - 1]; return c.type + " " + pct(p.survival) + " at " + p.months + " months"; });
+      return "I'm still playing " + (last.length ? last.join(", ") : "both groups") + "; no real difference yet.";
+    }
+    var faster = hr.value > 1 ? "new music fades faster." : "new music lasts longer.";
+    if (isNum(med.catalog) && isNum(med.new)) return "Half of my catalog discoveries are still in rotation after " + med.catalog + " months, against " + med.new + " for new ones: " + faster;
+    if (isNum(med.catalog)) return "Half of my catalog discoveries are still in rotation after " + med.catalog + " months, and over half of the new ones still are: " + faster;
+    return (hr.value > 1 ? "New artists leave rotation faster than catalog ones." : "New artists stay in rotation longer than catalog ones.");
   }
   function longestLine(xs) {
     xs = list(xs).filter(function (p) { return isObj(p) && typeof p.artist === "string" && isNum(p.months); }).slice(0, 5);
@@ -1098,6 +1138,11 @@
     },
     "listening.genre_mix": {
       n: "months",
+      // Under three months the table would be a row or two: it waits, under the small-sample policy.
+      gate: function (s) {
+        var m = isObj(s.values) ? list(s.values.months).length : 0;
+        return s.status === "ok" && m < 3 ? { status: "not enough data yet", n: m, min_n: 3 } : null;
+      },
       draw: function (v) {
         var months = list(v.months), totals = {};
         months.forEach(function (m) { Object.keys(m.genres || {}).forEach(function (g) { totals[g] = (totals[g] || 0) + m.genres[g] * m.plays; }); });
@@ -1862,9 +1907,9 @@
       intervalFmt: function (x) { return num(x, 2); },
       draw: function (v, s) {
         var n = isObj(v.n) ? v.n : {}, med = isObj(v.medians) ? v.medians : {};
-        return [h("p", { class: "ld-sentence" }, hazardSentence(v.hr_a, med) || who + "."),
+        return [h("p", { class: "ld-sentence" }, hazardSentence(v.hr_a, med, v.curves) || who + "."),
           floorNote(v, s),
-          list(v.curves).length ? survivalChart("Share of artists still in rotation, by months since first play", v.curves) : null,
+          list(v.curves).length ? survivalChart(null, v.curves, { bandToggle: true }) : null,
           facts([["who is counted", typeof v.cohort === "string" ? v.cohort : who],
             ["median rotation, overall", isNum(med.overall) ? plural(med.overall, "months") : null],
             ["per five years of gap between release years and the year I added them", isObj(v.hr_b) && isNum(v.hr_b.value) ? num(v.hr_b.value, 2) + "×" + (interval(v.hr_b.interval, function (x) { return num(x, 2); }) ? " (" + interval(v.hr_b.interval, function (x) { return num(x, 2); }) + ")" : "") : null],
@@ -1909,14 +1954,22 @@
       return { key: k, name: SPLIT_NAMES[k], values: weeks.map(function (w) { return isNum(by[w.week_start]) ? by[w.week_start] : null; }), thin: true, lifts: list(v.splits[k].lifts) };
     });
   }
-  // Body weight and strength since the cut, both indexed to 100 at the cut's first week; the
-  // three splits as thin lines under them when the file has them.
+  // Body weight and strength since the cut, both indexed to 100 at the cut's first week: body
+  // weight on its own small panel above (markers, the line broken where weigh-ins are over four
+  // weeks apart), the strength index with the three splits under it, labelled in the legend
+  // only; both keep the dashed 100 baseline.
   function indexedLines(weeks, opts, v) {
+    opts = opts || {};
     var weighIns = weeks.filter(function (w) { return isNum(w.body_weight); }).length;
-    return multiLine("Body weight and strength since the cut, indexed to 100", weeks.map(function (w) { return dateText(w.week_start); }),
-      [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true },
-       { name: "strength index", values: weeks.map(function (w) { return w.strength; }) }].concat(splitSeries(v, weeks)),
-      Object.assign({ fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", height: 130 }, opts || {}));
+    var labels = weeks.map(function (w) { return dateText(w.week_start); });
+    var common = { fmt: function (x) { return num(x, 1); }, base: 100, baseText: "100 = cut start", labelHeading: "Week of", endLabels: false };
+    var weight = multiLine("Body weight since the cut, indexed to 100", labels,
+      [{ name: "body weight · " + plural(weighIns, WEEKS) + " with a weigh-in", values: weeks.map(function (w) { return w.body_weight; }), points: true, breakGap: 4 }],
+      Object.assign({}, common, { height: Math.round((opts.height || 130) * 0.55), legend: true }));
+    var strength = multiLine("Strength since the cut, indexed to 100", labels,
+      [{ name: "strength index", values: weeks.map(function (w) { return w.strength; }) }].concat(splitSeries(v, weeks)),
+      Object.assign({}, common, { height: opts.height || 130 }));
+    return h("div", { class: "ld-stacked" }, weight, strength);
   }
 
   function effect(unit, dp, more) {

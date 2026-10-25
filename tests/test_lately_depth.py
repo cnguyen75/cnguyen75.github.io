@@ -324,6 +324,8 @@ def variant(name):
         d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
                                  {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
                                  {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
+    if name == "two genre months":
+        a["listening"]["genre_mix"]["values"]["months"] = a["listening"]["genre_mix"]["values"]["months"][:2]
     if name == "better schedules":
         a["fantasy"]["teams"][0]["schedule_what_if"]["values"].update(better=3, same=1, worse=7)
     if name == "labelled others":
@@ -491,7 +493,7 @@ class Drawing(unittest.TestCase):
         self.assertIsNone(wb["wait"])
         lifting = next(p for p in draw("index.html", name="panel small")["panels"] if p["id"] == "panel-lifting")
         self.assertEqual(lifting["tagLine"], "small sample, threshold 4")
-        self.assertEqual(lifting["charts"], 1)
+        self.assertEqual(lifting["charts"], 2)  # body weight over strength
         base = next(p for p in draw("index.html")["panels"] if p["id"] == "panel-lifting")
         self.assertIsNone(base["tagLine"])
 
@@ -569,6 +571,17 @@ class Drawing(unittest.TestCase):
         self.assertEqual(wsecs["tiers"]["pressed"], ["Films · " + str(len([p for p in ANALYSIS["watching"]["crowd_agreement"]["values"]["points"] if p["type"] == "film"]))])
         for sid in ("taste-profile", "whose-films", "blockbuster", "sequels"):
             self.assertEqual(wsecs[sid]["strips"], 0)
+
+    # The listening page's survival card keeps its 95% bands behind a "show 95% bands" button,
+    # off by default; "Genres by month" waits until three months are in the file.
+    def test_survival_bands_and_genre_months(self):
+        l = draw("lately/listening/")
+        (sv,) = blocks(l, "listening.artist_survival")
+        self.assertEqual((sv["kmBands"], sv["kmBandsShown"], sv["kmToggle"], sv["kmGuide"]), (2, 0, "show 95% bands", 0))
+        self.assertEqual(sv["chartTitles"], ["Of the artists I start playing, how many am I still playing 24 months later?"])
+        self.assertNotIn("genres-by-month", l["hiddenSections"])
+        two = draw("lately/listening/", name="two genre months")
+        self.assertIn("genres-by-month", two["hiddenSections"])
 
     # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
     # the home city is never named (it's "my most-ranked city").
@@ -685,7 +698,7 @@ class Drawing(unittest.TestCase):
                 self.assertEqual(len(re.findall(r"[.!?](\s|$)", p["answer"])), 2, p["answer"])
                 self.assertTrue(2 <= len(p["headline"]) <= 3, p["headline"])
                 self.assertFalse([h for h in p["headline"] if h[1] in ("–", "", None)], p["headline"])
-                self.assertEqual(p["charts"], 1, (feed, p["charts"]))
+                self.assertEqual(p["charts"], 2 if feed == "lifting" else 1, (feed, p["charts"]))  # lifting: body weight over strength
                 self.assertIsNone(p["wait"])
                 self.assertEqual(p["removed"], 0)
         f = panels["panel-fantasy"]
@@ -721,7 +734,13 @@ class Drawing(unittest.TestCase):
         self.assertEqual(li["meta"], "apple music library + last.fm")
         self.assertEqual(next(p for p in draw("index.html", name="no censor days")["panels"] if p["id"] == "panel-listening")["headline"][0][2],
                          "from first play to 60 days without one")
-        self.assertTrue(li["answer"].startswith("New artists drop out of rotation 1.62× as fast as catalog ones (95% 1.22 to 2.19); half of my catalog discoveries last"), li["answer"])
+        # The answer leads with the plain reading; the hazard ratio is a tile, not in the sentence.
+        self.assertTrue(li["answer"].startswith("Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music fades faster."), li["answer"])
+        self.assertNotIn("1.62", li["answer"])
+        # The panel's chart: the question as its title, "still in rotation" on the y axis, no bands, one 50% guide
+        # with each curve's crossing point marked and labelled from its median.
+        self.assertEqual(li["chartTitles"], ["Of the artists I start playing, how many am I still playing 24 months later?"])
+        self.assertEqual((li["kmYLabel"], li["kmBands"], li["kmGuide"], li["kmCross"]), ("still in rotation", 0, 1, ["catalog 16 mo", "new 12 mo"]))
         self.assertTrue(li["answer"].endswith("of my discoveries are catalog artists, over five years old when first played."), li["answer"])
         self.assertNotIn("Note:", li["answer"])
         self.assertEqual(li["tags"], ["pre-sync artists excluded"])
@@ -733,9 +752,9 @@ class Drawing(unittest.TestCase):
         self.assertIn("This product uses the TMDB API", d["bodyText"])
         # The other two hazard cases.
         cross = next(p for p in draw("index.html", name="hr crosses")["panels"] if p["id"] == "panel-listening")["answer"]
-        self.assertTrue(cross.startswith("No clear difference: new artists leave rotation at 1.08× the catalog rate, with an interval of 95% 0.80 to 1.45 that crosses 1;"), cross)
+        self.assertTrue(cross.startswith("After 16 months I'm still playing about half of both groups; no real difference yet."), cross)
         below = next(p for p in draw("index.html", name="hr below")["panels"] if p["id"] == "panel-listening")["answer"]
-        self.assertTrue(below.startswith("New artists outlast catalog ones: they leave rotation at 0.71× the catalog rate (95% 0.52 to 0.96);"), below)
+        self.assertTrue(below.startswith("Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music lasts longer."), below)
         e = panels["panel-eating"]
         self.assertEqual(e["headline"][0][:2], ["Median score", "7.97"])
         self.assertIn("minus my overall median of 7.97", e["legend"])
@@ -744,12 +763,16 @@ class Drawing(unittest.TestCase):
         self.assertEqual([h[0] for h in lf["headline"]], ["Body weight since the cut", "Strength index since the cut", "Best-held lift"])
         self.assertEqual(lf["headline"][2][1:], [ANALYSIS["lifting"]["best_held_lift"]["name"], "+12.4% since the cut"])
         self.assertNotIn("logged by hand", d["bodyText"])  # no hand-entered best anywhere
-        # The split lines: three thin lines under the two, labelled at the right, in the legend; the sentence compares them.
+        # Body weight on its own small panel above the strength panel (markers, a thin line that breaks
+        # over gaps of more than four weeks), the strength index and three thin split lines under it,
+        # every series labelled in the legend only, both with the dashed 100 baseline.
+        self.assertEqual(lf["chartTitles"], ["Body weight since the cut, indexed to 100", "Strength since the cut, indexed to 100"])
         self.assertEqual(lf["lineCount"], 5)
         self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
-        self.assertEqual(lf["endLabels"], 5)
-        for name in ("chest and back", "shoulders and arms", "legs"):
-            self.assertIn(name, lf["legend"] or "")
+        self.assertEqual(lf["endLabels"], 0)
+        for name in ("chest and back", "shoulders and arms", "legs", "body weight", "100 = cut start"):
+            self.assertIn(name, lf["legendAll"] or "")
+        self.assertEqual(panels["panel-fantasy"]["quadTrails"], 0)  # no trails on the panel
         self.assertRegex(lf["answer"], r"; legs are (up|down) \d+\.\d%, shoulders and arms [+−]\d+\.\d%, chest and back [+−]\d+\.\d%\.$")
         self.assertEqual(len(re.findall(r"[.!?](\s|$)", lf["answer"])), 2)
         # Without splits (an older file) the overall line only.
@@ -855,6 +878,7 @@ class Drawing(unittest.TestCase):
         self.assertIn("; 3 of 11 schedules would have done better.", better["text"])
         # Another team shows its label when the file gives one, else "another team"; never a name.
         (q,) = blocks(d, "fantasy.quadrant")
+        self.assertEqual(q["quadTrails"], 6)  # the page keeps the trails, dotted and faded
         self.assertEqual(q["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "another team")
         lq = blocks(draw("lately/fantasy/", name="labelled others"), "fantasy.quadrant")[0]
         self.assertEqual(lq["cells"][len(ANALYSIS["fantasy"]["teams"])][0], "Team C")
@@ -975,7 +999,7 @@ class Drawing(unittest.TestCase):
         l = draw("lately/listening/")
         (sv,) = blocks(l, "listening.artist_survival")
         self.assertEqual(sv["value"], "1.62×")
-        self.assertIn("New artists drop out of rotation 1.62× as fast", sv["text"])
+        self.assertIn("Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music fades faster.", sv["text"])
         self.assertIn("Longest in rotation: ", sv["text"])
         (sv2,) = blocks(l, "listening.artist_survival_all")
         self.assertEqual(sv2["value"], "1.41×")

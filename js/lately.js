@@ -1147,7 +1147,7 @@
         mine.length > 1 ? ["The luckiest is ", teamLink(L.label), " at " + plus(L.luck, 1) + "; the least lucky is ", teamLink(U.label), " at " + plus(U.luck, 1) + "."]
           : [teamLink(L.label), " is at " + plus(L.luck, 1) + " wins above expected."]
       ];
-      chart = chartOr(function (c) { return c.quadrant(q.values); });
+      chart = chartOr(function (c) { return c.quadrant(q.values, { trails: false }); });
     } else {
       sentences = [
         "Across " + plural(teamCount, "team", "teams") + " I'm " + rec + ", " + fnum(Math.abs(wae), 1) + " " + (Math.abs(wae) === 1 ? "win" : "wins") + " " +
@@ -1238,12 +1238,12 @@
         : isNum(med.catalog) ? { label: "Median rotation length, catalog artists", value: plural(med.catalog, "month", "months"), note: "the overall median is not reached yet" } : null;
       var hrNum = hr && isNum(hr.value) ? { label: "Hazard ratio, new vs catalog", value: fnum(hr.value, 2) + "×", note: f && f.interval(hr.interval, function (x) { return f.num(x, 2); }) || "how much faster new artists leave" } : null;
       var shareNum = isNum(v.share_catalog) ? { label: "Discoveries that are catalog", value: fpct(v.share_catalog), note: "artists over 5 years old when first played" } : null;
-      sentences = [d.hazardSentence(hr, med) || "The survival curves are drawn below.",
+      sentences = [d.hazardSentence(hr, med, curves) || "The survival curves are drawn below.",
         isNum(v.share_catalog) ? fpct(v.share_catalog) + " of my discoveries are catalog artists, over five years old when first played."
           : "The curves count artists first played since the 2023 Apple Music sync."];
       nums = [medianNum, hrNum, shareNum];
       chart = chartOr(function (c) {
-        var block = c.survivalChart("Share of artists still in rotation, by months since first play", curves);
+        var block = c.survivalChart(null, curves, { bands: false, guide: true });
         append(block, d.longestLine(v.longest_lived));
         return block;
       });
