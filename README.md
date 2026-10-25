@@ -9,7 +9,7 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 ```
 index.html                 the whole page: header, hero, sides A–C, Side D (lately), footer
 01/ … 08/                  stubs: /01 to /08 send the browser to that row on the main page (#track-01 …); side A has no pages
-css/site.css               all styles; colours are CSS variables at the top (:root)
+css/site.css               all styles; colours, type and spacing are the tokens at the top (:root), described in DESIGN.md
 js/lately.js               draws the Side D panels from data
 js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
 content/lately/            one file per Lately feed page (the "data" register)
