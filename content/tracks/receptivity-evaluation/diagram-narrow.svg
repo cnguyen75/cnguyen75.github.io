@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 344 528" width="344" height="528">
+<text class="dg-label" x="0" y="12" text-anchor="start">prompts</text>
+<text class="dg-label" x="64" y="45" text-anchor="end">person 1</text>
+<rect class="dg-box dg-box--strong" x="74" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="104" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="134" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="164" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="194" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="224" y="30" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="30" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="79" text-anchor="end">person 2</text>
+<rect class="dg-box" x="74" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="134" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="164" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="194" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="224" y="64" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="64" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="113" text-anchor="end">person 3</text>
+<rect class="dg-box dg-box--strong" x="74" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="134" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="164" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="194" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="224" y="98" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="254" y="98" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="147" text-anchor="end">person 4</text>
+<rect class="dg-box" x="74" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="134" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="164" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="194" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="224" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="132" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="74" y="170" width="14" height="14" rx="2"/>
+<text class="dg-label" x="94" y="181" text-anchor="start">answered</text>
+<rect class="dg-box" x="174" y="170" width="14" height="14" rx="2"/>
+<text class="dg-label" x="194" y="181" text-anchor="start">not answered</text>
+<path class="dg-arrow" d="M170,196 L170,236"/>
+<path class="dg-head" d="M170.0,236.0 L174.5,228.0 L165.5,228.0 Z"/>
+<text class="dg-label" x="180" y="220" text-anchor="start">pairs</text>
+<text class="dg-label" x="0" y="262" text-anchor="start">every pair a pooled ROC-AUC scores</text>
+<path class="dg-arrow dg-arrow--soft" d="M84,300 L84,350"/>
+<path class="dg-arrow dg-arrow--soft" d="M174,300 L204,350"/>
+<path class="dg-arrow dg-arrow--soft" d="M234,300 L234,450"/>
+<path class="dg-arrow dg-arrow--soft" d="M144,400 L114,350"/>
+<path class="dg-arrow dg-arrow--soft" d="M264,400 L264,450"/>
+<path class="dg-arrow dg-arrow--soft" d="M84,400 L114,450"/>
+<path class="dg-arrow dg-arrow--soft" d="M204,300 L204,400"/>
+<path class="dg-arrow dg-arrow--soft" d="M204,450 L234,350"/>
+<path class="dg-arrow dg-arrow--soft" d="M174,400 L144,450"/>
+<path class="dg-arrow" d="M114,290 Q129.0,276 144,290"/>
+<path class="dg-arrow" d="M174,390 Q189.0,376 204,390"/>
+<text class="dg-label" x="64" y="305" text-anchor="end">person 1</text>
+<rect class="dg-box dg-box--strong" x="74" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="104" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="134" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="164" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="194" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="224" y="290" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="290" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="355" text-anchor="end">person 2</text>
+<rect class="dg-box" x="74" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="134" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="164" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="194" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="224" y="340" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="340" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="405" text-anchor="end">person 3</text>
+<rect class="dg-box dg-box--strong" x="74" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="134" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="164" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="194" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="224" y="390" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="254" y="390" width="20" height="20" rx="2"/>
+<text class="dg-label" x="64" y="455" text-anchor="end">person 4</text>
+<rect class="dg-box" x="74" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="104" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="134" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="164" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box dg-box--strong" x="194" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="224" y="440" width="20" height="20" rx="2"/>
+<rect class="dg-box" x="254" y="440" width="20" height="20" rx="2"/>
+<text class="dg-label" x="0" y="504" text-anchor="start">solid arc: within-person</text>
+<text class="dg-label" x="0" y="520" text-anchor="start">dashed line: between-person</text>
+</svg>

@@ -1,4 +1,8 @@
 # Written by build.py. Only pages marked ready may be committed; drafts stay local.
 *
 !.gitignore
+!/receptivity-evaluation/
+!/sleep-validation/
+!/health-api-extractor/
+!/asd-adhd-video-review/
 .built-by-build-py

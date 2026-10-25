@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 764 334" width="764" height="334">
+<rect class="dg-box " x="110" y="0" width="240" height="52" rx="3"/>
+<text class="dg-text dg-text--bold" x="230.0" y="23.0" text-anchor="middle">Legacy pull</text>
+<text class="dg-text dg-text--small" x="230.0" y="38.5" text-anchor="middle">Fitbit Web API</text>
+<rect class="dg-box " x="410" y="0" width="240" height="52" rx="3"/>
+<text class="dg-text dg-text--bold" x="530.0" y="23.0" text-anchor="middle">New pull</text>
+<text class="dg-text dg-text--small" x="530.0" y="38.5" text-anchor="middle">Google Health API</text>
+<rect class="dg-box " x="150" y="110" width="460" height="70" rx="3"/>
+<text class="dg-text dg-text--bold" x="380.0" y="142.0" text-anchor="middle">Parity harness</text>
+<text class="dg-text dg-text--small" x="380.0" y="157.5" text-anchor="middle">join rows, compare minute by minute, verdict</text>
+<path class="dg-arrow" d="M230,52 L230,110"/>
+<path class="dg-head" d="M230.0,110.0 L234.5,102.0 L225.5,102.0 Z"/>
+<path class="dg-arrow" d="M530,52 L530,110"/>
+<path class="dg-head" d="M530.0,110.0 L534.5,102.0 L525.5,102.0 Z"/>
+<rect class="dg-box dg-box--soft" x="0" y="210" width="300" height="70" rx="3"/>
+<text class="dg-text dg-text--bold" x="150.0" y="234.5" text-anchor="middle">Fault injection on synthetic fixtures</text>
+<text class="dg-text dg-text--small" x="150.0" y="250.0" text-anchor="middle">dropped rows, empty sleep,</text>
+<text class="dg-text dg-text--small" x="150.0" y="265.0" text-anchor="middle">double-counted steps</text>
+<path class="dg-arrow dg-arrow--soft" d="M150,210 L150,196 L250,196 L250,180"/>
+<path class="dg-head" d="M250.0,180.0 L245.5,188.0 L254.5,188.0 Z"/>
+<rect class="dg-box " x="400" y="210" width="360" height="70" rx="3"/>
+<text class="dg-text dg-text--bold" x="580.0" y="234.5" text-anchor="middle">Offline</text>
+<text class="dg-text dg-text--small" x="580.0" y="250.0" text-anchor="middle">two saved exports,</text>
+<text class="dg-text dg-text--small" x="580.0" y="265.0" text-anchor="middle">no tokens, no network</text>
+<path class="dg-arrow" d="M510,210 L510,180"/>
+<path class="dg-head" d="M510.0,180.0 L505.5,188.0 L514.5,188.0 Z"/>
+<text class="dg-label" x="580" y="300" text-anchor="middle">second mode, same harness</text>
+<text class="dg-label" x="150" y="300" text-anchor="middle">side input: tests the harness</text>
+</svg>

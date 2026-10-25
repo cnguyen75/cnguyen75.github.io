@@ -452,7 +452,11 @@ class Preview(unittest.TestCase):
     def test_drafts_preview(self):
         with tempfile.TemporaryDirectory() as tmp:
             site = Path(tmp) / "site"
-            shutil.copytree(build.ROOT, site, ignore=shutil.ignore_patterns(".git", "node_modules", "_site-drafts", "tracks", "drafts"))
+            def ignore(d, names):  # the built tracks/ and content/drafts/ stay behind; content/tracks/ (ready pages) comes along
+                skip = {".git", "node_modules", "_site-drafts", ".DS_Store"}
+                skip |= {"tracks"} if Path(d) == build.ROOT else {"drafts"} if Path(d) == build.ROOT / "content" else set()
+                return [n for n in names if n in skip]
+            shutil.copytree(build.ROOT, site, ignore=ignore)
             (site / "tracks").mkdir()
             drafts = site / "content" / "drafts"
             drafts.mkdir(parents=True, exist_ok=True)
