@@ -54,7 +54,9 @@ PREVIEW_SKIP = {".git", "content", "tests", "tools", PREVIEW_DIR, "build.py", "R
 # ever follows one of the first.
 MARKER = re.compile(r"([A-Z][A-Z-]*[A-Z]):\s*(.*)$")
 MARKER_BLOCKS = ("STEPS", "EXCERPT", "DEMO", "STATS", "FIGURE", "TABLE", "BUILT-WITH", "LINKS", "PAPERS", "AUDIO-PAIR", "AUDIO-GRID")
-BUILT_WITH_ROWS = ("languages and frameworks", "data", "compute", "attribution")  # the only rows a BUILT-WITH: block takes
+# The rows a BUILT-WITH: block takes, in the order they are shown; "papers" is also where a
+# PAPERS: block in the same section is drawn.
+BUILT_WITH_ROWS = ("code", "languages and frameworks", "data", "compute", "papers", "attribution", "made with")
 MARKER_FIELDS = ("CAPTION", "BEHAVIOUR", "DEMO-CAPTION", "ATTRIBUTION", "AUDIO-NOTE", "ALT", "OVERLAY")
 
 
@@ -745,8 +747,9 @@ class Page:
             return (f'<div class="tp-stats">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
 
         if kind == "BUILT-WITH":
-            # "Built with": up to four rows, 'label | text [| https://link]', the labels fixed
-            # (languages and frameworks, data, compute, attribution), each at most once.
+            # "Built with": a two-column grid, 'label | text [| https://link]' per row, the labels
+            # fixed and in BUILT_WITH_ROWS order (code, languages and frameworks, data, compute,
+            # papers, attribution, made with), each at most once; rows not given are left out.
             need(cells and all(2 <= len(c) <= 3 and c[0] in BUILT_WITH_ROWS and c[1] for c in cells),
                  "rows are 'label | text [| https://link]' with a label among " + ", ".join(BUILT_WITH_ROWS))
             need(len({c[0] for c in cells}) == len(cells), "has a label twice")
@@ -755,7 +758,7 @@ class Page:
             items = ""
             for c in sorted(cells, key=lambda c: order[c[0]]):
                 text = f'<a href="{esc(c[2])}"{new_tab(c[2])}>{inline_text(c[1])}</a>' if len(c) > 2 else inline(c[1])
-                items += f'<div class="tp-built-row"><dt>{esc(c[0])}</dt><dd>{text}</dd></div>'
+                items += f'<div class="tp-built-row tp-built-row--{slugify(c[0])}"><dt>{esc(c[0])}</dt><dd>{text}</dd></div>'
             return (f'<dl class="tp-built">{items}</dl>', sum(words(" ".join(c[:2])) for c in cells), "text")
 
         if kind == "LINKS":
@@ -766,8 +769,9 @@ class Page:
             return (f'<ul class="tp-links">{items}</ul>', sum(words(c[0]) for c in cells), "text")
 
         if kind == "PAPERS":
-            # "Papers this builds on": 'arXiv id | authors | year | title [| note]' per row, the title
-            # and authors as the arXiv abstract page gives them; the id links to the abstract.
+            # Papers this builds on: 'arXiv id | authors | year | title [| note]' per row, the title
+            # and authors as the arXiv abstract page gives them; the id links to the abstract. The
+            # block sits in the "built with" section and is drawn as that grid's "papers" row.
             need(cells and all(4 <= len(c) <= 5 and re.fullmatch(r"\d{4}\.\d{4,5}", c[0]) and c[1] and re.fullmatch(r"\d{4}", c[2]) and c[3]
                                for c in cells), "rows are 'arXiv id | authors | year | title [| note]'")
             items = ""
@@ -776,8 +780,7 @@ class Page:
                 note = f' <span class="tp-paper-note">{inline(c[4])}</span>' if len(c) > 4 and c[4] else ""
                 items += (f'<li>{inline(c[1])} ({esc(c[2])}). <cite>{inline(c[3])}</cite>. '
                           f'<a href="{url}"{new_tab(url)}>arXiv:{esc(c[0])}</a>.{note}</li>')
-            return (f'<div class="tp-papers"><div class="tp-papers-title">Papers this builds on</div><ul class="tp-papers-list">{items}</ul></div>',
-                    sum(words(" ".join(c)) for c in cells), "text")
+            return (f'<ul class="tp-papers-list">{items}</ul>', sum(words(" ".join(c)) for c in cells), "papers")
 
         if kind == "TABLE":
             need(len(cells) >= 2 and len({len(c) for c in cells}) == 1, "needs a header row and rows with the same number of cells")
@@ -1300,6 +1303,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
             blocks = page.log(s["lines"])
         else:
             blocks = page.blocks(s["lines"], first=s is meta["sections"][0] and not progress)
+            blocks = built_with_grid(blocks, s["title"], meta["source"].name)
         timed = []
         for b, w, kind in blocks:
             secs = w / WPM * 60 + (FIGURE_SECS if kind == "figure" else 0)
@@ -1494,6 +1498,38 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     return doc, page.copies
 
 
+def built_with_grid(blocks, title, name):
+    """The "built with" section is one grid: a PAPERS: block there becomes the grid's papers row
+    (after a papers | text row's text, when both are given), and the section may hold nothing
+    else but the grid and a LINKS: list. A PAPERS: block anywhere else stops the build."""
+    papers = [b for b in blocks if b[2] == "papers"]
+    if title.lower() != "built with":
+        if papers:
+            raise ContentError(f"{name}: a PAPERS: block belongs in the built with section")
+        return blocks
+    rest = [b for b in blocks if b[2] != "papers"]
+    if len(papers) > 1:
+        raise ContentError(f"{name}: built with takes one PAPERS: block")
+    grids = [b for b in rest if b[0].startswith('<dl class="tp-built">')]
+    if len(grids) > 1 or any(not (b[0].startswith('<dl class="tp-built">') or b[0].startswith('<ul class="tp-links">')) for b in rest):
+        raise ContentError(f"{name}: built with holds one BUILT-WITH: block, an optional PAPERS: block and an optional LINKS: list, nothing else")
+    if not papers:
+        return blocks
+    html_list, n, _ = papers[0]
+    if grids:
+        dl, dn, _ = grids[0]
+        m = re.search(r'<div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>(.*?)</dd></div>', dl)
+        if m:  # a papers | text row: the list, then the text
+            dl = dl.replace(m.group(0), f'<div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}<p>{m.group(1)}</p></dd></div>')
+        else:  # before attribution and made with, after the rest
+            row = f'<div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div>'
+            at = re.search(r'<div class="tp-built-row tp-built-row--(?:attribution|made-with)">', dl)
+            dl = dl[:at.start()] + row + dl[at.start():] if at else dl.replace("</dl>", row + "</dl>")
+        merged = (dl, dn + n, "text")
+        return [merged if b is grids[0] else b for b in rest]
+    return [(f'<dl class="tp-built"><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div></dl>', n, "text")] + rest
+
+
 def data_sections(meta):
     """A data page's sections as render() takes them: one per ## entry under What's happening
     then Why, each a list of (html, words, kind) blocks the browser fills, then a "built with"
@@ -1528,8 +1564,8 @@ def data_built_with(meta):
         when += f'<p class="ld-attributions" data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
     if when:
         rows.append(f'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd>{when}</dd></div>')
-    rows.append('<div class="tp-built-row"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>')
-    rows.append('<div class="tp-built-row ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div>')
+    rows.append('<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>')
+    rows.append('<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div>')
     return f'<dl class="tp-built">{"".join(rows)}</dl>'
 
 

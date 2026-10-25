@@ -96,8 +96,8 @@ class Register(unittest.TestCase):
                               r'<div class="tp-section-body"><dl data-secs="0.00" class="tp-built">'
                               r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a></dd></div>'
                               r'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd><p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p></dd></div>'
-                              r'<div class="tp-built-row"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>'
-                              r'<div class="tp-built-row ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div></dl></div></section>')
+                              r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>'
+                              r'<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div></dl></div></section>')
         self.assertIn('<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', doc)
         doc = build.render_data_page(self.read("watching", content("watching")))
         self.assertIn('data-stat="watching.completion.show watching.completion.film watching.completion.anime"', doc)

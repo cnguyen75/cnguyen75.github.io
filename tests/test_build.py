@@ -72,14 +72,21 @@ class Progress(unittest.TestCase):
     # BUILT-WITH: up to four fixed rows in a fixed order, a data row linked when it has a link;
     # an unknown label, a repeated label or a non-https link stops the build.
     def test_built_with(self):
-        block = "BUILT-WITH:\ndata | A public set | https://example.org/data\nlanguages and frameworks | Python, NumPy\nattribution | Used under CC BY 4.0."
+        block = ("BUILT-WITH:\nmade with | the audit, with an AI coding agent working to my brief\ndata | A public set | https://example.org/data\n"
+                 "languages and frameworks | Python, NumPy\nattribution | Used under CC BY 4.0.\ncode | Code and README | https://github.com/x/y")
         doc = self.render(sections={"built with": block})
-        self.assertRegex(doc, r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row"><dt>languages and frameworks</dt><dd>Python, NumPy</dd></div>'
-                              r'<div class="tp-built-row"><dt>data</dt><dd><a href="https://example\.org/data" target="_blank" rel="noopener">A public set</a></dd></div>'
-                              r'<div class="tp-built-row"><dt>attribution</dt><dd>Used under CC BY 4\.0\.</dd></div></dl>')
+        # One grid, rows in the fixed order, each labelled by its class; rows not given are left out.
+        self.assertRegex(doc, r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row tp-built-row--code"><dt>code</dt><dd><a href="https://github\.com/x/y" target="_blank" rel="noopener">Code and README</a></dd></div>'
+                              r'<div class="tp-built-row tp-built-row--languages-and-frameworks"><dt>languages and frameworks</dt><dd>Python, NumPy</dd></div>'
+                              r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://example\.org/data" target="_blank" rel="noopener">A public set</a></dd></div>'
+                              r'<div class="tp-built-row tp-built-row--attribution"><dt>attribution</dt><dd>Used under CC BY 4\.0\.</dd></div>'
+                              r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>the audit, with an AI coding agent working to my brief</dd></div></dl>')
+        self.assertNotIn("tp-built-row--compute", doc)
         for bad in ("models | SmolLM2", "data | x\ndata | y", "data | x | http://example.org", "compute |"):
             with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "BUILT-WITH"):
                 self.render(sections={"built with": "BUILT-WITH:\n" + bad})
+        with self.assertRaisesRegex(build.ContentError, "nothing else"):
+            self.render(sections={"built with": block + "\n\nA sentence of prose."})
 
     # "where it stands" carries the as_of stamp next to its heading.
     def test_where_it_stands_shows_as_of(self):
@@ -410,13 +417,24 @@ class Progress(unittest.TestCase):
     # PAPERS: a titled list under the results, each entry "Authors (year). Title. arXiv:id" with the
     # id linked to the abstract and an optional note; a bad id, year or short row stops the build.
     def test_papers(self):
-        doc = self.render(sections={"results": "Found.\n\nPAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. Third | 2021 | Another | block size 256 here"})
-        self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-papers"><div class="tp-papers-title">Papers this builds on</div><ul class="tp-papers-list">'
-                              r'<li>A\. Author and B\. Other \(2017\)\. <cite>A Title</cite>\. <a href="https://arxiv\.org/abs/1706\.03762" target="_blank" rel="noopener">arXiv:1706\.03762</a>\.</li>'
-                              r'<li>C\. Third \(2021\)\. <cite>Another</cite>\. <a href="https://arxiv\.org/abs/2110\.02861" target="_blank" rel="noopener">arXiv:2110\.02861</a>\. <span class="tp-paper-note">block size 256 here</span></li></ul></div>')
+        papers = "PAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. Third | 2021 | Another | block size 256 here"
+        lst = (r'<ul class="tp-papers-list">'
+               r'<li>A\. Author and B\. Other \(2017\)\. <cite>A Title</cite>\. <a href="https://arxiv\.org/abs/1706\.03762" target="_blank" rel="noopener">arXiv:1706\.03762</a>\.</li>'
+               r'<li>C\. Third \(2021\)\. <cite>Another</cite>\. <a href="https://arxiv\.org/abs/2110\.02861" target="_blank" rel="noopener">arXiv:2110\.02861</a>\. <span class="tp-paper-note">block size 256 here</span></li></ul>')
+        # The list is the grid's papers row, between compute and attribution.
+        doc = self.render(sections={"built with": "BUILT-WITH:\nlanguages and frameworks | Python\nattribution | CC BY 4.0.\n\n" + papers})
+        self.assertRegex(doc, r'<dd>Python</dd></div><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>' + lst + r'</dd></div><div class="tp-built-row tp-built-row--attribution">')
+        self.assertEqual(doc.count("tp-built"), doc.count("tp-built-row") + 1)  # one grid
+        # A papers | text row (references without arXiv ids) follows the list in the same row.
+        doc = self.render(sections={"built with": "BUILT-WITH:\npapers | Skinner (2011) for the form\n\n" + papers})
+        self.assertRegex(doc, r'<dt>papers</dt><dd>' + lst + r'<p>Skinner \(2011\) for the form</p></dd></div></dl>')
+        # Without a BUILT-WITH: block the list is a grid of its own; outside built with it stops the build.
+        self.assertRegex(self.render(sections={"built with": papers}), r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>' + lst)
+        with self.assertRaisesRegex(build.ContentError, "belongs in the built with section"):
+            self.render(sections={"results": "Found.\n\n" + papers})
         for bad in ("1706.037 | A | 2017 | T", "1706.03762 | A | 17 | T", "1706.03762 | A | 2017", "1706.03762 | | 2017 | T"):
             with self.subTest(bad=bad), self.assertRaisesRegex(build.ContentError, "PAPERS"):
-                self.render(sections={"results": "PAPERS:\n" + bad})
+                self.render(sections={"built with": "PAPERS:\n" + bad})
 
     # Main-page rows: a row whose page is built is one link (number, title, description,
     # status); others stay plain <div>s with no label. Idempotent; an external-link row
@@ -466,8 +484,8 @@ def site_links():
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "04-demo-page.md"
         path.write_text(page_text(sections=dict(SECTIONS, **{
-            "results": "See [the code](https://github.com/x/y), [a section](#log), [another page](track:04) and [mail](mailto:a@b.c).\n\n"
-                       "BUILT-WITH:\ndata | A public set | https://github.com/x/y\n\nLINKS:\nCode and README | https://github.com/x/y"})), encoding="utf-8")
+            "results": "See [the code](https://github.com/x/y), [a section](#log), [another page](track:04) and [mail](mailto:a@b.c).",
+            "built with": "BUILT-WITH:\ndata | A public set | https://github.com/x/y\n\nLINKS:\nCode and README | https://github.com/x/y"})), encoding="utf-8")
         meta = build.read_page(path)
         pages["track page"] = build.render(meta, list(TRACKLIST), {"04": meta}, True, len(TRACKLIST))[0]
     data_meta = build.read_data_page(build.ROOT / "content/lately/watching.md", json.loads((build.ROOT / build.SCHEMA_PATH).read_text()))

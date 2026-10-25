@@ -273,28 +273,31 @@
 .tp-step-title { font-weight: 700; }
 .tp-step-text { color: var(--text-2); font-size: var(--fs-15); }
 
-/* Built with */
-.tp-built { margin: 0; display: flex; flex-direction: column; }
-.tp-built-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2) var(--s-24);
-  padding: var(--s-10) 0;
-  border-bottom: 1px solid var(--rule);
+/* Built with: a two-column grid, the label in the label face on the left, the value in the
+   text face on the right, a soft rule between rows. One component on every track and lately
+   page; the papers list is one of its rows. */
+.tp-built {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(9em, max-content) minmax(0, 1fr);
+  column-gap: var(--s-24);
 }
-.tp-built-row:last-child { border-bottom: 0; }
-.tp-built-row dt {
-  flex: 0 0 150px;
-  font-family: var(--font-label);
-  font-size: var(--fs-15);
-  color: var(--text-3);
+.tp-built-row { display: contents; }
+.tp-built-row[hidden] { display: none; }
+.tp-built-row > dt,
+.tp-built-row > dd { padding: var(--s-10) 0; border-top: 1px solid var(--rule-soft); min-width: 0; }
+.tp-built-row:first-child > dt,
+.tp-built-row:first-child > dd { border-top: 0; padding-top: 0; }
+.tp-built-row > dt { font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
+.tp-built-row > dd { margin: 0; color: var(--text-2); }
+.tp-built-row > dd > p { margin: var(--s-8) 0 0; }
+@media (max-width: 520px) {
+  .tp-built { grid-template-columns: minmax(0, 1fr); }
+  .tp-built-row > dt { padding-bottom: 0; }
+  .tp-built-row > dd { border-top: 0; padding-top: var(--s-2); }
 }
-.tp-built-row dd { flex: 1 1 240px; margin: 0; }
-
-/* Papers this builds on: a titled list, one entry a line, the arXiv id linked */
-.tp-papers { display: flex; flex-direction: column; gap: var(--s-8); }
-.tp-papers-title { font-weight: 700; }
-.tp-papers-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-8); font-size: var(--fs-15); color: var(--text-2); }
+/* Papers this builds on, one entry a line, the arXiv id linked */
+.tp-papers-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-8); }
 .tp-papers-list cite { font-style: normal; color: var(--ink); }
 .tp-paper-note { font-family: var(--font-label); font-size: var(--fs-13); color: var(--text-3); }
 
