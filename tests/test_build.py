@@ -188,13 +188,20 @@ class Progress(unittest.TestCase):
             meta = self.read(front={"part": "part one | 12", "ready": "true" if ready_self else "false"})
             tl = TRACKLIST + [("12", "Other", "side b. research", "research")]
             doc, _ = build.render(meta, tl, dict(pages, **{"04": meta}), True, len(tl))
-            return re.search(r'<p class="tp-part">(.*?)</p>', doc).group(1)
-        link = 'part one · <a href="../other-page/">part two →</a>'
+            return re.search(r'<nav class="tp-part tp-part-bar" aria-label="Two parts">(.*?)</nav>', doc).group(1)
+        # A two-segment bar: this page's part filled, the other a link only when its page is linkable.
+        mine = '<span class="tp-part-seg is-current" aria-current="page">part one of two</span>'
+        link = mine + '<a class="tp-part-seg" href="../other-page/">part two of two</a>'
+        plain = mine + '<span class="tp-part-seg">part two of two</span>'
         self.assertEqual(render_with(False, {"12": other}), link)
-        self.assertEqual(render_with(True, {"12": other}), "part one")  # other part not ready
+        self.assertEqual(render_with(True, {"12": other}), plain)  # other part not ready
         self.assertEqual(render_with(True, {"12": dict(other, ready=True)}), link)
-        self.assertEqual(render_with(False, {}), "part one")
+        self.assertEqual(render_with(False, {}), plain)
         self.assertNotIn("tp-part", self.render())
+        # Part two's bar keeps part one first.
+        meta = self.read(front={"part": "part two | 12"})
+        doc, _ = build.render(meta, TRACKLIST + [("12", "Other", "side b. research", "research")], {"04": meta}, True, 2)
+        self.assertIn('<span class="tp-part-seg">part one of two</span><span class="tp-part-seg is-current" aria-current="page">part two of two</span>', doc)
         for bad in ("part one", "part one | twelve", " | 12"):
             with self.assertRaisesRegex(build.ContentError, "part must be"):
                 self.read(front={"part": bad})
@@ -215,9 +222,14 @@ class Progress(unittest.TestCase):
         self.assertEqual(projects["18"], "A foot of space is worth eight seconds")
         self.assertEqual(projects["21"], "LLM 20 Questions")
         self.assertEqual(index.count("side c. projects"), 1)
-        for n, label in (("10", "part one"), ("11", "part two"), ("17", "part one"), ("18", "part two")):
-            self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
-                                    rf'<span class="track-when">[^<]+</span><span class="track-part">{label}</span>')
+        # Each pair sits under a series header, in a .series wrapper, the part labels linking each other.
+        for first, second, head in (("10", "11", "efficient fine-tuning on one laptop"), ("17", "18", "why players take the shots they take")):
+            self.assertIn(f'<p class="series-head">two parts · {head}</p>\n<div class="series">\n<div class="track track--wrap" id="track-{first}">', index)
+            self.assertRegex(index, rf'<span class="track-no">{first}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
+                                    rf'<span class="track-when">[^<]+</span><span class="track-part">part one of two · <a class="track-part-link" href="#track-{second}">continues in {second} →</a></span>')
+            self.assertRegex(index, rf'<div class="track track--wrap" id="track-{second}">\s*<span class="track-no">{second}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
+                                    rf'<span class="track-when">[^<]+</span><span class="track-part">part two of two · <a class="track-part-link" href="#track-{first}">← follows {first}</a></span>')
+        self.assertEqual(index.count('<div class="series">'), 2)
         # Every side B and C row shows its months (when: in the content file) under the title; side A and the lately cards carry none.
         whens = dict(re.findall(r'<span class="track-no">(\d\d)</span>\s*<div class="track-body"><h3 class="track-title"[^>]*>[^<]+</h3><span class="track-when">([^<]+)</span>', index))
         self.assertEqual(sorted(whens), [f"{n:02d}" for n in range(9, 22)])
@@ -229,7 +241,7 @@ class Progress(unittest.TestCase):
         self.assertEqual(build.when_rows(index, [meta], tracks), index)  # idempotent
         self.assertEqual(build.when_rows(index, [dict(meta, track="01")], tracks), index)  # never on side A
         self.assertEqual(index.count('class="track-part"'), 4)
-        self.assertEqual(len(re.findall(r'<span class="track-part">part (?:one|two)</span>', index)), 4)  # no dates on the cards
+        self.assertEqual(len(re.findall(r'<span class="track-part">part (?:one|two) of two · ', index)), 4)  # no dates in the part labels
 
     # Side A (work) is three employers, newest first, each under a side-intro line "Title,
     # Employer, dates": Athena's six rows 01 to 06, Zeta Global 07 and NationBuilder 08, every
@@ -433,6 +445,13 @@ class Progress(unittest.TestCase):
         with self.assertRaisesRegex(build.ContentError, "track-ext"):
             build.link_rows(index.replace('<div class="track track--wrap">\n<span class="track-no">05',
                                           '<div class="track track--wrap" href="https://x.example">\n<span class="track-no">05'), {"05": "x"})
+        # A two-part row's part link is text (with its target) while the row is linked, a link again when it isn't.
+        with_part = index.replace('<span class="track-desc">About it.</span></div>',
+                                  '<span class="track-part">part one of two · <a class="track-part-link" href="#track-05">continues in 05 →</a></span><span class="track-desc">About it.</span></div>')
+        linked = build.link_rows(with_part, {"04": "demo-page"})
+        self.assertIn('<span class="track-part">part one of two · <span class="track-part-link" data-href="#track-05">continues in 05 →</span></span>', linked)
+        self.assertEqual(linked.count("<a "), 1)
+        self.assertEqual(build.link_rows(linked, {}), with_part)
         # A row's own anchor (id) is the one attribute allowed beside the class; it stays through both passes.
         with_id = index.replace('<div class="track track--wrap">\n<span class="track-no">04', '<div class="track track--wrap" id="track-04">\n<span class="track-no">04')
         linked = build.link_rows(with_id, {"04": "demo-page"})

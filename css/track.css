@@ -447,6 +447,22 @@
 /* A two-part story: which part this is, and the way to the other. */
 .tp-part { margin: calc(-1 * var(--s-6)) 0 0; font-family: var(--font-label); font-size: var(--fs-15); color: var(--text-3); }
 .tp-part a { display: inline-block; padding: var(--s-4) 0; }
+/* A two-part series: the two parts as a bar under the title, this page's segment filled ink,
+   the other linked when its page is linkable. */
+.tp-part-bar { display: flex; max-width: 420px; }
+.tp-part-seg {
+  flex: 1 1 0;
+  padding: var(--s-6) var(--s-12);
+  border: 1px solid var(--ink);
+  font-size: var(--fs-13);
+  color: var(--ink);
+  text-align: center;
+  text-decoration: none;
+}
+.tp-part-bar .tp-part-seg { margin: 0; padding: var(--s-6) var(--s-12); }
+.tp-part-seg + .tp-part-seg { border-left: 0; }
+.tp-part-seg.is-current { background: var(--ink); color: var(--paper); }
+a.tp-part-seg:hover { background: var(--lift); }
 .tp-asof {
   display: block;
   margin-top: var(--s-4);

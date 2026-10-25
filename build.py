@@ -1055,6 +1055,7 @@ def link_rows(index_html, pages):
         ext = dict(re.findall(r'data-ext-(href|label)="([^"]*)"', m.group(2)))
         if ext:
             inner = inner.replace("</div>", ext_link(ext["href"], ext["label"]) + "</div>", 1)
+        inner = re.sub(r'<span class="track-part-link" data-href="([^"]+)">([^<]+)</span>', r'<a class="track-part-link" href="\1">\2</a>', inner)
         kept = re.search(r' id="[^"]*"', m.group(2))  # a row's own anchor stays with it
         s = s[:m.start()] + f'<div class="{m.group(1)}"{kept.group(0) if kept else ""}>' + inner + "</div>" + s[end:]
 
@@ -1073,6 +1074,9 @@ def link_rows(index_html, pages):
         if e:
             extra = f' data-ext-href="{e.group(1)}" data-ext-label="{e.group(2)}"'
             inner = inner[:e.start()] + inner[e.end():]
+        # A two-part row's "continues in 11 →" link can't sit inside the row's link: it is text
+        # (with its target kept) while the row is linked, and a link again when it isn't.
+        inner = re.sub(r'<a class="track-part-link" href="([^"]+)">([^<]+)</a>', r'<span class="track-part-link" data-href="\1">\2</span>', inner)
         if "<a " in inner:
             raise ContentError(f"track {number}'s row has a link other than its span.track-ext; a linked row can't hold one")
         s = s[:m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}"{extra}{" " + attrs if attrs else ""}>' + inner + "</a>" + s[end:]
@@ -1390,11 +1394,16 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
         others = " · ".join(f'<a href="../{f}/"{current if f == meta["feed"] else ""}>{f}</a>' for f in DATA_FEEDS)
         part = f'<nav class="tp-part ld-feeds" aria-label="Lately pages">{others}</nav>\n'
     elif meta.get("part_label"):
-        part = esc(meta["part_label"])
-        other = pages_here.get(meta["part_other"])
-        if other and meta["part_other"] in TRACK_LINKS:
-            part += (f' · <a href="{TRACK_LINKS[meta["part_other"]]}">{esc(other.get("part_label") or other["title"])} →</a>')
-        part = f'<p class="tp-part">{part}</p>\n'
+        # A two-segment bar under the title: part one, part two; this page's segment filled,
+        # the other one a link under the same rule as previous and next.
+        label = meta["part_label"]
+        other_label = "part two" if label == "part one" else "part one"
+        href = TRACK_LINKS.get(meta["part_other"])
+        mine = f'<span class="tp-part-seg is-current" aria-current="page">{esc(label)} of two</span>'
+        theirs = (f'<a class="tp-part-seg" href="{href}">{esc(other_label)} of two</a>' if href
+                  else f'<span class="tp-part-seg">{esc(other_label)} of two</span>')
+        segs = (mine, theirs) if label == "part one" else (theirs, mine)
+        part = f'<nav class="tp-part tp-part-bar" aria-label="Two parts">{segs[0]}{segs[1]}</nav>\n'
     url = f"{SITE}{page_folder(meta)}/{meta['slug']}/"
     own_og = (meta["assets"] / "og.png").is_file()  # made by the optional tools/og.js
     if own_og:

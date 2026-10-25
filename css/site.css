@@ -422,6 +422,17 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 /* Which part of a two-part story a row is, under its title. */
 .track-part { display: block; padding-top: var(--s-2); font-family: var(--font-label); font-size: var(--fs-14); color: var(--text-3); }
+/* A two-part series on sides B and C: a header in the side-label style (text-3) above the
+   pair, the two cards joined by a 1px rule down the number column, each card's part label
+   linking to the other. */
+.series-head { margin: 0; padding: var(--s-20) 0 var(--s-8); font-family: var(--font-label); font-size: var(--fs-13); font-weight: 700; color: var(--text-3); }
+.series { display: flex; flex-direction: column; }
+.series > .track { position: relative; }
+.series > .track:first-child::after, .series > .track:last-child::before { content: ""; position: absolute; left: 9px; width: 1px; background: var(--rule); }
+.series > .track:first-child::after { top: 44px; bottom: 0; }
+.series > .track:last-child::before { top: 0; height: 16px; }
+.track-part-link { color: var(--text-3); }
+.track-part-link[data-href] { text-decoration: none; }
 /* The months a side B or C track ran (when: in its content file), under the title on the card
    and at the end of the track page's kicker. */
 .track-when { display: block; padding-top: var(--s-2); font-family: var(--font-label); font-size: var(--fs-13); font-weight: 400; color: var(--text-3); }
