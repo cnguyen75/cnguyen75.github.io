@@ -323,10 +323,11 @@ main {
   color: var(--teal);
 }
 .side-label { margin-bottom: var(--s-12); }
-/* One line under a side's label, e.g. the employer for side A. */
-.side-intro { margin: calc(-1 * var(--s-6)) 0 var(--s-12); font-family: var(--font-label); font-size: var(--fs-14); color: var(--text-3); }
-/* The next employer's line, after the rows before it. */
-.track + .side-intro { margin-top: var(--s-32); }
+/* Side A's employer sub-headers: the side-label face over each block's rule (the side's opening
+   2px ink rule under Athena's; 1px --rule under the others), with a track's spacing above and
+   below. The first sits right under the side label. */
+.side-intro { margin: 0; padding: var(--s-20) 0; font-family: var(--font-label); font-size: var(--fs-13); font-weight: 700; color: var(--teal); }
+.side-label + .side-intro { padding-top: 0; }
 
 .track {
   display: flex;
@@ -334,7 +335,7 @@ main {
   border-top: 1px solid var(--rule);
   padding: var(--s-20) 0;
 }
-.side-label + .track, .side-intro + .track { border-top: 2px solid var(--ink); }
+.side-label + .track, .side-label + .side-intro + .track { border-top: 2px solid var(--ink); }
 /* A row is a grid: number | title | status, with the description (and a part label, link or
    bullets) spanning the title and status columns underneath. The status tag therefore always
    sits on the title row, right-aligned, at every width; the title wraps instead. */
