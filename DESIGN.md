@@ -29,31 +29,61 @@ Faces: `--font-text` (Archivo), `--font-label` (Courier Prime, for labels, tags,
 
 | Token | Size | Use |
 |---|---|---|
-| `--fs-xs` | 11px | axis ticks, chart value labels, tags, diagram labels |
-| `--fs-s` | 13px | mono labels, notes, table text, the footer's small lines |
-| `--fs-m` | 15px | the label face at reading size, lists, buttons, stat labels |
-| `--fs-l` | 18px | body copy, the lately intro and lede |
-| `--fs-xl` | 24px | card titles, panel headings, the track page's lede and lead paragraph |
-| `--fs-xxl` | 32px | group titles, the handwritten caption, the in-depth value |
-| `--fs-xxxl` | 44px | the headline numbers on the panels, the lately title |
-| `--fs-display` | clamp(32px, 6vw, 52px) | the hero title, page titles, the track number and the stat row's figures |
+| `--fs-10` | 10px | column labels in the in-depth tables at phone width |
+| `--fs-11` | 11px | axis ticks, chart value labels, tier labels, diagram labels |
+| `--fs-12` | 12px | small mono labels, tags, legend text, the small diagram text |
+| `--fs-13` | 13px | mono labels, notes, table text |
+| `--fs-14` | 14px | the footer's small lines, captions, stat labels |
+| `--fs-15` | 15px | the label face at reading size, lists, buttons |
+| `--fs-16` | 16px | block titles in the in-depth pages |
+| `--fs-17` | 17px | body copy |
+| `--fs-18` | 18px | the hero lede, the lately intro and lede |
+| `--fs-20` | 20px | the track page's lead paragraph |
+| `--fs-22` | 22px | the track page's lede and collaboration line |
+| `--fs-24` | 24px | card titles, panel headings |
+| `--fs-30` | 30px | group titles, the handwritten caption, the in-depth value at phone width |
+| `--fs-36` | 36px | the in-depth value |
+| `--fs-40` | 40px | the lately title |
+| `--fs-44` | 44px | the headline numbers on the panels |
+| `--fs-52` | 52px | the stat row's figures |
+| `--fs-56` | 56px | the track number |
+| `--fs-display` | clamp(32px, 6vw, 52px) | the hero title and the in-depth page titles and number |
+| `--fs-display-s` | clamp(38px, 10vw, 56px) | the track page title |
 
-The sizes the site used before the scale map onto it by nearest step; a tie resolves away from the body size (12 → 11, 14 → 13, 16 → 15, 20 → 18, 21 → 24, 22 → 24, 36 → 32, 40 → 44, 56 → display). One step, `--fs-xxxl`, was added because 40 and 44 had no near neighbour.
+The tokens are named by their pixel value and hold the sizes the site has always used, so adding a token means adding a size, and a size that is not in the table is not on the site. Three former one-offs were folded into neighbours when the scale was made: 11.5px (the small diagram text) is 12px, 19px (the hero lede) is 18px and 21px (the track lede and collaboration line) is 22px. The spacing scale (below) is named the same way.
 
 ## Spacing
 
 | Token | Size |
 |---|---|
-| `--s-1` | 4px |
-| `--s-2` | 8px |
-| `--s-3` | 12px |
-| `--s-4` | 16px |
-| `--s-5` | 24px |
-| `--s-6` | 32px |
-| `--s-7` | 48px |
-| `--s-8` | 64px |
+| `--s-1` | 1px |
+| `--s-1-5` | 1.5px |
+| `--s-2` | 2px |
+| `--s-3` | 3px |
+| `--s-3-5` | 3.5px |
+| `--s-4` | 4px |
+| `--s-4-5` | 4.5px |
+| `--s-5` | 5px |
+| `--s-6` | 6px |
+| `--s-8` | 8px |
+| `--s-9` | 9px |
+| `--s-10` | 10px |
+| `--s-12` | 12px |
+| `--s-14` | 14px |
+| `--s-16` | 16px |
+| `--s-18` | 18px |
+| `--s-20` | 20px |
+| `--s-22` | 22px |
+| `--s-24` | 24px |
+| `--s-28` | 28px |
+| `--s-32` | 32px |
+| `--s-40` | 40px |
+| `--s-48` | 48px |
+| `--s-64` | 64px |
+| `--s-72` | 72px |
+| `--s-80` | 80px |
 
-Ties round up (6 → 8, 10 → 12, 14 → 16, 20 → 24, 28 → 32, 40 → 48). Hairlines inside charts are `calc(var(--s-1) / 4)` and `calc(var(--s-1) / 2)`; a mark's centring offset is the negative of a step. `--page-width` (1120px) is the page's measure.
+Named by value like the type tokens (`--s-1-5` is 1.5px). A mark's centring offset is the negative of a token, written `calc(-1 * var(--s-4-5))`. `--page-width` (1120px) is the page's measure.
 
 ## Components
 

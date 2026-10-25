@@ -846,11 +846,12 @@ class Drawing(unittest.TestCase):
         self.assertFalse((ROOT / "data/lately.sample.json").exists())
 
     # The main page is far shorter than before the regrouping (about 8,800px at 1280).
-    # The budget allows the 21 track rows since side A became three employers with eight rows,
-    # and the body at the 18px type step (measured 8,335 and 7,540 at that change).
+    # The budget allows the 21 track rows since side A became three employers with eight rows
+    # and the panel heads as tracks 22 to 26 (measured 8,231 and 7,207 after item 22, when the
+    # type scale went back to the original sizes).
     def test_main_page_height(self):
-        self.assertLess(draw("index.html")["pageHeight"], 8700)
-        self.assertLess(draw("index.html", name="old file")["pageHeight"], 7900)
+        self.assertLess(draw("index.html")["pageHeight"], 8300)
+        self.assertLess(draw("index.html", name="old file")["pageHeight"], 7400)
 
     # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
     def test_strength_kept_joins_the_headline(self):
