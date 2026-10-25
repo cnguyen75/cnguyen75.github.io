@@ -11,12 +11,13 @@ the suite's.
 
 import argparse
 import datetime as dt
+from pathlib import Path
 import platform
 import subprocess
 import sys
 import time
 import unittest
-from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -55,7 +56,9 @@ class TimedResult(unittest.TextTestResult):
 
 def git(*args):
     try:
-        return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        return subprocess.run(
+            ["git", *args], cwd=ROOT, capture_output=True, text=True
+        ).stdout.strip()
     except OSError:
         return "?"
 
@@ -69,7 +72,11 @@ def tool_version(cmd):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("names", nargs="*", help="test modules, classes or methods, e.g. test_lately_depth (default: discover tests/)")
+    parser.add_argument(
+        "names",
+        nargs="*",
+        help="test modules, classes or methods, e.g. test_lately_depth (default: discover tests/)",
+    )
     parser.add_argument("--log-dir", type=Path, help="where to write the log")
     args = parser.parse_args()
 
@@ -81,26 +88,40 @@ def main():
     with open(log_path, "w", encoding="utf-8") as log:
         out = Tee(sys.__stdout__, log)
         dirty = git("status", "--porcelain")
-        out.write(f"started  {now:%Y-%m-%d %H:%M:%S}\n"
-                  f"commit   {git('rev-parse', '--short', 'HEAD')}{' (uncommitted changes)' if dirty else ''}\n"
-                  f"python   {platform.python_version()}  node {tool_version('node')}\n"
-                  f"tests    {' '.join(args.names) or 'discover tests/'}\n\n")
+        out.write(
+            f"started  {now:%Y-%m-%d %H:%M:%S}\n"
+            f"commit   {git('rev-parse', '--short', 'HEAD')}{' (uncommitted changes)' if dirty else ''}\n"
+            f"python   {platform.python_version()}  node {tool_version('node')}\n"
+            f"tests    {' '.join(args.names) or 'discover tests/'}\n\n"
+        )
 
         # Anything a test or helper prints, on either stream, lands in the log too.
         sys.stdout = sys.stderr = out
         try:
             sys.path.insert(0, str(ROOT / "tests"))
             loader = unittest.defaultTestLoader
-            suite = (loader.loadTestsFromNames(args.names) if args.names
-                     else loader.discover(str(ROOT / "tests")))
+            suite = (
+                loader.loadTestsFromNames(args.names)
+                if args.names
+                else loader.discover(str(ROOT / "tests"))
+            )
             started = time.monotonic()
-            result = unittest.TextTestRunner(stream=out, verbosity=2, resultclass=TimedResult).run(suite)
+            result = unittest.TextTestRunner(stream=out, verbosity=2, resultclass=TimedResult).run(
+                suite
+            )
             ok = result.wasSuccessful()
-            out.write("\nslowest tests\n" + "".join(
-                f"  {secs:6.1f} s  {name}\n" for secs, name in sorted(TimedResult.durations, reverse=True)[:10]))
-            out.write(f"\nfinished {dt.datetime.now():%Y-%m-%d %H:%M:%S}, {time.monotonic() - started:.1f} s, "
-                      f"{result.testsRun} tests, {len(result.failures)} failures, {len(result.errors)} errors: "
-                      f"{'OK' if ok else 'FAILED'}\n")
+            out.write(
+                "\nslowest tests\n"
+                + "".join(
+                    f"  {secs:6.1f} s  {name}\n"
+                    for secs, name in sorted(TimedResult.durations, reverse=True)[:10]
+                )
+            )
+            out.write(
+                f"\nfinished {dt.datetime.now():%Y-%m-%d %H:%M:%S}, {time.monotonic() - started:.1f} s, "
+                f"{result.testsRun} tests, {len(result.failures)} failures, {len(result.errors)} errors: "
+                f"{'OK' if ok else 'FAILED'}\n"
+            )
         except BaseException as exc:  # a crash or Ctrl-C is logged too
             out.write(f"\nrun aborted: {exc!r}\n")
             raise

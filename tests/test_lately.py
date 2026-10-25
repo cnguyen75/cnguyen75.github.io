@@ -12,12 +12,13 @@ import functools
 import http.server
 import json
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import threading
 import unittest
-from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA = json.loads((ROOT / "data/lately.schema.json").read_text(encoding="utf-8"))
@@ -27,8 +28,11 @@ WIDTHS = (360, 390, 1280)
 
 
 def can_draw():
-    return (shutil.which("node") and Path(CHROME).exists()
-            and (ROOT / "tools/node_modules/playwright-core").is_dir())
+    return (
+        shutil.which("node")
+        and Path(CHROME).exists()
+        and (ROOT / "tools/node_modules/playwright-core").is_dir()
+    )
 
 
 def fixture():
@@ -37,8 +41,14 @@ def fixture():
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     r = d["watching"]["rankings"]
-    r["films"] = [{"title": f"Film {i}", "year": 2000 + i, "url": f"https://simkl.com/movies/{i}"} for i in range(1, 13)]
-    r["shows"] = [{"title": f"Show {i}", "year": None, "url": f"https://simkl.com/tv/{i}"} for i in range(1, 8)]
+    r["films"] = [
+        {"title": f"Film {i}", "year": 2000 + i, "url": f"https://simkl.com/movies/{i}"}
+        for i in range(1, 13)
+    ]
+    r["shows"] = [
+        {"title": f"Show {i}", "year": None, "url": f"https://simkl.com/tv/{i}"}
+        for i in range(1, 8)
+    ]
     lifts = d["lifting"]["main_lifts"]
     lifts[0]["best"]["best_set"] = {"weight_lb": 185, "reps": 4, "date": "2026-09-26"}
     lifts[1]["sessions"] = 2
@@ -51,7 +61,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def draw(width):
     handler = functools.partial(Quiet, directory=str(ROOT))
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
@@ -59,8 +69,18 @@ def draw(width):
     try:
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
             json.dump(fixture(), f)
-        r = subprocess.run(["node", str(ROOT / "tests/lately_render.js"), f"http://127.0.0.1:{server.server_port}", f.name, str(width)],
-                             capture_output=True, text=True, timeout=200)
+        r = subprocess.run(
+            [
+                "node",
+                str(ROOT / "tests/lately_render.js"),
+                f"http://127.0.0.1:{server.server_port}",
+                f.name,
+                str(width),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=200,
+        )
         if r.returncode:
             raise AssertionError("render helper failed:\n" + r.stderr[-2000:])
         return json.loads(r.stdout)
@@ -72,16 +92,29 @@ def draw(width):
 
 HANDOFF = Path.home() / "Personal/site-handoff/lately-analysis"
 # The statistics added on 2026-10-17, as (definition, property); every one is optional.
-ADDED_2026_10_17 = [("analysis_fantasy", "quadrant"), ("analysis_fantasy", "manager_score"),
-                    ("analysis_fantasy_team", "acquisition_split"), ("analysis_fantasy_team", "draft"),
-                    ("analysis_watching", "s_tier"), ("analysis_watching", "tier_model"), ("analysis_watching", "taste_drift"),
-                    ("analysis_watching", "community_gap_by_genre"), ("analysis_watching", "pace_vs_tier"),
-                    ("analysis_lifting", "strength_index"), ("analysis_lifting", "retention"), ("analysis_lifting", "volume_lag"),
-                    ("analysis_lifting", "consistency"),
-                    ("analysis_listening", "entropy"), ("analysis_listening", "nostalgia"), ("analysis_listening", "enduring"),
-                    ("analysis_listening", "retention_new_artists"),
-                    ("analysis_eating", "landing"), ("analysis_eating", "rerank_drift"),
-                    ("analysis_cross", "time_budget"), ("analysis", "meta")]
+ADDED_2026_10_17 = [
+    ("analysis_fantasy", "quadrant"),
+    ("analysis_fantasy", "manager_score"),
+    ("analysis_fantasy_team", "acquisition_split"),
+    ("analysis_fantasy_team", "draft"),
+    ("analysis_watching", "s_tier"),
+    ("analysis_watching", "tier_model"),
+    ("analysis_watching", "taste_drift"),
+    ("analysis_watching", "community_gap_by_genre"),
+    ("analysis_watching", "pace_vs_tier"),
+    ("analysis_lifting", "strength_index"),
+    ("analysis_lifting", "retention"),
+    ("analysis_lifting", "volume_lag"),
+    ("analysis_lifting", "consistency"),
+    ("analysis_listening", "entropy"),
+    ("analysis_listening", "nostalgia"),
+    ("analysis_listening", "enduring"),
+    ("analysis_listening", "retention_new_artists"),
+    ("analysis_eating", "landing"),
+    ("analysis_eating", "rerank_drift"),
+    ("analysis_cross", "time_budget"),
+    ("analysis", "meta"),
+]
 
 
 class Schema(unittest.TestCase):
@@ -102,23 +135,45 @@ class Schema(unittest.TestCase):
         self.assertNotIn("top_ten_churn", defs["analysis_eating"]["properties"])
         self.assertNotIn("top_ten_churn", defs["analysis_eating"]["required"])
         self.assertIn("2026-10-17", SCHEMA["properties"]["schema_version"]["description"])
-        self.assertIn("top_ten_churn is removed", SCHEMA["properties"]["schema_version"]["description"])
+        self.assertIn(
+            "top_ten_churn is removed", SCHEMA["properties"]["schema_version"]["description"]
+        )
         # The quadrant's other teams carry no names: only these keys are allowed, the label a
         # per-league pseudonym ("Team C") since 2026-10-25.
-        others = defs["analysis_stat_quadrant"]["properties"]["values"]["anyOf"][0]["properties"]["others"]["items"]
-        self.assertEqual(sorted(others["properties"]), ["all_play", "label", "league_key", "luck", "record"])
+        others = defs["analysis_stat_quadrant"]["properties"]["values"]["anyOf"][0]["properties"][
+            "others"
+        ]["items"]
+        self.assertEqual(
+            sorted(others["properties"]), ["all_play", "label", "league_key", "luck", "record"]
+        )
         self.assertNotIn("label", others["required"])
         self.assertEqual(others["properties"]["label"]["pattern"], "^Team [A-Z]+$")
         self.assertFalse(others["additionalProperties"])
-        self.assertEqual(defs["analysis_fantasy"]["properties"]["quadrant"]["$ref"], "#/$defs/analysis_stat_quadrant")
+        self.assertEqual(
+            defs["analysis_fantasy"]["properties"]["quadrant"]["$ref"],
+            "#/$defs/analysis_stat_quadrant",
+        )
         # Every fixed-shape variant keeps the statistic's fields.
         for name, d in defs.items():
             if name.startswith("analysis_stat"):
-                self.assertTrue({"status", "n", "min_n", "as_of", "how", "value", "values", "interval"} <= set(d["properties"]), name)
+                self.assertTrue(
+                    {"status", "n", "min_n", "as_of", "how", "value", "values", "interval"}
+                    <= set(d["properties"]),
+                    name,
+                )
                 self.assertEqual(d["required"], ["status", "n", "min_n", "as_of", "how"], name)
-        self.assertEqual(sorted(defs["analysis_fantasy"]["properties"]["manager_score"]["properties"]["components"]["properties"]),
-                         ["draft", "lineup", "moves", "strength"])
-        self.assertEqual(defs["analysis"]["properties"]["meta"]["properties"]["sources_included"]["items"], {"type": "string"})
+        self.assertEqual(
+            sorted(
+                defs["analysis_fantasy"]["properties"]["manager_score"]["properties"]["components"][
+                    "properties"
+                ]
+            ),
+            ["draft", "lineup", "moves", "strength"],
+        )
+        self.assertEqual(
+            defs["analysis"]["properties"]["meta"]["properties"]["sources_included"]["items"],
+            {"type": "string"},
+        )
 
     # 2026-10-18, policy: small_sample on every statistic shape, first_unit in its values, no available_from;
     # eating.safe_bet beside the landing's current-ranking version.
@@ -136,11 +191,23 @@ class Schema(unittest.TestCase):
                     full, zero = v["anyOf"]
                     self.assertTrue(full.get("required"), name)
                     self.assertNotIn("first_unit", full["properties"], name)
-                    self.assertEqual((zero["required"], sorted(zero["properties"]), zero["additionalProperties"]), (["first_unit"], ["first_unit"], False), name)
-        self.assertNotIn("available_from", json.dumps(defs).replace("(available_from is removed.)", ""))
+                    self.assertEqual(
+                        (
+                            zero["required"],
+                            sorted(zero["properties"]),
+                            zero["additionalProperties"],
+                        ),
+                        (["first_unit"], ["first_unit"], False),
+                        name,
+                    )
+        self.assertNotIn(
+            "available_from", json.dumps(defs).replace("(available_from is removed.)", "")
+        )
         self.assertIn("safe_bet", defs["analysis_eating"]["properties"])
         self.assertNotIn("safe_bet", defs["analysis_eating"]["required"])
-        self.assertIn("median_percentile", defs["analysis_eating"]["properties"]["landing"]["description"])
+        self.assertIn(
+            "median_percentile", defs["analysis_eating"]["properties"]["landing"]["description"]
+        )
         self.assertIn("small_sample", SCHEMA["properties"]["schema_version"]["description"])
 
     # The handoff fragment (what the pipeline syncs from) must not drift from the site's copy.
@@ -155,17 +222,28 @@ class Schema(unittest.TestCase):
         for name in SCHEMA["$defs"]:
             if name.startswith("analysis"):
                 self.assertIn(name, frag["$defs"])
-        sample = json.loads((HANDOFF / "analysis.sample.json").read_text(encoding="utf-8"))["analysis"]
+        sample = json.loads((HANDOFF / "analysis.sample.json").read_text(encoding="utf-8"))[
+            "analysis"
+        ]
         for d, prop in ADDED_2026_10_17:
             with self.subTest(sample=prop):
-                holders = [sample] if d == "analysis" else [sample["fantasy"]] if d == "analysis_fantasy" else \
-                    sample["fantasy"]["teams"] if d == "analysis_fantasy_team" else [sample[d[len("analysis_"):]]]
+                holders = (
+                    [sample]
+                    if d == "analysis"
+                    else [sample["fantasy"]]
+                    if d == "analysis_fantasy"
+                    else sample["fantasy"]["teams"]
+                    if d == "analysis_fantasy_team"
+                    else [sample[d[len("analysis_") :]]]
+                )
                 for holder in holders:
                     self.assertIn(prop, holder)
         self.assertNotIn("top_ten_churn", sample["eating"])
         others = sample["fantasy"]["quadrant"]["values"]["others"]
         self.assertTrue(others)
-        self.assertTrue(all(set(o) <= {"all_play", "label", "league_key", "luck", "record"} for o in others))
+        self.assertTrue(
+            all(set(o) <= {"all_play", "label", "league_key", "luck", "record"} for o in others)
+        )
 
     def test_best_set_is_optional(self):
         best = SCHEMA["$defs"]["lifting"]["properties"]["main_lifts"]["items"]["properties"]["best"]
@@ -188,19 +266,32 @@ class Drawing(unittest.TestCase):
             with self.subTest(width=w):
                 d = draw(w)
                 self.assertEqual(d["before"]["rankingsSection"], ["whats-happening", "my-rankings"])
-                self.assertEqual(d["before"]["tabs"], [["Films", "true"], ["Shows", "false"], ["Anime", "false"]])
+                self.assertEqual(
+                    d["before"]["tabs"], [["Films", "true"], ["Shows", "false"], ["Anime", "false"]]
+                )
                 films, shows, anime = d["before"]["rankings"]
                 self.assertEqual(films["visible"], [str(i) for i in range(1, 11)])
-                self.assertEqual(films["button"], {"text": "show all 12", "expanded": "false", "controls": True})
-                self.assertEqual(shows["visible"], [])  # the other types' panels are hidden until their tab is pressed
+                self.assertEqual(
+                    films["button"], {"text": "show all 12", "expanded": "false", "controls": True}
+                )
+                self.assertEqual(
+                    shows["visible"], []
+                )  # the other types' panels are hidden until their tab is pressed
                 self.assertIsNone(shows["button"])  # ten or fewer: no toggle
                 self.assertIsNone(anime["button"])
                 opened = d["opened"]["rankings"][0]
                 self.assertEqual(opened["visible"], [str(i) for i in range(1, 13)])
-                self.assertEqual(opened["button"], {"text": "show fewer", "expanded": "true", "controls": True})
+                self.assertEqual(
+                    opened["button"], {"text": "show fewer", "expanded": "true", "controls": True}
+                )
                 self.assertIn("ranking-more", d["focused"])  # focus stays on the button
                 self.assertEqual(d["closed"]["rankings"][0], films)
-                self.assertLessEqual(max(d["before"]["scrollX"], d["opened"]["scrollX"], d["before"]["liftsScrollX"]), 0)
+                self.assertLessEqual(
+                    max(
+                        d["before"]["scrollX"], d["opened"]["scrollX"], d["before"]["liftsScrollX"]
+                    ),
+                    0,
+                )
 
     # Lift tiles (lately/lifting/): best set under the best e1RM when present; under three sessions, a count, not a chart.
     def test_lift_best_set_and_few_sessions(self):
@@ -212,7 +303,9 @@ class Drawing(unittest.TestCase):
                 self.assertIsNone(third["bestSet"])
                 self.assertEqual(second["few"], "2 sessions so far")
                 self.assertFalse(second["chart"] or second["table"])
-                self.assertTrue(first["chart"] and first["table"] and first["few"] is None)  # the chart's numbers as a hidden table
+                self.assertTrue(
+                    first["chart"] and first["table"] and first["few"] is None
+                )  # the chart's numbers as a hidden table
                 self.assertFalse(first["toggle"])  # no "view as table" control anywhere
 
     # The lifts are grouped by split (chest and back, shoulders and arms, legs); no hand-entered best is shown.

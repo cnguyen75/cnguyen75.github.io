@@ -3,35 +3,112 @@ parallel .ld-* and .tp-* versions of the bars, tables, stat tiles, legends, axes
 how line were folded into one set, never come back in the stylesheets, the scripts, the build
 or the built pages. Run: python3 -m unittest discover tests"""
 
+from pathlib import Path
 import re
 import unittest
-from pathlib import Path
+
 
 ROOT = Path(__file__).resolve().parent.parent
 
 RETIRED = [
     # bars
-    "bar-list", "bar-list--wide", "bar-row", "bar-fill--neg", "bar-fill--pos", "bar-track--diverging",
-    "ld-bars", "ld-bars--tier", "ld-bars--effects", "ld-bar-row", "ld-bar-row--unclear", "ld-bar-label",
-    "ld-bar-track", "ld-bar-fill", "ld-bar-fill--neg", "ld-bar-value", "ld-bar-ref", "ld-bar-zero",
-    "tp-bars", "tp-bar", "tp-bar-label", "tp-bar-track", "tp-bar-fill", "tp-bar-fill--blue", "tp-bar-fill--orange",
-    "tp-bar-value", "tp-panel", "tp-panel-title",
+    "bar-list",
+    "bar-list--wide",
+    "bar-row",
+    "bar-fill--neg",
+    "bar-fill--pos",
+    "bar-track--diverging",
+    "ld-bars",
+    "ld-bars--tier",
+    "ld-bars--effects",
+    "ld-bar-row",
+    "ld-bar-row--unclear",
+    "ld-bar-label",
+    "ld-bar-track",
+    "ld-bar-fill",
+    "ld-bar-fill--neg",
+    "ld-bar-value",
+    "ld-bar-ref",
+    "ld-bar-zero",
+    "tp-bars",
+    "tp-bar",
+    "tp-bar-label",
+    "tp-bar-track",
+    "tp-bar-fill",
+    "tp-bar-fill--blue",
+    "tp-bar-fill--orange",
+    "tp-bar-value",
+    "tp-panel",
+    "tp-panel-title",
     # tables
-    "data-table", "ld-table", "ld-table--wide", "ld-caption", "tp-table",
+    "data-table",
+    "ld-table",
+    "ld-table--wide",
+    "ld-caption",
+    "tp-table",
     # stat tiles
-    "tp-stats", "tp-stat", "tp-stat-label", "tp-stat-value", "ld-stats", "ld-stats--panel",
+    "tp-stats",
+    "tp-stat",
+    "tp-stat-label",
+    "tp-stat-value",
+    "ld-stats",
+    "ld-stats--panel",
     # legend keys, axes, charts, tabs, how
-    "ld-legend", "ld-key-bar", "ld-key-ref", "ld-key-dot", "ld-key-box", "ld-key-median",
-    "axis-labels", "ld-iv-axis-track", "ld-axis-start", "ld-axis-end", "ld-iv-axis", "ld-range-axis",
-    "chart-block", "chart-block--hours", "chart-block--pair", "chart-figure", "chart-figure--tight", "ld-chart", "ld-chart-title",
-    "tier-tabs", "tier-tab", "ld-how", "ld-how-text",
+    "ld-legend",
+    "ld-key-bar",
+    "ld-key-ref",
+    "ld-key-dot",
+    "ld-key-box",
+    "ld-key-median",
+    "axis-labels",
+    "ld-iv-axis-track",
+    "ld-axis-start",
+    "ld-axis-end",
+    "ld-iv-axis",
+    "ld-range-axis",
+    "chart-block",
+    "chart-block--hours",
+    "chart-block--pair",
+    "chart-figure",
+    "chart-figure--tight",
+    "ld-chart",
+    "ld-chart-title",
+    "tier-tabs",
+    "tier-tab",
+    "ld-how",
+    "ld-how-text",
 ]
-CURRENT = ["bars", "bar", "bar-label", "bar-track", "bar-fill", "bar-value", "bar--neg", "bar--faded", "bar-ref",
-           "table", "stats", "stat", "legend", "axis", "chart", "chart-title", "tabs", "tab-strip", "tab", "control", "how"]
+CURRENT = [
+    "bars",
+    "bar",
+    "bar-label",
+    "bar-track",
+    "bar-fill",
+    "bar-value",
+    "bar--neg",
+    "bar--faded",
+    "bar-ref",
+    "table",
+    "stats",
+    "stat",
+    "legend",
+    "axis",
+    "chart",
+    "chart-title",
+    "tabs",
+    "tab-strip",
+    "tab",
+    "control",
+    "how",
+]
 
 
 def sources():
-    files = [ROOT / "build.py", ROOT / "index.html"] + sorted((ROOT / "css").glob("*.css")) + sorted((ROOT / "js").glob("*.js"))
+    files = (
+        [ROOT / "build.py", ROOT / "index.html"]
+        + sorted((ROOT / "css").glob("*.css"))
+        + sorted((ROOT / "js").glob("*.js"))
+    )
     files += sorted(ROOT.glob("lately/*/index.html")) + sorted(ROOT.glob("tracks/*/index.html"))
     return [p for p in files if p.is_file()]
 
