@@ -36,7 +36,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
         }),
         splits: [...document.querySelectorAll(LIFTS + " .lift-split-title")].map(e => e.textContent),
         splitCounts: [...document.querySelectorAll(LIFTS + " .lift-split")].map(e => e.querySelectorAll(".lift").length),
-        tabs: [...document.querySelectorAll(RANKINGS + " .tier-tab")].map(b => [b.textContent, b.getAttribute("aria-pressed")]),
+        tabs: [...document.querySelectorAll(RANKINGS + " .tab")].map(b => [b.textContent, b.getAttribute("aria-pressed")]),
         rankingsSection: (() => { const s = document.querySelector(RANKINGS); if (!s) return null; const sec = s.closest(".ld-section"); return [(sec.className.match(/ld-section--([\w-]+)/) || [])[1], sec.id]; })(),
         lifts: [...document.querySelectorAll(LIFTS + " .lift")].map(l => ({
           best: l.querySelector(".lift-best").textContent,
@@ -47,7 +47,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
           few: (l.querySelector(".lift-few") || {}).textContent || null,
           figures: (l.querySelector(".lift-figures") || {}).textContent || null,
           chart: !!l.querySelector(".line-chart"),
-          table: !!l.querySelector(".data-table.sr-only table"), toggle: !!l.querySelector(".table-toggle"),
+          table: !!l.querySelector(".table.sr-only table"), toggle: !!l.querySelector(".table-toggle"),
         })),
       };
     }, [RANKINGS, LIFTS]);

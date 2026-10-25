@@ -61,7 +61,7 @@
         var count = function (el) { return (el.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length; };
         var w = count(b);
         [].forEach.call(b.querySelectorAll(".sr-only"), function (s) { w -= count(s); }); // the hidden tables are not read
-        var charts = b.querySelectorAll(".ld-chart, .chart-block, table, .meter, .ld-records").length;
+        var charts = b.querySelectorAll(".chart, table, .meter, .ld-records").length;
         var d = w / WPM * 60 + charts * FIGURE_SECS;
         b.setAttribute("data-secs", d.toFixed(2));
         if (charts) b.setAttribute("data-pause", ""); else b.removeAttribute("data-pause");
@@ -382,7 +382,7 @@
   // More than ten rows show ten and a "show all N" button that opens the rest in place;
   // the rows stay in the DOM, hidden, and the button carries aria-expanded and aria-controls.
   var SHOW_ROWS = 10, listId = 0;
-  [].forEach.call(document.querySelectorAll(".tp-section-body ul, .tp-section-body ol, .tp-table tbody"), function (el) {
+  [].forEach.call(document.querySelectorAll(".tp-section-body ul, .tp-section-body ol, .table--stack tbody"), function (el) {
     var rows = [].slice.call(el.children).filter(function (c) { return /^(li|tr)$/i.test(c.tagName); });
     if (rows.length <= SHOW_ROWS) return;
     if (!el.id) el.id = "tp-rows-" + ++listId;
@@ -401,7 +401,7 @@
       btn.setAttribute("aria-expanded", String(open));
       btn.textContent = open ? less : more;
     });
-    var host = el.closest(".tp-table") || el;
+    var host = el.closest(".table--stack") || el;
     host.parentNode.insertBefore(btn, host.nextSibling);
   });
 
@@ -421,7 +421,7 @@
   if (live) {
     document.addEventListener("tp:retime", function () { requestAnimationFrame(retime); });
     document.addEventListener("click", function (e) {
-      if (e.target && e.target.closest && e.target.closest(".tier-tab, .rows-more, .tier-more, .ld-how summary, .km-bands-toggle")) requestAnimationFrame(retime);
+      if (e.target && e.target.closest && e.target.closest(".tab, .rows-more, .tier-more, .how summary, .km-bands-toggle")) requestAnimationFrame(retime);
     });
   }
 

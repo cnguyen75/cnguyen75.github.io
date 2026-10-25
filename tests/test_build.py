@@ -165,7 +165,7 @@ class Progress(unittest.TestCase):
     def test_shared_features(self):
         doc = self.render()
         self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-steps">')
-        self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-stats">')
+        self.assertRegex(doc, r'<div data-secs="[\d.]+" class="stats stats--row">')
         self.assertEqual(len(re.findall(r'<a class="tp-seg" href="#', doc)), len(build.PROGRESS_SECTIONS))
         self.assertIn('<button type="button" class="tp-play control" aria-describedby="tp-play-help">', doc)  # the play control, in the site's one control style
         self.assertIn('<span class="tp-clock">', doc)
@@ -350,10 +350,10 @@ class Progress(unittest.TestCase):
         def render_with(data):
             (assets / "demo.json").write_text(json.dumps(data), encoding="utf-8")
             doc = self.render(front={"live": "demo.json"}, sections={"results": stats})
-            return re.findall(r'<div class="tp-stat">(.*?)</div></div>', doc.split('id="results"')[1])
+            return re.findall(r'<div class="stat">(.*?)</div></div>', doc.split('id="results"')[1])
         data = {"as_of": "2026-10-12", "decisions": [{"date": "2026-09-03", "match": True}, {"date": "2026-09-10", "match": None}, {"date": "2026-09-11", "voided": True}]}
-        self.assertEqual(render_with(data)[0], '<div class="tp-stat-label">decisions matching the twin, 1 not yet checked</div><div class="tp-stat-value">1 of 2</div><div class="tp-stat-label">as of 12 October 2026')
-        self.assertEqual(render_with(dict(data, as_of=None))[0], '<div class="tp-stat-label">decisions matching the twin, 1 not yet checked</div><div class="tp-stat-value">1 of 2')  # no note
+        self.assertEqual(render_with(data)[0], '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div class="stat-value">1 of 2</div><div class="stat-note">as of 12 October 2026')
+        self.assertEqual(render_with(dict(data, as_of=None))[0], '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div class="stat-value">1 of 2')  # no note
         rows = render_with({"as_of": "2026-10-12"})
         self.assertEqual(len(rows), 1)  # the live row is dropped, the other kept
         self.assertIn("kept", rows[0])

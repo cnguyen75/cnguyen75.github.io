@@ -575,6 +575,15 @@ def words(s):
     return len(re.findall(r"[\w’'–-]+", re.sub(r"<[^>]+>", " ", s)))
 
 
+def stat_row(cells):
+    """The stat tiles of a track page, (value, label, note) each, in the shared .stats component."""
+    items = "".join(
+        f'<div class="stat"><div class="stat-label">{inline(label)}</div><div class="stat-value">{inline(value)}</div>'
+        + (f'<div class="stat-note">{inline(note)}</div>' if note else "") + "</div>"
+        for value, label, note in cells)
+    return f'<div class="stats stats--row">{items}</div>'
+
+
 class Page:
     """Renders one page's body and keeps what the page head needs."""
 
@@ -751,12 +760,7 @@ class Page:
 
         if kind == "STATS":
             need(cells and all(2 <= len(c) <= 3 for c in cells), "rows are 'value | label | note'")
-            items = "".join(
-                f'<div class="tp-stat"><div class="tp-stat-label">{inline(c[1])}</div>'
-                f'<div class="tp-stat-value">{inline(c[0])}</div>'
-                + (f'<div class="tp-stat-label">{inline(c[2])}</div>' if len(c) > 2 and c[2] else "") + "</div>"
-                for c in cells)
-            return (f'<div class="tp-stats">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
+            return (stat_row([(c[0], c[1], c[2] if len(c) > 2 else "") for c in cells]), sum(words(" ".join(c)) for c in cells), "text")
 
         if kind == "BUILT-WITH":
             # "Built with": a two-column grid, 'label | text [| https://link]' per row, the labels
@@ -799,7 +803,7 @@ class Page:
             head_html = "".join(f'<th scope="col">{inline(c)}</th>' for c in cells[0])
             body_html = "".join("<tr>" + f'<th scope="row">{inline(c[0])}</th>' + "".join(f'<td data-label="{esc(h)}">{inline(x)}</td>' for h, x in zip(cells[0][1:], c[1:])) + "</tr>"
                                 for c in cells[1:])
-            return (f'<div class="tp-table" role="region" aria-label="Table: {esc(" · ".join(cells[0]))}">'
+            return (f'<div class="table table--stack" role="region" aria-label="Table: {esc(" · ".join(cells[0]))}">'
                     f'<table><thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>',
                     sum(words(" ".join(c)) for c in cells), "figure")
 
@@ -961,12 +965,7 @@ class Page:
             return (f'<figure class="tp-figure">{figure}{self.caption(cap) if cap else ""}</figure>', words(text) // 2, "figure")
 
         if name == "stats":
-            items = "".join(
-                f'<div class="tp-stat"><div class="tp-stat-label">{inline(c[0])}</div>'
-                f'<div class="tp-stat-value">{inline(c[1])}</div>'
-                + (f'<div class="tp-stat-label">{inline(c[2])}</div>' if len(c) > 2 and c[2] else "") + "</div>"
-                for c in cells)
-            return (f'<div class="tp-stats">{items}</div>', sum(words(" ".join(c)) for c in cells), "text")
+            return (stat_row([(c[1], c[0], c[2] if len(c) > 2 else "") for c in cells]), sum(words(" ".join(c)) for c in cells), "text")
 
         if name == "bars":
             if not args:
@@ -979,13 +978,13 @@ class Page:
                     raise ContentError(f"::: bars row {c!r} needs label | number")
             top = max(vals + [0]) or 1
             rows_html = "".join(
-                f'<div class="tp-bar"><span class="tp-bar-label">{inline(c[0])}</span>'
-                f'<span class="tp-bar-track"><span class="tp-bar-fill tp-bar-fill--{"orange" if len(c) > 2 and c[2] == "orange" else "blue"}" style="width:{v / top * 100:.1f}%"></span></span>'
-                f'<span class="tp-bar-value">{esc(c[1])}</span></div>'
+                f'<div class="bar{" bar--neg" if len(c) > 2 and c[2] == "orange" else ""}"><span class="bar-label">{inline(c[0])}</span>'
+                f'<span class="bar-track"><span class="bar-fill" style="width:{v / top * 100:.1f}%"></span></span>'
+                f'<span class="bar-value">{esc(c[1])}</span></div>'
                 for c, v in zip(cells, vals))
             summary = "; ".join(f"{c[0]} {c[1]}" for c in cells)
-            return (f'<figure class="tp-figure tp-panel"><div class="tp-panel-title">{inline(args)}</div>'
-                    f'<div class="tp-bars" role="img" aria-label="{esc(args)}: {esc(summary)}">{rows_html}</div>'
+            return (f'<figure class="tp-figure chart chart--card"><div class="chart-title">{inline(args)}</div>'
+                    f'<div class="bars bars--track" role="img" aria-label="{esc(args)}: {esc(summary)}">{rows_html}</div>'
                     f'{self.caption(cap) if cap else ""}</figure>', words(args), "figure")
 
         if name == "steps":

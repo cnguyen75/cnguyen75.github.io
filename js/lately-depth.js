@@ -111,9 +111,9 @@
         return i === 0 ? h("th", { scope: "row" }, cell) : h("td", { class: cols[i].num ? "num" : null }, cell);
       }));
     }));
-    var box = h("div", { class: "data-table ld-table" + (opts && opts.cls ? " " + opts.cls : ""), hidden: opts && opts.hidden },
+    var box = h("div", { class: "table table--depth" + (opts && opts.cls ? " " + opts.cls : ""), hidden: opts && opts.hidden },
       h("table", null,
-        h("caption", { class: opts && opts.showCaption ? "ld-caption" : "sr-only" }, caption),
+        h("caption", { class: opts && opts.showCaption ? "table-caption" : "sr-only" }, caption),
         h("thead", null, h("tr", null, cols.map(function (c) {
           return h("th", { scope: "col", class: c.num ? "num" : null }, c.label);
         }))),
@@ -161,9 +161,9 @@
   function tabs(labels, panels, opts) {
     opts = opts || {};
     var selected = isNum(opts.selected) ? opts.selected : 0;
-    var strip = opts.strip === false ? null : h("div", { class: "tier-tabs", role: "group", "aria-label": opts.label || "Choose", "data-sync": opts.sync || null },
+    var strip = opts.strip === false ? null : h("div", { class: "tab-strip", role: "group", "aria-label": opts.label || "Choose", "data-sync": opts.sync || null },
       labels.map(function (l, i) {
-        return h("button", { type: "button", class: "control tier-tab", "data-tab": String(i), "data-type": opts.keys ? opts.keys[i] : null, "aria-pressed": String(i === selected) }, l);
+        return h("button", { type: "button", class: "control tab", "data-tab": String(i), "data-type": opts.keys ? opts.keys[i] : null, "aria-pressed": String(i === selected) }, l);
       }));
     var box = h("div", { class: "tab-panels" }, panels.map(function (p, i) {
       var d = h("div", { class: "tab-panel", hidden: !opts.render && i !== selected });
@@ -212,8 +212,8 @@
   function charted(title, chart, cols, rows, after) {
     var t = table(title, cols, rows, { cls: "sr-only" });
     t.id = "ld-table-" + ++uid;
-    return h("div", { class: "chart-block ld-chart" },
-      h("div", { class: "chart-head" }, h("div", { class: "ld-chart-title" }, title)),
+    return h("div", { class: "chart chart--depth" },
+      h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, title)),
       chart, t, after || null);
   }
 
@@ -242,25 +242,25 @@
     var vals = items.map(function (i) { return i.value; }).concat(items.map(function (i) { return isNum(i.ref) ? i.ref : 0; }));
     var max = Math.max.apply(null, vals.concat(0)), min = Math.min.apply(null, vals.concat(0));
     var span = max - min || 1, zero = (-min / span) * 100;
-    var chart = h("div", { class: "ld-bars", role: "img",
+    var chart = h("div", { class: "bars", role: "img",
       "aria-label": title + ": " + items.map(function (i) { return i.label + " " + i.text + (i.refText ? " (" + i.refText + ")" : ""); }).join("; ") },
       items.map(function (i) {
         var w = Math.abs(i.value) / span * 100;
-        return h("div", { class: "ld-bar-row", title: i.label + ": " + i.text + (i.refText ? " (" + i.refText + ")" : "") },
-          h("span", { class: "ld-bar-label" }, i.label),
-          h("span", { class: "ld-bar-track" },
-            min < 0 ? h("span", { class: "ld-bar-zero", style: { left: zero + "%" } }) : null,
-            h("span", { class: "ld-bar-fill" + (i.value < 0 ? " ld-bar-fill--neg" : "") + (i.cls ? " " + i.cls : ""),
+        return h("div", { class: "bar" + (i.value < 0 ? " bar--neg" : ""), title: i.label + ": " + i.text + (i.refText ? " (" + i.refText + ")" : "") },
+          h("span", { class: "bar-label" }, i.label),
+          h("span", { class: "bar-track" },
+            min < 0 ? h("span", { class: "bar-zero", style: { left: zero + "%" } }) : null,
+            h("span", { class: "bar-fill" + (i.cls ? " " + i.cls : ""),
               style: { left: (i.value < 0 ? zero - w : zero) + "%", width: w + "%" } }),
-            isNum(i.ref) ? h("span", { class: "ld-bar-ref", style: { left: ((i.ref - min) / span * 100) + "%" } }) : null),
-          h("span", { class: "ld-bar-value" }, i.text + (i.refText ? " / " + i.refText : "")));
+            isNum(i.ref) ? h("span", { class: "bar-ref", style: { left: ((i.ref - min) / span * 100) + "%" } }) : null),
+          h("span", { class: "bar-value" }, i.text + (i.refText ? " / " + i.refText : "")));
       }));
     var cols = [{ label: opts.labelHeading || "" }, { label: opts.valueHeading || "", num: true }];
     if (opts.refHeading) cols.push({ label: opts.refHeading, num: true });
-    var legend = opts.refHeading ? h("p", { class: "ld-legend" },
-      h("span", { class: "ld-key-bar", "aria-hidden": "true" }), " " + opts.valueHeading + " (first number)   ",
-      h("span", { class: "ld-key-ref", "aria-hidden": "true" }), " " + opts.refHeading + " (second)") : null;
-    return charted(title, collapsible(chart, chart.querySelectorAll(".ld-bar-row")), cols, items.map(function (i) {
+    var legend = opts.refHeading ? h("p", { class: "legend legend--mono" },
+      h("span", { class: "legend-bar", "aria-hidden": "true" }), " " + opts.valueHeading + " (first number)   ",
+      h("span", { class: "legend-ref", "aria-hidden": "true" }), " " + opts.refHeading + " (second)") : null;
+    return charted(title, collapsible(chart, chart.querySelectorAll(".bar")), cols, items.map(function (i) {
       var r = [i.label, i.text];
       if (opts.refHeading) r.push(i.refText || "");
       return r;
@@ -287,8 +287,8 @@
             h("span", { class: "ld-iv-dot", style: { left: x(r.value) } })),
           h("span", { class: "ld-iv-value" }, r.text));
       }),
-      h("div", { class: "ld-iv-axis", "aria-hidden": "true" }, h("span", null, ""),
-        h("span", { class: "ld-iv-axis-track" },
+      h("div", { class: "axis-row", "aria-hidden": "true" }, h("span", null, ""),
+        h("span", { class: "axis-ticks" },
           h("span", { style: { left: x(0) } }, "0")), h("span", null, "")));
     return charted(title, collapsible(chart, chart.querySelectorAll(".ld-iv-row")), [{ label: opts.labelHeading || "" }, { label: "value and 95% interval", num: true }],
       rows.map(function (r) { return [r.label, r.text]; }));
@@ -336,7 +336,7 @@
           h("span", { class: "line-dot line-dot--last", style: { left: "100%", top: y(last.value) + "%" } }))),
         h("div", { class: "line-end", style: { width: (fmt(last.value).length * 0.62 + 0.4) + "em" } },
           h("span", { class: "line-end-label", style: { top: Math.min(Math.max(y(last.value), 10), 90) + "%" } }, fmt(last.value)))),
-      h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, first.label), h("span", null, last.label)));
+      h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, first.label), h("span", null, last.label)));
     return charted(title, chart, [{ label: "Date" }, { label: "Value", num: true }],
       points.map(function (p) { return [p.label, fmt(p.value)]; }));
   }
@@ -424,8 +424,8 @@
         opts.endLabels === false ? null : h("div", { class: "line-end", style: { width: (width * 0.62 + 0.4) + "em" } }, ends.map(function (e) {
           return h("span", { class: "line-end-label " + SERIES[e.k % SERIES.length], style: { top: Math.min(Math.max(e.top, 6), 94) + "%" } }, fmt(e.v));
         }))),
-      h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, labels[0]), h("span", null, n > 1 ? labels[n - 1] : "")));
-    var legend = series.length > 1 || opts.legend ? h("p", { class: "ld-legend" }, series.map(function (s, k) { return legendItem(SERIES[k % SERIES.length], s.name); }),
+      h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, labels[0]), h("span", null, n > 1 ? labels[n - 1] : "")));
+    var legend = series.length > 1 || opts.legend ? h("p", { class: "legend legend--mono" }, series.map(function (s, k) { return legendItem(SERIES[k % SERIES.length], s.name); }),
       isNum(opts.base) ? legendItem("s-base", opts.baseText || String(opts.base)) : null) : null;
     var cols = [{ label: opts.labelHeading || "" }].concat(series.map(function (s) { return { label: s.name, num: true }; }));
     return charted(title, chart, cols, labels.map(function (l, i) {
@@ -505,7 +505,7 @@
       return h("li", null, h("span", { class: "quad-key-num", "aria-hidden": "true" }, String(i + 1)), String(t.label) + " · " + record(t.record));
     })) : null;
     return charted("Strength against luck", chart, [{ label: "Team" }, { label: "Record" }, { label: "All-play", num: true }, { label: "Wins above expected", num: true }], rows,
-      [h("p", { class: "ld-legend" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), opts.trails !== false ? legendItem("s-trail", "my trail, last 5 weeks") : null), key]);
+      [h("p", { class: "legend legend--mono" }, legendItem("s-blue", "my teams"), legendItem("s-grey", "other teams in my leagues"), opts.trails !== false ? legendItem("s-trail", "my trail, last 5 weeks") : null), key]);
   }
 
   // ---------- films: tier bars and the crowd plot ----------
@@ -524,18 +524,18 @@
   function tierBars(title, rows, opts) {
     opts = opts || {};
     var unit = opts.unit || "films";
-    var chart = h("div", { class: "ld-bars ld-bars--tier", role: "img",
+    var chart = h("div", { class: "bars bars--tier", role: "img",
       "aria-label": title + ": " + rows.map(function (r) { return r.name + " " + tierText(r.mean_tier) + " over " + plural(r.n, unit); }).join("; ") },
       rows.map(function (r) {
         var films = filmsText(rowTitles(r));
-        return h("div", { class: "ld-bar-row", title: r.name + (films ? ": " + films : "") },
-          h("span", { class: "ld-bar-label" }, String(r.name)),
-          h("span", { class: "ld-bar-track" }, h("span", { class: "ld-bar-fill" + (opts.cls ? " " + opts.cls : ""), style: { left: 0, width: (tierPos(r.mean_tier) * 100) + "%" } })),
-          h("span", { class: "ld-bar-value" }, tierText(r.mean_tier) + " · " + plural(r.n, unit)));
+        return h("div", { class: "bar", title: r.name + (films ? ": " + films : "") },
+          h("span", { class: "bar-label" }, String(r.name)),
+          h("span", { class: "bar-track" }, h("span", { class: "bar-fill" + (opts.cls ? " " + opts.cls : ""), style: { left: 0, width: (tierPos(r.mean_tier) * 100) + "%" } })),
+          h("span", { class: "bar-value" }, tierText(r.mean_tier) + " · " + plural(r.n, unit)));
       }),
-      h("div", { class: "ld-bar-row ld-range-axis", "aria-hidden": "true" }, h("span"),
-        h("span", { class: "ld-iv-axis-track" }, TIER_ORDER.map(function (t, i) { return h("span", { style: { left: (i / 4 * 100) + "%" } }, t); })), h("span")));
-    return charted(title, collapsible(chart, chart.querySelectorAll(".ld-bar-row:not(.ld-range-axis)")),
+      h("div", { class: "bar axis-row", "aria-hidden": "true" }, h("span"),
+        h("span", { class: "axis-ticks" }, TIER_ORDER.map(function (t, i) { return h("span", { style: { left: (i / 4 * 100) + "%" } }, t); })), h("span")));
+    return charted(title, collapsible(chart, chart.querySelectorAll(".bar:not(.axis-row)")),
       [{ label: opts.labelHeading || "Name" }, { label: "Mean tier", num: true }, { label: unit, num: true }, { label: "Titles" }],
       rows.map(function (r) { return [String(r.name), tierText(r.mean_tier), String(r.n), filmsText(rowTitles(r))]; }), opts.after);
   }
@@ -576,7 +576,7 @@
     })) : null;
     return charted("Community score against my tier", chart, [{ label: "Title" }, { label: "Year", num: true }, { label: "My tier" }, { label: "Community", num: true }],
       pts.map(function (p) { return [String(p.title), isNum(p.year) ? String(p.year) : "–", String(p.tier), num(p.community, 1)]; }),
-      [h("p", { class: "ld-legend" }, legendItem("s-grey", "every tiered title"), legendItem("s-blue", "the six largest disagreements")), key]);
+      [h("p", { class: "legend legend--mono" }, legendItem("s-grey", "every tiered title"), legendItem("s-blue", "the six largest disagreements")), key]);
   }
 
   // Diverging bars of standardised effects: zero centred, positive right (blue), negative left
@@ -585,22 +585,22 @@
   function effectBars(title, rows) {
     var span = Math.max.apply(null, rows.map(function (r) { return Math.max(Math.abs(r.effect), Math.abs(list(r.interval)[0] || 0), Math.abs(list(r.interval)[1] || 0)); }).concat(0.1));
     function x(v) { return 50 + v / span * 50; }
-    var chart = h("div", { class: "ld-bars ld-bars--effects", role: "img",
+    var chart = h("div", { class: "bars bars--effects", role: "img",
       "aria-label": title + ": " + rows.map(function (r) { return r.name + " " + signed(r.effect, 2) + (r.clear === false ? " (unclear)" : ""); }).join("; ") },
       rows.map(function (r) {
         var iv = Array.isArray(r.interval) && isNum(r.interval[0]) && isNum(r.interval[1]) ? r.interval : null;
         var w = Math.abs(r.effect) / span * 50;
-        return h("div", { class: "ld-bar-row" + (r.clear === false ? " ld-bar-row--unclear" : ""), title: r.name + ": " + signed(r.effect, 2) + (iv ? " (95% " + signed(iv[0], 2) + " to " + signed(iv[1], 2) + ")" : "") + (r.clear === false ? "; the interval includes zero" : "") },
-          h("span", { class: "ld-bar-label" }, String(r.name)),
-          h("span", { class: "ld-bar-track" },
-            h("span", { class: "ld-bar-zero", style: { left: "50%" } }),
-            h("span", { class: "ld-bar-fill" + (r.effect < 0 ? " ld-bar-fill--neg" : ""), style: { left: (r.effect < 0 ? 50 - w : 50) + "%", width: w + "%" } }),
+        return h("div", { class: "bar" + (r.clear === false ? " bar--faded" : "") + (r.effect < 0 ? " bar--neg" : ""), title: r.name + ": " + signed(r.effect, 2) + (iv ? " (95% " + signed(iv[0], 2) + " to " + signed(iv[1], 2) + ")" : "") + (r.clear === false ? "; the interval includes zero" : "") },
+          h("span", { class: "bar-label" }, String(r.name)),
+          h("span", { class: "bar-track" },
+            h("span", { class: "bar-zero", style: { left: "50%" } }),
+            h("span", { class: "bar-fill", style: { left: (r.effect < 0 ? 50 - w : 50) + "%", width: w + "%" } }),
             iv ? h("span", { class: "ld-iv-line ld-iv-line--thin", style: { left: x(iv[0]) + "%", width: (x(iv[1]) - x(iv[0])) + "%" } }) : null),
-          h("span", { class: "ld-bar-value" }, signed(r.effect, 2)));
+          h("span", { class: "bar-value" }, signed(r.effect, 2)));
       }));
     return charted(title, chart, [{ label: "Feature" }, { label: "Effect", num: true }, { label: "95% interval" }, { label: "Clear" }],
       rows.map(function (r) { return [String(r.name), signed(r.effect, 2), interval(r.interval, function (x) { return signed(x, 2); }) || "–", r.clear === false ? "no" : "yes"]; }),
-      h("p", { class: "ld-legend" }, legendItem("s-blue", "raises my tier"), legendItem("s-orange", "lowers it"), legendItem("s-base", "thin line: 95% interval; faded: includes zero")));
+      h("p", { class: "legend legend--mono" }, legendItem("s-blue", "raises my tier"), legendItem("s-orange", "lowers it"), legendItem("s-base", "thin line: 95% interval; faded: includes zero")));
   }
 
   // "Above the crowd: Title (A, 6.4), …" and "Below: …" from a disagreements block.
@@ -670,12 +670,12 @@
       h("div", { class: "km-plot" }, h("div", { class: "km-ylabel", "aria-hidden": "true" }, "still in rotation"), h("div", { class: "line-plot" }, svg, crossings),
         h("div", { class: "km-y", "aria-hidden": "true" }, [1, 0.5, 0].map(function (v) { return h("span", { style: { top: y(v) + "%" } }, pct(v)); }))),
       h("div", { class: "km-medians", "aria-hidden": "true" }, labels),
-      h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "0 months since first play"), h("span", null, maxM + " months")));
+      h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, "0 months since first play"), h("span", null, maxM + " months")));
     var months = [];
     curves.forEach(function (c) { c.points.forEach(function (p) { if (months.indexOf(p.months) < 0) months.push(p.months); }); });
     months.sort(function (a, b) { return a - b; });
     function at(c, m) { var p = c.points.filter(function (q) { return q.months <= m; }).slice(-1)[0]; return p ? pct(p.survival) : "–"; }
-    var legend = h("p", { class: "ld-legend" }, curves.map(function (c, k) { return legendItem(SERIES[k % SERIES.length], c.type + " · n = " + c.n); }),
+    var legend = h("p", { class: "legend legend--mono" }, curves.map(function (c, k) { return legendItem(SERIES[k % SERIES.length], c.type + " · n = " + c.n); }),
       opts.guide ? legendItem("s-base", "guide: half still playing") : legendItem("s-base", "dropped line: median"));
     var toggle = null;
     if (opts.bandToggle) {
@@ -818,14 +818,13 @@
           rows.map(function (m) {
             var kind = m.margin > 0 ? "W" : m.margin < 0 ? "L" : "T";
             var w = Math.abs(m.margin) / max * 50;
-            return h("div", { class: "ld-margin-row", title: "Week " + m.week + ": " + signed(m.margin, 2) },
+            return h("div", { class: "ld-margin-row" + (m.margin < 0 ? " bar--neg" : ""), title: "Week " + m.week + ": " + signed(m.margin, 2) },
               h("span", { class: "ld-margin-week" }, "wk " + m.week),
               resultSquare(kind),
               h("span", { class: "ld-margin-track" },
-                h("span", { class: "ld-bar-zero", style: { left: "50%" } }),
-                h("span", { class: "ld-bar-fill" + (m.margin < 0 ? " ld-bar-fill--neg" : ""),
-                  style: { left: (m.margin < 0 ? 50 - w : 50) + "%", width: w + "%" } })),
-              h("span", { class: "ld-bar-value" }, signed(m.margin, 1)));
+                h("span", { class: "bar-zero", style: { left: "50%" } }),
+                h("span", { class: "bar-fill", style: { left: (m.margin < 0 ? 50 - w : 50) + "%", width: w + "%" } })),
+              h("span", { class: "bar-value" }, signed(m.margin, 1)));
           }));
         return [charted("Margin by week", chart, [{ label: "Week" }, { label: "Result" }, { label: "Margin", num: true }],
           rows.map(function (m) { return ["Week " + m.week, m.margin > 0 ? "W" : m.margin < 0 ? "L" : "T", signed(m.margin, 2)]; })),
@@ -937,9 +936,9 @@
           return h("span", { class: "ld-mark ld-mark--" + m[0] }, h("span", { "aria-hidden": "true" }, m[0] === "best" ? "▲ " : "▽ "), m.join(" and "));
         }
         var counts = isObj(v.counts) ? v.counts : {};
-        var t = h("div", { class: "data-table ld-table" },
+        var t = h("div", { class: "table table--depth" },
           h("table", null,
-            h("caption", { class: "ld-caption" }, (Array.isArray(v.all) ? "Every add" : "Adds") + ", best and worst three marked"),
+            h("caption", { class: "table-caption" }, (Array.isArray(v.all) ? "Every add" : "Adds") + ", best and worst three marked"),
             h("thead", null, h("tr", null, (anyBid ? ["Week", "Added", "Dropped", "Bid", "Class"] : ["Week", "Added", "Dropped", "Class"]).map(function (c) {
               return h("th", { scope: "col", class: c === "Week" || c === "Bid" ? "num" : null }, c);
             }))),
@@ -1136,7 +1135,7 @@
         return table("Share of each month's plays by genre", [{ label: "Month" }, { label: "Plays", num: true }].concat(genres.map(function (g) { return { label: g, num: true }; })),
           months.map(function (m) {
             return [monthText(m.month), big(m.plays)].concat(genres.map(function (g) { return isNum((m.genres || {})[g]) ? pct(m.genres[g]) : "–"; }));
-          }), { showCaption: true, cls: "ld-table--wide" });
+          }), { showCaption: true, cls: "table--wide" });
       }
     },
     "listening.comebacks": {
@@ -1363,7 +1362,7 @@
         return [charted(title, chart,
           [{ label: "Weekday" }, { label: perWeek ? "Hours a week" : "Hours, total", num: true }].concat(kinds.map(function (k) { return { label: k, num: true }; })),
           days.map(function (d, i) { return [d, num(totals[i], 1)].concat(kinds.map(function (k) { return num(list(hrs[k])[i] || 0, 1); })); }),
-          h("p", { class: "ld-legend" }, kinds.map(function (k) { return legendItem("fill--" + k, k); }))),
+          h("p", { class: "legend legend--mono" }, kinds.map(function (k) { return legendItem("fill--" + k, k); }))),
           facts([["window", v.from ? dateText(v.from) + (perWeek ? " to " + dateText(v.to) : "") : null],
             ["figures", perWeek ? "mean hours per week" : "totals over the window (per-week means arrive with the next pipeline run)"]])];
       }
@@ -1431,7 +1430,7 @@
         return charted("Hours watched by month", chart,
           [{ label: "Month" }, { label: "Hours", num: true }].concat(types.map(function (t) { return { label: nameOf(t), num: true }; })),
           months.map(function (m) { return [monthText(m.month), num(m.hours, 1)].concat(types.map(function (t) { return pct(m.share[t] || 0); })); }),
-          h("p", { class: "ld-legend" }, types.map(function (t) {
+          h("p", { class: "legend legend--mono" }, types.map(function (t) {
             return h("span", { class: "legend-item" }, h("span", { class: "legend-swatch fill--" + TYPE_CLASS[t], "aria-hidden": "true" }), nameOf(t));
           })));
       }
@@ -1520,7 +1519,7 @@
       draw: function (v) {
         function shares(o) { return isObj(o) ? Object.keys(o).map(function (k) { return k + " " + pct(o[k]); }).join(", ") : ""; }
         return table("Each tier's genres and decades", [{ label: "Tier" }, { label: "Titles", num: true }, { label: "Genres" }, { label: "Decades" }],
-          list(v.tiers).map(function (t) { return [t.tier, String(t.titles), shares(t.genres), shares(t.decades)]; }), { cls: "ld-table--wide" });
+          list(v.tiers).map(function (t) { return [t.tier, String(t.titles), shares(t.genres), shares(t.decades)]; }), { cls: "table--wide" });
       }
     },
     "watching.tier_contrarian.*": {
@@ -1706,18 +1705,18 @@
             keys.map(function (k) {
               var g = o[k];
               return h("div", { class: "ld-range-row", title: k + ": median " + num(g.median, 2) + ", middle half " + num(g.q1, 2) + " to " + num(g.q3, 2) + ", " + plural(g.n, "places") },
-                h("span", { class: "ld-bar-label" }, k),
+                h("span", { class: "bar-label" }, k),
                 h("span", { class: "ld-iv-track" },
                   h("span", { class: "ld-range-box", style: { left: g.q1 * 10 + "%", width: (g.q3 - g.q1) * 10 + "%" } }),
                   h("span", { class: "ld-iv-dot", style: { left: g.median * 10 + "%" } })),
-                h("span", { class: "ld-bar-value" }, num(g.median, 2)));
+                h("span", { class: "bar-value" }, num(g.median, 2)));
             }),
-            h("div", { class: "ld-range-row ld-range-axis", "aria-hidden": "true" }, h("span"),
-              h("span", { class: "ld-iv-axis-track" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
+            h("div", { class: "ld-range-row axis-row", "aria-hidden": "true" }, h("span"),
+              h("span", { class: "axis-ticks" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
           return charted(title, chart, [{ label: "" }, { label: "Median", num: true }, { label: "Middle half", num: true }, { label: "Places", num: true }],
             keys.map(function (k) { var g = o[k]; return [k, num(g.median, 2), num(g.q1, 2) + " to " + num(g.q3, 2), String(g.n)]; }),
-            h("p", { class: "ld-legend" }, h("span", { class: "ld-key-dot", "aria-hidden": "true" }), " median   ",
-              h("span", { class: "ld-key-box", "aria-hidden": "true" }), " middle half of scores"));
+            h("p", { class: "legend legend--mono" }, h("span", { class: "legend-dot", "aria-hidden": "true" }), " median   ",
+              h("span", { class: "legend-box", "aria-hidden": "true" }), " middle half of scores"));
         }
         var o = v.overall;
         return [facts([["middle half of scores", num(o.q1, 2) + " to " + num(o.q3, 2)]]),
@@ -1770,19 +1769,19 @@
           var chart = h("div", { class: "ld-ranges ld-strip", role: "img", "aria-label": "The last " + plural(recent.length, "places") + " I ranked, each at the percentile it sits at in my current ranking" +
               (med !== null ? ", median " + pct(med) : "") + ": " + recent.map(function (r) { return (typeof r.place === "string" ? r.place + " " : "") + pct(r.percentile); }).join(", ") },
             h("div", { class: "ld-range-row" },
-              h("span", { class: "ld-bar-label" }, "last " + recent.length),
+              h("span", { class: "bar-label" }, "last " + recent.length),
               h("span", { class: "ld-iv-track" },
                 med !== null ? h("span", { class: "ld-strip-median", style: { left: med * 100 + "%" }, title: "median " + pct(med) }) : null,
                 recent.map(function (r) {
                   return h("span", { class: "ld-iv-dot ld-strip-dot", style: { left: r.percentile * 100 + "%" }, title: (typeof r.place === "string" ? r.place + ": " : "") + pct(r.percentile) + " up my list" });
                 })),
-              h("span", { class: "ld-bar-value" }, med !== null ? "median " + pct(med) : "")),
-            h("div", { class: "ld-range-row ld-range-axis", "aria-hidden": "true" }, h("span"),
-              h("span", { class: "ld-iv-axis-track" }, [[0, "0 · bottom", "ld-axis-start"], [50, "50", ""], [100, "top · 100", "ld-axis-end"]].map(function (t) { return h("span", { class: t[2] || null, style: { left: t[0] + "%" } }, t[1]); })), h("span")));
+              h("span", { class: "bar-value" }, med !== null ? "median " + pct(med) : "")),
+            h("div", { class: "ld-range-row axis-row", "aria-hidden": "true" }, h("span"),
+              h("span", { class: "axis-ticks" }, [[0, "0 · bottom", "axis-start"], [50, "50", ""], [100, "top · 100", "axis-end"]].map(function (t) { return h("span", { class: t[2] || null, style: { left: t[0] + "%" } }, t[1]); })), h("span")));
           strip = charted("The last 20 places I ranked, where each sits in my list now", chart,
             [{ label: "Place" }, { label: "Percentile", num: true }],
             recent.map(function (r) { return [typeof r.place === "string" ? r.place : "", pct(r.percentile)]; }),
-            h("p", { class: "ld-legend" }, h("span", { class: "ld-key-dot", "aria-hidden": "true" }), " one place   ", h("span", { class: "ld-key-median", "aria-hidden": "true" }), " median"));
+            h("p", { class: "legend legend--mono" }, h("span", { class: "legend-dot", "aria-hidden": "true" }), " one place   ", h("span", { class: "legend-median", "aria-hidden": "true" }), " median"));
         }
         var months = list(v.months).filter(function (m) { return isObj(m) && isNum(m.median_percentile); });
         return [strip, months.length ? columns("Median landing percentile by month of first ranking", months.map(function (m) {
@@ -1812,20 +1811,20 @@
           }).join("; ") },
           rows.map(function (r) {
             return h("div", { class: "ld-range-row", title: r.cuisine + ": median " + num(r.median, 2) + ", middle half " + num(r.q1, 2) + " to " + num(r.q3, 2) + (r.n !== null ? ", " + plural(r.n, "places") : "") },
-              h("span", { class: "ld-bar-label" }, r.cuisine),
+              h("span", { class: "bar-label" }, r.cuisine),
               h("span", { class: "ld-iv-track" },
                 h("span", { class: "ld-range-box", style: { left: r.q1 * 10 + "%", width: r.spread * 10 + "%" } }),
                 h("span", { class: "ld-iv-dot", style: { left: r.median * 10 + "%" } })),
-              h("span", { class: "ld-bar-value" }, num(r.spread, 2) + (r.n !== null ? " · n = " + r.n : "")));
+              h("span", { class: "bar-value" }, num(r.spread, 2) + (r.n !== null ? " · n = " + r.n : "")));
           }),
-          h("div", { class: "ld-range-row ld-range-axis", "aria-hidden": "true" }, h("span"),
-            h("span", { class: "ld-iv-axis-track" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
+          h("div", { class: "ld-range-row axis-row", "aria-hidden": "true" }, h("span"),
+            h("span", { class: "axis-ticks" }, [0, 5, 10].map(function (x) { return h("span", { style: { left: x * 10 + "%" } }, String(x)); })), h("span")));
         return [h("p", { class: "ld-sentence" }, sentence),
           charted("Middle half of scores by cuisine, narrowest first", chart,
             [{ label: "Cuisine" }, { label: "Median", num: true }, { label: "Middle half", num: true }, { label: "Spread", num: true }, { label: "Places", num: true }],
             rows.map(function (r) { return [r.cuisine, num(r.median, 2), num(r.q1, 2) + " to " + num(r.q3, 2), num(r.spread, 2), r.n !== null ? String(r.n) : ""]; }),
-            h("p", { class: "ld-legend" }, h("span", { class: "ld-key-dot", "aria-hidden": "true" }), " median   ",
-              h("span", { class: "ld-key-box", "aria-hidden": "true" }), " middle half, its width in points"))];
+            h("p", { class: "legend legend--mono" }, h("span", { class: "legend-dot", "aria-hidden": "true" }), " median   ",
+              h("span", { class: "legend-box", "aria-hidden": "true" }), " middle half, its width in points"))];
       }
     },
     "eating.rerank_drift": {
@@ -2211,7 +2210,7 @@
       return grid;
     });
     var sec = slot.closest(".ld-section");
-    var first = !(sec && sec.querySelector('.tier-tabs[data-sync="' + spec.sync + '"]'));
+    var first = !(sec && sec.querySelector('.tab-strip[data-sync="' + spec.sync + '"]'));
     var g = tabs(spec.labels, nodes, { sync: spec.sync, keys: spec.keys, strip: first, label: spec.label, onSelect: spec.onSelect, selected: selectedIndex(spec.sync) });
     return g.root;
   }
@@ -2242,7 +2241,7 @@
       return isObj(x.stat) && typeof x.stat.how === "string" && x.stat.status !== "not available from source" && x.stat.status !== "not configured";
     })[0];
     if (!e) return null;
-    return h("details", { class: "ld-how", open: sec.hasAttribute("data-how-open") }, h("summary", { class: "control" }, "how"), h("p", { class: "ld-how-text" }, e.stat.how));
+    return h("details", { class: "how", open: sec.hasAttribute("data-how-open") }, h("summary", { class: "control" }, "how"), h("p", { class: "how-text" }, e.stat.how));
   }
 
   // A FEED: slot holds a block of the feed itself (lineup grid, recent lists, lift tiles,
@@ -2317,7 +2316,7 @@
   }
 
   function headlineRow(items, cls) {
-    return h("div", { class: "stats ld-stats" + (cls ? " " + cls : "") }, items.map(function (i) {
+    return h("div", { class: "stats stats--tight" + (cls ? " " + cls : "") }, items.map(function (i) {
       return h("div", { class: "stat" }, h("div", { class: "stat-label" }, i.label), h("div", { class: "stat-value" }, i.value),
         i.note ? h("div", { class: "stat-note" }, i.note) : null);
     }));

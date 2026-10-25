@@ -149,7 +149,7 @@
   // (.sr-only, never display: none), with no control to reveal it.
   function tableToggle(caption, columns, rows) {
     var id = "lately-table-" + ++uid;
-    var table = h("div", { class: "data-table sr-only", id: id },
+    var table = h("div", { class: "table sr-only", id: id },
       h("table", null,
         h("caption", { class: "sr-only" }, caption),
         h("thead", null, h("tr", null, columns.map(function (c) {
@@ -178,23 +178,22 @@
       var w = span > 0 ? (Math.abs(v) / span) * 100 : 0;
       return [
         h("div", { class: "bar-zero", "aria-hidden": "true", style: { left: zero + "%" } }),
-        h("div", { class: "bar-fill " + (v < 0 ? "bar-fill--neg" : "bar-fill--pos"),
-          style: { left: (v < 0 ? zero - w : zero) + "%", width: w + "%" } })
+        h("div", { class: "bar-fill", style: { left: (v < 0 ? zero - w : zero) + "%", width: w + "%" } })
       ];
     }
     var summary = items.map(function (i) { return i.label + " " + opts.text(i.value); }).join("; ");
-    var list = h("div", { class: "bar-list" + (opts.wide ? " bar-list--wide" : ""), role: "img", "aria-label": opts.title + ": " + summary },
+    var list = h("div", { class: "bars bars--fixed" + (opts.wide ? " bars--wide" : ""), role: "img", "aria-label": opts.title + ": " + summary },
       items.map(function (i) {
-        return h("div", { class: "bar-row", title: i.label + ": " + opts.text(i.value) },
+        return h("div", { class: "bar" + (i.value < 0 ? " bar--neg" : ""), title: i.label + ": " + opts.text(i.value) },
           h("div", { class: "bar-label" }, i.label),
-          h("div", { class: "bar-track" + (min < 0 ? " bar-track--diverging" : "") }, fill(i.value)),
+          h("div", { class: "bar-track" }, fill(i.value)),
           h("div", { class: "bar-value" }, short(i.value)));
       }));
     var more = collapse(list, list.children);
     var figure = more ? h("div", { class: "ld-collapsible" }, list, more) : list;
     var t = tableToggle(opts.title, [{ label: opts.labelHeading }, { label: opts.valueHeading, num: true }],
       items.map(function (i) { return [i.label, short(i.value)]; }), figure);
-    return h("div", { class: "chart-block" },
+    return h("div", { class: "chart" },
       h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, opts.title), t.button),
       figure, t.table, opts.after || null);
   }
@@ -314,7 +313,7 @@
     var t = tableToggle("Fantasy teams, week " + week,
       [{ label: "Team" }, { label: "Platform" }, { label: "Record" }, { label: weeksLabel }, { label: "Luck", num: true }, { label: "Win chance", num: true }],
       tableRows, grid);
-    return [fantasyStale(shown), h("div", { class: "chart-block" }, grid, t.table)];
+    return [fantasyStale(shown), h("div", { class: "chart" }, grid, t.table)];
   }
 
   // Who is carrying my teams: points above replacement per game.
@@ -370,8 +369,8 @@
           h("div", { class: "seg--shows", style: { height: wk.shows * pxPerHour + "px" } }),
           h("div", { class: "seg--films", style: { height: wk.films * pxPerHour + "px" } }));
       }));
-    var axis = h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, n + " weeks ago"), h("span", null, "this week"));
-    var figure = h("div", { class: "chart-figure" }, chart, axis);
+    var axis = h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, n + " weeks ago"), h("span", null, "this week"));
+    var figure = h("div", { class: "chart-body" }, chart, axis);
     var t = tableToggle("Hours watched per week, last " + n + " weeks",
       [{ label: "Week" }, { label: "Films", num: true }, { label: "Shows", num: true }, { label: "Anime", num: true }],
       weeks.map(function (wk, i) {
@@ -623,7 +622,7 @@
     var strip = h("div", { class: "heat", role: "img",
       "aria-label": "Plays by hour of day, " + win + ": a strip of 24 cells, darker where more songs are played. " + hours.map(hourText).join("; ") },
       hours.map(function (v, i) { return h("div", { class: "heat-cell heat-" + heatLevel(v, max), title: hourText(v, i) }); }));
-    var axis = h("div", { class: "axis-labels", "aria-hidden": "true" }, h("span", null, "midnight"), h("span", null, "noon"), h("span", null, "11pm"));
+    var axis = h("div", { class: "axis", "aria-hidden": "true" }, h("span", null, "midnight"), h("span", null, "noon"), h("span", null, "11pm"));
     var t = tableToggle("Plays by hour of day, " + win,
       [{ label: "Hour" }, { label: "Plays", num: true }],
       hours.map(function (v, i) { return [i + ":00", String(v)]; }), [strip, axis]);
@@ -637,7 +636,7 @@
         items: artists.map(function (a) { return { label: str(a.name, "artist"), value: num(a.plays, "plays") }; }),
         text: function (v) { return plural(v, "play", "plays"); }
       }),
-      h("div", { class: "chart-block chart-block--hours" },
+      h("div", { class: "chart chart--hours" },
         h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "When I listen, by hour of day, " + win), t.button),
         strip, axis, t.table)
     ];
@@ -779,7 +778,7 @@
   function axisDates(first, last) {
     var withYear = first.getUTCFullYear() !== last.getUTCFullYear();
     var same = first.getTime() === last.getTime(); // one point: one date, under it
-    return h("div", { class: "axis-labels", "aria-hidden": "true" },
+    return h("div", { class: "axis", "aria-hidden": "true" },
       h("span", null, same ? "" : dateText(first, withYear)), h("span", null, dateText(last, withYear)));
   }
 
@@ -858,15 +857,15 @@
           h("span", { class: "vol-count" }, w.sessions),
           h("div", { class: "vol-bar" + (i === n - 1 ? " vol-bar--partial" : ""), style: { height: "calc((100% - 15px) * " + (w.volume / max).toFixed(4) + ")" } }));
       }));
-    var axis = h("div", { class: "axis-labels", "aria-hidden": "true" },
+    var axis = h("div", { class: "axis", "aria-hidden": "true" },
       h("span", null, "week of " + dateText(weeks[0].start, false)), h("span", null, "this week"));
-    var figure = h("div", { class: "chart-figure chart-figure--tight" }, chart, axis);
+    var figure = h("div", { class: "chart-body chart-body--tight" }, chart, axis);
     var t = tableToggle("Sessions and volume per week, last " + n + " weeks",
       [{ label: "Week" }, { label: "Sessions", num: true }, { label: "Volume (" + unit + ")", num: true }],
       weeks.map(function (w, i) {
         return [i === n - 1 ? "this week (so far)" : "week of " + dateText(w.start, true), String(w.sessions), thousands(w.volume)];
       }), figure);
-    return h("div", { class: "chart-block" },
+    return h("div", { class: "chart" },
       h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Sessions and volume, last " + n + " weeks"), t.button),
       figure, t.table,
       h("p", { class: "chart-foot" }, "Bar height is volume (weight × reps over working sets, in " + unit + "); the number on each bar is sessions. The lighter bar is this week, still in progress."));
@@ -967,7 +966,7 @@
     var t = tableToggle("Body weight measurements",
       [{ label: "Date" }, { label: "Weight (" + unit + ")", num: true }],
       points.slice().reverse().map(function (p) { return [dateText(p.date, true), short(p.value)]; }), figure);
-    return h("div", { class: "chart-block" },
+    return h("div", { class: "chart" },
       h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, title), t.button),
       figure, t.table);
   }
@@ -1024,7 +1023,7 @@
         stat("Current streak", String(num(l.streak_weeks, "streak_weeks")),
           minSessions === 1 ? "weeks with a workout" : "weeks at " + minSessions + "+ sessions"),
         stat("Sessions, last 4 weeks", String(recent4), "including this week so far")),
-      groups.length ? h("div", { class: "chart-block" },
+      groups.length ? h("div", { class: "chart" },
         h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, "Estimated one-rep max, tracked lifts")),
         groups.map(function (g) {
           return h("div", { class: "lift-split" }, h("h4", { class: "lift-split-title" }, g.label), h("div", { class: "lifts" }, g.items.map(function (lift) { var t = rule[lift.name]; return liftTile(lift, b.unit, t && typeof t.sessions === "number" ? t.sessions : null); })));
@@ -1045,7 +1044,7 @@
     var active = weeks.some(function (w) { return w.sessions > 0 || w.volume > 0; });
     return h("div", { class: "lift-grid" },
       active ? volumeChart(weeks, b.unit)
-        : h("div", { class: "chart-block" },
+        : h("div", { class: "chart" },
             h("div", { class: "chart-title" }, "Sessions and volume, last " + weeks.length + " weeks"),
             h("p", { class: "panel-empty" }, "No workouts logged in the last " + weeks.length + " weeks")),
       muscleChart(l.muscle_sets),
@@ -1084,8 +1083,8 @@
   function numbers(items) {
     items = items.filter(Boolean).slice(0, 3);
     var d = LD();
-    if (d && d.headlineRow) return d.headlineRow(items, "ld-stats--panel");
-    return h("div", { class: "stats ld-stats ld-stats--panel" }, items.map(function (i) { return stat(i.label, i.value, i.note); }));
+    if (d && d.headlineRow) return d.headlineRow(items, "stats--panel");
+    return h("div", { class: "stats stats--tight stats--panel" }, items.map(function (i) { return stat(i.label, i.value, i.note); }));
   }
   function waitBox(s) {
     var d = LD();

@@ -251,29 +251,8 @@
   overflow-x: auto;
 }
 
-/* Stat row */
-.tp-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-20) var(--s-48);
-}
-.tp-stat-label { color: var(--text-2); font-size: var(--fs-15); }
-.tp-stat-value { font-size: var(--fs-52); line-height: 1.05; font-weight: 700; }
-
-/* Simple bar comparison */
-.tp-panel {
-  background: var(--card);
-  padding: var(--s-18) var(--s-20);
-}
-.tp-panel-title { font-weight: 700; }
-.tp-bars { display: flex; flex-direction: column; gap: var(--s-10); }
-.tp-bar { display: flex; align-items: center; gap: var(--s-12); }
-.tp-bar-label { flex: 0 0 96px; font-size: var(--fs-15); }
-.tp-bar-track { flex: 1; min-width: 0; }
-.tp-bar-fill { display: block; height: 20px; border-radius: 0 4px 4px 0; }
-.tp-bar-fill--blue { background: var(--blue); }
-.tp-bar-fill--orange { background: var(--orange); }
-.tp-bar-value { flex: 0 0 44px; text-align: right; font-weight: 700; }
+/* The stat row (.stats--row), the bar panel (.chart--card with .bars--track) and the tables
+   (.table--stack) are the shared components in css/site.css. */
 
 /* Steps */
 .tp-steps { display: flex; flex-wrap: wrap; gap: var(--s-12); }
@@ -384,20 +363,19 @@
   .tp-chart img, .tp-chart-svg { width: 600px; max-width: none; }
 }
 
-/* Tables */
-.tp-table { overflow-x: auto; }
-.tp-table table { border-collapse: collapse; width: 100%; font-size: var(--fs-15); }
-.tp-table th, .tp-table td { text-align: left; vertical-align: top; padding: var(--s-8) var(--s-12) var(--s-8) 0; border-bottom: 1px solid var(--rule); }
-.tp-table thead th { font-family: var(--font-label); font-weight: 700; color: var(--text-3); border-bottom: 2px solid var(--ink); }
-.tp-table tbody th { font-weight: 700; }
-.tp-table td { color: var(--text-2); }
+/* Tables on a track page: the shared .table, larger, with a rule under every row */
+.table--stack table { font-size: var(--fs-15); }
+.table--stack th, .table--stack td { padding: var(--s-8) var(--s-12) var(--s-8) 0; border-bottom: 1px solid var(--rule); }
+.table--stack thead th { font-family: var(--font-label); font-weight: 700; color: var(--text-3); border-bottom: 2px solid var(--ink); }
+.table--stack tbody th { font-weight: 700; }
+.table--stack td { color: var(--text-2); }
 /* At phone width each row becomes a short block, each value labelled with its column */
 @media (max-width: 640px) {
-  .tp-table table, .tp-table tbody, .tp-table tr, .tp-table th, .tp-table td { display: block; }
-  .tp-table thead { display: none; }
-  .tp-table tr { padding: var(--s-10) 0; border-bottom: 1px solid var(--rule); }
-  .tp-table th, .tp-table td { border: 0; padding: var(--s-2) 0; }
-  .tp-table td::before {
+  .table--stack table, .table--stack tbody, .table--stack tr, .table--stack th, .table--stack td { display: block; }
+  .table--stack thead { display: none; }
+  .table--stack tr { padding: var(--s-10) 0; border-bottom: 1px solid var(--rule); }
+  .table--stack th, .table--stack td { border: 0; padding: var(--s-2) 0; }
+  .table--stack td::before {
     content: attr(data-label) ": ";
     font-family: var(--font-label);
     font-size: var(--fs-13);
