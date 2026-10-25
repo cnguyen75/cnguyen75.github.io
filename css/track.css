@@ -90,20 +90,7 @@
 .tp-help { margin: 0; }
 .tp-badge { align-self: center; }
 
-.tp-play {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-10);
-  min-height: 46px;
-  padding: 0 var(--s-20);
-  background: var(--ink);
-  color: var(--card);
-  border: 0;
-  font-family: var(--font-label);
-  font-size: var(--fs-15);
-  font-weight: 700;
-  cursor: pointer;
-}
+/* Play and speed are controls (site.css .control); only the play icon is drawn here. */
 .tp-play-icon {
   display: inline-block;
   width: 0;
@@ -120,19 +107,6 @@
   border-right: 4px solid currentColor;
 }
 .tp-clock { color: var(--ink); font-variant-numeric: tabular-nums; }
-.tp-speed {
-  min-height: 44px;
-  padding: 0 var(--s-4);
-  background: none;
-  border: 0;
-  font-family: var(--font-label);
-  font-size: var(--fs-15);
-  color: var(--text-3);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  cursor: pointer;
-}
-.tp-speed:hover { color: var(--ink); }
 
 .tp-segs {
   display: flex;
@@ -176,7 +150,6 @@
   font-family: var(--font-label);
   font-size: var(--fs-14);
 }
-.tp-play--mini { min-height: 40px; padding: 0 var(--s-14); font-size: var(--fs-14); }
 .tp-mini-now {
   flex: 0 1 auto;
   min-width: 0;
@@ -232,7 +205,7 @@
   font-weight: 600;
   color: var(--ink);
 }
-.tp-section-body ul {
+.tp-section-body > ul {
   margin: 0;
   padding-left: var(--s-20);
   color: var(--text-2);
@@ -379,20 +352,7 @@
   .tp-grid audio { grid-column: 1 / -1; height: 40px; }
   .tp-grid-pick { display: flex; flex-wrap: wrap; gap: var(--s-8); margin-bottom: var(--s-8); }
 }
-.tp-grid-pick button,
-.tp-pick {
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 var(--s-12);
-  background: var(--card);
-  color: var(--ink);
-  border: 1px solid var(--ink);
-  font-family: var(--font-label);
-  font-size: var(--fs-15);
-  cursor: pointer;
-}
-.tp-grid-pick button[aria-pressed="true"],
-.tp-pick[aria-pressed="true"] { background: var(--ink); color: var(--card); font-weight: 700; }
+.tp-grid-pick .control { min-width: 44px; justify-content: center; }
 
 /* Notes that sit directly under audio or a demo */
 .tp-note, .tp-attribution { margin: 0; font-size: var(--fs-15); color: var(--text-2); }

@@ -1435,9 +1435,9 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 <section class="tp-player" aria-label="Now reading">
 <div class="tp-controls" hidden>
 <span class="tp-controls-main">
-<button type="button" class="tp-play" aria-describedby="tp-play-help"><span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
+<button type="button" class="tp-play control" aria-describedby="tp-play-help"><span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
 {f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">{clock(total)}</span></span>' if stamped else ''}
-<button type="button" class="tp-speed" aria-label="Playback speed, 1×">speed 1×</button>
+<button type="button" class="tp-speed control" aria-label="Playback speed, 1×">speed 1×</button>
 </span>
 {f'<span class="tp-badge">status: {esc(badge)}</span>' if badge else ''}
 </div>

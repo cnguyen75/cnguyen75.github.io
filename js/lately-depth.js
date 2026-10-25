@@ -136,7 +136,7 @@
     function set(open) { rows.forEach(function (r, i) { if (i >= limit) r.hidden = !open; }); }
     set(false);
     var more = "show all " + rows.length, less = "show fewer";
-    var btn = h("button", { type: "button", class: "table-toggle rows-more" + (opts.cls ? " " + opts.cls : ""), "aria-controls": container.id, "aria-expanded": "false" }, more);
+    var btn = h("button", { type: "button", class: "control rows-more" + (opts.cls ? " " + opts.cls : ""), "aria-controls": container.id, "aria-expanded": "false" }, more);
     btn.addEventListener("click", function () {
       var open = btn.getAttribute("aria-expanded") !== "true";
       set(open);
@@ -163,7 +163,7 @@
     var selected = isNum(opts.selected) ? opts.selected : 0;
     var strip = opts.strip === false ? null : h("div", { class: "tier-tabs", role: "group", "aria-label": opts.label || "Choose", "data-sync": opts.sync || null },
       labels.map(function (l, i) {
-        return h("button", { type: "button", class: "tier-tab", "data-tab": String(i), "data-type": opts.keys ? opts.keys[i] : null, "aria-pressed": String(i === selected) }, l);
+        return h("button", { type: "button", class: "control tier-tab", "data-tab": String(i), "data-type": opts.keys ? opts.keys[i] : null, "aria-pressed": String(i === selected) }, l);
       }));
     var box = h("div", { class: "tab-panels" }, panels.map(function (p, i) {
       var d = h("div", { class: "tab-panel", hidden: !opts.render && i !== selected });
@@ -693,7 +693,7 @@
       opts.guide ? legendItem("s-base", "guide: half still playing") : legendItem("s-base", "dropped line: median"));
     var toggle = null;
     if (opts.bandToggle) {
-      toggle = h("button", { type: "button", class: "table-toggle km-bands-toggle", "aria-pressed": "false" }, "show 95% bands");
+      toggle = h("button", { type: "button", class: "control km-bands-toggle", "aria-pressed": "false" }, "show 95% bands");
       toggle.addEventListener("click", function () {
         var on = toggle.getAttribute("aria-pressed") !== "true";
         chart.classList.toggle("km--bands", on);
@@ -2256,7 +2256,7 @@
       return isObj(x.stat) && typeof x.stat.how === "string" && x.stat.status !== "not available from source" && x.stat.status !== "not configured";
     })[0];
     if (!e) return null;
-    return h("details", { class: "ld-how", open: sec.hasAttribute("data-how-open") }, h("summary", null, "how"), h("p", { class: "ld-how-text" }, e.stat.how));
+    return h("details", { class: "ld-how", open: sec.hasAttribute("data-how-open") }, h("summary", { class: "control" }, "how"), h("p", { class: "ld-how-text" }, e.stat.how));
   }
 
   // A FEED: slot holds a block of the feed itself (lineup grid, recent lists, lift tiles,

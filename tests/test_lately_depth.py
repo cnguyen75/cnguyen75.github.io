@@ -736,7 +736,7 @@ class Drawing(unittest.TestCase):
                 p = panels[f"panel-{feed}"]
                 # The header is the track card's: number, title, one-line description, the "more →" control.
                 self.assertEqual(p["more"], [f"lately/{feed}/", "more →", f"more about {feed}", "panel-head"])
-                self.assertEqual(sorted(p["headChildren"]), ["ld-more", "track-body", "track-desc", "track-no", "track-title"])
+                self.assertEqual(sorted(p["headChildren"]), ["ld-more control", "track-body", "track-desc", "track-no", "track-title"])
                 self.assertFalse(p["titleLink"])
                 self.assertEqual(p["question"], q)
                 self.assertEqual(p["questionWeight"], "700")

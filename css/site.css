@@ -308,6 +308,33 @@ main {
 .button:hover { color: var(--card); }
 .hero-actions .text-link { padding: var(--s-12) 0; font-weight: 500; }
 
+/* Every control on the site (DESIGN.md, "Controls"): the "more →" on the lately panels, "show
+   all N", "+N more", the "how" summary, the tabs, the reading bar's play and speed, the audio
+   grid's sentence picker. The hero's ink email button is the only primary button; links in
+   prose stay underlined text. A pressed one (the selected tab, bands on) is ink on paper. */
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-8);
+  margin: 0;
+  padding: var(--s-8) var(--s-12);
+  font-family: var(--font-label);
+  font-size: var(--fs-13);
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  text-decoration: none;
+  cursor: pointer;
+  list-style: none;
+}
+.control::-webkit-details-marker { display: none; }
+.control:hover { background: var(--lift); color: var(--ink); }
+.control:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.control[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
 /* ---------- Sides (tracklists) ---------- */
 
 .side {
@@ -1082,11 +1109,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .ld-stats--panel { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: var(--s-10) var(--s-16); }
 .ld-stats--panel .stat-value { font-size: var(--fs-24); line-height: 1.1; }
 .ld-stats--panel .stat-label, .ld-stats--panel .stat-note { font-size: var(--fs-12); }
-.ld-more {
-  font-family: var(--font-label);
-  font-size: var(--fs-14);
-  padding: var(--s-4) 0;
-}
 
 /* The page is a track page (css/track.css): the headline row sits under the lede. */
 .ld-headline .stats { margin-top: var(--s-8); }
@@ -1127,7 +1149,7 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   color: var(--text-3);
 }
 .ld-how { max-width: 72ch; line-height: 1.45; }
-.ld-how summary { cursor: pointer; font-weight: 700; padding: var(--s-4) 0; }
+.ld-how summary { align-self: flex-start; }
 .ld-how-text { margin: var(--s-4) 0 0; }
 .ld-wait, .ld-note { color: var(--text-2); }
 .ld-tag { font-family: var(--font-label); font-size: var(--fs-12); color: var(--text-3); border: 1px solid var(--rule); padding: 0 var(--s-5); white-space: nowrap; }
@@ -1310,8 +1332,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 /* The tier board: five rows of title chips, films / shows / anime */
 .tier-board { display: flex; flex-direction: column; gap: var(--s-16); }
 .tier-tabs { display: flex; flex-wrap: wrap; gap: var(--s-8); }
-.tier-tab { font-family: var(--font-label); font-size: var(--fs-13); padding: var(--s-4) var(--s-10); border: 1px solid var(--rule); background: none; color: var(--text-2); cursor: pointer; }
-.tier-tab[aria-pressed="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
 .tier-row { display: flex; flex-direction: column; gap: var(--s-6); padding-top: var(--s-10); border-top: 1px solid var(--rule-soft); }
 .tier-row-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-4) var(--s-12); }
 .tier-letter { font-size: var(--fs-20); font-weight: 700; width: 1.2em; }
@@ -1321,16 +1341,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .tier-chip { display: inline-flex; align-items: baseline; gap: var(--s-5); padding: var(--s-3) var(--s-8); background: var(--paper); border: 1px solid var(--rule-soft); border-radius: 3px; font-size: var(--fs-13); }
 .tier-chip-year { font-family: var(--font-label); font-size: var(--fs-11); color: var(--text-3); }
 .tier-chip-more { display: inline-flex; }
-.tier-more {
-  font-family: var(--font-label);
-  font-size: var(--fs-13);
-  padding: var(--s-4) var(--s-8);
-  background: none;
-  border: 1px dashed var(--rule);
-  color: var(--text-2);
-  cursor: pointer;
-}
-.tier-more:hover { color: var(--ink); border-color: var(--ink); }
 /* Tabs (the tier board's control, shared): the strip, then the panels */
 .tabs { display: flex; flex-direction: column; gap: var(--s-16); min-width: 0; }
 .tab-panels { display: flex; flex-direction: column; min-width: 0; }

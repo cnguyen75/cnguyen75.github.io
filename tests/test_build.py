@@ -154,7 +154,7 @@ class Progress(unittest.TestCase):
         self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-steps">')
         self.assertRegex(doc, r'<div data-secs="[\d.]+" class="tp-stats">')
         self.assertEqual(len(re.findall(r'<a class="tp-seg" href="#', doc)), len(build.PROGRESS_SECTIONS))
-        self.assertIn('<button type="button" class="tp-play"', doc)
+        self.assertIn('<button type="button" class="tp-play control" aria-describedby="tp-play-help">', doc)  # the play control, in the site's one control style
         self.assertIn('<span class="tp-clock">', doc)
         self.assertRegex(doc, r'<span class="tp-seg-time">0:00</span><span class="tp-seg-name">question</span>')
         self.assertRegex(doc, r'id="approach-h">\d+:\d\d · approach</h2>')

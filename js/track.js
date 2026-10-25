@@ -220,7 +220,7 @@
     var b = compact ? document.createElement("button") : document.querySelector(".tp-play");
     if (compact) {
       b.type = "button";
-      b.className = "tp-play tp-play--mini";
+      b.className = "tp-play tp-play--mini control";
       b.setAttribute("aria-describedby", "tp-play-help");
       b.innerHTML = '<span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span>';
     }
@@ -366,6 +366,7 @@
     rows.forEach(function (r, i) {
       var b = document.createElement("button");
       b.type = "button";
+      b.className = "control tp-pick";
       b.textContent = r.querySelector("th").textContent;
       b.addEventListener("click", function () { show(i); });
       pick.appendChild(b);
@@ -388,7 +389,7 @@
     set(false);
     var btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "table-toggle rows-more";
+    btn.className = "control rows-more";
     btn.setAttribute("aria-controls", el.id);
     btn.setAttribute("aria-expanded", "false");
     btn.textContent = more;

@@ -556,7 +556,7 @@
           var rest = items.length - TIER_SHOWN, chips = Array.prototype.slice.call(strip.children);
           function fold(open) { chips.forEach(function (li, i) { if (i >= TIER_SHOWN) li.hidden = !open; }); }
           fold(false);
-          var btn = h("button", { type: "button", class: "tier-more", "aria-controls": strip.id, "aria-expanded": "false" }, "+" + rest + " more");
+          var btn = h("button", { type: "button", class: "control tier-more", "aria-controls": strip.id, "aria-expanded": "false" }, "+" + rest + " more");
           btn.addEventListener("click", function () {
             var opening = btn.getAttribute("aria-expanded") !== "true";
             fold(opening);
