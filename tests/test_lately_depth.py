@@ -69,22 +69,27 @@ class Register(unittest.TestCase):
         doc = build.render_data_page(self.read("fantasy", content("fantasy")))
         self.assertIn('<p class="tp-kicker">side d. lately · track 22 of 26</p>', doc)
         self.assertIn(
-            '<div class="tp-heading"><span class="tp-no" aria-hidden="true">22</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track 22: </span>Fantasy football</h1></div>',
+            '<div class="tp-heading"><span class="tp-no" aria-hidden="true">22</span><h1 '
+            'class="tp-title" id="tp-title"><span class="sr-only">Track 22: </span>Fantasy '
+            "football</h1></div>",
             doc,
         )
         self.assertIn(
-            '<nav class="tp-part ld-feeds" aria-label="Lately pages"><a href="../fantasy/" aria-current="page">fantasy</a> · <a href="../watching/">watching</a>',
+            '<nav class="tp-part ld-feeds" aria-label="Lately pages"><a href="../fantasy/" '
+            'aria-current="page">fantasy</a> · <a href="../watching/">watching</a>',
             doc,
         )
         self.assertIn(
-            '<p class="tp-lede">My fantasy leagues, judged on strength against luck.</p>\n<p class="ld-own">These are my own numbers, from my Sleeper and ESPN accounts.</p>',
+            '<p class="tp-lede">My fantasy leagues, judged on strength against luck.</p>\n<p '
+            'class="ld-own">These are my own numbers, from my Sleeper and ESPN accounts.</p>',
             doc,
         )
         self.assertIn('<div class="ld-headline" data-feed="fantasy"', doc)
         self.assertIn('<section class="tp-player" aria-label="Now reading">', doc)
         self.assertIn('<span class="tp-badge">status: live · updated daily</span>', doc)
         self.assertIn(
-            '<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">',
+            '<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span '
+            'class="tp-clock-total">',
             doc,
         )
         self.assertIn(
@@ -111,10 +116,15 @@ class Register(unittest.TestCase):
         )
         self.assertRegex(
             doc,
-            r'<section class="tp-section ld-section ld-section--why" id="projection-accuracy" aria-labelledby="projection-accuracy-h">'
-            r'<h2 class="tp-section-label" id="projection-accuracy-h"><span class="tp-label-time"></span>are the projections honest\?</h2>'
-            r'<div class="tp-section-body"><span data-secs="[\d.]+" class="ld-alias" id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
-            r'<div data-secs="[\d.]+" class="ld-stat" data-stat="fantasy\.platforms\.\*\.projection_accuracy"></div><div data-secs="[\d.]+" class="ld-stat" data-stat="grading\.win_chance">',
+            r'<section class="tp-section ld-section ld-section--why" id="projection-accuracy" '
+            r'aria-labelledby="projection-accuracy-h">'
+            r'<h2 class="tp-section-label" id="projection-accuracy-h"><span '
+            r'class="tp-label-time"></span>are the projections honest\?</h2>'
+            r'<div class="tp-section-body"><span data-secs="[\d.]+" class="ld-alias" '
+            r'id="is-the-win-chance-honest" data-to="projection-accuracy"></span>'
+            r'<div data-secs="[\d.]+" class="ld-stat" '
+            r'data-stat="fantasy\.platforms\.\*\.projection_accuracy"></div><div '
+            r'data-secs="[\d.]+" class="ld-stat" data-stat="grading\.win_chance">',
         )
         self.assertEqual(
             len(re.findall(r'<section class="tp-section(?: tp-section--first)? ld-section ', doc)),
@@ -122,7 +132,8 @@ class Register(unittest.TestCase):
         )
         # What's happening first, then Why; no contents list and no group headings.
         ids = re.findall(
-            r'<section class="tp-section(?: tp-section--first)? ld-section ld-section--(whats-happening|why)"',
+            r'<section class="tp-section(?: tp-section--first)? ld-section '
+            r'ld-section--(whats-happening|why)"',
             doc,
         )
         self.assertEqual(ids, sorted(ids, key=["whats-happening", "why"].index))
@@ -143,7 +154,8 @@ class Register(unittest.TestCase):
         self.assertIn('class="ld-feed" data-block="fantasy.lineup"></div>', doc)
         self.assertIn('<script src="../../js/track.js" defer></script>', doc)
         self.assertIn(
-            '<script src="../../js/lately-depth.js" defer></script>\n<script src="../../js/lately.js" defer></script>',
+            '<script src="../../js/lately-depth.js" defer></script>\n<script '
+            'src="../../js/lately.js" defer></script>',
             doc,
         )
         self.assertIn(
@@ -152,38 +164,47 @@ class Register(unittest.TestCase):
         )
         self.assertRegex(
             doc,
-            r'<section class="tp-section" id="built-with" aria-labelledby="built-with-h"><h2 class="tp-section-label" id="built-with-h"><span class="tp-label-time"></span>built with</h2>'
+            r'<section class="tp-section" id="built-with" aria-labelledby="built-with-h"><h2 '
+            r'class="tp-section-label" id="built-with-h"><span class="tp-label-time"></span>built '
+            r"with</h2>"
             r'<div class="tp-section-body"><dl data-secs="0.00" class="tp-built">'
             r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a></dd></div>'
             r'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd><p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p></dd></div>'
-            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>'
-            r'<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div></dl></div></section>',
+            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly '
+            r"pipeline I wrote; the pipeline is private</dd></div>"
+            r'<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time '
+            r'class="ld-asof-date">…</time></dd></div></dl></div></section>',
         )
         self.assertIn(
             '<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', doc
         )
         doc = build.render_data_page(self.read("watching", content("watching")))
         self.assertIn(
-            'data-stat="watching.completion.show watching.completion.film watching.completion.anime"',
+            'data-stat="watching.completion.show watching.completion.film '
+            'watching.completion.anime"',
             doc,
         )
         self.assertRegex(
             doc,
-            r'<h2 class="tp-section-label" id="completion-h"><span class="tp-label-time"></span>do i finish what i start\?</h2><div class="tp-section-body"><p data-secs="[\d.]+" class="ld-section-note">Only finished titles are logged as a rule',
+            r'<h2 class="tp-section-label" id="completion-h"><span class="tp-label-time"></span>do '
+            r'i finish what i start\?</h2><div class="tp-section-body"><p data-secs="[\d.]+" '
+            r'class="ld-section-note">Only finished titles are logged as a rule',
         )
         self.assertIn('class="ld-feed" data-block="watching.tiers"></div>', doc)
         self.assertNotIn(
             'class="ld-attribution"', doc
         )  # only fantasy carries the conditional Yahoo credit
         self.assertIn(
-            '<dd><p class="ld-attributions" data-when-stats="watching.by_director watching.by_studio',
+            '<dd><p class="ld-attributions" data-when-stats="watching.by_director '
+            "watching.by_studio",
             doc,
         )
         for feed in FEEDS:
             doc = build.render_data_page(self.read(feed, content(feed)))
             for d in (doc, (ROOT / "lately" / feed / "index.html").read_text(encoding="utf-8")):
                 d = re.sub(
-                    r"track \d\d of \d\d|<span class=\"tp-no\"[^>]*>\d\d</span>|Track \d\d: |(?:previous|next) · \d\d|\d:\d\d|speed 1×",
+                    r"track \d\d of \d\d|<span class=\"tp-no\"[^>]*>\d\d</span>|Track \d\d: "
+                    r"|(?:previous|next) · \d\d|\d:\d\d|speed 1×",
                     "",
                     d,
                 )  # track numbers, the empty clock and the speed control are the only figures
@@ -285,7 +306,8 @@ class Register(unittest.TestCase):
         for feed, ids in kept.items():
             doc = build.render_data_page(self.read(feed, content(feed)))
             found = re.findall(
-                r'<section class="tp-section(?: tp-section--first)? ld-section ld-section--(?:whats-happening|why)" id="([a-z0-9-]+)"',
+                r'<section class="tp-section(?: tp-section--first)? ld-section '
+                r'ld-section--(?:whats-happening|why)" id="([a-z0-9-]+)"',
                 doc,
             )
             self.assertEqual(found, ids, feed)  # the kept cards, in order, and nothing else
@@ -343,7 +365,8 @@ class Register(unittest.TestCase):
             ("## A\n\n## B\nSTAT: lifting.lag_check\n", "has no STAT"),
             ("## A\nSTAT: lifting.lag_check\n## A\nSTAT: lifting.lag_check\n", "share an id"),
             (
-                "## A\nshort: a\nSTAT: lifting.lag_check\n\n# Why\n\n## A\nshort: a\nSTAT: lifting.volume_lag\n",
+                "## A\nshort: a\nSTAT: lifting.lag_check\n\n# Why\n\n## A\nshort: a\nSTAT: "
+                "lifting.volume_lag\n",
                 "share an id",
             ),
             ("## A\nALIAS: Not An Id\nSTAT: lifting.lag_check\n", "must be a section id"),
@@ -362,8 +385,8 @@ class Register(unittest.TestCase):
         meta = self.read(
             "lifting",
             head
-            + "## A\nshort: two words\nNOTE: a line under the title\nALIAS: an-old-card\nSTAT: lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n"
-            + why,
+            + "## A\nshort: two words\nNOTE: a line under the title\nALIAS: an-old-card\nSTAT: "
+            "lifting.progress.*\nFEED: lifting.lifts\nSTAT: cross.rhythm.workouts\n" + why,
         )
         self.assertEqual(meta["sections"][0]["short"], "two words")
         self.assertIn('<span class="tp-seg-name">two words</span>', build.render_data_page(meta))
@@ -387,9 +410,8 @@ class Register(unittest.TestCase):
         # HOW: names the section's primary statistic, and "open" unfolds its line by default.
         meta = self.read(
             "lifting",
-            head
-            + "## A\nshort: a\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: lifting.progress.* open\n"
-            + why,
+            head + "## A\nshort: a\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: "
+            "lifting.progress.* open\n" + why,
         )
         self.assertEqual(meta["sections"][0]["how"], ("lifting.progress.*", True))
         self.assertIn(
@@ -412,7 +434,8 @@ class Register(unittest.TestCase):
     def test_every_statistic_placed(self) -> None:
         pages = [self.read(f, content(f)) for f in FEEDS]
         build.check_data_coverage(pages, SCHEMA)
-        # The trimmed pages leave statistics out on purpose, each with a reason; none is shown anywhere.
+        # The trimmed pages leave statistics out on purpose, each with a reason; none is shown
+        # anywhere.
         shown = {leaf for p in pages for leaf in p["stats"]}
         for leaf, reason in build.DATA_LEFT_OUT.items():
             with self.subTest(leaf=leaf):
@@ -456,7 +479,8 @@ def variant(name: str) -> dict:
     d = copy.deepcopy(SAMPLE)
     d.pop("sample", None)
     a = d["analysis"] = copy.deepcopy(ANALYSIS)
-    # The sample's lifts take the fixture's tracked names, so the strength index's rows (session counts,
+    # The sample's lifts take the fixture's tracked names, so the strength index's rows (session
+    # counts,
     # splits) apply to the tiles as they do with a real file.
     for lift, lift_name in zip(
         d["lifting"]["main_lifts"], ("Bench", "Shoulder press", "Hack squat", "RDL")
@@ -552,7 +576,8 @@ def variant(name: str) -> dict:
         rows[0]["name"] = "Anthony Russo & Joe Russo"
         rows[-1]["name"] = "Phil Lord & Christopher Miller"
     if name == "films waiting":
-        # The film statistics present but waiting, the critics one absent; retention says when it starts.
+        # The film statistics present but waiting, the critics one absent; retention says when it
+        # starts.
         for k in (
             "by_director",
             "by_studio",
@@ -752,7 +777,8 @@ class Drawing(unittest.TestCase):
     def setUpClass(cls) -> None:
         build.build_data_pages(SCHEMA)  # the frames the browser loads
 
-    # Each statistic: value and interval, its chart or table, its n, and the "how" sentence in the label face.
+    # Each statistic: value and interval, its chart or table, its n, and the "how" sentence in the
+    # label face.
     def test_ok_statistic(self) -> None:
         d = draw("lately/lifting/")
         (b,) = blocks(d, "lifting.body_weight_rate")
@@ -791,7 +817,8 @@ class Drawing(unittest.TestCase):
                         r"\bneeded\b|available from|as data accrues|not enough data yet",
                     )
         lifting = draw("lately/lifting/")
-        # Relative strength is a Why card: the lifts without data wait in place, each naming its first unit.
+        # Relative strength is a Why card: the lifts without data wait in place, each naming its
+        # first unit.
         waits = [
             b
             for b in blocks(lifting, "lifting.relative_strength.*")
@@ -829,8 +856,10 @@ class Drawing(unittest.TestCase):
         self.assertFalse([h for h in listening["headline"] if h[1] == "–"])
         self.assertTrue(listening["wait"])
 
-    # Eating: "Which cuisines are a safe bet?" (dot-and-range rows, narrowest first, the safest and the
-    # widest named) replaces re-rank drift; "Where do new places land?" is the current-ranking version.
+    # Eating: "Which cuisines are a safe bet?" (dot-and-range rows, narrowest first, the safest and
+    # the
+    # widest named) replaces re-rank drift; "Where do new places land?" is the current-ranking
+    # version.
     def test_eating_cards(self) -> None:
         d = draw("lately/eating/")
         self.assertEqual(
@@ -840,7 +869,8 @@ class Drawing(unittest.TestCase):
         (sb,) = blocks(d, "eating.safe_bet")
         self.assertEqual(sb["value"], "1.70")
         self.assertIn(
-            "Vietnamese is the safest bet: the middle half of its scores spans 1.70 points around a median of 8.91. Korean is the widest at 3.56 points.",
+            "Vietnamese is the safest bet: the middle half of its scores spans 1.70 points around "
+            "a median of 8.91. Korean is the widest at 3.56 points.",
             sb["text"],
         )
         self.assertEqual(
@@ -870,7 +900,8 @@ class Drawing(unittest.TestCase):
         (sq,) = blocks(draw("lately/watching/"), "watching.sequels")
         self.assertEqual(sq["tags"], ["small sample, threshold 3"])
         self.assertTrue(sq["value"])
-        # A small sample without a headline value still draws its figures and tag, and the slot's other lifts draw too.
+        # A small sample without a headline value still draws its figures and tag, and the slot's
+        # other lifts draw too.
         nv = draw("lately/eating/", name="small no value")
         (ce2,) = blocks(nv, "eating.contrast_effect")
         self.assertEqual(
@@ -1156,7 +1187,8 @@ class Drawing(unittest.TestCase):
                 self.assertTrue(all(u.startswith("https://") for _, u in d["sourceLinks"]))
                 note = "Beli dates are used only as counts, never tied to a place"
                 (self.assertIn if feed == "eating" else self.assertNotIn)(note, d["source"])
-                # The rows of "built with": data, the licence lines while the data calls for them, the pipeline, as of.
+                # The rows of "built with": data, the licence lines while the data calls for them,
+                # the pipeline, as of.
                 rows = [(label, hidden) for label, _, hidden in d["builtRows"]]
                 self.assertEqual(
                     [l for l, h in rows if not h],
@@ -1171,7 +1203,8 @@ class Drawing(unittest.TestCase):
                 )
                 self.assertEqual(d["errors"], [])
 
-    # Wins and losses (the lineup grid) by filled and outlined marks with their letter, never colour alone.
+    # Wins and losses (the lineup grid) by filled and outlined marks with their letter, never colour
+    # alone.
     def test_wins_and_losses(self) -> None:
         d = draw("lately/fantasy/")
         wins = [s for s in d["squares"] if s["letter"] == "W"]
@@ -1204,7 +1237,8 @@ class Drawing(unittest.TestCase):
             self.assertEqual(b["text"].count("▽ worst"), sum(a["worst"] for a in adds))
             self.assertNotIn("aren't in it", b["text"])
         self.assertEqual(second["rows"], 14)
-        # More than ten rows: ten shown, the rest hidden behind "show all N" (aria-controls names the table).
+        # More than ten rows: ten shown, the rest hidden behind "show all N" (aria-controls names
+        # the table).
         self.assertEqual(
             (second["hiddenRows"], second["more"]), (4, [["show all 14", "false", True]])
         )
@@ -1273,7 +1307,8 @@ class Drawing(unittest.TestCase):
                 ["panel-eating", "panel-lifting"],
             ],
         )
-        # The source-status chips sit below the last panel, above the attribution footer; the intro stays in the head.
+        # The source-status chips sit below the last panel, above the attribution footer; the intro
+        # stays in the head.
         self.assertEqual(
             d["latelyChildren"],
             [
@@ -1292,7 +1327,8 @@ class Drawing(unittest.TestCase):
         for feed, q in self.QUESTIONS.items():
             with self.subTest(feed=feed):
                 p = panels[f"panel-{feed}"]
-                # The header is the track card's: number, title, one-line description, the "more →" control.
+                # The header is the track card's: number, title, one-line description, the "more →"
+                # control.
                 self.assertEqual(
                     p["more"], [f"lately/{feed}/", "more →", f"more about {feed}", "panel-head"]
                 )
@@ -1334,7 +1370,8 @@ class Drawing(unittest.TestCase):
         self.assertEqual(w["headline"][1][1:], ["44%", "vs 33% baseline guessing"])
         self.assertEqual(
             w["answer"],
-            "Drama, Crime and Romance lift my tiers; Horror and Action lower them. Release year, Animation and Runtime don't move me.",
+            "Drama, Crime and Romance lift my tiers; Horror and Action lower them. Release year, "
+            "Animation and Runtime don't move me.",
         )
         self.assertEqual(w["effectRows"], len(tp["rows"]))
         self.assertEqual(w["effectUnclear"], len([r for r in tp["rows"] if not r["clear"]]))
@@ -1353,7 +1390,8 @@ class Drawing(unittest.TestCase):
         )["answer"]
         self.assertEqual(
             one,
-            "Beyond the crowd's score, only Horror clearly moves my tiers, downward. Nothing else is distinguishable from noise at 276 titles.",
+            "Beyond the crowd's score, only Horror clearly moves my tiers, downward. Nothing else "
+            "is distinguishable from noise at 276 titles.",
         )
         none = next(
             p
@@ -1362,7 +1400,8 @@ class Drawing(unittest.TestCase):
         )["answer"]
         self.assertEqual(
             none,
-            "Beyond the crowd's score, nothing clearly moves my tiers. No feature is distinguishable from noise at 276 titles.",
+            "Beyond the crowd's score, nothing clearly moves my tiers. No feature is "
+            "distinguishable from noise at 276 titles.",
         )
         for gone in ("by director?", "Anime studios: ", "really listening to, by week?"):
             self.assertNotIn(gone, d["bodyText"], gone)  # these live on the track pages now
@@ -1377,7 +1416,8 @@ class Drawing(unittest.TestCase):
             ],
         )
         self.assertEqual(li["headline"][1][1], "1.62×")
-        # The censoring window comes from the how line (60 days in the fixture, as the pipeline writes it);
+        # The censoring window comes from the how line (60 days in the fixture, as the pipeline
+        # writes it);
         # the source line names the library export beside Last.fm.
         self.assertEqual(li["headline"][0][2], "from first play to 60 days without one")
         self.assertEqual(
@@ -1391,12 +1431,14 @@ class Drawing(unittest.TestCase):
         # The answer leads with the plain reading; the hazard ratio is a tile, not in the sentence.
         self.assertTrue(
             li["answer"].startswith(
-                "Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music fades faster."
+                "Half of my catalog discoveries are still in rotation after 16 months, against 12 "
+                "for new ones: new music fades faster."
             ),
             li["answer"],
         )
         self.assertNotIn("1.62", li["answer"])
-        # The panel's chart: the question as its title, "still in rotation" on the y axis, no bands, one 50% guide
+        # The panel's chart: the question as its title, "still in rotation" on the y axis, no bands,
+        # one 50% guide
         # with each curve's crossing point marked and labelled from its median.
         self.assertEqual(
             li["chartTitles"],
@@ -1438,7 +1480,8 @@ class Drawing(unittest.TestCase):
         )["answer"]
         self.assertTrue(
             cross.startswith(
-                "After 16 months I'm still playing about half of both groups; no real difference yet."
+                "After 16 months I'm still playing about half of both groups; no real difference "
+                "yet."
             ),
             cross,
         )
@@ -1447,7 +1490,8 @@ class Drawing(unittest.TestCase):
         )["answer"]
         self.assertTrue(
             below.startswith(
-                "Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music lasts longer."
+                "Half of my catalog discoveries are still in rotation after 16 months, against 12 "
+                "for new ones: new music lasts longer."
             ),
             below,
         )
@@ -1478,12 +1522,14 @@ class Drawing(unittest.TestCase):
         self.assertEqual(lf["lineCount"], 5)
         self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
         weeks = ANALYSIS["lifting"]["strength_index"]["values"]["weeks"]
-        # Every point is marked: the strength index and its three splits every week, body weight at each weigh-in.
+        # Every point is marked: the strength index and its three splits every week, body weight at
+        # each weigh-in.
         full = 4 * len(weeks)
         self.assertEqual(
             lf["pointDots"], full + len([w for w in weeks if w["body_weight"] is not None])
         )
-        # Six weeks without a weigh-in: still one connected line, a marker at each weigh-in that is there.
+        # Six weeks without a weigh-in: still one connected line, a marker at each weigh-in that is
+        # there.
         gap = next(
             p
             for p in draw("index.html", name="weigh-in gap")["panels"]
@@ -1504,7 +1550,8 @@ class Drawing(unittest.TestCase):
         self.assertEqual(panels["panel-fantasy"]["quadTrails"], 0)  # no trails on the panel
         self.assertRegex(
             lf["answer"],
-            r"; legs are (up|down) \d+\.\d%, shoulders and arms [+−]\d+\.\d%, chest and back [+−]\d+\.\d%\.$",
+            r"; legs are (up|down) \d+\.\d%, shoulders and arms [+−]\d+\.\d%, chest and back "
+            r"[+−]\d+\.\d%\.$",
         )
         self.assertEqual(len(re.findall(r"[.!?](\s|$)", lf["answer"])), 2)
         # Without splits (an older file) the overall line only.
@@ -1530,7 +1577,8 @@ class Drawing(unittest.TestCase):
         )  # moved, not deleted
 
     # Every panel still stands when its statistic is "not enough data yet" or the file predates
-    # it: the question, one line ("nothing to show yet…" or "not in the data yet"), the numbers, the link.
+    # it: the question, one line ("nothing to show yet…" or "not in the data yet"), the numbers, the
+    # link.
     def test_main_page_panels_waiting(self) -> None:
         for name, box in (
             ("waiting", r"^nothing to show yet(: needs [^.]+)?$"),
@@ -1553,17 +1601,20 @@ class Drawing(unittest.TestCase):
                     self.assertRegex(p["wait"], box)
                     self.assertEqual(p["charts"], 0)
                     self.assertTrue(p["more"])
-                    # No count of units needed, no "available from", no date in the wait line; none of the first two in the answer.
+                    # No count of units needed, no "available from", no date in the wait line; none
+                    # of the first two in the answer.
                     self.assertNotRegex(p["wait"], r"\bneeded\b|available|\d{4}")
                     self.assertNotRegex(
                         p["answer"], r"\bneeded\b|available from|\(\d+ of \d+ \w+\)"
                     )
             self.assertEqual(d["errors"], [])
-        # The fantasy sentence and line name the first unit; listening's, without one, says only that.
+        # The fantasy sentence and line name the first unit; listening's, without one, says only
+        # that.
         ws = {p["id"]: p for p in draw("index.html", name="waiting")["panels"]}
         self.assertTrue(
             ws["panel-fantasy"]["answer"].endswith(
-                "The strength-and-luck chart has nothing to show yet: it needs three weeks of results across my leagues."
+                "The strength-and-luck chart has nothing to show yet: it needs three weeks of "
+                "results across my leagues."
             ),
             ws["panel-fantasy"]["answer"],
         )
@@ -1584,7 +1635,8 @@ class Drawing(unittest.TestCase):
         )
         self.assertEqual(one["title"], "is my taste narrowing?")
         self.assertIn("by week", one["slots"][0]["blocks"][0]["text"])
-        # An old file's feed pages: the new cards say the statistic isn't in the data yet; the rest draws.
+        # An old file's feed pages: the new cards say the statistic isn't in the data yet; the rest
+        # draws.
         old = draw("lately/lifting/", name="old file")
         (si,) = blocks(old, "lifting.strength_index")
         self.assertEqual(si["wait"], "not in the data yet · appears once the pipeline publishes it")
@@ -1609,7 +1661,8 @@ class Drawing(unittest.TestCase):
         self.assertLess(draw("index.html")["pageHeight"], 9398)
         self.assertLess(draw("index.html", name="old file")["pageHeight"], 8498)
 
-    # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
+    # The feed page's headline adds strength kept per pound lost once any lift's interval excludes
+    # zero.
     def test_strength_kept_joins_the_headline(self) -> None:
         self.assertEqual(
             draw("lately/lifting/")["headline"][-1], ["Bench: e1RM kept per lb lost", "2.39"]
@@ -1633,7 +1686,8 @@ class Drawing(unittest.TestCase):
             pickups["stat"], "fantasy.teams[].waiver_impact"
         )  # absorbed into this card
         (b,) = bars["blocks"]
-        # Bars are percentiles; each label is the raw value and the rank; the composite heads the card.
+        # Bars are percentiles; each label is the raw value and the rank; the composite heads the
+        # card.
         for bit in (
             "Draft",
             "+3.4 pts/wk · rank 9 of 32",
@@ -1647,7 +1701,8 @@ class Drawing(unittest.TestCase):
         ):
             self.assertIn(bit, b["text"])
         self.assertEqual((b["value"], b["interval"]), ("61st percentile", "95% 41–78"))
-        # One how line per section, the composite's (HOW: in fantasy.md); the component rows have none.
+        # One how line per section, the composite's (HOW: in fantasy.md); the component rows have
+        # none.
         self.assertEqual(
             bars["hows"], ["how: " + ANALYSIS["fantasy"]["manager_score"]["composite"]["how"]]
         )
@@ -1666,7 +1721,8 @@ class Drawing(unittest.TestCase):
         # The schedule replayed: one sentence from the distribution, never a bar chart.
         sw = blocks(d, "fantasy.teams[].schedule_what_if")[0]
         self.assertIn(
-            "With any other team's schedule I'd be 3–2 once, 2–3 once, 1–4 eight times and 0–5 once; no schedule would have done better than my own.",
+            "With any other team's schedule I'd be 3–2 once, 2–3 once, 1–4 eight times and 0–5 "
+            "once; no schedule would have done better than my own.",
             sw["text"],
         )
         self.assertEqual(sw["charts"], 0)
@@ -1687,7 +1743,8 @@ class Drawing(unittest.TestCase):
         self.assertIn("Team C · ", lq["quadTitles"][0])
         self.assertNotIn("Rival", lq["text"] + " ".join(lq["quadTitles"]))
         self.assertEqual(q["quadOthers"], len(ANALYSIS["fantasy"]["quadrant"]["values"]["others"]))
-        # Trails: weeks 3 to 5 of the fixture's five, two segments a team, with the fading dots in between.
+        # Trails: weeks 3 to 5 of the fixture's five, two segments a team, with the fading dots in
+        # between.
         self.assertEqual(q["quadTrails"], 6)
         self.assertIn("my trail, last 5 weeks", q["text"])
         self.assertEqual(
@@ -1757,7 +1814,8 @@ class Drawing(unittest.TestCase):
         self.assertEqual(
             sec["notes"],
             [
-                "Only finished titles are logged as a rule, so completion counts cover what I chose to record."
+                "Only finished titles are logged as a rule, so completion counts cover what I "
+                "chose to record."
             ],
         )
         self.assertTrue(all(b["n"].startswith("n = ") for sl in sec["slots"] for b in sl["blocks"]))
@@ -1777,7 +1835,8 @@ class Drawing(unittest.TestCase):
         self.assertEqual(
             len(blocks(d, "watching.community_gap_by_genre")), 1
         )  # inside the crowd card
-        # The reading bar's segments are the contents list: one per section, in order, plus "built with".
+        # The reading bar's segments are the contents list: one per section, in order, plus "built
+        # with".
         self.assertEqual(
             [s[0] for s in d["segs"]],
             ["#" + i for i in groups["whats-happening"]["sections"] + groups["why"]["sections"]]
@@ -1840,7 +1899,8 @@ class Drawing(unittest.TestCase):
         self.assertEqual(
             [x["text"] for x in d["attributions"]],
             [
-                "This product uses the TMDB API but is not endorsed or certified by TMDB. · Rotten Tomatoes scores from OMDb"
+                "This product uses the TMDB API but is not endorsed or certified by TMDB. · Rotten "
+                "Tomatoes scores from OMDb"
             ],
         )
         self.assertEqual(
@@ -1850,7 +1910,8 @@ class Drawing(unittest.TestCase):
                 ["https://www.omdbapi.com/", "_blank", "noopener"],
             ],
         )
-        # Waiting: every card shows its box; the absent critics card is "not available from source"; no credits.
+        # Waiting: every card shows its box; the absent critics card is "not available from source";
+        # no credits.
         w = draw("lately/watching/", name="films waiting")
         for stat in (
             "watching.by_director",
@@ -1910,7 +1971,8 @@ class Drawing(unittest.TestCase):
         (sv,) = blocks(l, "listening.artist_survival")
         self.assertEqual(sv["value"], "1.62×")
         self.assertIn(
-            "Half of my catalog discoveries are still in rotation after 16 months, against 12 for new ones: new music fades faster.",
+            "Half of my catalog discoveries are still in rotation after 16 months, against 12 for "
+            "new ones: new music fades faster.",
             sv["text"],
         )
         self.assertIn("Longest in rotation: ", sv["text"])
@@ -1923,14 +1985,16 @@ class Drawing(unittest.TestCase):
             next(s for s in l["sections"] if s["id"] == "artist-survival")["slots"][1]["stat"],
             "listening.artist_survival_all",
         )
-        # The survival card's own source line, in mono: the Apple Music library export, not the page's Last.fm credit.
+        # The survival card's own source line, in mono: the Apple Music library export, not the
+        # page's Last.fm credit.
         surv = next(s for s in l["sections"] if s["id"] == "artist-survival")
         self.assertEqual(surv["source"], "apple music library")
         self.assertEqual(surv["sourceFont"], surv["slots"][0]["howFont"])
         self.assertEqual(
             [s["source"] for s in l["sections"] if s["source"]], ["apple music library"]
         )
-        # Absorbed: the median release year under dig back or keep up, the top-five share under who lasts.
+        # Absorbed: the median release year under dig back or keep up, the top-five share under who
+        # lasts.
         self.assertEqual(
             [
                 sl["stat"]
@@ -1957,7 +2021,8 @@ class Drawing(unittest.TestCase):
         self.assertIn("2023 · 40 additions", dd["text"])
         self.assertIn("per five years of gap between release years", sv["text"])
         self.assertIn(
-            "The export records no play before 2023-03-01 (its earliest last_played), so an end before that day is invisible.",
+            "The export records no play before 2023-03-01 (its earliest last_played), so an end "
+            "before that day is invisible.",
             sv["text"],
         )  # the how line's floor statement, quoted
         self.assertEqual(
@@ -2066,7 +2131,8 @@ class Drawing(unittest.TestCase):
             ],
             ["cross.rhythm.workouts"],
         )
-        # The strength index keeps the per-lift change list inside its card, draws the split lines, and its how line quotes the rule.
+        # The strength index keeps the per-lift change list inside its card, draws the split lines,
+        # and its how line quotes the rule.
         (sidx,) = blocks(lifting, "lifting.strength_index")
         self.assertIn("Which lifts have held up since the cut started?", sidx["text"])
         self.assertIn("legs", sidx["text"])
@@ -2079,7 +2145,8 @@ class Drawing(unittest.TestCase):
         self.assertIn("How are my tracked lifts moving?", main["text"])
         self.assertIn("Chest and back", main["text"])
         self.assertIn("at least 12 sessions in the last 26 weeks", main["text"])
-        # Each tile shows the rule's session count (values.tracked[].sessions, 14 for the first lift), not the
+        # Each tile shows the rule's session count (values.tracked[].sessions, 14 for the first
+        # lift), not the
         # lift's working-set count (11 in the sample).
         self.assertIn("14 sessions", main["text"])
         self.assertNotIn("11 sessions", main["text"])
@@ -2091,7 +2158,8 @@ class Drawing(unittest.TestCase):
                 with self.subTest(feed=feed, width=w):
                     d = draw("index.html" if feed == "index" else f"lately/{feed}/", w)
                     self.assertLessEqual(d["scrollX"], 0)
-                    # No "view as table" control; the tables stay in the DOM, visually hidden, not display: none.
+                    # No "view as table" control; the tables stay in the DOM, visually hidden, not
+                    # display: none.
                     self.assertEqual(d["toggles"], 0)
                     self.assertNotIn("view as table", d["bodyText"])
                     self.assertTrue(d["srTables"], feed)

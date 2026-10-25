@@ -5,3 +5,4 @@ data/lately.json
 /tools/package-lock.json
 /tools/.og-card.html
 /_site-drafts/
+.ruff_cache/

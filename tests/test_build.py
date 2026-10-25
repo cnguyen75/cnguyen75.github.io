@@ -30,7 +30,8 @@ FRONT = {
 }
 SECTIONS = {
     "question": "What is the question?",
-    "approach": "STEPS:\n1. First | Do the first thing.\n2. Second | Do the second.\n\nSTATS:\n3 | cohorts | one primary",
+    "approach": "STEPS:\n1. First | Do the first thing.\n2. Second | Do the second.\n\nSTATS:\n3 | "
+    "cohorts | one primary",
     "where it stands": "Running.",
     "results": "Something shareable.",
     "what's next": "Finish.",
@@ -93,14 +94,18 @@ class Progress(unittest.TestCase):
             "languages and frameworks | Python, NumPy\nattribution | Used under CC BY 4.0.\ncode | Code and README | https://github.com/x/y"
         )
         doc = self.render(sections={"built with": block})
-        # One grid, rows in the fixed order, each labelled by its class; rows not given are left out.
+        # One grid, rows in the fixed order, each labelled by its class; rows not given are left
+        # out.
         self.assertRegex(
             doc,
             r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row tp-built-row--code"><dt>code</dt><dd><a href="https://github\.com/x/y" target="_blank" rel="noopener">Code and README</a></dd></div>'
-            r'<div class="tp-built-row tp-built-row--languages-and-frameworks"><dt>languages and frameworks</dt><dd>Python, NumPy</dd></div>'
+            r'<div class="tp-built-row tp-built-row--languages-and-frameworks"><dt>languages and '
+            r"frameworks</dt><dd>Python, NumPy</dd></div>"
             r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://example\.org/data" target="_blank" rel="noopener">A public set</a></dd></div>'
-            r'<div class="tp-built-row tp-built-row--attribution"><dt>attribution</dt><dd>Used under CC BY 4\.0\.</dd></div>'
-            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>the audit, with an AI coding agent working to my brief</dd></div></dl>',
+            r'<div class="tp-built-row tp-built-row--attribution"><dt>attribution</dt><dd>Used '
+            r"under CC BY 4\.0\.</dd></div>"
+            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>the audit, '
+            r"with an AI coding agent working to my brief</dd></div></dl>",
         )
         self.assertNotIn("tp-built-row--compute", doc)
         for bad in (
@@ -144,7 +149,8 @@ class Progress(unittest.TestCase):
     def test_log_lines(self) -> None:
         doc = self.render()
         items = re.findall(
-            r'<time class="tp-log-date" datetime="([^"]+)">([^<]+)</time><span class="tp-log-text">([^<]+)</span>',
+            r'<time class="tp-log-date" datetime="([^"]+)">([^<]+)</time><span '
+            r'class="tp-log-text">([^<]+)</span>',
             doc,
         )
         self.assertEqual(
@@ -193,7 +199,8 @@ class Progress(unittest.TestCase):
                 self.read(front={key: None})
         # when: (the months) ends the kicker on sides B and C, and a page there can't do without it.
         self.assertIn(
-            '<p class="tp-kicker">side b. research · track 04 of 1 · <span class="track-when">jun 2026 to present</span></p>',
+            '<p class="tp-kicker">side b. research · track 04 of 1 · <span class="track-when">jun '
+            "2026 to present</span></p>",
             doc,
         )
         with self.assertRaisesRegex(build.ContentError, "needs when:"):
@@ -207,7 +214,8 @@ class Progress(unittest.TestCase):
         doc = self.render(sections=held)
         self.assertRegex(
             doc,
-            r'<p data-secs="[\d.]+" class="tp-held"><span class="tp-held-note"><span class="tp-held-flag">held: '
+            r'<p data-secs="[\d.]+" class="tp-held"><span class="tp-held-note"><span '
+            r'class="tp-held-flag">held: '
             r"needs a collaborator's agreement</span> a number waiting on sign-off\.</span></p>",
         )
         with self.assertRaisesRegex(build.ContentError, "HELD"):
@@ -217,7 +225,8 @@ class Progress(unittest.TestCase):
         inline_held = {"where it stands": "Shareable part. HELD: the rest waits."}
         self.assertRegex(
             self.render(sections=inline_held),
-            r'<p data-secs="[\d.]+">Shareable part\. <span class="tp-held-note"><span class="tp-held-flag">',
+            r'<p data-secs="[\d.]+">Shareable part\. <span class="tp-held-note"><span '
+            r'class="tp-held-flag">',
         )
         with self.assertRaisesRegex(build.ContentError, "HELD"):
             self.render(sections=inline_held, front={"ready": "true"})
@@ -281,7 +290,8 @@ class Progress(unittest.TestCase):
                 r'<nav class="tp-part tp-part-bar" aria-label="Two parts">(.*?)</nav>', doc
             ).group(1)
 
-        # A two-segment bar: this page's part filled, the other a link only when its page is linkable.
+        # A two-segment bar: this page's part filled, the other a link only when its page is
+        # linkable.
         mine = '<span class="tp-part-seg is-current" aria-current="page">part one of two</span>'
         link = mine + '<a class="tp-part-seg" href="../other-page/">part two of two</a>'
         plain = mine + '<span class="tp-part-seg">part two of two</span>'
@@ -300,7 +310,8 @@ class Progress(unittest.TestCase):
             2,
         )
         self.assertIn(
-            '<span class="tp-part-seg">part one of two</span><span class="tp-part-seg is-current" aria-current="page">part two of two</span>',
+            '<span class="tp-part-seg">part one of two</span><span class="tp-part-seg is-current" '
+            'aria-current="page">part two of two</span>',
             doc,
         )
         for bad in ("part one", "part one | twelve", " | 12"):
@@ -323,30 +334,40 @@ class Progress(unittest.TestCase):
         self.assertEqual(projects["18"], "A foot of space is worth eight seconds")
         self.assertEqual(projects["21"], "LLM 20 Questions")
         self.assertEqual(index.count("side c. projects"), 1)
-        # Each pair sits under a series header, in a .series wrapper, the part labels linking each other.
+        # Each pair sits under a series header, in a .series wrapper, the part labels linking each
+        # other.
         for first, second, head in (
             ("10", "11", "efficient fine-tuning on one laptop"),
             ("17", "18", "why players take the shots they take"),
         ):
             self.assertIn(
-                f'<p class="series-head">two parts · {head}</p>\n<div class="series">\n<div class="track track--wrap" id="track-{first}">',
+                f'<p class="series-head">two parts · {head}</p>\n<div class="series">\n<div '
+                f'class="track track--wrap" id="track-{first}">',
                 index,
             )
             self.assertRegex(
                 index,
-                rf'<span class="track-no">{first}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
-                rf'<span class="track-when">[^<]+</span><span class="track-part">part one of two · <a class="track-part-link" href="#track-{second}">continues in {second} →</a></span>',
+                rf'<span class="track-no">{first}</span>\s*<div class="track-body"><h3 '
+                rf'class="track-title">[^<]+</h3>'
+                rf'<span class="track-when">[^<]+</span><span class="track-part">part one of two · '
+                rf'<a class="track-part-link" href="#track-{second}">continues in {second} '
+                rf"→</a></span>",
             )
             self.assertRegex(
                 index,
-                rf'<div class="track track--wrap" id="track-{second}">\s*<span class="track-no">{second}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
-                rf'<span class="track-when">[^<]+</span><span class="track-part">part two of two · <a class="track-part-link" href="#track-{first}">← follows {first}</a></span>',
+                rf'<div class="track track--wrap" id="track-{second}">\s*<span '
+                rf'class="track-no">{second}</span>\s*<div class="track-body"><h3 '
+                rf'class="track-title">[^<]+</h3>'
+                rf'<span class="track-when">[^<]+</span><span class="track-part">part two of two · '
+                rf'<a class="track-part-link" href="#track-{first}">← follows {first}</a></span>',
             )
         self.assertEqual(index.count('<div class="series">'), 2)
-        # Every side B and C row shows its months (when: in the content file) under the title; side A and the lately cards carry none.
+        # Every side B and C row shows its months (when: in the content file) under the title; side
+        # A and the lately cards carry none.
         whens = dict(
             re.findall(
-                r'<span class="track-no">(\d\d)</span>\s*<div class="track-body"><h3 class="track-title"[^>]*>[^<]+</h3><span class="track-when">([^<]+)</span>',
+                r'<span class="track-no">(\d\d)</span>\s*<div class="track-body"><h3 '
+                r'class="track-title"[^>]*>[^<]+</h3><span class="track-when">([^<]+)</span>',
                 index,
             )
         )
@@ -411,8 +432,10 @@ class Progress(unittest.TestCase):
         for n, _ in work:
             self.assertRegex(
                 section,
-                rf'<div class="track track--wrap" id="track-{n}">\s*<span class="track-no">{n}</span>\s*'
-                rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span class="track-desc">',
+                rf'<div class="track track--wrap" id="track-{n}">\s*<span '
+                rf'class="track-no">{n}</span>\s*'
+                rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span '
+                rf'class="track-desc">',
             )
         self.assertEqual(section.count('<ul class="track-points">'), 8)
         # Each Athena row carries three bullets under its description, a bold lead then text.
@@ -435,7 +458,8 @@ class Progress(unittest.TestCase):
             stub = (build.ROOT / n / "index.html").read_text(encoding="utf-8")
             self.assertIn(f'content="0; url=/#track-{n}"', stub)
 
-    # Every page ends with "Views are my own.": the main page's contact column and the built pages' foot.
+    # Every page ends with "Views are my own.": the main page's contact column and the built pages'
+    # foot.
     def test_views_note(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
@@ -449,8 +473,14 @@ class Progress(unittest.TestCase):
     # {decisions:unchecked} adds ", K not yet checked" for null flags, {as_of:asof} is the
     # "as of" clause. No date: the clause is left out. No decisions: the sentence is.
     def test_fill_live(self) -> None:
-        template = "twin: {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and it failed."
-        row = f'<span class="track-live" data-src="paper-trader/demo.json" data-template="{template}">old text</span>'
+        template = (
+            "twin: {decisions:matched} decisions since its clock started "
+            "match{decisions:unchecked}, {as_of:asof}and it failed."
+        )
+        row = (
+            f'<span class="track-live" data-src="paper-trader/demo.json" '
+            f'data-template="{template}">old text</span>'
+        )
         content = self.dir / "content"
 
         def fill(data: dict, tpl: str = template) -> re.Match[str] | None:
@@ -476,25 +506,30 @@ class Progress(unittest.TestCase):
         }
         self.assertEqual(
             fill(full),
-            "twin: all 3 decisions since its clock started match, as of 12 October 2026, and it failed.",
+            "twin: all 3 decisions since its clock started match, as of 12 October 2026, and it "
+            "failed.",
         )
         self.assertEqual(
             fill(dict(full, clock_start={"first_fill": "2026-09-04"})),
-            "twin: all 2 decisions since its clock started match, as of 12 October 2026, and it failed.",
+            "twin: all 2 decisions since its clock started match, as of 12 October 2026, and it "
+            "failed.",
         )
         self.assertEqual(
             fill(dict(full, clock_start=None)),
-            "twin: all 4 decisions since its clock started match, as of 12 October 2026, and it failed.",
+            "twin: all 4 decisions since its clock started match, as of 12 October 2026, and it "
+            "failed.",
         )
         one_null = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": None}])
         self.assertEqual(
             fill(one_null),
-            "twin: 2 of 3 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it failed.",
+            "twin: 2 of 3 decisions since its clock started match, 1 not yet checked, as of 12 "
+            "October 2026, and it failed.",
         )
         one_false = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": False}])
         self.assertEqual(
             fill(one_false),
-            "twin: 2 of 3 decisions since its clock started match, as of 12 October 2026, and it failed.",
+            "twin: 2 of 3 decisions since its clock started match, as of 12 October 2026, and it "
+            "failed.",
         )
         both = dict(
             full,
@@ -503,14 +538,21 @@ class Progress(unittest.TestCase):
         )
         self.assertEqual(
             fill(both),
-            "twin: 2 of 4 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it failed.",
+            "twin: 2 of 4 decisions since its clock started match, 1 not yet checked, as of 12 "
+            "October 2026, and it failed.",
         )
         self.assertEqual(
             fill(dict(full, as_of=None)),
             "twin: all 3 decisions since its clock started match, and it failed.",
         )
-        # The other count kinds: numbers alone, every entry (voided ones included), and the matched of every entry.
-        counts = "{decisions:total} sessions, {decisions:voided} voided, {decisions:matched_count} matched, {decisions:unchecked_count} unchecked, {decisions:ratio_all} overall, {as_of:date}"
+        # The other count kinds: numbers alone, every entry (voided ones included), and the matched
+        # of every entry.
+        counts = (
+            "{decisions:total} sessions, {decisions:voided} voided, "
+            "{decisions:matched_count} "
+            "matched, {decisions:unchecked_count} unchecked, {decisions:ratio_all} "
+            "overall, {as_of:date}"
+        )
         self.assertEqual(
             fill(both, counts),
             "6 sessions, 1 voided, 2 matched, 1 unchecked, 4 of 6 overall, 12 October 2026",
@@ -532,8 +574,12 @@ class Progress(unittest.TestCase):
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         self.assertRegex(
             index,
-            r'<span class="track-live" data-src="paper-trader/demo.json" data-template="Its successor runs [^"]*\{decisions:matched\}[^"]*\{decisions:unchecked\}[^"]*\{as_of:asof\}[^"]*">'
-            r"(Its successor runs on a paper account against a simulated twin: (all \d+|\d+ of \d+) decisions since its clock started match(, \d+ not yet checked)?, (as of \d+ [A-Z][a-z]+ \d{4}, )?and it has already failed two of its own criteria\.)?</span>",
+            r'<span class="track-live" data-src="paper-trader/demo.json" data-template="Its '
+            r"successor runs "
+            r'[^"]*\{decisions:matched\}[^"]*\{decisions:unchecked\}[^"]*\{as_of:asof\}[^"]*">'
+            r"(Its successor runs on a paper account against a simulated twin: (all \d+|\d+ of "
+            r"\d+) decisions since its clock started match(, \d+ not yet checked)?, (as of \d+ "
+            r"[A-Z][a-z]+ \d{4}, )?and it has already failed two of its own criteria\.)?</span>",
         )
 
     # A page with live: fills the same placeholders from a file in its asset folder; a line
@@ -541,7 +587,10 @@ class Progress(unittest.TestCase):
     def test_live_page(self) -> None:
         assets = self.dir / "demo-page"
         assets.mkdir()
-        stats = "STATS:\n{decisions:ratio} | decisions matching the twin{decisions:unchecked} | {as_of:asofnote}\n3 | other | kept"
+        stats = (
+            "STATS:\n{decisions:ratio} | decisions matching the twin{decisions:unchecked} | "
+            "{as_of:asofnote}\n3 | other | kept"
+        )
 
         def render_with(data: dict) -> list[str]:
             (assets / "demo.json").write_text(json.dumps(data), encoding="utf-8")
@@ -558,11 +607,13 @@ class Progress(unittest.TestCase):
         }
         self.assertEqual(
             render_with(data)[0],
-            '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div class="stat-value">1 of 2</div><div class="stat-note">as of 12 October 2026',
+            '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div '
+            'class="stat-value">1 of 2</div><div class="stat-note">as of 12 October 2026',
         )
         self.assertEqual(
             render_with(dict(data, as_of=None))[0],
-            '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div class="stat-value">1 of 2',
+            '<div class="stat-label">decisions matching the twin, 1 not yet checked</div><div '
+            'class="stat-value">1 of 2',
         )  # no note
         rows = render_with({"as_of": "2026-10-12"})
         self.assertEqual(len(rows), 1)  # the live row is dropped, the other kept
@@ -573,7 +624,8 @@ class Progress(unittest.TestCase):
                 sections={"results": "STATS:\n{decisions:ratio} | only row"},
             )  # dropped: an empty block
 
-    # Side D: no sample data and no badge for it; the footer names the pipeline as private, unlinked.
+    # Side D: no sample data and no badge for it; the footer names the pipeline as private,
+    # unlinked.
     def test_main_page_lately_text(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         for word in ("sample data", "sample-badge", "lately.sample", "lately-sample"):
@@ -584,7 +636,11 @@ class Progress(unittest.TestCase):
         )
         self.assertNotIn("github.com/cnguyen75/lately", index)
         self.assertIn(
-            "With Dr. Roberto Benzo and Dr. Peter Washington. Models that predict when someone will answer a health prompt are scored with a pooled metric that mostly compares different people, so it rewards knowing who tends to respond; within-person discrimination, the part an intervention needs, is much weaker. Backed by a pre-registered personalisation study; results in the manuscript in preparation.",
+            "With Dr. Roberto Benzo and Dr. Peter Washington. Models that predict when someone "
+            "will answer a health prompt are scored with a pooled metric that mostly compares "
+            "different people, so it rewards knowing who tends to respond; within-person "
+            "discrimination, the part an intervention needs, is much weaker. Backed by a "
+            "pre-registered personalisation study; results in the manuscript in preparation.",
             index,
         )
         self.assertNotIn(
@@ -602,7 +658,8 @@ class Progress(unittest.TestCase):
             '<svg width="10pt" height="5pt" viewBox="0 0 10 5"><g id="old">old label</g></svg>'
         )
         (assets / "fix.svg").write_text(
-            '<svg viewBox="0 0 10 5"><style>#old { display: none; }</style><text>new label</text></svg>'
+            '<svg viewBox="0 0 10 5"><style>#old { display: none; }</style><text>new '
+            "label</text></svg>"
         )
         fig = "FIGURE: demo-page/f/plot.svg\nALT: A plot.\nCAPTION: fig. 1 · a plot."
         doc = self.render(sections={"results": fig})
@@ -616,22 +673,28 @@ class Progress(unittest.TestCase):
         )
         self.assertRegex(
             doc,
-            r'<svg class="tp-chart-svg" role="img" aria-label="A plot\." focusable="false" viewBox="0 0 10 5">'
-            r'<g id="old">old label</g><style>#old \{ display: none; \}</style><text>new label</text></svg>',
+            r'<svg class="tp-chart-svg" role="img" aria-label="A plot\." focusable="false" '
+            r'viewBox="0 0 10 5">'
+            r'<g id="old">old label</g><style>#old \{ display: none; \}</style><text>new '
+            r"label</text></svg>",
         )
         self.assertNotIn("<img", doc.split('id="results"')[1])
         self.assertIn(
             "old label", (assets / "plot.svg").read_text()
         )  # the file itself is untouched
-        # A ::: figure's description: lines are the diagram as text, visually hidden with no control.
+        # A ::: figure's description: lines are the diagram as text, visually hidden with no
+        # control.
         (assets / "d.svg").write_text('<svg viewBox="0 0 10 5"><title>A diagram</title></svg>')
         doc = self.render(
             sections={
-                "results": "::: figure demo-page/f/d.svg\ncaption: a diagram\nalt: A diagram.\ndescription: Box A feeds box B.\ndescription: Box B feeds C.\n:::"
+                "results": "::: figure demo-page/f/d.svg\ncaption: a diagram\nalt: A "
+                "diagram.\ndescription: Box A feeds box B.\ndescription: Box B feeds "
+                "C.\n:::"
             }
         )
         self.assertIn(
-            '<div class="tp-text-alt sr-only"><p>The diagram as text</p><ol><li>Box A feeds box B.</li><li>Box B feeds C.</li></ol></div></figure>',
+            '<div class="tp-text-alt sr-only"><p>The diagram as text</p><ol><li>Box A feeds box '
+            "B.</li><li>Box B feeds C.</li></ol></div></figure>",
             doc,
         )
         self.assertNotIn("<details", doc)
@@ -644,7 +707,8 @@ class Progress(unittest.TestCase):
             (assets / f).write_text("{}")
         doc = self.render(
             sections={
-                "results": "DEMO: demo-page/a.json demo-page/b.json\nATTRIBUTION: Data from somewhere."
+                "results": "DEMO: demo-page/a.json demo-page/b.json\nATTRIBUTION: Data from "
+                "somewhere."
             }
         )
         self.assertIn('<div class="tp-demo" data-src="a.json" data-more="b.json"', doc)
@@ -673,7 +737,10 @@ class Progress(unittest.TestCase):
     # PAPERS: a titled list under the results, each entry "Authors (year). Title. arXiv:id" with the
     # id linked to the abstract and an optional note; a bad id, year or short row stops the build.
     def test_papers(self) -> None:
-        papers = "PAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. Third | 2021 | Another | block size 256 here"
+        papers = (
+            "PAPERS:\n1706.03762 | A. Author and B. Other | 2017 | A Title\n2110.02861 | C. "
+            "Third | 2021 | Another | block size 256 here"
+        )
         lst = (
             r'<ul class="tp-papers-list">'
             r'<li>A\. Author and B\. Other \(2017\)\. <cite>A Title</cite>\. <a href="https://arxiv\.org/abs/1706\.03762" target="_blank" rel="noopener">arXiv:1706\.03762</a>\.</li>'
@@ -682,13 +749,14 @@ class Progress(unittest.TestCase):
         # The list is the grid's papers row, between compute and attribution.
         doc = self.render(
             sections={
-                "built with": "BUILT-WITH:\nlanguages and frameworks | Python\nattribution | CC BY 4.0.\n\n"
-                + papers
+                "built with": "BUILT-WITH:\nlanguages and frameworks | Python\nattribution | CC BY "
+                "4.0.\n\n" + papers
             }
         )
         self.assertRegex(
             doc,
-            r'<dd>Python</dd></div><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>'
+            r'<dd>Python</dd></div><div class="tp-built-row '
+            r'tp-built-row--papers"><dt>papers</dt><dd>'
             + lst
             + r'</dd></div><div class="tp-built-row tp-built-row--attribution">',
         )
@@ -703,11 +771,12 @@ class Progress(unittest.TestCase):
             doc,
             r"<dt>papers</dt><dd>" + lst + r"<p>Skinner \(2011\) for the form</p></dd></div></dl>",
         )
-        # Without a BUILT-WITH: block the list is a grid of its own; outside built with it stops the build.
+        # Without a BUILT-WITH: block the list is a grid of its own; outside built with it stops the
+        # build.
         self.assertRegex(
             self.render(sections={"built with": papers}),
-            r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>'
-            + lst,
+            r'<dl data-secs="[\d.]+" class="tp-built"><div class="tp-built-row '
+            r'tp-built-row--papers"><dt>papers</dt><dd>' + lst,
         )
         with self.assertRaisesRegex(build.ContentError, "belongs in the built with section"):
             self.render(sections={"results": "Found.\n\n" + papers})
@@ -725,15 +794,18 @@ class Progress(unittest.TestCase):
     # can't be linked to a page.
     def test_main_page_rows(self) -> None:
         index = (
-            '<div class="track track--wrap">\n<span class="track-no">04</span>\n<div class="track-body">'
+            '<div class="track track--wrap">\n<span class="track-no">04</span>\n<div '
+            'class="track-body">'
             '<h3 class="track-title">A study</h3><span class="track-desc">About it.</span></div>\n'
             '<span class="track-meta track-meta--status">in progress</span>\n</div>\n'
-            '<div class="track track--wrap">\n<span class="track-no">05</span>\n<div class="track-body">'
+            '<div class="track track--wrap">\n<span class="track-no">05</span>\n<div '
+            'class="track-body">'
             '<h3 class="track-title">Another</h3></div>\n</div>\n'
         )
         linked = build.link_rows(index, {"04": "demo-page"})
         self.assertIn(
-            '<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page">\n<span class="track-no">04</span>',
+            '<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page">\n<span '
+            'class="track-no">04</span>',
             linked,
         )
         self.assertIn(
@@ -765,26 +837,32 @@ class Progress(unittest.TestCase):
                 ),
                 {"05": "x"},
             )
-        # A two-part row's part link is text (with its target) while the row is linked, a link again when it isn't.
+        # A two-part row's part link is text (with its target) while the row is linked, a link again
+        # when it isn't.
         with_part = index.replace(
             '<span class="track-desc">About it.</span></div>',
-            '<span class="track-part">part one of two · <a class="track-part-link" href="#track-05">continues in 05 →</a></span><span class="track-desc">About it.</span></div>',
+            '<span class="track-part">part one of two · <a class="track-part-link" '
+            'href="#track-05">continues in 05 →</a></span><span class="track-desc">About '
+            "it.</span></div>",
         )
         linked = build.link_rows(with_part, {"04": "demo-page"})
         self.assertIn(
-            '<span class="track-part">part one of two · <span class="track-part-link" data-href="#track-05">continues in 05 →</span></span>',
+            '<span class="track-part">part one of two · <span class="track-part-link" '
+            'data-href="#track-05">continues in 05 →</span></span>',
             linked,
         )
         self.assertEqual(linked.count("<a "), 1)
         self.assertEqual(build.link_rows(linked, {}), with_part)
-        # A row's own anchor (id) is the one attribute allowed beside the class; it stays through both passes.
+        # A row's own anchor (id) is the one attribute allowed beside the class; it stays through
+        # both passes.
         with_id = index.replace(
             '<div class="track track--wrap">\n<span class="track-no">04',
             '<div class="track track--wrap" id="track-04">\n<span class="track-no">04',
         )
         linked = build.link_rows(with_id, {"04": "demo-page"})
         self.assertIn(
-            '<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page" id="track-04">',
+            '<a class="track track--wrap" href="tracks/demo-page/" data-page="demo-page" '
+            'id="track-04">',
             linked,
         )
         self.assertEqual(build.link_rows(linked, {}), with_id)

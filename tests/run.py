@@ -93,7 +93,8 @@ def main() -> None:
         dirty = git("status", "--porcelain")
         out.write(
             f"started  {now:%Y-%m-%d %H:%M:%S}\n"
-            f"commit   {git('rev-parse', '--short', 'HEAD')}{' (uncommitted changes)' if dirty else ''}\n"
+            f"commit   "
+            f"{git('rev-parse', '--short', 'HEAD')}{' (uncommitted changes)' if dirty else ''}\n"
             f"python   {platform.python_version()}  node {tool_version('node')}\n"
             f"tests    {' '.join(args.names) or 'discover tests/'}\n\n"
         )
@@ -121,8 +122,10 @@ def main() -> None:
                 )
             )
             out.write(
-                f"\nfinished {dt.datetime.now():%Y-%m-%d %H:%M:%S}, {time.monotonic() - started:.1f} s, "
-                f"{result.testsRun} tests, {len(result.failures)} failures, {len(result.errors)} errors: "
+                f"\nfinished {dt.datetime.now():%Y-%m-%d %H:%M:%S}, "
+                f"{time.monotonic() - started:.1f} s, "
+                f"{result.testsRun} tests, {len(result.failures)} failures, {len(result.errors)} "
+                f"errors: "
                 f"{'OK' if ok else 'FAILED'}\n"
             )
         except BaseException as exc:  # a crash or Ctrl-C is logged too

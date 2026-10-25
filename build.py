@@ -253,7 +253,8 @@ def read_page(path: Path) -> dict:
     meta["track"] = meta["track"].zfill(2)
     if meta.get("when") and ("—" in meta["when"] or not re.fullmatch(r"[a-z0-9 ,]+", meta["when"])):
         raise ContentError(
-            f"{path.name}: when: is the months in words, lowercase, e.g. 'aug 2026 to present' or '2025, rebuilt 2026'"
+            f"{path.name}: when: is the months in words, lowercase, e.g. 'aug 2026 to present' or "
+            f"'2025, rebuilt 2026'"
         )
     meta["source"] = path
     meta["assets"] = path.parent / meta["slug"]
@@ -262,7 +263,8 @@ def read_page(path: Path) -> dict:
         body = fill_live_lines(body, meta["assets"] / meta["live"], path.name)
     meta["sections"] = parse_sections(body, path.name)
     if meta.get("part"):
-        # "part: part one · 2014–15 | 12": a page in a two-part story, and the number of the other part.
+        # "part: part one · 2014–15 | 12": a page in a two-part story, and the number of the other
+        # part.
         label, sep, other = (x.strip() for x in meta["part"].partition("|"))
         if not (label and sep and re.fullmatch(r"\d+", other)):
             raise ContentError(f"{path.name}: part must be 'label | number of the other part'")
@@ -469,7 +471,8 @@ def read_data_page(path: Path, schema: dict) -> dict:
                 stat_paths(schema, pth)
             except KeyError as e:
                 raise ContentError(
-                    f"{path.name}: attributions_when: {pth} is not a statistic in {SCHEMA_PATH} ({e.args[0]})"
+                    f"{path.name}: attributions_when: {pth} is not a statistic in {SCHEMA_PATH} "
+                    f"({e.args[0]})"
                 )
         meta["attributions_when"] = paths
     meta["groups"] = parse_data_body(m.group(2), path.name)
@@ -491,7 +494,8 @@ def read_data_page(path: Path, schema: dict) -> dict:
             mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE|HOW|short):\s*(\S.*?)\s*", line)
             if not mm:
                 raise ContentError(
-                    f"{path.name}: under '## {sec['title']}' only short:, STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines are allowed, not {line.strip()!r}"
+                    f"{path.name}: under '## {sec['title']}' only short:, STAT:, FEED:, NOTE:, "
+                    f"ALIAS:, SOURCE: and HOW: lines are allowed, not {line.strip()!r}"
                 )
             kind, arg = mm.group(1), mm.group(2)
             if kind == "short":
@@ -525,7 +529,8 @@ def read_data_page(path: Path, schema: dict) -> dict:
                 continue
             if kind == "SOURCE":
                 # Where this section's data comes from when it isn't the page's credit (the survival
-                # cards read the Apple Music library export, not Last.fm): one mono line under the title.
+                # cards read the Apple Music library export, not Last.fm): one mono line under the
+                # title.
                 if sec["source"] is not None:
                     raise ContentError(
                         f"{path.name}: under '## {sec['title']}' only one SOURCE: line is allowed"
@@ -536,14 +541,16 @@ def read_data_page(path: Path, schema: dict) -> dict:
                 # The id of a card this one absorbed: a deep link to it lands here.
                 if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", arg):
                     raise ContentError(
-                        f"{path.name}: ALIAS: {arg} must be a section id (lowercase words joined by hyphens)"
+                        f"{path.name}: ALIAS: {arg} must be a section id (lowercase words joined "
+                        f"by hyphens)"
                     )
                 sec["aliases"].append(arg)
                 continue
             if kind == "FEED":
                 if arg not in FEED_BLOCKS:
                     raise ContentError(
-                        f"{path.name}: FEED: {arg} is not a block js/lately.js draws ({', '.join(FEED_BLOCKS)})"
+                        f"{path.name}: FEED: {arg} is not a block js/lately.js draws "
+                        f"({', '.join(FEED_BLOCKS)})"
                     )
                 sec["slots"].append(("feed", arg))
                 continue
@@ -560,11 +567,13 @@ def read_data_page(path: Path, schema: dict) -> dict:
             raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: or FEED: line")
         if not sec["short"]:
             raise ContentError(
-                f"{path.name}: '## {sec['title']}' lacks short: (its name in the reading bar, at most two words)"
+                f"{path.name}: '## {sec['title']}' lacks short: (its name in the reading bar, at "
+                f"most two words)"
             )
         if sec["how"] and sec["how"][0] not in [leaf for leaves in sec["stats"] for leaf in leaves]:
             raise ContentError(
-                f"{path.name}: HOW: {sec['how'][0]} is not one of the statistics '## {sec['title']}' shows"
+                f"{path.name}: HOW: {sec['how'][0]} is not one of the statistics '## "
+                f"{sec['title']}' shows"
             )
     check_aliases(meta)
     return meta
@@ -580,7 +589,8 @@ def parse_data_body(body: str, name: str) -> list[dict]:
             title = g.group(1).strip()
             if title not in DATA_GROUPS:
                 raise ContentError(
-                    f"{name}: groups are '# {DATA_GROUPS[0]}' and '# {DATA_GROUPS[1]}', not '# {title}'"
+                    f"{name}: groups are '# {DATA_GROUPS[0]}' and '# {DATA_GROUPS[1]}', not '# "
+                    f"{title}'"
                 )
             cur = {"title": title, "id": DATA_GROUP_IDS[title], "lines": []}
             groups.append(cur)
@@ -590,7 +600,8 @@ def parse_data_body(body: str, name: str) -> list[dict]:
             raise ContentError(f"{name}: text before the first # group")
     if [g["title"] for g in groups] != list(DATA_GROUPS):
         raise ContentError(
-            f"{name}: a data page has the groups '# {DATA_GROUPS[0]}' then '# {DATA_GROUPS[1]}', once each"
+            f"{name}: a data page has the groups '# {DATA_GROUPS[0]}' then '# {DATA_GROUPS[1]}', "
+            f"once each"
         )
     ids = set()
     for g in groups:
@@ -629,7 +640,8 @@ def check_data_coverage(pages: list[dict], schema: dict) -> None:
             raise ContentError(f"{leaf} is in DATA_LEFT_OUT but {seen[leaf]} shows it")
         if leaf not in seen and leaf not in DATA_LEFT_OUT:
             raise ContentError(
-                f"{leaf} is in the analysis schema but on no page; add it to a page or to DATA_LEFT_OUT"
+                f"{leaf} is in the analysis schema but on no page; add it to a page or to "
+                f"DATA_LEFT_OUT"
             )
 
 
@@ -638,7 +650,8 @@ def lately_numbers(index_html: str) -> dict[str, int]:
     return {
         feed: num
         for feed, num in re.findall(
-            r'id="panel-(\w+)"[^>]*>\s*<div class="panel-head">\s*<span class="track-no">(\d\d)</span>',
+            r'id="panel-(\w+)"[^>]*>\s*<div class="panel-head">\s*<span '
+            r'class="track-no">(\d\d)</span>',
             index_html,
         )
     }
@@ -750,7 +763,8 @@ def words(s: str) -> int:
 def stat_row(cells: list[tuple[str, str, str]]) -> str:
     """The stat tiles of a track page, (value, label, note) each, in the shared .stats component."""
     items = "".join(
-        f'<div class="stat"><div class="stat-label">{inline(label)}</div><div class="stat-value">{inline(value)}</div>'
+        f'<div class="stat"><div class="stat-label">{inline(label)}</div><div '
+        f'class="stat-value">{inline(value)}</div>'
         + (f'<div class="stat-note">{inline(note)}</div>' if note else "")
         + "</div>"
         for value, label, note in cells
@@ -791,7 +805,8 @@ class Page:
         return name
 
     def blocks(self, lines: list[str], first: bool = False) -> list[tuple[str, int, str]]:
-        """Returns [(html, words, kind)] for one section; kind marks figures for the play control."""
+        """Returns [(html, words, kind)] for one section; kind marks figures for the play
+        control."""
         out, i = [], 0
         para = []
 
@@ -860,7 +875,8 @@ class Page:
                 i += 1
             elif line.startswith("DIAGRAM:"):
                 raise ContentError(
-                    f"{self.meta['source'].name}: a DIAGRAM: line must be replaced by a ::: figure block"
+                    f"{self.meta['source'].name}: a DIAGRAM: line must be replaced by a ::: figure "
+                    f"block"
                 )
             elif MARKER.match(line):
                 flush()
@@ -878,12 +894,14 @@ class Page:
     @staticmethod
     def held_note(text: str, tag: str) -> str:
         return (
-            f'<{tag} class="tp-held-note"><span class="tp-held-flag">held: needs a collaborator\'s agreement</span> '
+            f'<{tag} class="tp-held-note"><span class="tp-held-flag">held: needs a collaborator\'s '
+            f"agreement</span> "
             f"{inline(text.strip())}</{tag}>"
         )
 
     def log(self, lines: list[str]) -> list[tuple[str, int, str]]:
-        """A progress page's ## log: 'YYYY-MM-DD | text' or 'YYYY-MM | text' per line, in file order."""
+        """A progress page's ## log: 'YYYY-MM-DD | text' or 'YYYY-MM | text' per line, in file
+        order."""
         name = self.meta["source"].name
         items, n = "", 0
         for line in lines:
@@ -892,10 +910,15 @@ class Page:
             m = re.fullmatch(r"(\d{4}-\d{2}(?:-\d{2})?) \| (\S.*)", line.strip())
             if not m:
                 raise ContentError(
-                    f"{name}: log lines are 'YYYY-MM-DD | text' or 'YYYY-MM | text', not {line.strip()!r}"
+                    f"{name}: log lines are 'YYYY-MM-DD | text' or 'YYYY-MM | text', not "
+                    f"{line.strip()!r}"
                 )
             iso, shown = parse_date(m.group(1), f"{name}: log date")
-            items += f'<li class="tp-log-item"><time class="tp-log-date" datetime="{iso}">{shown}</time><span class="tp-log-text">{inline(m.group(2))}</span></li>'
+            items += (
+                f'<li class="tp-log-item"><time class="tp-log-date" '
+                f'datetime="{iso}">{shown}</time><span '
+                f'class="tp-log-text">{inline(m.group(2))}</span></li>'
+            )
             n += words(m.group(2))
         if not items:
             raise ContentError(f"{name}: ## log has no entries")
@@ -963,7 +986,8 @@ class Page:
                 need(m and len(c) == 2, "rows are 'N. title | text'")
                 items += (
                     f'<div class="tp-step"><div class="tp-step-no">step {m.group(1)}</div>'
-                    f'<div class="tp-step-title">{inline(m.group(2))}</div><div class="tp-step-text">{inline(c[1])}</div></div>'
+                    f'<div class="tp-step-title">{inline(m.group(2))}</div><div '
+                    f'class="tp-step-text">{inline(c[1])}</div></div>'
                 )
             return (
                 f'<div class="tp-steps">{items}</div>',
@@ -1001,7 +1025,10 @@ class Page:
                     if len(c) > 2
                     else inline(c[1])
                 )
-                items += f'<div class="tp-built-row tp-built-row--{slugify(c[0])}"><dt>{esc(c[0])}</dt><dd>{text}</dd></div>'
+                items += (
+                    f'<div class="tp-built-row '
+                    f'tp-built-row--{slugify(c[0])}"><dt>{esc(c[0])}</dt><dd>{text}</dd></div>'
+                )
             return (
                 f'<dl class="tp-built">{items}</dl>',
                 sum(words(" ".join(c[:2])) for c in cells),
@@ -1075,8 +1102,10 @@ class Page:
                 for c in cells[1:]
             )
             return (
-                f'<div class="table table--stack" role="region" aria-label="Table: {esc(" · ".join(cells[0]))}">'
-                f"<table><thead><tr>{head_html}</tr></thead><tbody>{body_html}</tbody></table></div>",
+                f'<div class="table table--stack" role="region" aria-label="Table: '
+                f'{esc(" · ".join(cells[0]))}">'
+                f"<table><thead><tr>{head_html}</tr></thead>"
+                f"<tbody>{body_html}</tbody></table></div>",
                 sum(words(" ".join(c)) for c in cells),
                 "figure",
             )
@@ -1085,7 +1114,8 @@ class Page:
             need(rows, "has no lines")
             text = "\n".join(rows)
             return (
-                f'<figure class="tp-figure"><pre class="tp-code" tabindex="0">{esc(text)}</pre>{cap}</figure>',
+                f'<figure class="tp-figure"><pre class="tp-code" '
+                f'tabindex="0">{esc(text)}</pre>{cap}</figure>',
                 words(text) // 2,
                 "figure",
             )
@@ -1118,7 +1148,8 @@ class Page:
                 )
                 body = re.sub(
                     r"^<svg",
-                    f'<svg class="tp-chart-svg" role="img" aria-label="{esc(alt)}" focusable="false"',
+                    f'<svg class="tp-chart-svg" role="img" aria-label="{esc(alt)}" '
+                    f'focusable="false"',
                     body,
                     count=1,
                 )
@@ -1132,7 +1163,8 @@ class Page:
             src = self.asset(arg)
             return (
                 f'<figure class="tp-figure">{chart}'
-                f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} decoding="async"></div>{cap}</figure>',
+                f'<img src="{esc(src)}" alt="{esc(alt)}"{dims} '
+                f'decoding="async"></div>{cap}</figure>',
                 0,
                 "figure",
             )
@@ -1157,7 +1189,8 @@ class Page:
                 f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}"'
                 + (f' data-more="{esc(more)}"' if more else "")
                 + ' aria-live="polite">'
-                f'<p class="tp-demo-fallback">This demo needs JavaScript.</p></div>{dcap}{notes}</figure>',
+                f'<p class="tp-demo-fallback">This demo needs '
+                f"JavaScript.</p></div>{dcap}{notes}</figure>",
                 0,
                 "figure",
             )
@@ -1181,7 +1214,8 @@ class Page:
                     )
                 clips += self.clip(f, label, tags, label)
             return (
-                f'<figure class="tp-figure"><div class="tp-clips">{clips}</div>{cap}{notes}</figure>',
+                f'<figure class="tp-figure"><div '
+                f'class="tp-clips">{clips}</div>{cap}{notes}</figure>',
                 0,
                 "figure",
             )
@@ -1204,7 +1238,8 @@ class Page:
         return (
             f'<div class="tp-clip"><div class="tp-clip-label">{inline(label)}</div>'
             + (f'<div class="tp-clip-tags">{kinds}</div>' if kinds else "")
-            + f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(", ".join([aria] + tags))}"></audio></div>'
+            + f'<audio controls preload="none" src="{esc(f)}" '
+            f'aria-label="{esc(", ".join([aria] + tags))}"></audio></div>'
         )
 
     def audio_manifest(self, any_clip: bool) -> dict[str, dict] | None:
@@ -1272,7 +1307,8 @@ class Page:
                 )
                 tds += (
                     f'<td><span class="tp-grid-col" aria-hidden="true">{esc(label)}</span>'
-                    f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(", ".join([f"Sentence {n}", label] + tags))}"></audio>'
+                    f'<audio controls preload="none" src="{esc(f)}" '
+                    f'aria-label="{esc(", ".join([f"Sentence {n}", label] + tags))}"></audio>'
                     + (f'<span class="tp-clip-tags">{kinds}</span>' if kinds else "")
                     + "</td>"
                 )
@@ -1323,8 +1359,12 @@ class Page:
             details = ""
             if desc:
                 lis = "".join(f"<li>{inline(d)}</li>" for d in desc)
-                # The text alternative stays in the DOM for screen readers, visually hidden, with no control.
-                details = f'<div class="tp-text-alt sr-only"><p>The diagram as text</p><ol>{lis}</ol></div>'
+                # The text alternative stays in the DOM for screen readers, visually hidden, with no
+                # control.
+                details = (
+                    f'<div class="tp-text-alt sr-only"><p>The diagram as '
+                    f"text</p><ol>{lis}</ol></div>"
+                )
             return (
                 f'<figure class="tp-figure">{"".join(svgs)}{self.caption(cap)}{details}</figure>',
                 0,
@@ -1358,15 +1398,19 @@ class Page:
                     raise ContentError(f"::: bars row {c!r} needs label | number")
             top = max(vals + [0]) or 1
             rows_html = "".join(
-                f'<div class="bar{" bar--neg" if len(c) > 2 and c[2] == "orange" else ""}"><span class="bar-label">{inline(c[0])}</span>'
-                f'<span class="bar-track"><span class="bar-fill" style="width:{v / top * 100:.1f}%"></span></span>'
+                f'<div class="bar{" bar--neg" if len(c) > 2 and c[2] == "orange" else ""}"><span '
+                f'class="bar-label">{inline(c[0])}</span>'
+                f'<span class="bar-track"><span class="bar-fill" '
+                f'style="width:{v / top * 100:.1f}%"></span></span>'
                 f'<span class="bar-value">{esc(c[1])}</span></div>'
                 for c, v in zip(cells, vals)
             )
             summary = "; ".join(f"{c[0]} {c[1]}" for c in cells)
             return (
-                f'<figure class="tp-figure chart chart--card"><div class="chart-title">{inline(args)}</div>'
-                f'<div class="bars bars--track" role="img" aria-label="{esc(args)}: {esc(summary)}">{rows_html}</div>'
+                f'<figure class="tp-figure chart chart--card"><div '
+                f'class="chart-title">{inline(args)}</div>'
+                f'<div class="bars bars--track" role="img" aria-label="{esc(args)}: '
+                f'{esc(summary)}">{rows_html}</div>'
                 f"{self.caption(cap) if cap else ''}</figure>",
                 words(args),
                 "figure",
@@ -1375,7 +1419,8 @@ class Page:
         if name == "steps":
             items = "".join(
                 f'<div class="tp-step"><div class="tp-step-no">{inline(c[0])}</div>'
-                f'<div class="tp-step-title">{inline(c[1])}</div><div class="tp-step-text">{inline(c[2])}</div></div>'
+                f'<div class="tp-step-title">{inline(c[1])}</div><div '
+                f'class="tp-step-text">{inline(c[2])}</div></div>'
                 for c in cells
             )
             return (
@@ -1397,10 +1442,12 @@ class Page:
                 clips += (
                     f'<div class="tp-clip"><div class="tp-clip-kind">{esc(kind)}</div>'
                     f'<div class="tp-clip-label">{inline(label)}</div>'
-                    f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(kind)}: {esc(label)}"></audio></div>'
+                    f'<audio controls preload="none" src="{esc(f)}" aria-label="{esc(kind)}: '
+                    f'{esc(label)}"></audio></div>'
                 )
             return (
-                f'<figure class="tp-figure"><div class="tp-clips">{clips}</div>{self.caption(cap)}</figure>',
+                f'<figure class="tp-figure"><div '
+                f'class="tp-clips">{clips}</div>{self.caption(cap)}</figure>',
                 0,
                 "figure",
             )
@@ -1413,7 +1460,8 @@ class Page:
             self.scripts.append(script)
             fallback = " ".join(inline(r) for r in rows) or "This demo needs JavaScript."
             return (
-                f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}"><p class="tp-demo-fallback">{fallback}</p></div>'
+                f'<figure class="tp-figure"><div class="tp-demo" data-src="{esc(data)}"><p '
+                f'class="tp-demo-fallback">{fallback}</p></div>'
                 f"{self.caption(cap) if cap else ''}</figure>",
                 0,
                 "figure",
@@ -1429,7 +1477,8 @@ def read_tracklist(index_html: str) -> list[tuple[int, str, str, str]]:
     """[(number, title, side_label, side_id)] in page order: sides A to C, then side D's panels."""
     tracks, side, side_id = [], None, None
     pat = re.compile(
-        r'<(?:h2 class="side-label"|p class="lately-label") id="(\w+)-label">([^<]+)</(?:h2|p)>|<span class="track-no">(\d\d)</span>\s*'
+        r'<(?:h2 class="side-label"|p class="lately-label") '
+        r'id="(\w+)-label">([^<]+)</(?:h2|p)>|<span class="track-no">(\d\d)</span>\s*'
         r'<div class="track-body"><h3 class="track-title"(?: id="[^"]*")?>(.*?)</h3>'
     )
     for m in pat.finditer(index_html):
@@ -1459,7 +1508,10 @@ EXT_LINK = re.compile(
 
 
 def ext_link(href: str, label: str) -> str:
-    return f'<span class="track-ext"><a href="{href}" target="_blank" rel="noopener">{label}</a></span>'
+    return (
+        f'<span class="track-ext"><a href="{href}" target="_blank" '
+        f'rel="noopener">{label}</a></span>'
+    )
 
 
 def link_rows(index_html: str, pages: dict[int, str]) -> str:
@@ -1520,14 +1572,12 @@ def link_rows(index_html: str, pages: dict[int, str]) -> str:
         )
         if "<a " in inner:
             raise ContentError(
-                f"track {number}'s row has a link other than its span.track-ext; a linked row can't hold one"
+                f"track {number}'s row has a link other than its span.track-ext; a linked row "
+                f"can't hold one"
             )
         s = (
-            s[: m.start()]
-            + f'<a class="{m.group(2)}" href="tracks/{slug}/" data-page="{slug}"{extra}{" " + attrs if attrs else ""}>'
-            + inner
-            + "</a>"
-            + s[end:]
+            s[: m.start()] + f'<a class="{m.group(2)}" href="tracks/{slug}/" '
+            f'data-page="{slug}"{extra}{" " + attrs if attrs else ""}>' + inner + "</a>" + s[end:]
         )
     return s
 
@@ -1545,7 +1595,8 @@ def when_rows(
         if not m.get("when") or sides.get(m["track"]) not in ("research", "projects"):
             continue
         pat = re.compile(
-            rf'(<span class="track-no">{m["track"]}</span>\s*<div class="track-body"><h3 class="track-title"[^>]*>.*?</h3>)(<span class="track-when">[^<]*</span>)?'
+            rf'(<span class="track-no">{m["track"]}</span>\s*<div class="track-body"><h3 '
+            rf'class="track-title"[^>]*>.*?</h3>)(<span class="track-when">[^<]*</span>)?'
         )
         if not pat.search(s):
             raise ContentError(f"track {m['track']} is not on the main page")
@@ -1564,7 +1615,8 @@ LIVE = re.compile(
     r'<span class="track-live" data-src="([^"]+)" data-template="([^"]*)">[^<]*</span>'
 )
 PLACEHOLDER = re.compile(
-    r"\{(\w+):(count|matched|ratio|unchecked|matched_count|unchecked_count|total|voided|ratio_all|asof|asofnote|date)\}"
+    r"\{(\w+):(count|matched|ratio|unchecked|matched_count|unchecked_count|total|voided|"
+    r"ratio_all|asof|asofnote|date)\}"
 )
 COUNT_KINDS = (
     "count",
@@ -1698,7 +1750,10 @@ def fill_live(index_html: str, content: Path | None = None) -> str:
                     file=sys.stderr,
                 )
             text = text or ""
-        return f'<span class="track-live" data-src="{src}" data-template="{m.group(2)}">{esc(text)}</span>'
+        return (
+            f'<span class="track-live" data-src="{src}" '
+            f'data-template="{m.group(2)}">{esc(text)}</span>'
+        )
 
     return LIVE.sub(fill, index_html)
 
@@ -1728,7 +1783,8 @@ def fill_live_lines(body: str, path: Path, name: str) -> str:
 
 def check_live_data() -> None:
     """The Lately data file must exist for a build (a deploy can't go out without it); one
-    that is present but unreadable only warns, and the site then shows "Lately is being updated."."""
+    that is present but unreadable only warns, and the site then shows "Lately is being
+    updated."."""
     live = ROOT / LIVE_DATA
     if not live.is_file():
         raise ContentError(
@@ -1745,7 +1801,8 @@ def check_live_data() -> None:
             raise ValueError("not schema_version 1 with a sources object")
     except ValueError as e:
         print(
-            f"warning: {LIVE_DATA} is unreadable ({e}); the Lately section and pages will show 'Lately is being updated.'",
+            f"warning: {LIVE_DATA} is unreadable ({e}); the Lately section and pages will show "
+            f"'Lately is being updated.'",
             file=sys.stderr,
         )
 
@@ -1791,7 +1848,8 @@ def render(
     # Sides B and C carry their months (when:) under the title on the card and in the kicker.
     if side_id in ("research", "projects") and not meta.get("when"):
         raise ContentError(
-            f"{meta['source'].name}: a side B or C page needs when: (its months, e.g. 'aug 2026 to present')"
+            f"{meta['source'].name}: a side B or C page needs when: (its months, e.g. 'aug 2026 to "
+            f"present')"
         )
     when = (
         f' · <span class="track-when">{esc(meta["when"])}</span>'
@@ -1844,8 +1902,10 @@ def render(
         grow = max(1, round(s["secs"] / 20))
         seg_name = s.get("short") or s["title"].lower()
         seg_html.append(
-            f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" data-secs="{s["secs"]:.1f}">'
-            f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span class="tp-seg-name">{esc(seg_name)}</span></a>'
+            f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" '
+            f'data-secs="{s["secs"]:.1f}">'
+            f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span '
+            f'class="tp-seg-name">{esc(seg_name)}</span></a>'
         )
         label = (
             '<span class="tp-label-time"></span>'
@@ -1864,7 +1924,9 @@ def render(
             if "tp-figure--wide" in b[:120]:
                 if cur:
                     parts.append(
-                        f'<div class="tp-section-body{" tp-section-body--after" if parts else ""}">{"".join(cur)}</div>'
+                        f"<div "
+                        f'class="tp-section-body{" tp-section-body--after" if parts else ""}">'
+                        f"{''.join(cur)}</div>"
                     )
                     cur = []
                 parts.append(f'<div class="tp-section-wide">{b}</div>')
@@ -1872,7 +1934,9 @@ def render(
                 cur.append(b)
         if cur or not parts:
             parts.append(
-                f'<div class="tp-section-body{" tp-section-body--after" if parts else ""}">{"".join(cur)}</div>'
+                f"<div "
+                f'class="tp-section-body{" tp-section-body--after" if parts else ""}">'
+                f"{''.join(cur)}</div>"
             )
         body = "".join(parts)
         cls = f"tp-section{' tp-section--first' if k == 0 else ''}" + (
@@ -1898,13 +1962,15 @@ def render(
     if pos > 0:
         p = by_no[order[pos - 1]]
         nav.append(
-            f'<a class="tp-prev" href="{href_to(meta, pages_here[p[0]])}"><span class="tp-other-label">← previous · {p[0]}</span>'
+            f'<a class="tp-prev" href="{href_to(meta, pages_here[p[0]])}"><span '
+            f'class="tp-other-label">← previous · {p[0]}</span>'
             f'<span class="tp-other-title">{esc(p[1])}</span></a>'
         )
     if pos < len(order) - 1:  # the last page (26, lifting) has no next
         n = by_no[order[pos + 1]]
         nav.append(
-            f'<a class="tp-next" href="{href_to(meta, pages_here[n[0]])}" data-stop><span class="tp-other-label">next · {n[0]} →</span>'
+            f'<a class="tp-next" href="{href_to(meta, pages_here[n[0]])}" data-stop><span '
+            f'class="tp-other-label">next · {n[0]} →</span>'
             f'<span class="tp-other-title">{esc(n[1])}</span></a>'
         )
 
@@ -1912,7 +1978,8 @@ def render(
         by_no[num][1] if data else meta["title"]
     )  # a Lately page is titled as its panel is ("Fantasy football")
     if progress:
-        # one_line: is optional in this register; without it the question's opening paragraph describes the page.
+        # one_line: is optional in this register; without it the question's opening paragraph
+        # describes the page.
         first = next((l for l in meta["sections"][0]["lines"] if l.strip()), "")
         desc = (
             meta.get("description")
@@ -1922,7 +1989,8 @@ def render(
     elif data:
         desc = (
             meta.get("one_line")
-            or f"{title}: statistics from my {meta['feed']} data, drawn from the same nightly file as the Lately section."
+            or f"{title}: statistics from my {meta['feed']} data, drawn from the same nightly file "
+            f"as the Lately section."
         )
     else:
         desc = meta.get("description") or meta["one_line"]
@@ -1930,13 +1998,18 @@ def render(
         # The one-line description, whose numbers these are, then the headline row and the
         # notes the script shows when the data is missing.
         apps = " and ".join(esc(n) for n, _ in meta["sources"])
-        own = f"These are my own numbers, from my {apps} {'accounts' if len(meta['sources']) > 1 else 'account'}."
+        own = (
+            f"These are my own numbers, from my {apps} "
+            f"{'accounts' if len(meta['sources']) > 1 else 'account'}."
+        )
         lede = (
             f'<p class="tp-lede">{inline(meta["one_line"])}</p>\n' if meta.get("one_line") else ""
         ) + f'<p class="ld-own">{own}</p>\n'
         lede += (
-            f'<div class="ld-headline" data-feed="{meta["feed"]}" aria-label="Headline numbers"></div>\n'
-            '<noscript><p class="panel-empty">This page draws its statistics with JavaScript, which is turned off.</p></noscript>\n'
+            f'<div class="ld-headline" data-feed="{meta["feed"]}" aria-label="Headline '
+            f'numbers"></div>\n'
+            '<noscript><p class="panel-empty">This page draws its statistics with JavaScript, '
+            "which is turned off.</p></noscript>\n"
             '<p class="panel-empty ld-missing" hidden>The statistics are not connected yet.</p>'
         )
     elif progress:
@@ -1946,7 +2019,12 @@ def render(
         )
         lede += f'<p class="tp-with">{inline(meta["with"])}</p>'
         if meta.get("link_url"):
-            lede += f'\n<p class="tp-link"><a href="{esc(meta["link_url"])}"{new_tab(meta["link_url"])}>{esc(meta["link_label"])} →</a></p>'
+            lede += (
+                f'\n<p class="tp-link"><a '
+                f'href="{esc(meta["link_url"])}"{new_tab(meta["link_url"])}>'
+                f"{esc(meta['link_label'])} "
+                f"→</a></p>"
+            )
     else:
         lede = f'<p class="tp-lede">{inline(meta["one_line"])}</p>'
     # A two-part story: this page's part, and a link to the other part under the same
@@ -1986,9 +2064,25 @@ def render(
     scripts = "".join(f'\n<script src="{esc(s)}" defer></script>' for s in page.scripts)
     scripts += "".join(f'\n<link rel="stylesheet" href="{esc(s)}">' for s in page.styles)
     if data:
-        scripts += '\n<script src="../../js/lately-depth.js" defer></script>\n<script src="../../js/lately.js" defer></script>'
+        scripts += (
+            '\n<script src="../../js/lately-depth.js" defer></script>\n<script '
+            'src="../../js/lately.js" defer></script>'
+        )
     body_attrs = f' data-feed="{meta["feed"]}" data-root="{home}"' if data else ""
     body_class = f"tp-body tp-body--{meta['register']}" + (" ld-body" if data else "")
+    robots = '<meta name="robots" content="noindex, nofollow">\n' if draft else ""
+    draft_note = (
+        '<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>\n'
+        if draft
+        else ""
+    )
+    track_of = f" of {listed}" if on_list else " · not on the tracklist yet"
+    clock_html = (
+        f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / '
+        f'<span class="tp-clock-total">{clock(total)}</span></span>'
+        if stamped
+        else ""
+    )
 
     doc = f"""<!doctype html>
 <html lang="en">
@@ -1997,7 +2091,7 @@ def render(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)} · Colin Nguyen</title>
 <meta name="description" content="{esc(desc)}">
-{'<meta name="robots" content="noindex, nofollow">' + chr(10) if draft else ""}<link rel="canonical" href="{url}">
+{robots}<link rel="canonical" href="{url}">
 <meta name="theme-color" content="#E8E2D3">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Colin Nguyen">
@@ -2016,8 +2110,10 @@ def render(
 <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../../favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="../../apple-touch-icon.png">
-<link rel="preload" href="../../fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../../fonts/courier-prime-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../fonts/archivo-latin-var.woff2" \
+as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../../fonts/courier-prime-400-latin.woff2" \
+as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../../css/site.css">
 <link rel="stylesheet" href="../../css/track.css">
 <script src="../../js/track.js" defer></script>{scripts}
@@ -2031,21 +2127,24 @@ def render(
 <a class="tp-back" href="{home}#{side_id}">← back to the tracklist</a>
 </header>
 <main id="main" class="tp-main" data-total="{total:.1f}"{" data-live-timing" if data else ""}>
-{'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ""}<section class="tp-hero" aria-labelledby="tp-title">
-<p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}{when}</p>
-<div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
+{draft_note}<section class="tp-hero" aria-labelledby="tp-title">
+<p class="tp-kicker">{esc(side_short)} · track {num}{track_of}{when}</p>
+<div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span>\
+<h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
 {part}{lede}
 </section>
 <section class="tp-player" aria-label="Now reading">
 <div class="tp-controls" hidden>
 <span class="tp-controls-main">
-<button type="button" class="tp-play control" aria-describedby="tp-play-help"><span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
-{f'<span class="tp-clock"><span class="tp-clock-now">0:00</span> / <span class="tp-clock-total">{clock(total)}</span></span>' if stamped else ""}
+<button type="button" class="tp-play control" aria-describedby="tp-play-help">\
+<span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span></button>
+{clock_html}
 <button type="button" class="tp-speed control" aria-label="Playback speed, 1×">speed 1×</button>
 </span>
 {f'<span class="tp-badge">status: {esc(badge)}</span>' if badge else ""}
 </div>
-<p class="tp-help" id="tp-play-help" hidden>Play scrolls the page for you at reading pace. Scroll, tap or press space to pause.</p>
+<p class="tp-help" id="tp-play-help" hidden>Play scrolls the page for you at reading pace. \
+Scroll, tap or press space to pause.</p>
 <p class="tp-status sr-only" role="status" aria-live="polite"></p>
 <nav class="tp-segs" aria-label="Sections of this page">
 {"".join(seg_html)}
@@ -2085,7 +2184,8 @@ def built_with_grid(
         for b in rest
     ):
         raise ContentError(
-            f"{name}: built with holds one BUILT-WITH: block, an optional PAPERS: block and an optional LINKS: list, nothing else"
+            f"{name}: built with holds one BUILT-WITH: block, an optional PAPERS: block and an "
+            f"optional LINKS: list, nothing else"
         )
     if not papers:
         return blocks
@@ -2099,10 +2199,15 @@ def built_with_grid(
         if m:  # a papers | text row: the list, then the text
             dl = dl.replace(
                 m.group(0),
-                f'<div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}<p>{m.group(1)}</p></dd></div>',
+                f'<div class="tp-built-row '
+                f'tp-built-row--papers"><dt>papers</dt><dd>{html_list}'
+                f"<p>{m.group(1)}</p></dd></div>",
             )
         else:  # before attribution and made with, after the rest
-            row = f'<div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div>'
+            row = (
+                f'<div class="tp-built-row '
+                f'tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div>'
+            )
             at = re.search(
                 r'<div class="tp-built-row tp-built-row--(?:attribution|made-with)">', dl
             )
@@ -2115,7 +2220,8 @@ def built_with_grid(
         return [merged if b is grids[0] else b for b in rest]
     return [
         (
-            f'<dl class="tp-built"><div class="tp-built-row tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div></dl>',
+            f'<dl class="tp-built"><div class="tp-built-row '
+            f'tp-built-row--papers"><dt>papers</dt><dd>{html_list}</dd></div></dl>',
             n,
             "text",
         )
@@ -2171,18 +2277,27 @@ def data_built_with(meta: dict) -> str:
     when = ""
     if meta.get("attribution_when"):
         src, text, link = meta["attribution_when"]
-        when += f'<p class="ld-attribution" data-when-source="{esc(src)}" hidden><a href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>'
+        when += (
+            f'<p class="ld-attribution" data-when-source="{esc(src)}" hidden><a '
+            f'href="{esc(link)}"{new_tab(link)}>{esc(text)}</a></p>'
+        )
     if meta.get("attributions_when"):
-        when += f'<p class="ld-attributions" data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
+        when += (
+            f'<p class="ld-attributions" '
+            f'data-when-stats="{esc(" ".join(meta["attributions_when"]))}" hidden></p>'
+        )
     if when:
         rows.append(
-            f'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd>{when}</dd></div>'
+            f'<div class="tp-built-row tp-built-row--when" '
+            f"hidden><dt>attribution</dt><dd>{when}</dd></div>"
         )
     rows.append(
-        '<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly pipeline I wrote; the pipeline is private</dd></div>'
+        '<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly '
+        "pipeline I wrote; the pipeline is private</dd></div>"
     )
     rows.append(
-        '<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time class="ld-asof-date">…</time></dd></div>'
+        '<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time '
+        'class="ld-asof-date">…</time></dd></div>'
     )
     return f'<dl class="tp-built">{"".join(rows)}</dl>'
 
@@ -2238,7 +2353,8 @@ def main() -> None:
             meta = read_page(path)
             if meta["ready"] and is_draft_dir:
                 raise ContentError(
-                    f"{path.name}: marked ready but still in content/drafts; move it to content/tracks"
+                    f"{path.name}: marked ready but still in content/drafts; move it to "
+                    f"content/tracks"
                 )
             if not meta["ready"] and not is_draft_dir:
                 raise ContentError(
@@ -2260,7 +2376,8 @@ def main() -> None:
                 raise ContentError(f"track {m['track']} is ready but not on the main page")
             if not m.get("side"):
                 raise ContentError(
-                    f"{m['source'].name}: track {m['track']} is not on the main page, so it needs side:"
+                    f"{m['source'].name}: track {m['track']} is not on the main page, so it needs "
+                    f"side:"
                 )
             tracklist.append((m["track"], m["title"], *side_for(tracklist[:listed], m["side"])))
 
@@ -2276,9 +2393,8 @@ def main() -> None:
         out_root, ready, tracklist, dict(by_track, **{m["track"]: m for m in ready}), False, listed
     )
     (out_root / ".gitignore").write_text(
-        "# Written by build.py. Only pages marked ready may be committed; drafts stay local.\n*\n!.gitignore\n"
-        + "".join(f"!/{m['slug']}/\n" for m in ready)
-        + f"{OUT_MARK}\n",
+        "# Written by build.py. Only pages marked ready may be committed; drafts stay "
+        "local.\n*\n!.gitignore\n" + "".join(f"!/{m['slug']}/\n" for m in ready) + f"{OUT_MARK}\n",
         encoding="utf-8",
     )
 

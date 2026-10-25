@@ -15,7 +15,8 @@
     if (!main || !window.requestAnimationFrame) return;
 
     var SPEEDS = [1, 1.5, 2];
-    var GLIDE = 3; // seconds from the top of the page to the first section (not counted in the clock)
+    // seconds from the top of the page to the first section (not counted in the clock)
+    var GLIDE = 3;
     var HOLD = 0.6; // share of a figure's time spent holding still at it
     var reduce = window.matchMedia
         ? window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -31,7 +32,8 @@
     var speedBtn = document.querySelector('.tp-speed');
     var clockNow = document.querySelector('.tp-clock-now');
     var clockTotal = document.querySelector('.tp-clock-total');
-    var live = main.hasAttribute('data-live-timing'); // a Lately page: the sections are drawn in the browser
+    // a Lately page: the sections are drawn in the browser
+    var live = main.hasAttribute('data-live-timing');
     if (!sections.length || !segs.length) return;
 
     // ---------- timeline ----------
@@ -107,7 +109,8 @@
     timeline();
 
     var keys = []; // [{t, y}] with t and y never decreasing
-    var offset = 72; // the reading line: how far below the top of the window the text being read sits
+    // the reading line: how far below the top of the window the text being read sits
+    var offset = 72;
 
     function docTop(el) {
         return el.getBoundingClientRect().top + window.pageYOffset;
@@ -136,7 +139,8 @@
             var sum = secs.reduce(function (a, b) {
                 return a + b;
             }, 0);
-            var scale = sum > 0 ? durs[i] / sum : 0; // keep the section on the build's clock exactly
+            // Keep the section on the build's clock exactly.
+            var scale = sum > 0 ? durs[i] / sum : 0;
             keys.push({ t: t, y: docTop(s) - offset });
             blocks.forEach(function (b, k) {
                 var d = secs[k] * scale;
@@ -284,7 +288,8 @@
             b.className = 'tp-play tp-play--mini control';
             b.setAttribute('aria-describedby', 'tp-play-help');
             b.innerHTML =
-                '<span class="tp-play-icon" aria-hidden="true"></span><span class="tp-play-text">play</span>';
+                '<span class="tp-play-icon" aria-hidden="true"></span><span ' +
+                'class="tp-play-text">play</span>';
         }
         b.addEventListener('click', function () {
             if (playing) pause('Paused.');
@@ -302,7 +307,8 @@
         lastY = null,
         lastFrame = 0,
         timer = null;
-    var endedAt = null; // where the last play finished; pressing play there starts again from the top
+    // where the last play finished; pressing play there starts again from the top
+    var endedAt = null;
 
     function setButtons() {
         buttons.forEach(function (b) {
@@ -554,7 +560,8 @@
                 e.target &&
                 e.target.closest &&
                 e.target.closest(
-                    '.tab, .rows-more, .tier-more, .how summary, .km-bands-toggle, .quad-trails-toggle',
+                    '.tab, .rows-more, .tier-more, .how summary, .km-bands-toggle, ' +
+                        '.quad-trails-toggle',
                 )
             )
                 requestAnimationFrame(retime);

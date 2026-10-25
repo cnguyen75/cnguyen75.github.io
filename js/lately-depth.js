@@ -833,7 +833,8 @@
             text,
         );
     }
-    var SERIES = ['s-blue', 's-orange', 's-purple', 's-teal', 's-grey']; // one hue for one series, a second for two; the rest for thin extra lines
+    // one hue for one series, a second for two; the rest for thin extra lines
+    var SERIES = ['s-blue', 's-orange', 's-purple', 's-teal', 's-grey'];
 
     // Lines over the same x positions. series: [{name, values: [number|null]}]; labels: x labels
     // (first and last are shown); opts: {fmt, base (a dashed reference line, e.g. 100), height,
@@ -1169,7 +1170,8 @@
                 );
             }),
             mine.map(function (t, i) {
-                // Wide: the label beside the point. Under 600px (CSS): a numbered marker and the key below.
+                // Wide: the label beside the point. Under 600px (CSS): a numbered marker and the
+                // key below.
                 return h(
                     'span',
                     {
@@ -1408,7 +1410,8 @@
         var pts = list(v.points).filter(function (p) {
             return isObj(p) && isNum(p.community) && isNum(p.tier_score);
         });
-        // The disagreements: {above: [...], below: [...]} (the three furthest each way), or one list.
+        // The disagreements: {above: [...], below: [...]} (the three furthest each way), or one
+        // list.
         var dis = isObj(v.disagreements)
             ? list(v.disagreements.above).concat(list(v.disagreements.below))
             : list(v.disagreements);
@@ -2028,13 +2031,16 @@
         );
     }
     var PRESYNC_NOTE =
-        'artists in the library before the 2023 sync excluded; see the listening page for the version that includes them.';
+        'artists in the library before the 2023 sync excluded; see the listening page for the ' +
+        'version that includes them.';
     // The play-date floor, in the how line's own words: the export records no play before a
     // day, so a rotation that ended before it is invisible (which is why the primary cohort is
     // the artists added after it).
     // The censoring rule: an artist with a play in the last N days before the export is still in
-    // rotation. N is read from the how line ("a play in the 60 days before the export"); when the how
-    // line carries no number, the pipeline's rule of 60 days (lately/analysis, artist_survival) is used.
+    // rotation. N is read from the how line ("a play in the 60 days before the export"); when the
+    // how
+    // line carries no number, the pipeline's rule of 60 days (lately/analysis, artist_survival) is
+    // used.
     var CENSOR_DAYS_PIPELINE = 60;
     function censorDays(s) {
         var how = isObj(s) && typeof s.how === 'string' ? s.how : '';
@@ -2311,7 +2317,8 @@
                         ],
                         ['league average', num(v.league_average, 1)],
                     ]),
-                    // Apart from the lineup total: adds that beat their baseline but sat on my bench.
+                    // Apart from the lineup total: adds that beat their baseline but sat on my
+                    // bench.
                     hits
                         ? h(
                               'p',
@@ -3043,7 +3050,8 @@
         },
         'listening.genre_mix': {
             n: 'months',
-            // Under three months the table would be a row or two: it waits, under the small-sample policy.
+            // Under three months the table would be a row or two: it waits, under the small-sample
+            // policy.
             gate: function (s) {
                 var m = isObj(s.values) ? list(s.values.months).length : 0;
                 return s.status === 'ok' && m < 3
@@ -3154,7 +3162,8 @@
         ),
         'listening.album_listening': {
             n: 'albums',
-            // The share of albums played through: the statistic's value, else from the rows (Gini under 0.4).
+            // The share of albums played through: the statistic's value, else from the rows (Gini
+            // under 0.4).
             value: function (s) {
                 var rows = isObj(s.values)
                     ? list(s.values.rows).filter(function (r) {
@@ -3192,7 +3201,8 @@
                     ]),
                     rows.length
                         ? table(
-                              "Each album's Gini of plays across its tracks (low: played through; high: one or two tracks)",
+                              "Each album's Gini of plays across its tracks " +
+                                  '(low: played through; high: one or two tracks)',
                               [
                                   { label: 'Album' },
                                   { label: 'Artist' },
@@ -3224,7 +3234,8 @@
                 return isNum(share)
                     ? [
                           pct(share),
-                          'of the tracks I added were at least 5 years old when added (digging back)',
+                          'of the tracks I added were at least 5 years old when added (digging ' +
+                              'back)',
                       ]
                     : null;
             },
@@ -3685,7 +3696,8 @@
                 var days = list(v.weekdays).length === 7 ? v.weekdays : ctx.weekdays;
                 var span = isNum(v.weeks) ? v.weeks : 8;
                 // The file gives each weekday's mean hours per week (and the window's "to"
-                // date); an older file holds the window's totals, and says so. Nothing is divided here.
+                // date); an older file holds the window's totals, and says so. Nothing is divided
+                // here.
                 var perWeek = typeof v.to === 'string';
                 var title = perWeek
                     ? 'How do my hours fall across the week, per week over the last ' +
@@ -3801,7 +3813,8 @@
                             'figures',
                             perWeek
                                 ? 'mean hours per week'
-                                : 'totals over the window (per-week means arrive with the next pipeline run)',
+                                : 'totals over the window (per-week means arrive with the next ' +
+                                  'pipeline run)',
                         ],
                     ]),
                 ];
@@ -4458,7 +4471,8 @@
                     return isObj(c) && isObj(c.first);
                 });
                 return table(
-                    "Each collection's first film against the later ones (positive: the first rated higher)",
+                    "Each collection's first film against the later ones " +
+                        '(positive: the first rated higher)',
                     [
                         { label: 'Collection' },
                         { label: 'First' },
@@ -4974,7 +4988,8 @@
                             'aria-label':
                                 'The last ' +
                                 plural(recent.length, 'places') +
-                                ' I ranked, each at the percentile it sits at in my current ranking' +
+                                ' I ranked, each at the percentile it sits at in my current ' +
+                                'ranking' +
                                 (med !== null ? ', median ' + pct(med) : '') +
                                 ': ' +
                                 recent
@@ -5136,7 +5151,8 @@
                           num(wide.spread, 2) +
                           ' points.'
                         : safe.cuisine +
-                          ' is the only cuisine with enough places: the middle half of its scores spans ' +
+                          ' is the only cuisine with enough places: the middle half of its ' +
+                          'scores spans ' +
                           num(safe.spread, 2) +
                           ' points around a median of ' +
                           num(safe.median, 2) +
@@ -5371,7 +5387,8 @@
                 return isNum(s.value)
                     ? [
                           num(s.value, 2) + '×',
-                          'hazard ratio: how much faster new artists leave rotation than catalog ones',
+                          'hazard ratio: how much faster new artists leave rotation than catalog ' +
+                              'ones',
                       ]
                     : null;
             },
@@ -5661,7 +5678,8 @@
             out = next;
         });
         return out.map(function (o) {
-            // On a list item, the statistic lives under the last key; index is its place in the list.
+            // On a list item, the statistic lives under the last key; index is its place in the
+            // list.
             return {
                 stat: o.node,
                 label: o.labels.filter(Boolean).join(' · '),
@@ -5783,7 +5801,8 @@
     // Slots that draw several statistics as one block, keyed by the slot's data-stat.
     var GROUPS = {};
     GROUPS[
-        'fantasy.manager_score.components.draft fantasy.manager_score.components.lineup fantasy.manager_score.components.moves fantasy.manager_score.components.strength'
+        'fantasy.manager_score.components.draft fantasy.manager_score.components.lineup ' +
+            'fantasy.manager_score.components.moves fantasy.manager_score.components.strength'
     ] = {
         n: WEEKS,
         // The composite as the card's headline (percentile with its interval), then one bar per
@@ -5916,7 +5935,8 @@
             return;
         }
         if (!entries.length) {
-            // A card whose statistic the file predates says so; elsewhere the slot says not connected.
+            // A card whose statistic the file predates says so; elsewhere the slot says not
+            // connected.
             var firstSpec = STATS[slot.getAttribute('data-stat').split(/\s+/)[0]];
             if (card && firstSpec && firstSpec.absentStatus) {
                 slot.appendChild(

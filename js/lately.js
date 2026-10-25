@@ -17,8 +17,10 @@
     var BROKEN = "Couldn't draw this panel right now.";
     var NO_CHANCE = 'not available this week';
     var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
-    var MIN_CUISINE_PLACES = 15; // a cuisine's median is compared with the overall median from this many places
-    var ENRICHMENT = ['tmdb', 'omdb']; // sources with section "enrichment", by name until the pipeline writes the section
+    // A cuisine's median is compared with the overall median from this many places.
+    var MIN_CUISINE_PLACES = 15;
+    // Sources with section "enrichment", by name until the pipeline writes the section.
+    var ENRICHMENT = ['tmdb', 'omdb'];
 
     // ---------- small helpers ----------
 
@@ -213,7 +215,8 @@
         Object.keys(data.sources).forEach(function (key) {
             var src = data.sources[key];
             if (!isObj(src)) return;
-            // Enrichment sources (film credits and scores) are credited in the footer, not shown as feeds.
+            // Enrichment sources (film credits and scores) are credited in the footer, not shown as
+            // feeds.
             if (src.section === 'enrichment' || ENRICHMENT.indexOf(key) >= 0) return;
             list.appendChild(
                 h(
@@ -889,7 +892,8 @@
         ['anime', 'Anime', 'anime'],
     ];
 
-    // title -> tier, by type, from the analysis's tiered titles (watching.tiers, else the crowd points).
+    // title -> tier, by type, from the analysis's tiered titles (watching.tiers, else the crowd
+    // points).
     function tierLookup(data) {
         var a = analysisOf(data),
             aw = a && isObj(a.watching) ? a.watching : {};
@@ -1440,7 +1444,8 @@
     ];
     var MIN_TREND_SESSIONS = 3; // fewer than this shows "n sessions so far" instead of a line
     var EPLEY_NOTE =
-        'Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are not comparable with barbell lifts.';
+        'Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are ' +
+        'not comparable with barbell lifts.';
 
     // Calendar dates (YYYY-MM-DD, already Pacific) are read as UTC midnight so
     // no time zone can move them to another day.
@@ -1564,7 +1569,8 @@
         );
     }
 
-    // ruleSessions: the count the tracked set was chosen on (sessions in the rule's window), when the file gives it.
+    // ruleSessions: the count the tracked set was chosen on (sessions in the rule's window), when
+    // the file gives it.
     function liftTile(lift, unit, ruleSessions) {
         need(isObj(lift), 'main lift');
         var name = str(lift.name, 'lift.name');
@@ -1605,7 +1611,8 @@
                 dateText(calDate(bs.date, 'best_set.date'), false);
         }
 
-        // Fewer than three sessions make no trend: say how many instead of drawing one or two points.
+        // Fewer than three sessions make no trend: say how many instead of drawing one or two
+        // points.
         var sessions = num(lift.sessions, 'lift.sessions');
         var block = null,
             toggle = null;
@@ -1697,7 +1704,8 @@
                     {
                         title:
                             ruleSessions != null
-                                ? 'Sessions in the last 26 weeks, the count the tracked set was chosen on'
+                                ? 'Sessions in the last 26 weeks, the count the tracked set was ' +
+                                  'chosen on'
                                 : 'Sessions with this lift',
                     },
                     plural(ruleSessions != null ? ruleSessions : sessions, 'session', 'sessions'),
@@ -1736,7 +1744,8 @@
                 'aria-label':
                     'Bars of weekly training volume over the last ' +
                     n +
-                    ' weeks, oldest first, each labelled with its number of sessions. The last bar is this week, still in progress. ' +
+                    ' weeks, oldest first, each labelled with its number of sessions. The last ' +
+                    'bar is this week, still in progress. ' +
                     weeks.map(weekText).join('. '),
             },
             weeks.map(function (w, i) {
@@ -1796,7 +1805,8 @@
                 { class: 'chart-foot' },
                 'Bar height is volume (weight × reps over working sets, in ' +
                     unit +
-                    '); the number on each bar is sessions. The lighter bar is this week, still in progress.',
+                    '); the number on each bar is sessions. The lighter bar is this week, still ' +
+                    'in progress.',
             ),
         );
     }
@@ -2067,7 +2077,8 @@
         var all = arr(l.main_lifts, 'main_lifts').filter(isObj);
         var a = analysisOf(data),
             si = a && isObj(a.lifting) ? a.lifting.strength_index : null;
-        // values.tracked [{name, sessions, split}] carries the rule's own session count (sessions in its
+        // values.tracked [{name, sessions, split}] carries the rule's own session count (sessions
+        // in its
         // window), which the tiles show in place of the lift's working-set count.
         var rule = {};
         if (okStat(si))
@@ -2690,7 +2701,8 @@
                 d.hazardSentence(hr, med, curves) || 'The survival curves are drawn below.',
                 isNum(v.share_catalog)
                     ? fpct(v.share_catalog) +
-                      ' of my discoveries are catalog artists, over five years old when first played.'
+                      ' of my discoveries are catalog artists, over five years old when first ' +
+                      'played.'
                     : 'The curves count artists first played since the 2023 Apple Music sync.',
             ];
             nums = [medianNum, hrNum, shareNum];
@@ -2939,7 +2951,8 @@
             : function (s) {
                   return String(s);
               };
-        // The best-held lift: analysis.lifting.best_held_lift, else the largest change in the index's lifts_change.
+        // The best-held lift: analysis.lifting.best_held_lift, else the largest change in the
+        // index's lifts_change.
         var held =
             isObj(al.best_held_lift) &&
             typeof al.best_held_lift.name === 'string' &&
@@ -3060,7 +3073,8 @@
                     return plus(x, 1) + ' lb of e1RM kept per lb lost';
                 },
             );
-        // The splits' latest index against 100: "legs are up 8%, shoulders and arms +3%, chest and back −1%."
+        // The splits' latest index against 100: "legs are up 8%, shoulders and arms +3%, chest and
+        // back −1%."
         var splitBits = [];
         if (okStat(si) && isObj(si.values.splits)) {
             [
@@ -3095,7 +3109,8 @@
                 '.';
         }
         if (weeks.length > 1 && last && isNum(last.strength)) {
-            // When the index has fallen more than 2 points from its peak, say so, with the peak's month.
+            // When the index has fallen more than 2 points from its peak, say so, with the peak's
+            // month.
             var peak = null;
             weeks.forEach(function (w) {
                 if (isNum(w.strength) && (!peak || w.strength > peak.strength)) peak = w;
@@ -3234,7 +3249,8 @@
         }
     }
 
-    // analysis.meta.attributions (TMDB, OMDb) under the section while the watching panel draws from them.
+    // analysis.meta.attributions (TMDB, OMDb) under the section while the watching panel draws from
+    // them.
     function renderAttributions(data) {
         var slot = document.getElementById('lately-attributions');
         if (!slot) return;

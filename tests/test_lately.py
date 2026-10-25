@@ -295,7 +295,8 @@ class Drawing(unittest.TestCase):
                     0,
                 )
 
-    # Lift tiles (lately/lifting/): best set under the best e1RM when present; under three sessions, a count, not a chart.
+    # Lift tiles (lately/lifting/): best set under the best e1RM when present; under three sessions,
+    # a count, not a chart.
     def test_lift_best_set_and_few_sessions(self) -> None:
         for w in WIDTHS:
             with self.subTest(width=w):
@@ -310,7 +311,8 @@ class Drawing(unittest.TestCase):
                 )  # the chart's numbers as a hidden table
                 self.assertFalse(first["toggle"])  # no "view as table" control anywhere
 
-    # The lifts are grouped by split (chest and back, shoulders and arms, legs); no hand-entered best is shown.
+    # The lifts are grouped by split (chest and back, shoulders and arms, legs); no hand-entered
+    # best is shown.
     def test_lifts_grouped_by_split(self) -> None:
         d = draw(1280)["before"]
         self.assertEqual(d["splits"], ["Chest and back", "Shoulders and arms", "Legs"])
