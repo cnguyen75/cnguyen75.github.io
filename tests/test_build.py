@@ -249,10 +249,10 @@ class Progress(unittest.TestCase):
         template = "twin: {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and it failed."
         row = f'<span class="track-live" data-src="paper-trader/demo.json" data-template="{template}">old text</span>'
         content = self.dir / "content"
-        def fill(data):
+        def fill(data, tpl=template):
             (content / "drafts" / "paper-trader").mkdir(parents=True, exist_ok=True)
             (content / "drafts" / "paper-trader" / "demo.json").write_text(json.dumps(data), encoding="utf-8")
-            return re.search(r">([^<]*)</span>", build.fill_live(row, content)).group(1)
+            return re.search(r">([^<]*)</span>", build.fill_live(row.replace(template, tpl), content)).group(1)
         decisions = [{"date": "2026-08-27", "voided": True, "match": True}, {"date": "2026-09-02", "match": True},
                      {"date": "2026-09-03", "match": True}, {"date": "2026-09-04", "match": True}, {"date": "2026-10-12", "match": True}]
         full = {"as_of": "2026-10-12", "clock_start": {"first_fill": "2026-09-04", "equity_base_snapshot": "2026-09-03"}, "decisions": decisions}
@@ -266,6 +266,10 @@ class Progress(unittest.TestCase):
         both = dict(full, decisions=decisions[:4] + [{"date": "2026-10-12", "match": False}, {"date": "2026-10-13", "match": None}])
         self.assertEqual(fill(both), "twin: 2 of 4 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it failed.")
         self.assertEqual(fill(dict(full, as_of=None)), "twin: all 3 decisions since its clock started match, and it failed.")
+        # The other count kinds: numbers alone, every entry (voided ones included), and the matched of every entry.
+        counts = "{decisions:total} sessions, {decisions:voided} voided, {decisions:matched_count} matched, {decisions:unchecked_count} unchecked, {decisions:ratio_all} overall, {as_of:date}"
+        self.assertEqual(fill(both, counts), "6 sessions, 1 voided, 2 matched, 1 unchecked, 4 of 6 overall, 12 October 2026")
+        self.assertEqual(fill(full, counts), "5 sessions, 1 voided, 3 matched, 0 unchecked, 5 of 5 overall, 12 October 2026")
         self.assertEqual(fill(dict(full, as_of="12 Oct 2026")), "twin: all 3 decisions since its clock started match, and it failed.")
         self.assertEqual(fill({"as_of": "2026-10-12"}), "")  # no decisions: no sentence
         shutil.rmtree(content)

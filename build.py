@@ -1104,19 +1104,25 @@ def link_rows(index_html, pages):
 # regenerating the file before a build updates the text.
 
 LIVE = re.compile(r'<span class="track-live" data-src="([^"]+)" data-template="([^"]*)">[^<]*</span>')
-PLACEHOLDER = re.compile(r"\{(\w+):(count|matched|ratio|unchecked|asof|asofnote|date)\}")
-COUNT_KINDS = ("count", "matched", "ratio", "unchecked")  # need the list; without it the sentence goes
+PLACEHOLDER = re.compile(r"\{(\w+):(count|matched|ratio|unchecked|matched_count|unchecked_count|total|voided|ratio_all|asof|asofnote|date)\}")
+COUNT_KINDS = ("count", "matched", "ratio", "unchecked", "matched_count", "unchecked_count", "total", "voided", "ratio_all")  # need the list; without it the sentence goes
+
+
+def entries(data, field):
+    """Every entry of a list, voided ones included. None without the list."""
+    value = data.get(field)
+    return [x for x in value if isinstance(x, dict)] if isinstance(value, list) else None
 
 
 def counted(data, field):
     """The entries of a list that count: not voided and, when the file has a clock_start,
     dated on or after it (its equity_base_snapshot, else its first_fill). None without the list."""
-    value = data.get(field)
-    if not isinstance(value, list):
+    value = entries(data, field)
+    if value is None:
         return None
     clock = data.get("clock_start") if isinstance(data.get("clock_start"), dict) else {}
     since = clock.get("equity_base_snapshot") or clock.get("first_fill")
-    return [x for x in value if isinstance(x, dict) and not x.get("voided") and not (since and str(x.get("date", "")) < str(since))]
+    return [x for x in value if not x.get("voided") and not (since and str(x.get("date", "")) < str(since))]
 
 
 def live_value(data, field, kind):
@@ -1124,6 +1130,8 @@ def live_value(data, field, kind):
     count: how many entries count. matched: "all 26" when every counted entry's match is
     true, else "25 of 26" (true ones of counted). ratio: always "25 of 26".
     unchecked: ", 1 not yet checked" for entries whose match is null, else "".
+    matched_count and unchecked_count: those numbers alone. total: every entry, voided ones
+    included; voided: how many are voided; ratio_all: "28 of 29", matched of every entry.
     asof: a YYYY-MM-DD date as the clause "as of 12 October 2026, "; asofnote: "as of 12 October
     2026" with no punctuation, for a cell that may be left empty; date: the date alone."""
     if kind in COUNT_KINDS:
@@ -1132,12 +1140,23 @@ def live_value(data, field, kind):
             return None
         n, ok = len(items), sum(1 for x in items if x.get("match") is True)
         unchecked = sum(1 for x in items if x.get("match") is None)
+        every = entries(data, field)
         if kind == "count":
             return f"{n:,}"
         if kind == "matched":
             return f"all {n:,}" if ok == n else f"{ok:,} of {n:,}"
         if kind == "ratio":
             return f"{ok:,} of {n:,}"
+        if kind == "matched_count":
+            return f"{ok:,}"
+        if kind == "unchecked_count":
+            return f"{unchecked:,}"
+        if kind == "total":
+            return f"{len(every):,}"
+        if kind == "voided":
+            return f"{sum(1 for x in every if x.get('voided')):,}"
+        if kind == "ratio_all":
+            return f"{sum(1 for x in every if x.get('match') is True):,} of {len(every):,}"
         return f", {unchecked:,} not yet checked" if unchecked else ""
     d = re.fullmatch(r"(\d{4})-(\d{2})-(\d{2})", str(data.get(field) or ""))
     if not (d and 1 <= int(d.group(2)) <= 12):
