@@ -271,6 +271,18 @@ The page draws `data/lately.json`, which the pipeline writes. `build.py` stops w
 
 `resume/` holds copies of the web versions built from LaTeX in `~/Personal/site-handoff/resume-latex/web/` (these leave out the phone number). To update, rebuild there and copy both PDFs over the ones in `resume/`. The hero "Résumé (PDF)" link points to the AI Engineer résumé; the footer reads "résumé: engineering · research" and links to both.
 
+## Disclosure rules for research and work
+
+The same rules are in `~/Personal/site-handoff/HANDOFF.md`, the design source of truth; every research and work page is held to them.
+
+1. Own work, not yet submitted: full results, figures and a code link. Never a venue name, never "under review" or "submitted".
+2. Collaborations led by others: the question, my role, the methods and the data's provenance in general terms. No results, figures, effect sizes or sample sizes until the lead releases them. The page closes with the line "Results in the manuscript in preparation."
+3. Human-subjects data: no participant counts, demographics, sites or protocol details. The dataset is described only as the consent language describes it.
+4. Once something is public, link it and show no more than it shows.
+5. Employer work: title, dates and job-description sentences only.
+
+No third-party scripts, fonts from CDNs, analytics or iframes, ever.
+
 ## Open items
 
 - Side D's footer reads "pipeline: private" as plain text: the pipeline repo (`github.com/cnguyen75/lately`) is private, so there is no link to it.
