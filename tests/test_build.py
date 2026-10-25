@@ -234,6 +234,9 @@ class Progress(unittest.TestCase):
                                   "Capstone, then AI Research Intern, NationBuilder, January to November 2025"])
         athena_block = section[:section.index(intros[1])]
         self.assertEqual(athena_block.count("Athena"), 1)
+        # Athena is named once on the whole page: the employer line. Not the NationBuilder
+        # description, and not the meta descriptions either.
+        self.assertEqual(index.count("Athena"), 1)
         self.assertNotIn("<a ", section)
         self.assertNotIn("previously", index)
         for cls in ("track-ext", "track-meta", "track-part", "track-when", "track--dated"):
