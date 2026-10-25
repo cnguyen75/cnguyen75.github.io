@@ -732,6 +732,10 @@ class Drawing(unittest.TestCase):
     def test_main_page_panels(self):
         d = draw("index.html")
         self.assertEqual(d["panelOrder"], ["panel-fantasy", ["panel-watching", "panel-listening"], ["panel-eating", "panel-lifting"]])
+        # The source-status chips sit below the last panel, above the attribution footer; the intro stays in the head.
+        self.assertEqual(d["latelyChildren"], ["lately-head", "panel-fantasy", "panel-grid panel-grid--two", "panel-grid panel-grid--two", "lately-sources", "lately-foot"])
+        self.assertTrue(d["chips"] and all(" · " in c for c in d["chips"]), d["chips"])
+        self.assertIn("A nightly job pulls my fantasy leagues", d["bodyText"])
         panels = {p["id"]: p for p in d["panels"]}
         self.assertNotIn("panel-rankings", panels)
         for feed, q in self.QUESTIONS.items():

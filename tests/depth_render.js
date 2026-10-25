@@ -161,6 +161,9 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
         })),
         panelOrder: [...document.querySelectorAll("#lately .panel, #lately .panel-grid")].filter(e => e.parentNode.id === "lately").map(e =>
           e.classList.contains("panel-grid") ? [...e.querySelectorAll(".panel")].map(p => p.id) : e.id),
+        // The source-status chips: their place among the section's children, and their count.
+        latelyChildren: document.getElementById("lately") ? [...document.getElementById("lately").children].map(e => e.id || e.className || e.tagName) : null,
+        chips: [...document.querySelectorAll("#lately-sources .chip")].map(txt),
         latelyHeight: document.getElementById("lately") ? Math.round(document.getElementById("lately").getBoundingClientRect().height) : null,
         pageHeight: de.scrollHeight,
         bodyText: document.body.innerText,
