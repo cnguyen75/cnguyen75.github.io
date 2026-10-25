@@ -1137,7 +1137,8 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   color: var(--text-3);
 }
 .ld-how { max-width: 72ch; line-height: 1.45; }
-.ld-how-label { font-weight: 700; }
+.ld-how summary { cursor: pointer; font-weight: 700; padding: var(--s-1) 0; }
+.ld-how-text { margin: var(--s-1) 0 0; }
 .ld-wait, .ld-note { color: var(--text-2); }
 .ld-tag { font-family: var(--font-label); font-size: var(--fs-xs); color: var(--text-3); border: 1px solid var(--rule); padding: 0 var(--s-1); white-space: nowrap; }
 .ld-n--panel { margin-top: calc(-1 * var(--s-2)); }

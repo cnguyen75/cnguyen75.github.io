@@ -2031,10 +2031,6 @@
         waitBox(null, firstSpec ? firstSpec.n : ""))) : h("p", { class: "panel-empty" }, NOT_CONNECTED));
       return;
     }
-    var hows = [];
-    function noteHow(s) {
-      if (s.status !== "not available from source" && s.status !== "not configured" && typeof s.how === "string" && hows.indexOf(s.how) < 0) hows.push(s.how);
-    }
     if (group) {
       // One block for the whole slot. Any entry still waiting makes the block wait too.
       var block = h("div", { class: "ld-blocks ld-blocks--one" }), waiting = entries.filter(function (e) { return shownStatus(e, analysis) === "not enough data yet"; });
@@ -2049,8 +2045,6 @@
           if (ns.length) b.appendChild(h("p", { class: "ld-n" }, "n = " + plural(Math.min.apply(null, ns), group.n || ""), small ? [" · ", sampleTag(small.stat)] : null));
           block.appendChild(b);
         }
-        entries.forEach(function (e) { noteHow(e.stat); });
-        if (group.absorbs) expand(analysis, group.absorbs).forEach(function (e) { if (isObj(e.stat)) noteHow(e.stat); });
       } catch (err) {
         if (window.console) console.warn("lately-depth: " + slot.getAttribute("data-stat") + " not drawn:", err.message);
         block.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
@@ -2065,15 +2059,44 @@
         var spec = e.spec, path = e.path;
         try {
           grid.appendChild(statBlock(e, spec, analysis, ctx));
-          noteHow(e.stat);
         } catch (err) {
           if (window.console) console.warn("lately-depth: " + path + " not drawn:", err.message);
           grid.appendChild(h("p", { class: "panel-empty" }, "Couldn't draw this statistic right now."));
         }
       });
     }
-    // The pipeline's "how" sentence, once per slot when every entry shares it.
-    hows.forEach(function (t) { slot.appendChild(h("p", { class: "ld-how" }, h("span", { class: "ld-how-label" }, "how: "), t)); });
+    // The pipeline's "how" sentence: one per section, for its primary statistic, under the slot
+    // that holds it (or the slot that absorbed it).
+    var sec = slot.closest(".ld-section");
+    if (sec && holdsPrimary(slot, sec)) append(slot, sectionHow(sec, analysis));
+  }
+
+  // A section's primary statistic: its data-how (a HOW: line in the content file), else the
+  // first statistic listed. Its "how" sentence is folded under a "how" summary, closed unless
+  // the section carries data-how-open. Component rows (the manager score) have none.
+  function primaryPath(sec) {
+    var p = sec.getAttribute("data-how");
+    if (p) return p;
+    var first = sec.querySelector(".ld-stat");
+    return first ? first.getAttribute("data-stat").split(/\s+/)[0] : null;
+  }
+  function holdsPrimary(slot, sec) {
+    var p = primaryPath(sec);
+    if (!p) return false;
+    var own = slot.getAttribute("data-stat");
+    var holder = Array.prototype.filter.call(sec.querySelectorAll(".ld-stat"), function (s) { return s.getAttribute("data-stat").split(/\s+/).indexOf(p) >= 0; })[0];
+    if (!holder) return false;
+    var hs = holder.getAttribute("data-stat");
+    return hs === own || ABSORBED[hs] === own;
+  }
+  function sectionHow(sec, analysis) {
+    var p = primaryPath(sec);
+    if (!p) return null;
+    var e = expand(analysis, p).filter(function (x) {
+      return isObj(x.stat) && typeof x.stat.how === "string" && x.stat.status !== "not available from source" && x.stat.status !== "not configured";
+    })[0];
+    if (!e) return null;
+    return h("details", { class: "ld-how", open: sec.hasAttribute("data-how-open") }, h("summary", null, "how"), h("p", { class: "ld-how-text" }, e.stat.how));
   }
 
   // A FEED: slot holds a block of the feed itself (lineup grid, recent lists, lift tiles,

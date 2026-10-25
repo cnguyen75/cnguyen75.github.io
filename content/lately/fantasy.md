@@ -39,6 +39,7 @@ ALIAS: waiver-pickups
 STAT: fantasy.manager_score.components.*
 STAT: fantasy.manager_score.composite
 STAT: fantasy.teams[].waiver_impact
+HOW: fantasy.manager_score.composite
 
 ## Where do my points come from? {#acquisition-split}
 STAT: fantasy.teams[].acquisition_split

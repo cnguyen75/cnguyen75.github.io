@@ -343,16 +343,26 @@ def read_data_page(path, schema):
     meta["sections"] = [s for g in meta["groups"] for s in g["sections"]]
     meta["stats"] = []
     for sec in meta["sections"]:
-        sec["stats"], sec["slots"], sec["notes"], sec["aliases"], sec["source"] = [], [], [], [], None
+        sec["stats"], sec["slots"], sec["notes"], sec["aliases"], sec["source"], sec["how"] = [], [], [], [], None, None
         for line in sec["lines"]:
             if not line.strip():
                 continue
-            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE):\s*(\S.*?)\s*", line)
+            mm = re.fullmatch(r"(STAT|FEED|NOTE|ALIAS|SOURCE|HOW):\s*(\S.*?)\s*", line)
             if not mm:
-                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE:, ALIAS: and SOURCE: lines are allowed, not {line.strip()!r}")
+                raise ContentError(f"{path.name}: under '## {sec['title']}' only STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines are allowed, not {line.strip()!r}")
             kind, arg = mm.group(1), mm.group(2)
             if kind == "NOTE":
                 sec["notes"].append(arg)
+                continue
+            if kind == "HOW":
+                # The section's primary statistic, whose "how" sentence is the one shown (the first
+                # listed when there is no HOW: line), and "open" to unfold it by default.
+                if sec["how"] is not None:
+                    raise ContentError(f"{path.name}: under '## {sec['title']}' only one HOW: line is allowed")
+                hp, _, flag = arg.partition(" ")
+                if flag.strip() not in ("", "open"):
+                    raise ContentError(f"{path.name}: HOW: takes a statistic path and, at most, the word open")
+                sec["how"] = (hp.strip(), flag.strip() == "open")
                 continue
             if kind == "SOURCE":
                 # Where this section's data comes from when it isn't the page's credit (the survival
@@ -381,6 +391,8 @@ def read_data_page(path, schema):
             meta["stats"] += leaves
         if not sec["slots"]:
             raise ContentError(f"{path.name}: '## {sec['title']}' has no STAT: or FEED: line")
+        if sec["how"] and sec["how"][0] not in [leaf for leaves in sec["stats"] for leaf in leaves]:
+            raise ContentError(f"{path.name}: HOW: {sec['how'][0]} is not one of the statistics '## {sec['title']}' shows")
     check_aliases(meta)
     return meta
 
@@ -462,7 +474,8 @@ def render_data_page(meta):
             notes = "".join(f'<span class="ld-alias" id="{a}" data-to="{s["id"]}"></span>' for a in s["aliases"]) + notes
             slots = "".join(f'<div class="ld-stat" data-stat="{esc(" ".join(arg))}"></div>' if kind == "stat"
                             else f'<div class="ld-feed" data-block="{esc(arg)}"></div>' for kind, arg in s["slots"])
-            secs.append(f'<section class="ld-section ld-section--{g["id"]}" id="{s["id"]}" aria-labelledby="{s["id"]}-h">'
+            how = (f' data-how="{esc(s["how"][0])}"' + (" data-how-open" if s["how"][1] else "")) if s["how"] else ""
+            secs.append(f'<section class="ld-section ld-section--{g["id"]}" id="{s["id"]}"{how} aria-labelledby="{s["id"]}-h">'
                         f'<h3 class="ld-section-title" id="{s["id"]}-h">{esc(s["title"])}</h3>{notes}{slots}</section>')
         groups.append(f'<section class="ld-group ld-group--{g["id"]}" id="{g["id"]}" aria-labelledby="{g["id"]}-h">'
                       f'<h2 class="ld-group-title" id="{g["id"]}-h">{esc(g["title"])}</h2>{"".join(secs)}</section>')

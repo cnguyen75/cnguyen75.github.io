@@ -71,6 +71,7 @@ class Register(unittest.TestCase):
         self.assertRegex(doc, r'<li class="ld-toc-group" data-group="whats-happening"><span class="ld-toc-label">What&#x27;s happening</span><ol><li><a href="#my-teams-week-by-week">')
         # An absorbed card's id is an anchor inside the card that holds it now.
         self.assertIn('<span class="ld-alias" id="strength-of-schedule" data-to="good-or-lucky"></span>', doc)
+        self.assertIn('id="manager-score" data-how="fantasy.manager_score.composite" aria-labelledby', (build.ROOT / "lately/fantasy/index.html").read_text(encoding="utf-8"))
         # Feed blocks, the conditional credit, and the feed script the blocks need.
         self.assertIn('<div class="ld-feed" data-block="fantasy.lineup"></div>', doc)
         self.assertIn('<p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p>', doc)
@@ -131,7 +132,10 @@ class Register(unittest.TestCase):
         for body, err in (("## A\nSTAT: lifting.nope\n", "not a statistic"),
                           ("## A\nSTAT: lifting.progress\n", "not a statistic"),
                           ("## A\nSTAT: fantasy.teams.margins\n", "write it with \\[\\]"),
-                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE:, ALIAS: and SOURCE: lines"),
+                          ("## A\nSome words.\n", "only STAT:, FEED:, NOTE:, ALIAS:, SOURCE: and HOW: lines"),
+                          ("## A\nSTAT: lifting.lag_check\nHOW: lifting.volume_lag\n", "HOW: lifting.volume_lag is not one of the statistics"),
+                          ("## A\nSTAT: lifting.lag_check\nHOW: lifting.lag_check\nHOW: lifting.lag_check\n", "only one HOW: line"),
+                          ("## A\nSTAT: lifting.lag_check\nHOW: lifting.lag_check shut\n", "at most, the word open"),
                           ("## A\nFEED: lifting.nope\n", "not a block js/lately.js draws"),
                           ("## A\nNOTE: only a note\n", "has no STAT: or FEED: line"),
                           ("## A\n\n## B\nSTAT: lifting.lag_check\n", "has no STAT"),
@@ -151,7 +155,12 @@ class Register(unittest.TestCase):
         self.assertEqual(meta["sections"][0]["stats"], [["lifting.progress.*"], ["cross.rhythm.workouts"]])
         self.assertEqual(meta["sections"][0]["slots"], [("stat", ["lifting.progress.*"]), ("feed", "lifting.lifts"), ("stat", ["cross.rhythm.workouts"])])
         self.assertEqual(meta["sections"][0]["notes"], ["a line under the title"])
+        self.assertIsNone(meta["sections"][0]["how"])  # no HOW: line: the first statistic's how is shown
         self.assertEqual([g["id"] for g in meta["groups"]], ["whats-happening", "why"])
+        # HOW: names the section's primary statistic, and "open" unfolds its line by default.
+        meta = self.read("lifting", head + "## A\nSTAT: lifting.lag_check\nSTAT: lifting.progress.*\nHOW: lifting.progress.* open\n" + why)
+        self.assertEqual(meta["sections"][0]["how"], ("lifting.progress.*", True))
+        self.assertIn('id="a" data-how="lifting.progress.*" data-how-open aria-labelledby="a-h"', build.render_data_page(meta))
         self.assertEqual(meta["sections"][1]["group"], "why")
         bad = head.replace("source: Hevy | https://www.hevyapp.com", "source: Hevy | https://www.hevyapp.com\nattribution_when: yahoo | text")
         with self.assertRaisesRegex(build.ContentError, "attribution_when must be"):
@@ -385,6 +394,7 @@ class Drawing(unittest.TestCase):
         self.assertGreater(b["charts"], 0)
         sl = slot(d, "lifting.body_weight_rate")
         self.assertEqual(sl["hows"], ["how: " + ANALYSIS["lifting"]["body_weight_rate"]["how"]])
+        self.assertEqual((sl["howSummary"], sl["howOpen"]), (["how"], [False]))  # folded under "how", closed by default
         self.assertIn("Courier Prime", sl["howFont"])
 
     # "not enough data yet": under What's happening the statistic isn't drawn and a section with
@@ -790,7 +800,9 @@ class Drawing(unittest.TestCase):
                     "Strength", ".58 all-play · rank 6 of 32", "Percentile among managers"):
             self.assertIn(bit, b["text"])
         self.assertEqual((b["value"], b["interval"]), ("61st percentile", "95% 41–78"))
-        self.assertEqual(len(bars["hows"]), 5)  # the four components and the composite
+        # One how line per section, the composite's (HOW: in fantasy.md); the component rows have none.
+        self.assertEqual(bars["hows"], ["how: " + ANALYSIS["fantasy"]["manager_score"]["composite"]["how"]])
+        self.assertEqual(composite["hows"], [])
         self.assertTrue(composite["hidden"])  # drawn inside the card instead
         split = blocks(d, "fantasy.teams[].acquisition_split")
         self.assertEqual(len(split), len(ANALYSIS["fantasy"]["teams"]))
