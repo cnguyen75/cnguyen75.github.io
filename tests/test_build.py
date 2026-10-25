@@ -225,7 +225,8 @@ class Progress(unittest.TestCase):
         self.assertEqual(work, [("01", "Evaluation platform for LLM agents"), ("02", "Making model outputs reliable enough to act on"),
                                 ("03", "Underwriting and follow-up agents"), ("04", "Co-borrower and joint applications"),
                                 ("05", "Mobile banking apps"), ("06", "Disclosure timing and compliance"),
-                                ("07", "Zeta Global"), ("08", "NationBuilder")])
+                                ("07", "Supervisor agent and multi-vendor assistant platform"),
+                                ("08", "Election-document extraction and relevance ranking")])
         section = re.search(r'<section class="side" id="work".*?</section>', index, re.S).group(0)
         self.assertIn('<h2 class="side-label" id="work-label">side a. work</h2>', section)
         intros = re.findall(r'<p class="side-intro">([^<]+)</p>', section)
