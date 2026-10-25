@@ -316,6 +316,34 @@
     show(0);
   });
 
+  // ---------- long lists and tables ----------
+
+  // More than ten rows show ten and a "show all N" button that opens the rest in place;
+  // the rows stay in the DOM, hidden, and the button carries aria-expanded and aria-controls.
+  var SHOW_ROWS = 10, listId = 0;
+  [].forEach.call(document.querySelectorAll(".tp-section-body ul, .tp-section-body ol, .tp-table tbody"), function (el) {
+    var rows = [].slice.call(el.children).filter(function (c) { return /^(li|tr)$/i.test(c.tagName); });
+    if (rows.length <= SHOW_ROWS) return;
+    if (!el.id) el.id = "tp-rows-" + ++listId;
+    var more = "show all " + rows.length, less = "show fewer";
+    function set(open) { rows.forEach(function (r, i) { if (i >= SHOW_ROWS) r.hidden = !open; }); }
+    set(false);
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "table-toggle rows-more";
+    btn.setAttribute("aria-controls", el.id);
+    btn.setAttribute("aria-expanded", "false");
+    btn.textContent = more;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") !== "true";
+      set(open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? less : more;
+    });
+    var host = el.closest(".tp-table") || el;
+    host.parentNode.insertBefore(btn, host.nextSibling);
+  });
+
   // ---------- start ----------
 
   controls.hidden = false;

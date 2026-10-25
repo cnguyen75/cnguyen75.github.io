@@ -67,6 +67,8 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
               charts: b.querySelectorAll(".ld-chart, table, .meter, .ld-records, .ld-facts").length,
               lines: b.querySelectorAll(":scope > p").length, text: txt(b),
               rows: b.querySelectorAll("table tbody tr").length,
+              hiddenRows: b.querySelectorAll("table tbody tr[hidden], .ld-bar-row[hidden], .ld-iv-row[hidden]").length,
+              more: [...b.querySelectorAll(".rows-more")].map(x => [txt(x), x.getAttribute("aria-expanded"), !!document.getElementById(x.getAttribute("aria-controls"))]),
               cells: [...b.querySelectorAll("table tbody tr")].map(tr => [...tr.children].map(td => txt(td))),
               quadTitles: [...b.querySelectorAll(".quad-dot[title]")].map(d => d.getAttribute("title")),
               quadLabels: [...b.querySelectorAll(".quad-label")].filter(e => e.offsetParent !== null).map(txt),
@@ -85,8 +87,9 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
             tabs: [...b.querySelectorAll(".tier-tab")].map(txt),
             pressed: (b.querySelector('.tier-tab[aria-pressed="true"]') || {}).dataset ? b.querySelector('.tier-tab[aria-pressed="true"]').dataset.type : null,
             rows: [...b.querySelectorAll(".tier-row")].map(r => ({
-              tier: r.dataset.tier, chips: r.querySelectorAll(".tier-chip").length, collapsed: r.classList.contains("tier-row--collapsed"),
-              more: txt(r.querySelector(".tier-more")), summary: txt(r.querySelector(".tier-summary")),
+              tier: r.dataset.tier, chips: r.querySelectorAll(".tier-chip").length, shown: [...r.querySelectorAll(".tier-chip")].filter(c => !c.hidden).length,
+              more: txt(r.querySelector(".tier-more")), moreExpanded: r.querySelector(".tier-more") ? r.querySelector(".tier-more").getAttribute("aria-expanded") : null,
+              summary: txt(r.querySelector(".tier-summary")),
               hover: [...r.querySelectorAll(".tier-chip")].map(c => c.getAttribute("title")), years: [...r.querySelectorAll(".tier-chip-year")].map(txt),
             })),
           };

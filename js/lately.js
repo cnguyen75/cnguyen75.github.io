@@ -84,6 +84,8 @@
 
   // The shared chart kit and number formats (js/lately-depth.js), when it loaded.
   function LD() { return isObj(window.LatelyDepth) ? window.LatelyDepth : null; }
+  // Long lists: more than ten rows show ten and a "show all N" button (js/lately-depth.js).
+  function collapse(container, rows, opts) { var d = LD(); return d && d.collapseRows ? d.collapseRows(container, rows, opts) : null; }
   function F() { var d = LD(); return d && d.fmt ? d.fmt : null; }
   // Formats with a real minus sign and the data's precision, falling back to the local ones.
   function fnum(x, dp) { var f = F(); return f ? f.num(x, dp) : (dp === undefined ? String(x) : x.toFixed(dp)); }
@@ -161,6 +163,7 @@
               : h("td", { class: columns[i].num ? "num" : null }, cell);
           }));
         }))));
+    append(table, collapse(table, table.querySelectorAll("tbody tr")));
     var button = h("button", { type: "button", class: "table-toggle", "aria-controls": id, "aria-expanded": "false" }, "view as table");
     button.addEventListener("click", function () {
       var showTable = table.hidden;
@@ -197,11 +200,13 @@
           h("div", { class: "bar-track" + (min < 0 ? " bar-track--diverging" : "") }, fill(i.value)),
           h("div", { class: "bar-value" }, short(i.value)));
       }));
+    var more = collapse(list, list.children);
+    var figure = more ? h("div", { class: "ld-collapsible" }, list, more) : list;
     var t = tableToggle(opts.title, [{ label: opts.labelHeading }, { label: opts.valueHeading, num: true }],
-      items.map(function (i) { return [i.label, short(i.value)]; }), list);
+      items.map(function (i) { return [i.label, short(i.value)]; }), figure);
     return h("div", { class: "chart-block" },
       h("div", { class: "chart-head" }, h("div", { class: "chart-title" }, opts.title), t.button),
-      list, t.table, opts.after || null);
+      figure, t.table, opts.after || null);
   }
 
   function stat(label, value, note) {
@@ -412,9 +417,7 @@
     var types = { film: "film", show: "show", anime: "anime" };
     // With no ratings at all, drop the score column instead of leaving a gap.
     var hasRatings = recent.some(function (e) { return typeof e.item.rating === "number"; });
-    return h("div", { class: "list" },
-      h("div", { class: "list-title" }, "Recently"),
-      h("ul", { class: "list-items" }, recent.map(function (entry) {
+    var ul = h("ul", { class: "list-items" }, recent.map(function (entry) {
         var r = entry.item;
         var type = types[r.type] || "film";
         var title = str(r.title, "title") + (!entry.finished && typeof r.season === "number" ? ", season " + r.season : "");
@@ -428,7 +431,8 @@
             ? h("span", { class: "item-score", title: "Rated " + short(r.rating) + " out of 10" },
                 h("span", { class: "sr-only" }, "rated "), short(r.rating), h("span", { class: "sr-only" }, " out of 10"))
             : hasRatings ? h("span", { class: "item-score" }) : null);
-      })));
+      }));
+    return h("div", { class: "list" }, h("div", { class: "list-title" }, "Recently"), ul, collapse(ul, ul.children));
   }
 
   // Optional extras below are lenient: a malformed entry is skipped, and a
@@ -452,15 +456,14 @@
   function watchingNow(list) {
     var items = Array.isArray(list) ? list.filter(titled) : [];
     if (!items.length) return null;
-    return h("div", { class: "list" },
-      h("div", { class: "list-title" }, "Watching now"),
-      h("ul", { class: "list-items" }, items.map(function (c) {
-        var type = c.type === "anime" ? "anime" : "show";
-        return h("li", { class: "list-item" },
-          h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
-          h("span", { class: "item-name" }, titleLink(c)),
-          progress(c));
-      })));
+    var ul = h("ul", { class: "list-items" }, items.map(function (c) {
+      var type = c.type === "anime" ? "anime" : "show";
+      return h("li", { class: "list-item" },
+        h("span", { class: "swatch fill--" + type, "aria-hidden": "true" }),
+        h("span", { class: "item-name" }, titleLink(c)),
+        progress(c));
+    }));
+    return h("div", { class: "list" }, h("div", { class: "list-title" }, "Watching now"), ul, collapse(ul, ul.children));
   }
 
   // My rankings: Films, Shows and Anime, the first five with a toggle for the rest.
@@ -508,11 +511,11 @@
 
   // The tier board: five rows of title chips for films, shows or anime, from the tiered
   // titles the crowd statistic publishes (title, type, year, tier, community score), with a
-  // one-line summary per row from tier_genres_decades. S and A rows open; B, C and D fold
-  // to a count until opened. Titles are public works.
+  // one-line summary per row from tier_genres_decades. A row shows TIER_SHOWN chips and a
+  // "+N more" chip that opens the rest of that row. Titles are public works.
   var TIER_ROWS = ["S", "A", "B", "C", "D"];
   var TIER_TYPES = [["film", "Films"], ["show", "Shows"], ["anime", "Anime"]];
-  var TIER_OPEN = { S: true, A: true };
+  var TIER_SHOWN = 15;
   function watchingTiers(data) {
     var ws = watchingState(data);
     if (!ws.state.show) return null;
@@ -541,22 +544,24 @@
       TIER_ROWS.forEach(function (tier) {
         var items = titles.filter(function (p) { return p.type === type && p.tier === tier; })
           .sort(function (x, y) { return (isNum(y.community) ? y.community : 0) - (isNum(x.community) ? x.community : 0) || String(x.title).localeCompare(String(y.title)); });
-        var open = !!TIER_OPEN[tier] || items.length <= 3;
-        var strip = h("ul", { class: "tier-chips", "aria-label": "Tier " + tier }, items.map(chip));
-        var row = h("div", { class: "tier-row" + (open ? "" : " tier-row--collapsed"), "data-tier": tier },
+        var strip = h("ul", { class: "tier-chips", id: "tier-" + type + "-" + tier, "aria-label": "Tier " + tier }, items.map(chip));
+        var row = h("div", { class: "tier-row", "data-tier": tier },
           h("div", { class: "tier-row-head" }, h("span", { class: "tier-letter" }, tier),
             h("span", { class: "tier-count" }, plural(items.length, word[0], word[1])),
             summaries[tier] ? h("span", { class: "tier-summary" }, summaries[tier]) : null),
           items.length ? strip : h("p", { class: "panel-empty" }, "No " + word[1] + " in " + tier + "."));
-        if (!open && items.length) {
-          var btn = h("button", { type: "button", class: "table-toggle tier-more", "aria-expanded": "false" }, plural(items.length, "title", "titles") + " · show all");
+        if (items.length > TIER_SHOWN) {
+          var rest = items.length - TIER_SHOWN, chips = Array.prototype.slice.call(strip.children);
+          function fold(open) { chips.forEach(function (li, i) { if (i >= TIER_SHOWN) li.hidden = !open; }); }
+          fold(false);
+          var btn = h("button", { type: "button", class: "tier-more", "aria-controls": strip.id, "aria-expanded": "false" }, "+" + rest + " more");
           btn.addEventListener("click", function () {
-            var opening = row.classList.contains("tier-row--collapsed");
-            row.classList.toggle("tier-row--collapsed", !opening);
+            var opening = btn.getAttribute("aria-expanded") !== "true";
+            fold(opening);
             btn.setAttribute("aria-expanded", String(opening));
-            btn.textContent = opening ? "show fewer" : plural(items.length, "title", "titles") + " · show all";
+            btn.textContent = opening ? "show fewer" : "+" + rest + " more";
           });
-          row.appendChild(btn);
+          strip.appendChild(h("li", { class: "tier-chip-more" }, btn));
         }
         rows.appendChild(row);
       });
@@ -688,17 +693,16 @@
       need(isObj(c), "cuisine");
       return { label: str(c.name, "cuisine"), value: num(c.count, "count") };
     }), MAX_CUISINES);
+    var ul = h("ul", { class: "list-items list-items--places" }, recent.map(function (r) {
+      need(isObj(r), "restaurant");
+      return h("li", { class: "list-item" },
+        h("span", { class: "item-name" }, str(r.name, "restaurant name")),
+        h("span", { class: "item-score item-score--wide" }, num(r.score, "score").toFixed(2)));
+    }));
     return [
       state.asOf ? staleNote(state.asOf) : null,
       stat("Restaurants ranked", String(num(e.ranked_count, "ranked_count"))),
-      h("div", { class: "list" },
-        h("div", { class: "list-title" }, "Recently tried"),
-        h("ul", { class: "list-items list-items--places" }, recent.map(function (r) {
-          need(isObj(r), "restaurant");
-          return h("li", { class: "list-item" },
-            h("span", { class: "item-name" }, str(r.name, "restaurant name")),
-            h("span", { class: "item-score item-score--wide" }, num(r.score, "score").toFixed(2)));
-        }))),
+      h("div", { class: "list" }, h("div", { class: "list-title" }, "Recently tried"), ul, collapse(ul, ul.children)),
       barChart({
         title: "What I rank most",
         labelHeading: "Cuisine",

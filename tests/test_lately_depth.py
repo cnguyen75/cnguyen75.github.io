@@ -315,6 +315,10 @@ def variant(name):
         d["eating"]["recent"] = [{"name": "Zeta Noodle", "city": "City 9", "score": 8.1},
                                  {"name": "alpha Cafe", "city": "City 8", "score": 9.2},
                                  {"name": "Mid Grill", "city": "City 7", "score": 7.0}]
+    if name == "crowded tier":
+        # Twenty more S-tier films, so the S row folds to fifteen chips and a "+N more" chip.
+        pts = a["watching"]["crowd_agreement"]["values"]["points"]
+        pts += [{"title": f"Extra film {i}", "type": "film", "year": 2000 + i, "tier": "S", "tier_score": 5, "community": 8.0} for i in range(20)]
     if name == "no bids":
         for add in a["fantasy"]["teams"][0]["waiver_adds"]["values"]["all"]:
             add["spent"] = {"kind": "free agent", "amount": 0}
@@ -497,8 +501,9 @@ class Drawing(unittest.TestCase):
         self.assertNotIn("Top artists", home["bodyText"])  # the list left the main page
 
 
-    # The tier board: films by default, five rows, S and A open, B to D folded to a count;
-    # chips carry the year and a hover with type, year and community score; a summary per row.
+    # The tier board: films by default, five rows, every row open; a row with more than fifteen
+    # titles shows fifteen and a "+N more" chip that opens the rest; chips carry the year and a
+    # hover with type, year and community score; a summary per row.
     def test_tier_board(self):
         d = draw("lately/watching/")
         pts = [p for p in ANALYSIS["watching"]["crowd_agreement"]["values"]["points"] if p["type"] == "film"]
@@ -509,9 +514,11 @@ class Drawing(unittest.TestCase):
         self.assertEqual([r["chips"] for r in board["rows"]], [len([p for p in pts if p["tier"] == t]) for t in "SABCD"])
         for r in board["rows"]:
             with self.subTest(tier=r["tier"]):
-                self.assertEqual(r["collapsed"], r["tier"] in "BCD" and r["chips"] > 3)
-                if r["collapsed"]:
-                    self.assertEqual(r["more"], f"{r['chips']} titles · show all")
+                self.assertEqual(r["shown"], min(r["chips"], 15))
+                self.assertEqual(r["more"], f"+{r['chips'] - 15} more" if r["chips"] > 15 else None)
+        crowded = draw("lately/watching/", name="crowded tier")["board"]["rows"][0]
+        self.assertGreater(crowded["chips"], 15)
+        self.assertEqual((crowded["shown"], crowded["more"], crowded["moreExpanded"]), (15, f"+{crowded['chips'] - 15} more", "false"))
         s_row = board["rows"][0]
         self.assertTrue(s_row["summary"].startswith("mostly "), s_row["summary"])
         self.assertRegex(s_row["hover"][0], r"^film · \d{4} · community \d\.\d$")
@@ -576,6 +583,8 @@ class Drawing(unittest.TestCase):
             self.assertEqual(b["text"].count("▽ worst"), sum(a["worst"] for a in adds))
             self.assertNotIn("aren't in it", b["text"])
         self.assertEqual(second["rows"], 14)
+        # More than ten rows: ten shown, the rest hidden behind "show all N" (aria-controls names the table).
+        self.assertEqual((second["hiddenRows"], second["more"]), (4, [["show all 14", "false", True]]))
         self.assertEqual(slot(d, "fantasy.teams[].waiver_adds")["hows"], ["how: " + wa["how"]])
         # A league whose adds carry no bid has no Bid column.
         nobid = blocks(draw("lately/fantasy/", name="no bids"), "fantasy.teams[].waiver_adds")
@@ -789,6 +798,7 @@ class Drawing(unittest.TestCase):
         self.assertIn("league median", split[0]["text"])
         draft = blocks(d, "fantasy.teams[].draft")
         self.assertEqual(draft[0]["rows"], 15)
+        self.assertEqual((draft[0]["hiddenRows"], draft[0]["more"]), (5, [["show all 15", "false", True]]))
         self.assertEqual(draft[0]["cells"][0][:3], ["1", "7", "Player A1"])
         (q,) = blocks(d, "fantasy.quadrant")
         self.assertEqual(q["quadOthers"], len(ANALYSIS["fantasy"]["quadrant"]["values"]["others"]))

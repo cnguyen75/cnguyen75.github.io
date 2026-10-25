@@ -106,20 +106,51 @@
   }
 
   function table(caption, cols, rows, opts) {
-    return h("div", { class: "data-table ld-table" + (opts && opts.cls ? " " + opts.cls : ""), hidden: opts && opts.hidden },
+    var body = h("tbody", null, rows.map(function (r) {
+      return h("tr", null, r.map(function (cell, i) {
+        return i === 0 ? h("th", { scope: "row" }, cell) : h("td", { class: cols[i].num ? "num" : null }, cell);
+      }));
+    }));
+    var box = h("div", { class: "data-table ld-table" + (opts && opts.cls ? " " + opts.cls : ""), hidden: opts && opts.hidden },
       h("table", null,
         h("caption", { class: opts && opts.showCaption ? "ld-caption" : "sr-only" }, caption),
         h("thead", null, h("tr", null, cols.map(function (c) {
           return h("th", { scope: "col", class: c.num ? "num" : null }, c.label);
         }))),
-        h("tbody", null, rows.map(function (r) {
-          return h("tr", null, r.map(function (cell, i) {
-            return i === 0 ? h("th", { scope: "row" }, cell) : h("td", { class: cols[i].num ? "num" : null }, cell);
-          }));
-        }))));
+        body));
+    append(box, collapseRows(box, body.children));
+    return box;
   }
 
   var uid = 0;
+  var SHOW_ROWS = 10;
+  // A list or table with more than SHOW_ROWS rows shows that many and a "show all N" button
+  // that opens the rest in place and closes them again. The rows stay in the DOM, hidden,
+  // and the button carries aria-expanded and aria-controls. Returns the button, or null.
+  function collapseRows(container, rows, opts) {
+    opts = opts || {};
+    var limit = opts.limit || SHOW_ROWS;
+    rows = Array.prototype.slice.call(rows);
+    if (rows.length <= limit) return null;
+    if (!container.id) container.id = "ld-rows-" + ++uid;
+    function set(open) { rows.forEach(function (r, i) { if (i >= limit) r.hidden = !open; }); }
+    set(false);
+    var more = "show all " + rows.length, less = "show fewer";
+    var btn = h("button", { type: "button", class: "table-toggle rows-more" + (opts.cls ? " " + opts.cls : ""), "aria-controls": container.id, "aria-expanded": "false" }, more);
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") !== "true";
+      set(open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.textContent = open ? less : more;
+    });
+    return btn;
+  }
+  // A chart whose rows collapse: the chart and its button in one box, so "view as table" hides both.
+  function collapsible(chart, rows, opts) {
+    var btn = collapseRows(chart, rows, opts);
+    return btn ? h("div", { class: "ld-collapsible" }, chart, btn) : chart;
+  }
+
   // A chart with its "view as table" toggle; the table holds the same numbers.
   function charted(title, chart, cols, rows, after) {
     var t = table(title, cols, rows, { hidden: true });
@@ -181,7 +212,7 @@
     var legend = opts.refHeading ? h("p", { class: "ld-legend" },
       h("span", { class: "ld-key-bar", "aria-hidden": "true" }), " " + opts.valueHeading + " (first number)   ",
       h("span", { class: "ld-key-ref", "aria-hidden": "true" }), " " + opts.refHeading + " (second)") : null;
-    return charted(title, chart, cols, items.map(function (i) {
+    return charted(title, collapsible(chart, chart.querySelectorAll(".ld-bar-row")), cols, items.map(function (i) {
       var r = [i.label, i.text];
       if (opts.refHeading) r.push(i.refText || "");
       return r;
@@ -211,7 +242,7 @@
       h("div", { class: "ld-iv-axis", "aria-hidden": "true" }, h("span", null, ""),
         h("span", { class: "ld-iv-axis-track" },
           h("span", { style: { left: x(0) } }, "0")), h("span", null, "")));
-    return charted(title, chart, [{ label: opts.labelHeading || "" }, { label: "value and 95% interval", num: true }],
+    return charted(title, collapsible(chart, chart.querySelectorAll(".ld-iv-row")), [{ label: opts.labelHeading || "" }, { label: "value and 95% interval", num: true }],
       rows.map(function (r) { return [r.label, r.text]; }));
   }
 
@@ -452,7 +483,8 @@
       }),
       h("div", { class: "ld-bar-row ld-range-axis", "aria-hidden": "true" }, h("span"),
         h("span", { class: "ld-iv-axis-track" }, TIER_ORDER.map(function (t, i) { return h("span", { style: { left: (i / 4 * 100) + "%" } }, t); })), h("span")));
-    return charted(title, chart, [{ label: opts.labelHeading || "Name" }, { label: "Mean tier", num: true }, { label: unit, num: true }, { label: "Titles" }],
+    return charted(title, collapsible(chart, chart.querySelectorAll(".ld-bar-row:not(.ld-range-axis)")),
+      [{ label: opts.labelHeading || "Name" }, { label: "Mean tier", num: true }, { label: unit, num: true }, { label: "Titles" }],
       rows.map(function (r) { return [String(r.name), tierText(r.mean_tier), String(r.n), filmsText(rowTitles(r))]; }), opts.after);
   }
 
@@ -829,6 +861,7 @@
                 anyBid ? h("td", { class: "num" }, bid(a.spent)) : null,
                 h("td", null, String(a["class"])));
             }))));
+        append(t, collapseRows(t, t.querySelectorAll("tbody tr")));
         return [
           facts([["net points available", signed(v.net_points_available, 2)], ["net points captured", signed(v.net_points_captured, 2)],
             ["adds a week", num(v.adds_per_week, 1)], ["adds", String(v.adds)], ["judged", String(v.judged)]]),
@@ -2149,6 +2182,7 @@
   }
 
   window.LatelyDepth = { headline: headline, headlineRow: headlineRow, waitBox: waitBox, okStat: okStat, sampleTag: sampleTag, firstUnitText: firstUnitText,
+    collapseRows: collapseRows, collapsible: collapsible,
     charts: { multiLine: multiLine, quadrant: quadrant, indexedLines: indexedLines, sTierBars: sTierBars, bars: bars, columns: columns, tierBars: tierBars,
       effectBars: effectBars, survivalChart: survivalChart },
     splitSeries: splitSeries, SPLIT_NAMES: SPLIT_NAMES,
