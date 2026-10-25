@@ -3,6 +3,7 @@ track: 12
 side: b
 slug: sleep-validation
 title: Sleep validation study
+when: jul 2026 to present
 register: progress
 one_line: Does a consumer Fitbit agree with a research-grade actigraph on sleep in cancer survivors? The analysis plan, written before any data is seen.
 ready: true

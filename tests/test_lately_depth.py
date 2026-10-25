@@ -879,10 +879,11 @@ class Drawing(unittest.TestCase):
     # The budget allows the 21 track rows since side A became three employers with eight rows
     # and the panel heads as tracks 22 to 26 (measured 8,231 and 7,207 after item 22, when the
     # type scale went back to the original sizes), raised by 819px when the six Athena rows
-    # took three bullets each (measured 8,888 and 7,902).
+    # took three bullets each (measured 8,888 and 7,902), and by 279px when the thirteen cards on
+    # sides B and C took their months under the title (measured 9,167 and 8,181).
     def test_main_page_height(self):
-        self.assertLess(draw("index.html")["pageHeight"], 9119)
-        self.assertLess(draw("index.html", name="old file")["pageHeight"], 8219)
+        self.assertLess(draw("index.html")["pageHeight"], 9398)
+        self.assertLess(draw("index.html", name="old file")["pageHeight"], 8498)
 
     # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
     def test_strength_kept_joins_the_headline(self):

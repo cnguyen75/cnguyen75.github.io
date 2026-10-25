@@ -15,7 +15,7 @@ import build  # noqa: E402
 FRONT = {
     "track": "04", "slug": "demo-page", "title": "A study", "register": "progress", "ready": "false",
     "status_label": "manuscript in preparation", "with": "With Dr. Someone (Somewhere)",
-    "link": "pre-registration | https://osf.io/example", "as_of": "2026-10-13",
+    "link": "pre-registration | https://osf.io/example", "as_of": "2026-10-13", "when": "jun 2026 to present",
 }
 SECTIONS = {
     "question": "What is the question?",
@@ -130,6 +130,12 @@ class Progress(unittest.TestCase):
         for key in ("with", "as_of"):
             with self.subTest(key=key), self.assertRaisesRegex(build.ContentError, f"missing {key}"):
                 self.read(front={key: None})
+        # when: (the months) ends the kicker on sides B and C, and a page there can't do without it.
+        self.assertIn('<p class="tp-kicker">side b. research · track 04 of 1 · <span class="track-when">jun 2026 to present</span></p>', doc)
+        with self.assertRaisesRegex(build.ContentError, "needs when:"):
+            self.render(front={"when": None})
+        with self.assertRaisesRegex(build.ContentError, "when: is the months"):
+            self.read(front={"when": "Aug 2026 — present"})
 
     # A line beginning HELD: is a flagged note in drafts and fails the build when ready: true.
     def test_held(self):
@@ -211,7 +217,17 @@ class Progress(unittest.TestCase):
         self.assertEqual(index.count("side c. projects"), 1)
         for n, label in (("10", "part one"), ("11", "part two"), ("17", "part one"), ("18", "part two")):
             self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
-                                    rf'<span class="track-part">{label}</span>')
+                                    rf'<span class="track-when">[^<]+</span><span class="track-part">{label}</span>')
+        # Every side B and C row shows its months (when: in the content file) under the title; side A and the lately cards carry none.
+        whens = dict(re.findall(r'<span class="track-no">(\d\d)</span>\s*<div class="track-body"><h3 class="track-title"[^>]*>[^<]+</h3><span class="track-when">([^<]+)</span>', index))
+        self.assertEqual(sorted(whens), [f"{n:02d}" for n in range(9, 22)])
+        self.assertEqual(whens["09"], "jun 2026 to present")
+        for f in list(build.ROOT.glob("content/tracks/*.md")) + list(build.ROOT.glob("content/drafts/*.md")):
+            meta = build.read_page(f)
+            if meta["track"] in whens:
+                self.assertEqual(whens[meta["track"]], meta["when"], f.name)
+        self.assertEqual(build.when_rows(index, [meta], tracks), index)  # idempotent
+        self.assertEqual(build.when_rows(index, [dict(meta, track="01")], tracks), index)  # never on side A
         self.assertEqual(index.count('class="track-part"'), 4)
         self.assertEqual(len(re.findall(r'<span class="track-part">part (?:one|two)</span>', index)), 4)  # no dates on the cards
 

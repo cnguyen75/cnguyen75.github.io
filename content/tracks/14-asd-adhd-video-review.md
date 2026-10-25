@@ -3,6 +3,7 @@ track: 14
 side: b
 slug: asd-adhd-video-review
 title: Systematic review: computer vision for home-video screening of ASD and ADHD
+when: oct 2025 to present
 register: progress
 one_line: About 55 studies that read autism and ADHD behaviour from home video, and what explains the spread in their reported accuracy.
 ready: true

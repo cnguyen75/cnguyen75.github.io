@@ -3,6 +3,7 @@ track: 09
 side: b
 slug: receptivity-evaluation
 title: How receptivity models are evaluated
+when: jun 2026 to present
 register: progress
 one_line: The standard accuracy number for "will this person answer a prompt" models mostly measures who tends to answer. Three cohorts, and one pre-registered test of the fix.
 ready: true

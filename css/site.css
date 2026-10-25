@@ -376,7 +376,7 @@ main {
 .track--wrap .track-body { display: contents; }
 .track--wrap .track-title { grid-column: 2; grid-row: 1; min-width: 0; }
 .track--wrap .track-meta--status { grid-column: 3; grid-row: 1; justify-self: end; }
-.track--wrap .track-part, .track--wrap .track-desc, .track--wrap .track-ext, .track--wrap .track-points { grid-column: 2 / -1; }
+.track--wrap .track-when, .track--wrap .track-part, .track--wrap .track-desc, .track--wrap .track-ext, .track--wrap .track-points { grid-column: 2 / -1; }
 /* A row whose track page is built is one link (number, title, description and status).
    Hover and keyboard focus lift it slightly off the paper: a faint card background that
    reaches a little past the text on both sides, and the number in teal. Text colours stay
@@ -422,6 +422,10 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 }
 /* Which part of a two-part story a row is, under its title. */
 .track-part { display: block; padding-top: var(--s-2); font-family: var(--font-label); font-size: var(--fs-14); color: var(--text-3); }
+/* The months a side B or C track ran (when: in its content file), under the title on the card
+   and at the end of the track page's kicker. */
+.track-when { display: block; padding-top: var(--s-2); font-family: var(--font-label); font-size: var(--fs-13); font-weight: 400; color: var(--text-3); }
+.tp-kicker .track-when { display: inline; padding: 0; }
 /* A row's small secondary link to the project elsewhere, while it has no ready page. */
 .track-ext { display: block; margin-top: var(--s-6); font-family: var(--font-label); font-size: var(--fs-14); }
 .track-ext a { display: inline-block; padding: var(--s-4) 0; color: var(--text-2); }

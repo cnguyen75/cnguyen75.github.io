@@ -156,6 +156,8 @@ def read_page(path):
         raise ContentError(f"{path.name}: slug must be lowercase words joined by hyphens")
     meta["ready"] = meta["ready"] == "true"
     meta["track"] = meta["track"].zfill(2)
+    if meta.get("when") and ("—" in meta["when"] or not re.fullmatch(r"[a-z0-9 ,]+", meta["when"])):
+        raise ContentError(f"{path.name}: when: is the months in words, lowercase, e.g. 'aug 2026 to present' or '2025, rebuilt 2026'")
     meta["source"] = path
     meta["assets"] = path.parent / meta["slug"]
     body = m.group(2)
@@ -1077,6 +1079,23 @@ def link_rows(index_html, pages):
     return s
 
 
+def when_rows(index_html, metas, tracklist):
+    """Writes each side B or C track's months (when:) onto its row on the main page, as
+    span.track-when right after the title. Idempotent: an existing span is replaced; a row
+    whose content file is not here (a draft on another machine) keeps the span it has.
+    Rows on other sides are left alone."""
+    s = index_html
+    sides = {t[0]: t[3] for t in tracklist}
+    for m in metas:
+        if not m.get("when") or sides.get(m["track"]) not in ("research", "projects"):
+            continue
+        pat = re.compile(rf'(<span class="track-no">{m["track"]}</span>\s*<div class="track-body"><h3 class="track-title"[^>]*>.*?</h3>)(<span class="track-when">[^<]*</span>)?')
+        if not pat.search(s):
+            raise ContentError(f"track {m['track']} is not on the main page")
+        s = pat.sub(lambda mm: mm.group(1) + f'<span class="track-when">{esc(m["when"])}</span>', s, count=1)
+    return s
+
+
 # ---------- text read from a track's results file ----------
 # A main-page row (span.track-live with data-template) or a page with "live:" in its front
 # matter fills {field:kind} placeholders from a JSON results file at build time, so that
@@ -1255,6 +1274,10 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
     _, _, side_label, side_id = by_no[num]
     on_list = num in {t[0] for t in tracklist[:listed]}
     side_short = side_label.split(",")[0]
+    # Sides B and C carry their months (when:) under the title on the card and in the kicker.
+    if side_id in ("research", "projects") and not meta.get("when"):
+        raise ContentError(f"{meta['source'].name}: a side B or C page needs when: (its months, e.g. 'aug 2026 to present')")
+    when = f' · <span class="track-when">{esc(meta["when"])}</span>' if meta.get("when") and side_id in ("research", "projects") else ""
 
     # Links to other track pages follow the previous/next rule below: a ready page links
     # only ready pages, so it builds the same with or without --drafts; a draft, in a
@@ -1429,7 +1452,7 @@ def render(meta, tracklist, pages_here, drafts_build, listed):
 </header>
 <main id="main" class="tp-main" data-total="{total:.1f}"{" data-live-timing" if data else ""}>
 {'<p class="tp-draft">draft · not ready to publish · only built with --drafts</p>' + chr(10) if draft else ''}<section class="tp-hero" aria-labelledby="tp-title">
-<p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}</p>
+<p class="tp-kicker">{esc(side_short)} · track {num}{f" of {listed}" if on_list else " · not on the tracklist yet"}{when}</p>
 <div class="tp-heading"><span class="tp-no" aria-hidden="true">{num}</span><h1 class="tp-title" id="tp-title"><span class="sr-only">Track {num}: </span>{esc(title)}</h1></div>
 {part}{lede}
 </section>
@@ -1584,6 +1607,7 @@ def main():
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"<url><loc>{u}</loc></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
 
+    index_html = when_rows(index_html, metas, tracklist)
     new_index = link_rows(index_html, {m["track"]: m["slug"] for m in ready})
     if new_index != index_before:
         index_path.write_text(new_index, encoding="utf-8")

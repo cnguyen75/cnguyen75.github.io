@@ -3,6 +3,7 @@ track: 13
 side: b
 slug: health-api-extractor
 title: Google Health API data extractor
+when: aug 2026
 register: progress
 one_line: Moving a lab's participant-data tool to a new API without silently changing the data: a parity harness that was itself fault-tested.
 ready: true
