@@ -8,7 +8,7 @@ Colin Nguyen's personal site. A single static page: plain HTML, one stylesheet, 
 
 ```
 index.html                 the whole page: header, hero, sides A–C, Side D (lately), footer
-01/ 02/ 03/                stubs: /01, /02 and /03 send the browser to that row on the main page (#track-01 …); side A has no pages
+01/ … 08/                  stubs: /01 to /08 send the browser to that row on the main page (#track-01 …); side A has no pages
 css/site.css               all styles; colours are CSS variables at the top (:root)
 js/lately.js               draws the Side D panels from data
 js/lately-depth.js         draws the lately/<feed>/ pages and the panels' headline numbers from the analysis block
@@ -93,9 +93,9 @@ The design source is `~/Personal/site-handoff/design/track-page-reference.html`.
 **The content file** is `content/tracks/NN-slug.md` (or `content/drafts/` while it is a draft), with its assets in a folder named after the slug beside it. Front matter:
 
 ```
-track: 03                 # the number on the main page; the title and side come from there
-slug: coding-agent-operations
-title: Running coding agents as a team process
+track: 16                 # the number on the main page; the title and side come from there
+slug: paper-trader
+title: Paper Trader
 register: plain           # plain (Athena), album (side projects) or progress (ongoing research)
 ready: false              # true only when cleared to publish
 one_line: …               # the lede and the page description (progress pages: description and preview card only)
@@ -106,11 +106,11 @@ attribution: …            # optional, repeated under the credits unless they h
 
 A row may carry a sentence filled from the track's results file at build time: `<span class="track-live" data-src="paper-trader/demo.json" data-template="… {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and …">rendered text</span>`, where `data-src` is a path under `content/tracks/` or `content/drafts/` and the template's `{field:kind}` placeholders are read from the JSON (`fill_live()`). The counted entries of a list are those not `voided` and, when the file has `clock_start`, dated on or after its `equity_base_snapshot` (else `first_fill`). Kinds: `count` (how many), `matched` ("all 26" when every counted entry's `match` is true, else "25 of 26"), `ratio` (always "25 of 26"), `unchecked` (", 1 not yet checked" for `match: null` entries, else nothing), `asof` (a `YYYY-MM-DD` field as the clause "as of 12 October 2026, "), `asofnote` ("as of 12 October 2026", for a stat note that is dropped when the date is missing) and `date` (the date alone). Regenerating the file before a build updates the text. Without the date its clause is left out; without the list, or the file, the whole sentence is, with a warning; the template stays in the attribute so the next build with the file restores it. A page can do the same with `live: demo.json` (a file in its asset folder) in its front matter: the same placeholders anywhere in its body are filled, a line whose list is missing is dropped, and a missing date leaves its text out.
 
-A page in a two-part story (tracks 05 and 06, the two research pages with Prof. Suess; tracks 12 and 13, the NBA pages) takes `part: part one · 2014–15 | 13`: the label, then the other part's number. The hero shows the label under the title, with a link to the other part under the same rule as previous and next (a ready page links it only once that part is ready too). On the main page the row carries the same label by hand, as `<span class="track-part">…</span>` after the title.
+A page in a two-part story (tracks 10 and 11, the two research pages with Prof. Suess; tracks 17 and 18, the NBA pages) takes `part: part one · 2014–15 | 18`: the label, then the other part's number. The hero shows the label under the title, with a link to the other part under the same rule as previous and next (a ready page links it only once that part is ready too). On the main page the row carries the same label by hand, as `<span class="track-part">…</span>` after the title.
 
 Progress pages take `with:` (one line under the title, in place of `one_line:`), `as_of: YYYY-MM-DD`, an optional `link: label | https://…` (a small link under the `with:` line) and `status_label:`.
 
-Side A (work) is three employers, newest first (Athena, Zeta Global, NationBuilder), each under its own `<p class="side-intro">` line "Title, Employer, dates in words" (the employer is named there and nowhere else in its block). Every row under an employer is a numbered track with the same markup as sides B and C: `span.track-no`, `h3.track-title`, `span.track-desc`. Athena has six rows, 01 to 06; Zeta Global is 07 and NationBuilder 08, each one row whose description carries its dates and whose bullet list (`ul.track-points`) sits in the track body under the description. No row on side A shows a date line of its own. They have no pages and no drafts; `/01` to `/03` are stubs that redirect to the row's anchor (`#track-01` …).
+Side A (work) is three employers, newest first (Athena, Zeta Global, NationBuilder), each under its own `<p class="side-intro">` line "Title, Employer, dates in words" (the employer is named there and nowhere else in its block). Every row under an employer is a numbered track with the same markup as sides B and C: `span.track-no`, `h3.track-title`, `span.track-desc`. Athena has six rows, 01 to 06; Zeta Global is 07 and NationBuilder 08, each one row whose description carries its dates and whose bullet list (`ul.track-points`) sits in the track body under the description. No row on side A shows a date line of its own. They have no pages and no drafts; `/01` to `/08` are stubs that redirect to the row's anchor (`#track-01` …).
 
 Every page ends with the line "Views are my own.": in the main page's contact column, and as a one-line footer on the track and Lately pages (written by `build.py`).
 

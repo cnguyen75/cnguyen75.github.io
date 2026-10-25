@@ -180,23 +180,24 @@ class Progress(unittest.TestCase):
             with self.assertRaisesRegex(build.ContentError, "part must be"):
                 self.read(front={"part": bad})
 
-    # The two research pages (05, 06) sit together on side B and the two NBA pages (12, 13)
-    # on side C, each row labelled with its part; LLM 20 Questions closes side C as 16.
+    # The two research pages (10, 11) sit together on side B and the two NBA pages (17, 18)
+    # on side C, each row labelled with its part; LLM 20 Questions closes side C as 21.
     def test_main_page_parts(self):
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
         tracks = build.read_tracklist(index)
         research = {n: t for n, t, _, side in tracks if side == "research"}
-        self.assertEqual(list(research), ["04", "05", "06", "07", "08", "09"])
-        self.assertEqual(research["05"], "Train it in a quarter of the memory")
-        self.assertEqual(research["06"], "Does the guarantee survive more options?")
-        self.assertEqual(research["07"], "Sleep validation study")
+        self.assertEqual(list(research), ["09", "10", "11", "12", "13", "14"])
+        self.assertEqual(research["10"], "Train it in a quarter of the memory")
+        self.assertEqual(research["11"], "Does the guarantee survive more options?")
+        self.assertEqual(research["12"], "Sleep validation study")
         projects = {n: t for n, t, _, side in tracks if side == "projects"}
-        self.assertEqual(list(projects), ["10", "11", "12", "13", "14", "15", "16"])
-        self.assertEqual(projects["12"], "Why did they take that shot?")
-        self.assertEqual(projects["13"], "A foot of space is worth eight seconds")
-        self.assertEqual(projects["16"], "LLM 20 Questions")
-        for n, label in (("05", "part one · 2026"), ("06", "part two · 2026–present"),
-                         ("12", "part one · 2014–15"), ("13", "part two · 2015–16")):
+        self.assertEqual(list(projects), ["15", "16", "17", "18", "19", "20", "21"])
+        self.assertEqual(projects["17"], "Why did they take that shot?")
+        self.assertEqual(projects["18"], "A foot of space is worth eight seconds")
+        self.assertEqual(projects["21"], "LLM 20 Questions")
+        self.assertEqual(index.count("side c. projects"), 1)
+        for n, label in (("10", "part one · 2026"), ("11", "part two · 2026–present"),
+                         ("17", "part one · 2014–15"), ("18", "part two · 2015–16")):
             self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
                                     rf'<span class="track-part">{label}</span>')
         self.assertEqual(index.count('class="track-part"'), 4)
@@ -230,7 +231,7 @@ class Progress(unittest.TestCase):
         self.assertEqual(section.count('<ul class="track-points">'), 2)
         for f in (build.ROOT / "content").glob("*/*.md"):  # side A has no pages or drafts
             self.assertNotRegex(f.read_text(encoding="utf-8").split("\n---\n")[0], r"\nside: a\b")
-        for n in ("01", "02", "03"):
+        for n, _ in work:  # /01 to /08 redirect to the row
             stub = (build.ROOT / n / "index.html").read_text(encoding="utf-8")
             self.assertIn(f'content="0; url=/#track-{n}"', stub)
 
