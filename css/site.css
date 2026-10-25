@@ -277,7 +277,20 @@ main {
   padding: 20px 0;
 }
 .side-label + .track, .side-intro + .track { border-top: 2px solid var(--ink); }
-.track--wrap { flex-wrap: wrap; gap: 8px 24px; }
+/* A row is a grid: number | title | status, with the description (and a part label, link or
+   bullets) spanning the title and status columns underneath. The status tag therefore always
+   sits on the title row, right-aligned, at every width; the title wraps instead. */
+.track--wrap {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 0 24px;
+  align-items: start;
+}
+.track--wrap .track-no { grid-column: 1; grid-row: 1; }
+.track--wrap .track-body { display: contents; }
+.track--wrap .track-title { grid-column: 2; grid-row: 1; min-width: 0; }
+.track--wrap .track-meta--status { grid-column: 3; grid-row: 1; justify-self: end; }
+.track--wrap .track-part, .track--wrap .track-desc, .track--wrap .track-ext, .track--wrap .track-points { grid-column: 2 / -1; }
 /* A row whose track page is built is one link (number, title, description and status).
    Hover and keyboard focus lift it slightly off the paper: a faint card background that
    reaches a little past the text on both sides, and the number in teal. Text colours stay
@@ -307,7 +320,6 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
 .track-meta--status { color: var(--text-3); }
 
 .track-body { flex: 1; min-width: 0; }
-.track--wrap .track-body { flex: 999 1 420px; }
 
 .track-title {
   display: block;
@@ -716,17 +728,11 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   font-weight: 600;
 }
 
-/* Narrow rows: the body's parts become row items, so the status (e.g. "2026", "in progress")
-   sits on the GitHub link's line instead of alone under it, or after the description when
-   the row has no link. The same rule for every row. */
+/* Narrow rows: the status is smaller and wraps onto two or three lines, and the columns sit
+   closer, so the title keeps room beside it. */
 @media (max-width: 520px) {
-  .track--wrap .track-body { display: contents; }
-  .track--wrap .track-title { flex: 1 1 0; min-width: 0; }
-  .track--wrap .track-part, .track--wrap .track-desc { flex: 1 1 100%; margin-left: 60px; }
-  .track--wrap .track-points { flex: 1 1 100%; margin-left: 60px; }
-  .track--wrap .track-ext { flex: 1 1 auto; margin: 0 0 0 60px; }
-  .track--wrap .track-meta--status { padding-top: 4px; margin-left: 60px; }
-  .track--wrap:has(.track-ext) .track-meta--status { margin-left: 0; }
+  .track--wrap { column-gap: 16px; }
+  .track--wrap .track-meta--status { white-space: normal; max-width: 7em; text-align: right; font-size: 12px; }
 }
 
 @media (max-width: 520px) {
