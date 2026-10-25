@@ -396,15 +396,21 @@ a.track:focus-visible::before { box-shadow: 0 0 0 2px var(--ink); }
   gap: var(--s-2);
 }
 .footer-col p { margin: 0; }
+/* The links keep their tap padding; the negative margin absorbs it, so the first link's
+   baseline sits on the education paragraph's and the views line sits one column gap under
+   the résumé line, which is a row of its own. */
 .footer-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0 var(--s-5);
+  margin: calc(-1 * var(--s-3)) 0;
 }
 .footer-links a,
 .footer-resume { padding: var(--s-3) 0; }
+.footer-resume { flex-basis: 100%; }
 /* The one-line disclaimer, in the footer's contact column and at the foot of every built page. */
-.views-note { margin: 0; padding: var(--s-3) 0; font-family: var(--font-label); font-size: var(--fs-s); color: var(--text-3); }
+.views-note { margin: 0; padding: 0; font-family: var(--font-label); font-size: var(--fs-s); color: var(--text-3); }
+.page-foot .views-note { padding: var(--s-3) 0; }
 .page-foot { margin-top: var(--s-7); border-top: 1px solid var(--rule); }
 
 /* ---------- Side D, lately ---------- */
