@@ -73,27 +73,57 @@
 <p class="side-intro">Founding AI Engineer, Athena Money, November 2025 to present</p>
 <div class="track track--wrap" id="track-01">
 <span class="track-no">01</span>
-<div class="track-body"><h3 class="track-title">Evaluation platform for LLM agents</h3><span class="track-desc">Multi-turn evaluation of production agents against cloned, sandboxed loan data: scenario graders, rubric-based LLM judges, a simulated user, CI tiers and regression gates.</span></div>
+<div class="track-body"><h3 class="track-title">Evaluation platform for LLM agents</h3><span class="track-desc">Multi-turn evaluation of production agents against cloned, sandboxed loan data: scenario graders, rubric-based LLM judges, a simulated user, CI tiers and regression gates.</span>
+<ul class="track-points">
+<li><strong>Scenarios and graders.</strong> Scripted multi-turn scenarios against cloned, sandboxed loan data, with separate graders for outcomes, per-turn quality and rubric-based judgement.</li>
+<li><strong>Simulated user.</strong> An LLM plays the borrower so an agent can be run end to end without a person in the loop.</li>
+<li><strong>Gates.</strong> Repeated trials, tiered CI and statistical regression tests, with the evaluation driver on durable workflows so any run can be replayed.</li>
+</ul></div>
 </div>
 <div class="track track--wrap" id="track-02">
 <span class="track-no">02</span>
-<div class="track-body"><h3 class="track-title">Making model outputs reliable enough to act on</h3><span class="track-desc">An experiments platform for comparing extraction and judgement approaches: field-level consensus across runs, LLM-as-judge scoring, and validation inside the turn before an output is used.</span></div>
+<div class="track-body"><h3 class="track-title">Making model outputs reliable enough to act on</h3><span class="track-desc">An experiments platform for comparing extraction and judgement approaches: field-level consensus across runs, LLM-as-judge scoring, and validation inside the turn before an output is used.</span>
+<ul class="track-points">
+<li><strong>Consensus.</strong> The same extraction run several times and agreed field by field before it is used.</li>
+<li><strong>Judgement.</strong> LLM-as-judge scoring, calibrated against human-checked sets.</li>
+<li><strong>In-turn validation.</strong> Outputs checked against schema and business rules inside the agent's turn, failing closed.</li>
+</ul></div>
 </div>
 <div class="track track--wrap" id="track-03">
 <span class="track-no">03</span>
-<div class="track-body"><h3 class="track-title">Underwriting and follow-up agents</h3><span class="track-desc">Agents that request, check and adjudicate borrower documents and conditions, with a supervising layer that reviews their decisions and a borrower override path.</span></div>
+<div class="track-body"><h3 class="track-title">Underwriting and follow-up agents</h3><span class="track-desc">Agents that request, check and adjudicate borrower documents and conditions, with a supervising layer that reviews their decisions and a borrower override path.</span>
+<ul class="track-points">
+<li><strong>Agents.</strong> Request, check and adjudicate borrower documents and conditions on a multi-turn agent framework with durable workflows.</li>
+<li><strong>Supervision.</strong> A supervising layer reviews agent decisions, a person approves before anything takes effect, and borrowers can override a revision request.</li>
+<li><strong>Migration.</strong> The legacy workflow moved onto the agents one request type at a time behind flags, then retired.</li>
+</ul></div>
 </div>
 <div class="track track--wrap" id="track-04">
 <span class="track-no">04</span>
-<div class="track-body"><h3 class="track-title">Co-borrower and joint applications</h3><span class="track-desc">The joint-application lifecycle end to end: inviting or standing in for a co-borrower, joining an application at rate lock, and disclosures scoped to each applicant.</span></div>
+<div class="track-body"><h3 class="track-title">Co-borrower and joint applications</h3><span class="track-desc">The joint-application lifecycle end to end: inviting or standing in for a co-borrower, joining an application at rate lock, and disclosures scoped to each applicant.</span>
+<ul class="track-points">
+<li><strong>Lifecycle.</strong> Inviting or standing in for a co-borrower, joining an application at rate lock, continuing alone, and removal.</li>
+<li><strong>Disclosures.</strong> Regulated disclosures scoped to each applicant.</li>
+<li><strong>Identity.</strong> Mismatches between what was entered and what was verified routed to review.</li>
+</ul></div>
 </div>
 <div class="track track--wrap" id="track-05">
 <span class="track-no">05</span>
-<div class="track-body"><h3 class="track-title">Mobile banking apps</h3><span class="track-desc">Building the Android app to match the iOS app, snapshot testing on both platforms, and the CI and release pipelines behind them.</span></div>
+<div class="track-body"><h3 class="track-title">Mobile banking apps</h3><span class="track-desc">Building the Android app to match the iOS app, snapshot testing on both platforms, and the CI and release pipelines behind them.</span>
+<ul class="track-points">
+<li><strong>Android.</strong> Built the Kotlin and Jetpack Compose app to match the iOS app screen for screen.</li>
+<li><strong>Testing.</strong> Snapshot-test harnesses on both platforms as blocking merge checks.</li>
+<li><strong>Pipelines.</strong> CI parallelised and release pipelines for both apps.</li>
+</ul></div>
 </div>
 <div class="track track--wrap" id="track-06">
 <span class="track-no">06</span>
-<div class="track-body"><h3 class="track-title">Disclosure timing and compliance</h3><span class="track-desc">Generating and tracking the regulated disclosures a mortgage requires: delivery dates, business-day rules, re-disclosure triggers, and tests that guard the sequencing.</span></div>
+<div class="track-body"><h3 class="track-title">Disclosure timing and compliance</h3><span class="track-desc">Generating and tracking the regulated disclosures a mortgage requires: delivery dates, business-day rules, re-disclosure triggers, and tests that guard the sequencing.</span>
+<ul class="track-points">
+<li><strong>Timing.</strong> Delivery dates, business-day rules and the clocks that follow from them.</li>
+<li><strong>Triggers.</strong> Re-disclosure when pricing, terms or applicants change.</li>
+<li><strong>Tests.</strong> A safety net over sequencing and cascading events.</li>
+</ul></div>
 </div>
 <p class="side-intro">Data Science and Generative AI Intern, Zeta Global, June to August 2025</p>
 <div class="track track--wrap" id="track-07">

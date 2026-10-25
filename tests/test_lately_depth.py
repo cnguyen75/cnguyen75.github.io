@@ -878,10 +878,11 @@ class Drawing(unittest.TestCase):
     # The main page is far shorter than before the regrouping (about 8,800px at 1280).
     # The budget allows the 21 track rows since side A became three employers with eight rows
     # and the panel heads as tracks 22 to 26 (measured 8,231 and 7,207 after item 22, when the
-    # type scale went back to the original sizes).
+    # type scale went back to the original sizes), raised by 819px when the six Athena rows
+    # took three bullets each (measured 8,888 and 7,902).
     def test_main_page_height(self):
-        self.assertLess(draw("index.html")["pageHeight"], 8300)
-        self.assertLess(draw("index.html", name="old file")["pageHeight"], 7400)
+        self.assertLess(draw("index.html")["pageHeight"], 9119)
+        self.assertLess(draw("index.html", name="old file")["pageHeight"], 8219)
 
     # The feed page's headline adds strength kept per pound lost once any lift's interval excludes zero.
     def test_strength_kept_joins_the_headline(self):

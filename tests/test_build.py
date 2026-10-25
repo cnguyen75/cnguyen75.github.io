@@ -246,7 +246,16 @@ class Progress(unittest.TestCase):
         for n, _ in work:
             self.assertRegex(section, rf'<div class="track track--wrap" id="track-{n}">\s*<span class="track-no">{n}</span>\s*'
                                       rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span class="track-desc">')
-        self.assertEqual(section.count('<ul class="track-points">'), 2)
+        self.assertEqual(section.count('<ul class="track-points">'), 8)
+        # Each Athena row carries three bullets under its description, a bold lead then text.
+        leads = {"01": ["Scenarios and graders.", "Simulated user.", "Gates."], "02": ["Consensus.", "Judgement.", "In-turn validation."],
+                 "03": ["Agents.", "Supervision.", "Migration."], "04": ["Lifecycle.", "Disclosures.", "Identity."],
+                 "05": ["Android.", "Testing.", "Pipelines."], "06": ["Timing.", "Triggers.", "Tests."]}
+        for n, want in leads.items():
+            row = re.search(rf'id="track-{n}">.*?</ul></div>\n</div>', section, re.S).group(0)
+            self.assertEqual(re.findall(r'<li><strong>([^<]+)</strong> [^<]+</li>', row), want, n)
+            self.assertIn('<span class="track-desc">', row)
+            self.assertLess(row.index("track-desc"), row.index("track-points"))
         for f in (build.ROOT / "content").glob("*/*.md"):  # side A has no pages or drafts
             self.assertNotRegex(f.read_text(encoding="utf-8").split("\n---\n")[0], r"\nside: a\b")
         for n, _ in work:  # /01 to /08 redirect to the row
