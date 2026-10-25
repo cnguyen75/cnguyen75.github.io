@@ -163,9 +163,8 @@ DATA_ATTRIBUTION = {
 }
 SHORT_WORDS = 2  # a data-page section's short: name, the reading bar's segment label
 # Statistics in the analysis schema that no page shows, as {path: reason}. Every other
-# statistic must be on exactly one page. 2026-10-18: the pages were trimmed to the cards
-# that have data or a dated arrival and answer something no other card does; the pipeline
-# keeps computing these.
+# statistic must be on exactly one page. The pages hold the cards that have data or a dated
+# arrival and answer something no other card does; the pipeline keeps computing these.
 DATA_LEFT_OUT = {
     "fantasy.teams[].record_vs_median": "the quadrant's all-play share says it",
     "fantasy.teams[].margins": "week-by-week results are in the lineup grid",

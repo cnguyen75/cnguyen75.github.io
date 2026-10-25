@@ -476,7 +476,7 @@ def variant(name: str) -> dict:
     if name == "yahoo":
         a["meta"]["sources_included"].append("yahoo")
     if name == "old file":
-        # A lately.json from before 2026-10-17: none of the new statistics, top_ten_churn still there.
+        # An older lately.json: none of the analysis-first statistics, top_ten_churn still there.
         for k in ("quadrant", "manager_score"):
             del a["fantasy"][k]
         for t in a["fantasy"]["teams"]:
@@ -552,7 +552,7 @@ def variant(name: str) -> dict:
         rows[0]["name"] = "Anthony Russo & Joe Russo"
         rows[-1]["name"] = "Phil Lord & Christopher Miller"
     if name == "films waiting":
-        # 2026-10-18: the film statistics present but waiting, the critics one absent; retention says when it starts.
+        # The film statistics present but waiting, the critics one absent; retention says when it starts.
         for k in (
             "by_director",
             "by_studio",
@@ -610,7 +610,7 @@ def variant(name: str) -> dict:
     if name == "panel small":
         a["lifting"]["strength_index"].update(n=3, small_sample=True)
     if name == "small no value":
-        # The live case on 2026-10-18: a lift with two sessions, small_sample, no value or interval yet.
+        # A lift with two sessions, small_sample, no value or interval yet.
         a["eating"]["contrast_effect"].pop("value")
         a["eating"]["contrast_effect"].pop("interval", None)
         rs = a["lifting"]["relative_strength"]["Incline press"]
@@ -1261,8 +1261,8 @@ class Drawing(unittest.TestCase):
 
     # The main page: fantasy across the width, then watching | listening, then eating | lifting.
     # Each panel: title, source line in the label face, the question in bold, a two-sentence
-    # answer, two or three numbers, one chart and "more about <feed> →". The lists and grids
-    # that used to be here are gone (they live under What's happening on the feed pages).
+    # answer, two or three numbers, one chart and "more about <feed> →"; the lists and grids
+    # live under What's happening on the feed pages.
     def test_main_page_panels(self) -> None:
         d = draw("index.html")
         self.assertEqual(
@@ -1601,12 +1601,10 @@ class Drawing(unittest.TestCase):
                 self.assertEqual(facts["shown"], ["panel-empty lately-updating"])
         self.assertFalse((ROOT / "data/lately.sample.json").exists())
 
-    # The main page is far shorter than before the regrouping (about 8,800px at 1280).
-    # The budget allows the 21 track rows since side A became three employers with eight rows
-    # and the panel heads as tracks 22 to 26 (measured 8,231 and 7,207 after item 22, when the
-    # type scale went back to the original sizes), raised by 819px when the six Athena rows
-    # took three bullets each (measured 8,888 and 7,902), and by 279px when the thirteen cards on
-    # sides B and C took their months under the title (measured 9,167 and 8,181).
+    # The main page's height budget at 1280px, with the live file and with an old one: the 21
+    # track rows with side A as three employers, the panel heads as tracks 22 to 26, three bullets
+    # on each of the six Athena rows and the months under the title on the thirteen cards of
+    # sides B and C measure 9,167 and 8,181, with a little room over that.
     def test_main_page_height(self) -> None:
         self.assertLess(draw("index.html")["pageHeight"], 9398)
         self.assertLess(draw("index.html", name="old file")["pageHeight"], 8498)

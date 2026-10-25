@@ -3684,7 +3684,7 @@
                     kinds = ['watching', 'listening', 'training'];
                 var days = list(v.weekdays).length === 7 ? v.weekdays : ctx.weekdays;
                 var span = isNum(v.weeks) ? v.weeks : 8;
-                // The pipeline now writes each weekday's mean hours per week (and the window's "to"
+                // The file gives each weekday's mean hours per week (and the window's "to"
                 // date); an older file holds the window's totals, and says so. Nothing is divided here.
                 var perWeek = typeof v.to === 'string';
                 var title = perWeek
@@ -6349,7 +6349,7 @@
         );
     }
 
-    // Thin data (policy of 2026-10-18). A statistic that is ok on fewer than min_n units carries
+    // Thin data. A statistic that is ok on fewer than min_n units carries
     // small_sample: it is drawn as usual with a mono tag beside its n, "small sample, threshold 10"
     // (the threshold is min_n; unit: added when the tag stands alone). One still waiting shows a
     // single line from values.first_unit, "nothing to show yet: needs one album with 10 plays in

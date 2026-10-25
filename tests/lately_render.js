@@ -19,7 +19,7 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
       const page = await browser.newPage({ viewport: { width: Number(width), height: 900 } });
       await page.route("**/data/lately.json*", r => r.fulfill({ status: 200, contentType: "application/json", body }));
       await page.goto(base + "/" + pagePath, { timeout: 90000 });
-      // Generous: a loaded machine can take well over 30 s to draw the page (the old default).
+      // Generous: a loaded machine can take well over 30 s to draw the page.
       await page.waitForSelector(waitFor, { timeout: 90000 });
       return page;
     }

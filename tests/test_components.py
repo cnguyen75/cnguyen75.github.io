@@ -1,4 +1,4 @@
-"""One component family (DESIGN.md, "Components"): the class names retired on 2026-10-25, when the
+"""One component family (DESIGN.md, "Components"): the class names retired when the
 parallel .ld-* and .tp-* versions of the bars, tables, stat tiles, legends, axes, charts, tabs and
 how line were folded into one set, never come back in the stylesheets, the scripts, the build
 or the built pages. Run: python3 -m unittest discover tests"""

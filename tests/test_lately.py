@@ -93,7 +93,7 @@ def draw(width: int) -> dict:
 
 
 HANDOFF = Path.home() / "Personal/site-handoff/lately-analysis"
-# The statistics added on 2026-10-17, as (definition, property); every one is optional.
+# The analysis-first statistics, as (definition, property); every one is optional.
 ADDED_2026_10_17 = [
     ("analysis_fantasy", "quadrant"),
     ("analysis_fantasy", "manager_score"),
@@ -126,7 +126,7 @@ class Schema(unittest.TestCase):
         self.assertNotIn("minItems", ranked)  # unchanged: an empty list is still allowed
         self.assertIn("2026-10-13", SCHEMA["properties"]["schema_version"]["description"])
 
-    # 2026-10-17: the analysis-first statistics, all optional so older files still validate;
+    # The analysis-first statistics, all optional so older files still validate;
     # top_ten_churn is gone; a sample for each is in the handoff folder for the pipeline.
     def test_analysis_first_statistics(self) -> None:
         defs = SCHEMA["$defs"]
@@ -141,7 +141,7 @@ class Schema(unittest.TestCase):
             "top_ten_churn is removed", SCHEMA["properties"]["schema_version"]["description"]
         )
         # The quadrant's other teams carry no names: only these keys are allowed, the label a
-        # per-league pseudonym ("Team C") since 2026-10-25.
+        # per-league pseudonym ("Team C").
         others = defs["analysis_stat_quadrant"]["properties"]["values"]["anyOf"][0]["properties"][
             "others"
         ]["items"]
@@ -177,7 +177,7 @@ class Schema(unittest.TestCase):
             {"type": "string"},
         )
 
-    # 2026-10-18, policy: small_sample on every statistic shape, first_unit in its values, no available_from;
+    # Policy: small_sample on every statistic shape, first_unit in its values, no available_from;
     # eating.safe_bet beside the landing's current-ranking version.
     def test_sample_policy_fields(self) -> None:
         defs = SCHEMA["$defs"]
