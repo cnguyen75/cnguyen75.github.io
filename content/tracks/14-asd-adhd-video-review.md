@@ -13,7 +13,7 @@ as_of: 2026-10-13
 
 ## question
 
-Children are often screened for autism and ADHD late, partly because the assessments need a clinic and a specialist. A growing set of studies instead point a camera at ordinary home video and let computer vision read behaviour: gaze, movement, response to a name. The reported accuracies are high and very spread out.
+Children are often screened for autism and ADHD late, partly because the assessments need a clinic and a specialist. A growing set of studies instead point a camera at ordinary home video and let computer vision read behaviour: gaze, movement, response to a name. The reported accuracies are high and widely spread.
 
 The review asks what the field has shown so far, and what explains the spread. Does performance depend on how much video a study used, where it was recorded, whether the model was tested on data from outside its own study, and what counted as the ground truth?
 
