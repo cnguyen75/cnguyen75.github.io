@@ -164,17 +164,17 @@ class Progress(unittest.TestCase):
     # part: marks one page of a two-part story. Its hero shows the label and links the
     # other part under the same rule as previous and next.
     def test_two_part_story(self):
-        other = {"slug": "other-page", "ready": False, "title": "Other", "part_label": "part two · 2015–16"}
+        other = {"slug": "other-page", "ready": False, "title": "Other", "part_label": "part two"}
         def render_with(ready_self, pages):
-            meta = self.read(front={"part": "part one · 2014–15 | 12", "ready": "true" if ready_self else "false"})
+            meta = self.read(front={"part": "part one | 12", "ready": "true" if ready_self else "false"})
             tl = TRACKLIST + [("12", "Other", "side b. research", "research")]
             doc, _ = build.render(meta, tl, dict(pages, **{"04": meta}), True, len(tl))
             return re.search(r'<p class="tp-part">(.*?)</p>', doc).group(1)
-        link = 'part one · 2014–15 · <a href="../other-page/">part two · 2015–16 →</a>'
+        link = 'part one · <a href="../other-page/">part two →</a>'
         self.assertEqual(render_with(False, {"12": other}), link)
-        self.assertEqual(render_with(True, {"12": other}), "part one · 2014–15")  # other part not ready
+        self.assertEqual(render_with(True, {"12": other}), "part one")  # other part not ready
         self.assertEqual(render_with(True, {"12": dict(other, ready=True)}), link)
-        self.assertEqual(render_with(False, {}), "part one · 2014–15")
+        self.assertEqual(render_with(False, {}), "part one")
         self.assertNotIn("tp-part", self.render())
         for bad in ("part one", "part one | twelve", " | 12"):
             with self.assertRaisesRegex(build.ContentError, "part must be"):
@@ -196,11 +196,11 @@ class Progress(unittest.TestCase):
         self.assertEqual(projects["18"], "A foot of space is worth eight seconds")
         self.assertEqual(projects["21"], "LLM 20 Questions")
         self.assertEqual(index.count("side c. projects"), 1)
-        for n, label in (("10", "part one · 2026"), ("11", "part two · 2026–present"),
-                         ("17", "part one · 2014–15"), ("18", "part two · 2015–16")):
+        for n, label in (("10", "part one"), ("11", "part two"), ("17", "part one"), ("18", "part two")):
             self.assertRegex(index, rf'<span class="track-no">{n}</span>\s*<div class="track-body"><h3 class="track-title">[^<]+</h3>'
                                     rf'<span class="track-part">{label}</span>')
         self.assertEqual(index.count('class="track-part"'), 4)
+        self.assertEqual(len(re.findall(r'<span class="track-part">part (?:one|two)</span>', index)), 4)  # no dates on the cards
 
     # Side A (work) is three employers, newest first, each under a side-intro line "Title,
     # Employer, dates": Athena's six rows 01 to 06, Zeta Global 07 and NationBuilder 08, every
