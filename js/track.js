@@ -60,7 +60,29 @@
     }
     // Live timing: each block's reading time from the words it holds (plus a figure's time per
     // chart or table), written onto the blocks and segments as build.py would have, then the
-    // stamps, the clock and the segment widths. Hidden sections (nothing to draw) leave the bar.
+    // stamps and the clock. Only what is visible by default counts: not the tables behind the
+    // charts, collapsed rows or inactive tabs. Hidden sections (nothing to draw) leave the bar.
+    var UNREAD = '.sr-only, [hidden]';
+    function visibleWords(b) {
+        var count = function (el) {
+            return (el.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length;
+        };
+        if (b.closest(UNREAD)) return 0;
+        var w = count(b);
+        [].forEach.call(b.querySelectorAll(UNREAD), function (el) {
+            var outer = el.parentElement.closest(UNREAD);
+            if (!outer || !b.contains(outer)) w -= count(el);
+        });
+        return Math.max(0, w);
+    }
+    function visibleFigures(b) {
+        return [].filter.call(
+            b.querySelectorAll('.chart, table, .meter, .ld-records'),
+            function (c) {
+                return !c.closest(UNREAD);
+            },
+        ).length;
+    }
     function retime() {
         if (!live) return;
         sections.forEach(function (s, i) {
@@ -69,15 +91,8 @@
             );
             var secs = 0;
             blocks.forEach(function (b) {
-                var count = function (el) {
-                    return (el.textContent.match(/[\w\u2019'\u2013-]+/g) || []).length;
-                };
-                var w = count(b);
-                [].forEach.call(b.querySelectorAll('.sr-only'), function (s) {
-                    w -= count(s);
-                }); // the hidden tables are not read
-                var charts = b.querySelectorAll('.chart, table, .meter, .ld-records').length;
-                var d = (w / WPM) * 60 + charts * FIGURE_SECS;
+                var charts = visibleFigures(b);
+                var d = (visibleWords(b) / WPM) * 60 + charts * FIGURE_SECS;
                 b.setAttribute('data-secs', d.toFixed(2));
                 if (charts) b.setAttribute('data-pause', '');
                 else b.removeAttribute('data-pause');
@@ -85,7 +100,6 @@
             });
             if (segs[i]) {
                 segs[i].setAttribute('data-secs', secs.toFixed(1));
-                segs[i].style.flexGrow = String(Math.max(1, Math.round(secs / 20)));
                 segs[i].hidden = s.hidden;
             }
         });
@@ -549,21 +563,14 @@
     else ready();
     window.addEventListener('load', ready);
     ready();
-    // A Lately page's sections fill in later and change on a tab switch or "show all": the
-    // script that draws them asks for new times, and so does any control that changes a section.
+    // A Lately page's sections fill in later: the script that draws them asks for the times once,
+    // and "show all" asks again. A tab switch does not: the bar is computed from the default tabs.
     if (live) {
         document.addEventListener('tp:retime', function () {
             requestAnimationFrame(retime);
         });
         document.addEventListener('click', function (e) {
-            if (
-                e.target &&
-                e.target.closest &&
-                e.target.closest(
-                    '.tab, .rows-more, .tier-more, .how summary, .km-bands-toggle, ' +
-                        '.quad-trails-toggle',
-                )
-            )
+            if (e.target && e.target.closest && e.target.closest('.rows-more, .tier-more'))
                 requestAnimationFrame(retime);
         });
     }

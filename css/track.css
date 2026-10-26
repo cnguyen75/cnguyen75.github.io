@@ -141,7 +141,8 @@
 .tp-seg {
     --fill: 0;
     position: relative;
-    flex: 1 1 120px;
+    flex: 1 1 0;
+    min-width: 72px;
     border-top: 6px solid var(--rule);
     padding: var(--s-10) 0 var(--s-4);
     color: var(--ink);
@@ -165,8 +166,10 @@
     text-decoration: underline;
     text-underline-offset: 3px;
 }
-/* A lately page's bar is one row: short section names (short: in the content file), a smaller
-   label, and at phone width the names and times are read, not shown. */
+/* A lately page's bar is one row of equal segments: the short section name (short: in the
+   content file) in full under each, the time only on the segment being read and on hover; at
+   phone width the names and times are read, not shown. A track page's segments are proportional
+   to their reading time, 72px at the least. */
 .ld-body .tp-segs {
     flex-wrap: nowrap;
 }
@@ -177,9 +180,15 @@
 }
 .ld-body .tp-seg-name {
     display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+}
+.ld-body .tp-seg-time {
+    visibility: hidden;
+}
+.ld-body .tp-seg.is-current .tp-seg-time,
+.ld-body .tp-seg:hover .tp-seg-time,
+.ld-body .tp-seg:focus-visible .tp-seg-time {
+    visibility: visible;
 }
 @media (max-width: 640px) {
     .ld-body .tp-seg-name,
