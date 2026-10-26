@@ -499,6 +499,10 @@ def variant(name: str) -> dict:
     a["fantasy"]["quadrant"]["values"]["mine"][0]["opponent"] = "Rival Manager"
     if name == "yahoo":
         a["meta"]["sources_included"].append("yahoo")
+    if name == "yahoo platform":
+        yahoo = copy.deepcopy(a["fantasy"]["platforms"]["espn"])
+        yahoo["projection_accuracy"].update(status="not enough data yet", n=0, value=None)
+        a["fantasy"]["platforms"]["yahoo"] = yahoo
     if name == "old file":
         # An older lately.json: none of the analysis-first statistics, top_ten_churn still there.
         for k in ("quadrant", "manager_score"):
@@ -2045,6 +2049,14 @@ class Drawing(unittest.TestCase):
         )
 
     # Every feed block that left the main page draws on its feed page.
+    def test_platforms_side_by_side(self) -> None:
+        d = draw("lately/fantasy/", name="yahoo platform")
+        platforms = blocks(d, "fantasy.platforms.*.projection_accuracy")
+        self.assertEqual([b["title"] for b in platforms], ["Sleeper", "ESPN"])
+        self.assertEqual([b["headlines"] for b in platforms], [1, 1])
+        self.assertNotIn("Yahoo", d["bodyText"])
+        self.assertNotIn("nothing to show yet", " ".join(b["text"] for b in platforms))
+
     def test_feed_blocks(self) -> None:
         want = {
             "fantasy": ["fantasy.lineup", "fantasy.carry"],

@@ -5653,6 +5653,14 @@
 
     // ---------- expanding a path into the statistics it names ----------
 
+    // A platform map (fantasy.platforms.*) lists only the platforms whose source is in the file;
+    // one not connected yet draws nothing, not a waiting frame.
+    function hasSource(analysis, keys, k) {
+        if (keys[keys.length - 1] !== 'platforms' || !isObj(analysis.meta)) return true;
+        var included = list(analysis.meta.sources_included);
+        return !included.length || included.indexOf(k) >= 0;
+    }
+
     function expand(analysis, path) {
         var out = [{ node: analysis, labels: [], keys: [] }];
         path.split('.').forEach(function (part) {
@@ -5662,13 +5670,17 @@
                     key = arr ? part.slice(0, -2) : part;
                 if (key === '*') {
                     if (!isObj(o.node)) return;
-                    Object.keys(o.node).forEach(function (k) {
-                        next.push({
-                            node: o.node[k],
-                            labels: o.labels.concat(nameOf(k)),
-                            keys: o.keys.concat(k),
+                    Object.keys(o.node)
+                        .filter(function (k) {
+                            return hasSource(analysis, o.keys, k);
+                        })
+                        .forEach(function (k) {
+                            next.push({
+                                node: o.node[k],
+                                labels: o.labels.concat(nameOf(k)),
+                                keys: o.keys.concat(k),
+                            });
                         });
-                    });
                     return;
                 }
                 var v = isObj(o.node) ? o.node[key] : undefined;
@@ -6607,16 +6619,31 @@
             var outside = values.filter(function (v) {
                 return !v.closest('.tab-panel');
             });
-            var kept = outside.slice(0, 1);
+            var kept = firstRow(outside);
             if (!outside.length) {
                 Array.prototype.forEach.call(sec.querySelectorAll('.tab-panel'), function (panel) {
-                    var first = panel.querySelector('.ld-value');
-                    if (first) kept.push(first);
+                    kept = kept.concat(
+                        firstRow(Array.prototype.slice.call(panel.querySelectorAll('.ld-value'))),
+                    );
                 });
             }
             values.forEach(function (v) {
                 if (kept.indexOf(v) < 0) v.classList.add('ld-value--line');
             });
+        });
+    }
+    // The headline rule runs down a stack, never across columns: blocks side by side in the
+    // first row (one platform or team each) all keep their first value.
+    function firstRow(values) {
+        if (!values.length) return [];
+        var row = values[0].closest('.ld-blocks');
+        if (!row) return values.slice(0, 1);
+        var blocks = [];
+        return values.filter(function (v) {
+            var block = v.closest('.ld-block');
+            if (v.closest('.ld-blocks') !== row || blocks.indexOf(block) >= 0) return false;
+            blocks.push(block);
+            return true;
         });
     }
 

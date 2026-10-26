@@ -188,6 +188,8 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
                             ).length,
                             lines: b.querySelectorAll(':scope > p').length,
                             text: txt(b),
+                            title: txt(b.querySelector('.ld-block-title')),
+                            headlines: b.querySelectorAll('.ld-value:not(.ld-value--line)').length,
                             rows: b.querySelectorAll('table tbody tr').length,
                             hiddenRows: b.querySelectorAll(
                                 'table tbody tr[hidden], .bar[hidden], .ld-iv-row[hidden]',
