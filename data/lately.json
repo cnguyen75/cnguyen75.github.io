@@ -1,29 +1,29 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-26T18:16:49Z",
+  "generated_at": "2026-10-26T19:25:10Z",
   "sources": {
     "sleeper": {
       "label": "sleeper",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-10-26T18:16:49Z",
-      "last_ok_at": "2026-10-26T18:16:49Z"
+      "updated_at": "2026-10-26T19:25:10Z",
+      "last_ok_at": "2026-10-26T19:25:10Z"
     },
     "espn": {
       "label": "espn",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-10-26T18:16:49Z",
-      "last_ok_at": "2026-10-26T18:16:49Z"
+      "updated_at": "2026-10-26T19:25:10Z",
+      "last_ok_at": "2026-10-26T19:25:10Z"
     },
     "yahoo": {
       "label": "yahoo",
       "status": "pending",
       "message": "not connected yet",
       "schedule": "nightly",
-      "updated_at": "2026-10-26T18:16:49Z",
+      "updated_at": "2026-10-26T19:25:10Z",
       "last_ok_at": null
     },
     "simkl": {
@@ -31,16 +31,16 @@
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-10-26T18:16:49Z",
-      "last_ok_at": "2026-10-26T18:16:49Z"
+      "updated_at": "2026-10-26T19:25:10Z",
+      "last_ok_at": "2026-10-26T19:25:10Z"
     },
     "lastfm": {
       "label": "last.fm",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-10-26T18:16:49Z",
-      "last_ok_at": "2026-10-26T18:16:49Z"
+      "updated_at": "2026-10-26T19:25:10Z",
+      "last_ok_at": "2026-10-26T19:25:10Z"
     },
     "beli": {
       "label": "beli",
@@ -10418,7 +10418,7 @@
           "tracked_changes": {
             "added": [],
             "dropped": [],
-            "since": "2026-10-25"
+            "since": "2026-10-26"
           },
           "splits": {
             "chest_back": {
