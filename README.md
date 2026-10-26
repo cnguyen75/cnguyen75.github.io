@@ -266,7 +266,7 @@ python3 -m http.server -d _site-drafts 8765 --bind 127.0.0.1
 # open http://127.0.0.1:8765/
 ```
 
-To check exactly what will be published, serve the folder itself instead (`python3 -m http.server 8765 --bind 127.0.0.1` after a plain `python3 build.py`).
+A plain `python3 build.py` writes the ready pages in place and assembles the publishable site in `_site/` (git-ignored) from the allow-list `SITE_FILES` in `build.py`: the pages, `css/`, `js/`, `fonts/`, `images/`, `resume/`, the icons, `sitemap.xml` and `data/lately.json`, and nothing else. To check exactly what will be published, serve that folder: `python3 -m http.server -d _site 8765 --bind 127.0.0.1`.
 
 **Links.** A link to another site, and the résumé PDFs, open in a new tab with `rel="noopener"` (`new_tab()` in `build.py`, the `h()` helper in `js/lately.js`, and by hand in `index.html`); links within the site stay in the same tab. `tests/test_build.py` checks both rules.
 

@@ -4,5 +4,6 @@ data/lately.json
 /tools/node_modules/
 /tools/package-lock.json
 /tools/.og-card.html
+/_site/
 /_site-drafts/
 .ruff_cache/

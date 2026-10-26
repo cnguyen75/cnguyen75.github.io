@@ -16,6 +16,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import build  # noqa: E402
 
 
+NEVER_PUBLISHED = {
+    "CLAUDE.md",
+    "CODING-RULES.md",
+    "DESIGN.md",
+    "HANDOFF.md",
+    "rules_check.py",
+    "ruff.toml",
+    ".prettierrc",
+    ".editorconfig",
+    "tests",
+    "tools",
+    "content",
+    "README.md",
+}
 FRONT = {
     "track": "04",
     "slug": "demo-page",
@@ -941,7 +955,7 @@ class Preview(unittest.TestCase):
             site = Path(tmp) / "site"
 
             def ignore(d: str, names: list[str]) -> list[str]:
-                skip = {".git", "node_modules", "_site-drafts", ".DS_Store"}
+                skip = {".git", "node_modules", "_site", "_site-drafts", ".DS_Store", ".ruff_cache"}
                 skip |= (
                     {"tracks"}
                     if Path(d) == build.ROOT
@@ -1010,6 +1024,9 @@ class Preview(unittest.TestCase):
             for part in ("content", "tests", "tools", "build.py", "README.md"):
                 self.assertFalse((prev / part).exists(), part)
             self.assertFalse((site / "tracks" / "demo-page").exists())
+            self.assert_only_site_files(site / build.SITE_DIR)
+            self.assert_only_site_files(prev)
+            self.assertFalse((site / build.SITE_DIR / "tracks" / "demo-page").exists())
             # The copy has no content/drafts, so the sentence read from a results file is left
             # out there; the rest of index.html is untouched.
             self.assertEqual(
@@ -1019,6 +1036,19 @@ class Preview(unittest.TestCase):
             self.assertFalse((site / "index.drafts.html").exists())
             run()
             self.assertFalse(prev.exists())
+            self.assert_only_site_files(site / build.SITE_DIR)
+
+    def assert_only_site_files(self, out: Path) -> None:
+        allowed = set(build.SITE_FILES) | {"data", build.OUT_MARK}
+        self.assertTrue(out.is_dir(), out)
+        extra = sorted(p.name for p in out.iterdir() if p.name not in allowed)
+        self.assertEqual(extra, [], f"{out.name} holds more than SITE_FILES")
+        self.assertEqual([p.name for p in (out / "data").iterdir()], ["lately.json"])
+        banned = []
+        for p in out.rglob("*"):
+            if p.name in NEVER_PUBLISHED or p.suffix == ".py":
+                banned.append(str(p.relative_to(out)))
+        self.assertEqual(banned, [], f"{out.name} holds files that are not the site's")
 
 
 if __name__ == "__main__":

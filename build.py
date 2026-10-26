@@ -77,21 +77,34 @@ MONTHS_LONG = (
 )
 LIVE_DATA = "data/lately.json"  # written by the pipeline; the site is not built without it
 OUT_MARK = ".built-by-build-py"  # marks folders this script may delete
-PREVIEW_DIR = (
-    "_site-drafts"  # --drafts writes the whole site here, drafts included and linked; git-ignored
+SITE_DIR = "_site"  # a build assembles the publishable site here; git-ignored
+PREVIEW_DIR = "_site-drafts"  # --drafts assembles it here instead, drafts included; git-ignored
+# Everything the site is made of, by name at the repo root, plus data/lately.json. Nothing else
+# is copied into _site or _site-drafts; a test checks their contents against this list.
+SITE_FILES = (
+    ".nojekyll",
+    "index.html",
+    "sitemap.xml",
+    "favicon.svg",
+    "favicon-32.png",
+    "apple-touch-icon.png",
+    "css",
+    "js",
+    "fonts",
+    "images",
+    "resume",
+    "lately",
+    "tracks",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
 )
-# What isn't part of the site, so isn't copied into the preview.
-PREVIEW_SKIP = {
-    ".git",
-    "content",
-    "tests",
-    "tools",
-    PREVIEW_DIR,
-    "build.py",
-    "README.md",
-    ".gitignore",
-    "index.drafts.html",
-}
+NOT_COPIED = {".gitignore", OUT_MARK, ".DS_Store", "__pycache__"}
 
 # Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
 # A marker starts a block that runs to the next blank line; the second group only
@@ -2311,8 +2324,10 @@ def write_pages(
     listed: int,
 ) -> None:
     """Writes each page in metas to out_root/<slug>/, removing earlier output there that
-    this build doesn't produce. Only folders build.py made (with OUT_MARK) are touched."""
+    this build doesn't produce. Only folders build.py made (with OUT_MARK, or inside a site
+    folder it assembled) are touched."""
     out_root.mkdir(exist_ok=True)
+    owned = (out_root.parent / OUT_MARK).exists()
     keep = {m["slug"] for m in metas}
     for d in out_root.iterdir():
         if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
@@ -2321,7 +2336,7 @@ def write_pages(
         doc, copies = render(m, tracklist, pages_here, drafts_build, listed)
         out = out_root / m["slug"]
         if out.exists():
-            if not (out / OUT_MARK).exists():
+            if not owned and not (out / OUT_MARK).exists():
                 raise ContentError(
                     f"{out.relative_to(ROOT)} exists but was not made by build.py; not touching it"
                 )
@@ -2332,6 +2347,27 @@ def write_pages(
         for src, rel in copies:
             (out / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, out / rel)
+
+
+def assemble_site(out: Path) -> None:
+    """Copies the site's files (SITE_FILES and data/lately.json) into out, replacing an earlier
+    copy made by build.py; a folder there that build.py did not make stops the build."""
+    if out.exists():
+        if not (out / OUT_MARK).exists():
+            raise ContentError(f"{out.name}/ exists but was not made by build.py; not touching it")
+        shutil.rmtree(out)
+    out.mkdir()
+    (out / OUT_MARK).write_text("")
+    for name in SITE_FILES:
+        src = ROOT / name
+        if src.is_dir():
+            shutil.copytree(
+                src, out / name, ignore=lambda d, names: [n for n in names if n in NOT_COPIED]
+            )
+        elif src.is_file():
+            shutil.copy2(src, out / name)
+    (out / "data").mkdir()
+    shutil.copy2(ROOT / LIVE_DATA, out / LIVE_DATA)
 
 
 def main() -> None:
@@ -2429,8 +2465,10 @@ def main() -> None:
     if (ROOT / "index.drafts.html").exists():  # the old preview file
         (ROOT / "index.drafts.html").unlink()
 
-    # --drafts: the whole site again in _site-drafts/ (git-ignored), with every page built
-    # and linked from its main page. A plain build removes it.
+    # The publishable site, assembled from SITE_FILES in _site/ (git-ignored); the workflow
+    # publishes that folder. --drafts: the site again in _site-drafts/ with every page built
+    # and linked from its main page. A plain build removes the preview.
+    assemble_site(ROOT / SITE_DIR)
     preview = ROOT / PREVIEW_DIR
     if preview.exists():
         if not (preview / OUT_MARK).exists():
@@ -2439,16 +2477,7 @@ def main() -> None:
             )
         shutil.rmtree(preview)
     if args.drafts:
-        shutil.copytree(
-            ROOT,
-            preview,
-            ignore=lambda d, names: [
-                n
-                for n in names
-                if (Path(d) == ROOT and n in PREVIEW_SKIP) or n in (".DS_Store", "__pycache__")
-            ],
-        )
-        (preview / OUT_MARK).write_text("")
+        assemble_site(preview)
         here = dict(by_track, **{m["track"]: m for m in building})
         write_pages(preview / "tracks", building, tracklist, here, True, listed)
         write_pages(preview / "lately", data_pages, tracklist, here, True, listed)

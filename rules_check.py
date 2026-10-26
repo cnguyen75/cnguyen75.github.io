@@ -22,6 +22,8 @@ MIN_README_LINES = 3
 BLANK_RUN_LIMIT = 2
 SKIP_DIRS = {
     ".git",
+    ".pytest_cache",
+    ".ruff_cache",
     "node_modules",
     "_site",
     "_site-drafts",
@@ -160,15 +162,8 @@ def _check_function(path: Path, node: ast.FunctionDef, lines: list[str]) -> list
     depth = _max_nesting(node)
     if depth > MAX_NESTING:
         findings.append(Finding(path, node.lineno, "nesting", f"{node.name} nests {depth} deep"))
-    if node.returns is None and node.name != "__init__":
-        findings.append(
-            Finding(path, node.lineno, "return-type", f"{node.name} has no return annotation")
-        )
-    for arg in params:
-        if arg.annotation is None:
-            findings.append(
-                Finding(path, node.lineno, "type-hint", f"{node.name}: {arg.arg} untyped")
-            )
+    if not _is_test_file(path):
+        findings += _check_annotations(path, node, params)
     body_lines = lines[node.lineno : node.end_lineno or node.lineno]
     blank_run = 0
     for offset, line in enumerate(body_lines, start=node.lineno + 1):
@@ -181,6 +176,25 @@ def _check_function(path: Path, node: ast.FunctionDef, lines: list[str]) -> list
     if node.body and not first_body.strip() and node.body[0].lineno > node.lineno + 1:
         findings.append(Finding(path, node.lineno + 1, "blank-lines", "blank line right after def"))
     return findings
+
+
+def _check_annotations(path: Path, node: ast.FunctionDef, params: list[ast.arg]) -> list[Finding]:
+    findings = []
+    if node.returns is None and node.name != "__init__":
+        findings.append(
+            Finding(path, node.lineno, "return-type", f"{node.name} has no return annotation")
+        )
+    for arg in params:
+        if arg.annotation is None:
+            findings.append(
+                Finding(path, node.lineno, "type-hint", f"{node.name}: {arg.arg} untyped")
+            )
+    return findings
+
+
+def _is_test_file(path: Path) -> bool:
+    """Tests are exempt from the type-hint rules, as in ruff.toml's per-file-ignores."""
+    return "tests" in path.parts or path.name.startswith("test_")
 
 
 def _max_nesting(node: ast.AST, depth: int = 0) -> int:
