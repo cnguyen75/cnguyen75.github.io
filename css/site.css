@@ -397,6 +397,8 @@ main {
 }
 .side-label {
     margin-bottom: var(--s-12);
+    font-size: var(--fs-16);
+    letter-spacing: 0.04em;
 }
 /* Side A's employer sub-headers: the side-label face over each block's rule (the side's opening
    2px ink rule under Athena's; 1px --rule under the others), with a track's spacing above and
@@ -405,7 +407,7 @@ main {
     margin: 0;
     padding: var(--s-20) 0;
     font-family: var(--font-label);
-    font-size: var(--fs-13);
+    font-size: var(--fs-14);
     font-weight: 700;
     color: var(--teal);
 }
@@ -692,8 +694,9 @@ a.track:focus-visible::before {
 .lately-label {
     margin: 0;
     font-family: var(--font-label);
-    font-size: var(--fs-15);
+    font-size: var(--fs-16);
     font-weight: 700;
+    letter-spacing: 0.04em;
     color: var(--teal);
 }
 .lately-title {

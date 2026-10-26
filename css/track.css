@@ -247,6 +247,7 @@
 .tp-section-label {
     flex: 1 1 170px;
     padding-top: var(--s-5);
+    font-size: var(--fs-14);
 }
 .tp-section-body {
     flex: 999 1 480px;
