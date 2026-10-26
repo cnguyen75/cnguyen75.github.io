@@ -34,6 +34,14 @@
     var clockTotal = document.querySelector('.tp-clock-total');
     // a Lately page: the sections are drawn in the browser
     var live = main.hasAttribute('data-live-timing');
+    // Widths the build measured, applied here because the page's policy allows no style
+    // attributes: a segment's share of the reading time, a bar's share of the largest value.
+    [].forEach.call(document.querySelectorAll('[data-grow]'), function (el) {
+        el.style.flexGrow = el.getAttribute('data-grow');
+    });
+    [].forEach.call(document.querySelectorAll('[data-width]'), function (el) {
+        el.style.width = el.getAttribute('data-width') + '%';
+    });
     if (!sections.length || !segs.length) return;
 
     // ---------- timeline ----------

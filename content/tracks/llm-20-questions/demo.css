@@ -1,21 +1,121 @@
 /* 20 Questions replay, this page only. */
-.q20 { display: flex; flex-direction: column; gap: 12px; font-size: 15px; }
-.q20-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 2px solid var(--ink); }
-.q20-tab { font: inherit; font-family: var(--font-label); font-size: 14px; padding: 6px 12px; border: 1px solid var(--rule); border-bottom: 0; background: var(--paper); color: var(--text-2); cursor: pointer; }
-.q20-tab[aria-selected="true"] { background: var(--ink); color: var(--card); border-color: var(--ink); }
-.q20-tab:focus-visible, .q20-btn:focus-visible, .q20-panel:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-.q20-panel { display: flex; flex-direction: column; gap: 10px; }
-.q20-about { margin: 0; font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
-.q20-word { margin: 0; }
-.q20-nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.q20-btn { font: inherit; font-family: var(--font-label); font-size: 14px; padding: 4px 10px; border: 1px solid var(--ink); background: var(--card); color: var(--ink); cursor: pointer; }
-.q20-btn:disabled { opacity: 0.35; cursor: default; }
-.q20-where { font-family: var(--font-label); font-size: 14px; color: var(--text-2); }
-.q20-turn { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 10px 0 0; padding: 10px 12px; background: var(--paper); }
-.q20-turn dt { font-family: var(--font-label); font-size: 13px; color: var(--text-3); padding-top: 2px; }
-.q20-turn dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-.q20-end { margin: 0; font-weight: 700; }
-.q20-end:empty { display: none; }
-.q20-past { margin: 0; padding-left: 2.2em; display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; font-size: 14px; color: var(--text-2); }
-.q20-past-item { display: flex; flex-direction: column; overflow-wrap: anywhere; }
-.q20-past-a { font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
+.q20 {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 15px;
+}
+.q20-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 2px solid var(--ink);
+}
+.q20-tab {
+    font: inherit;
+    font-family: var(--font-label);
+    font-size: 14px;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-bottom: 0;
+    background: var(--paper);
+    color: var(--text-2);
+    cursor: pointer;
+}
+.q20-tab[aria-selected='true'] {
+    background: var(--ink);
+    color: var(--card);
+    border-color: var(--ink);
+}
+.q20-tab:focus-visible,
+.q20-btn:focus-visible,
+.q20-panel:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+}
+.q20-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.q20-about {
+    margin: 0;
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--text-3);
+}
+.q20-word {
+    margin: 0;
+}
+.q20-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.q20-btn {
+    font: inherit;
+    font-family: var(--font-label);
+    font-size: 14px;
+    padding: 4px 10px;
+    border: 1px solid var(--ink);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+}
+.q20-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+.q20-where {
+    font-family: var(--font-label);
+    font-size: 14px;
+    color: var(--text-2);
+}
+.q20-turn {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    background: var(--paper);
+}
+.q20-turn dt {
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--text-3);
+    padding-top: 2px;
+}
+.q20-turn dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.q20-end {
+    margin: 0;
+    font-weight: 700;
+}
+.q20-end:empty {
+    display: none;
+}
+.q20-past {
+    margin: 0;
+    padding-left: 2.2em;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 14px;
+    color: var(--text-2);
+}
+.q20-past-item {
+    display: flex;
+    flex-direction: column;
+    overflow-wrap: anywhere;
+}
+.q20-past-a {
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--text-3);
+}

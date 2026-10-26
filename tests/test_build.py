@@ -657,6 +657,17 @@ class Progress(unittest.TestCase):
 
     # FIGURE: ALT: gives the text alternative for an SVG without a <title>; OVERLAY: inlines
     # the figure and draws a second SVG's contents over it, leaving the figure file as it is.
+    def test_svg_rules_scoped_to_the_figure(self) -> None:
+        self.assertEqual(
+            build.scope_css("#old { display: none; }\n* {fill: red}", "tp-svg-1"),
+            "#tp-svg-1 #old {display: none;}\n#tp-svg-1 * {fill: red}",
+        )
+        svg, rules = build.hoist_style_attributes(
+            '<svg><g style="fill: red"><p style="fill: red"/></g></svg>'
+        )
+        self.assertEqual(svg, '<svg><g data-s="1"><p data-s="1"/></g></svg>')
+        self.assertEqual(rules, '.tp-chart-svg [data-s="1"] {fill: red}')
+
     def test_figure_alt_and_overlay(self) -> None:
         assets = self.dir / "demo-page" / "f"
         assets.mkdir(parents=True)
@@ -680,11 +691,12 @@ class Progress(unittest.TestCase):
         )
         self.assertRegex(
             doc,
-            r'<svg class="tp-chart-svg" role="img" aria-label="A plot\." focusable="false" '
-            r'viewBox="0 0 10 5">'
-            r'<g id="old">old label</g><style>#old \{ display: none; \}</style><text>new '
+            r'<svg class="tp-chart-svg" id="tp-svg-1" role="img" aria-label="A plot\." '
+            r'focusable="false" viewBox="0 0 10 5">'
+            r'<g id="old">old label</g><text>new '
             r"label</text></svg>",
         )
+        self.assertIn('<link rel="stylesheet" href="figures.css">', doc)
         self.assertNotIn("<img", doc.split('id="results"')[1])
         self.assertIn(
             "old label", (assets / "plot.svg").read_text()
@@ -943,6 +955,54 @@ class Preview(unittest.TestCase):
     # build.py --drafts writes the whole site to _site-drafts/ with every page built and
     # linked; the site itself (tracks/, index.html) only ever holds ready pages, and a
     # plain build removes the preview. Run on a copy of the site, never the real one.
+    # A fresh clone has the committed pages but not the build's marker files; the build must
+    # still own them (the publish workflow builds from a clone).
+    def test_build_from_a_clean_clone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            clone = Path(tmp) / "clone"
+            subprocess.run(
+                ["git", "clone", "-q", str(build.ROOT), str(clone)], check=True, timeout=120
+            )
+            shutil.copy2(build.ROOT / build.LIVE_DATA, clone / build.LIVE_DATA)
+            shutil.copy2(build.ROOT / "build.py", clone / "build.py")  # the build as it is now
+            r = subprocess.run(
+                [sys.executable, str(clone / "build.py")],
+                capture_output=True,
+                text=True,
+                timeout=180,
+            )
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertTrue((clone / build.SITE_DIR / "index.html").is_file())
+            self.assertTrue((clone / build.SITE_DIR / "lately" / "eating" / "index.html").is_file())
+
+    def test_policy_on_every_page(self) -> None:
+        pages = [build.ROOT / "index.html"] + sorted(build.ROOT.glob("0[1-8]/index.html"))
+        pages += sorted(build.ROOT.glob("tracks/*/index.html"))
+        pages += sorted(build.ROOT.glob("lately/*/index.html"))
+        self.assertGreater(len(pages), 20)
+        for page in pages:
+            text = page.read_text(encoding="utf-8")
+            with self.subTest(page=str(page.relative_to(build.ROOT))):
+                self.assertEqual(text.count(build.CSP_META), 1)
+                self.assertIsNone(build.INLINE_CODE.search(text))
+
+    def test_private_shapes_in_the_data(self) -> None:
+        found = build.private_shapes(
+            {
+                "a": {"token": "ab" * 16},
+                "b": [{"email": "someone@example.org"}],
+                "c": {"title": "21 Jump Street"},
+                "d": "/Users/someone/file",
+                "e": {"note": "1600 Pennsylvania Avenue"},
+                "f": {"phone": "(555) 010-0199"},
+                "g": {"url": "https://simkl.com/tv/1203662/severance"},
+            }
+        )
+        self.assertEqual(
+            sorted(p for p, _ in found),
+            ["$.a.token", "$.b[0].email", "$.d", "$.e.note", "$.f.phone"],
+        )
+
     def test_drafts_preview(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             site = Path(tmp) / "site"

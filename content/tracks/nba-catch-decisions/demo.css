@@ -1,39 +1,167 @@
 /* Exchange-rate map, this page only. */
-.er { display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
-.er-readout { margin: 0; min-height: 2.6em; font-family: var(--font-label); font-size: 14px; color: var(--text-2); }
-.er-readout strong { color: var(--ink); font-size: 16px; }
-.er-fig { min-width: 0; }
-.er-svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
-.er-svg:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-.er-grid { stroke: var(--rule-soft); stroke-width: 1; }
-.er-split { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 3; }
-.er-tick { font-family: var(--font-label); font-size: 12px; fill: var(--text-3); }
-.er-median { stroke: var(--orange); stroke-width: 1.5; }
-.er-median-label { font-family: var(--font-label); font-size: 12px; fill: var(--orange); }
-.er-ci { stroke: var(--blue); stroke-width: 1; opacity: 0.35; }
-.er-ci--open { stroke: var(--text-3); opacity: 0.25; }
-.er-dot { fill: var(--blue); }
-.er-dot--open { fill: var(--card); stroke: var(--text-3); stroke-width: 1; }
-.er-dot--marked { fill: var(--ink); }
-.er-dot--marked.er-dot--open { fill: var(--card); stroke: var(--ink); stroke-width: 1.5; }
-.er-dot--picked { stroke: var(--orange); stroke-width: 2; }
-.er-name { font-family: var(--font-label); font-size: 13px; fill: var(--ink); font-weight: 700; }
-.er-hit { fill: transparent; pointer-events: all; cursor: crosshair; }
-.er-cursor { stroke: var(--orange); stroke-width: 1; opacity: 0.5; }
-.er-key { margin: 0; font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
-.er-key-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); vertical-align: middle; }
-.er-key-dot--open { background: var(--card); border: 1px solid var(--text-3); }
+.er {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 15px;
+}
+.er-readout {
+    margin: 0;
+    min-height: 2.6em;
+    font-family: var(--font-label);
+    font-size: 14px;
+    color: var(--text-2);
+}
+.er-readout strong {
+    color: var(--ink);
+    font-size: 16px;
+}
+.er-fig {
+    min-width: 0;
+}
+.er-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: manipulation;
+}
+.er-svg:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+}
+.er-grid {
+    stroke: var(--rule-soft);
+    stroke-width: 1;
+}
+.er-split {
+    stroke: var(--rule);
+    stroke-width: 1;
+    stroke-dasharray: 3 3;
+}
+.er-tick {
+    font-family: var(--font-label);
+    font-size: 12px;
+    fill: var(--text-3);
+}
+.er-median {
+    stroke: var(--orange);
+    stroke-width: 1.5;
+}
+.er-median-label {
+    font-family: var(--font-label);
+    font-size: 12px;
+    fill: var(--orange);
+}
+.er-ci {
+    stroke: var(--blue);
+    stroke-width: 1;
+    opacity: 0.35;
+}
+.er-ci--open {
+    stroke: var(--text-3);
+    opacity: 0.25;
+}
+.er-dot {
+    fill: var(--blue);
+}
+.er-dot--open {
+    fill: var(--card);
+    stroke: var(--text-3);
+    stroke-width: 1;
+}
+.er-dot--marked {
+    fill: var(--ink);
+}
+.er-dot--marked.er-dot--open {
+    fill: var(--card);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+}
+.er-dot--picked {
+    stroke: var(--orange);
+    stroke-width: 2;
+}
+.er-name {
+    font-family: var(--font-label);
+    font-size: 13px;
+    fill: var(--ink);
+    font-weight: 700;
+}
+.er-hit {
+    fill: transparent;
+    pointer-events: all;
+    cursor: crosshair;
+}
+.er-cursor {
+    stroke: var(--orange);
+    stroke-width: 1;
+    opacity: 0.5;
+}
+.er-key {
+    margin: 0;
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--text-3);
+}
+.er-key-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    vertical-align: middle;
+}
+.er-key-dot--open {
+    background: var(--card);
+    border: 1px solid var(--text-3);
+}
 
-.er-list { display: none; }
-.er-list-title { margin: 14px 0 4px; font-family: var(--font-label); font-size: 14px; font-weight: 400; color: var(--text-3); }
-.er-list-title:first-child { margin-top: 0; }
-.er-rows { list-style: none; margin: 0; padding: 0; }
-.er-row { display: grid; grid-template-columns: 1fr auto; gap: 0 10px; padding: 5px 0; border-bottom: 1px solid var(--rule-soft); }
-.er-row-name { font-weight: 700; min-width: 0; }
-.er-row-rate { font-family: var(--font-label); }
-.er-row-ci { grid-column: 1 / -1; font-family: var(--font-label); font-size: 13px; color: var(--text-3); }
+.er-list {
+    display: none;
+}
+.er-list-title {
+    margin: 14px 0 4px;
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-3);
+}
+.er-list-title:first-child {
+    margin-top: 0;
+}
+.er-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.er-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--rule-soft);
+}
+.er-row-name {
+    font-weight: 700;
+    min-width: 0;
+}
+.er-row-rate {
+    font-family: var(--font-label);
+}
+.er-row-ci {
+    grid-column: 1 / -1;
+    font-family: var(--font-label);
+    font-size: 13px;
+    color: var(--text-3);
+}
 
 @media (max-width: 640px) {
-  .er-readout, .er-fig, .er > .er-key { display: none; }
-  .er-list { display: block; }
+    .er-readout,
+    .er-fig,
+    .er > .er-key {
+        display: none;
+    }
+    .er-list {
+        display: block;
+    }
 }

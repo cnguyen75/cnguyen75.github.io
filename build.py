@@ -105,6 +105,42 @@ SITE_FILES = (
     "08",
 )
 NOT_COPIED = {".gitignore", OUT_MARK, ".DS_Store", "__pycache__"}
+# Every page carries this policy, so nothing loads from another host and no inline style or
+# script runs; the build fails on a page that would break it (check_pages).
+CSP = (
+    "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
+    "font-src 'self'; base-uri 'none'; form-action 'none'"
+)
+CSP_META = f'<meta http-equiv="Content-Security-Policy" content="{CSP}">'
+ASSET_REF = re.compile(
+    r'<(?:script|link|img|source|iframe|video|audio|object|embed)\b[^>]*?\s(?:src|href)="([^"]+)"'
+)
+CSS_URL = re.compile(r"url\(\s*['\"]?([^'\")]+)")
+INLINE_CODE = re.compile(r"<style\b|\sstyle=\"|<script\b(?![^>]*\ssrc=)|\son[a-z]+=\"", re.I)
+# Nothing shaped like a secret or a person's details may reach the published data file.
+PRIVATE_SHAPES = (
+    ("a key (32 or more hex characters)", re.compile(r"\b[0-9a-fA-F]{32,}\b")),
+    (
+        "a key (32 or more base64 characters)",
+        re.compile(r"(?<![A-Za-z0-9+/=])[A-Za-z0-9+/=]{32,}(?![A-Za-z0-9+/=])"),
+    ),
+    ("an email address", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")),
+    (
+        "a phone number",
+        re.compile(r"(?<!\d)(?:\+?1[ .-]?)?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}(?!\d)"),
+    ),
+    (
+        "a street address",
+        re.compile(
+            r"\b\d{1,5}\s+[A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)*\s+"
+            r"(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|"
+            r"Ct|Court|Pl|Place)\b"
+        ),
+    ),
+    ("a path under /Users/", re.compile(r"/Users/")),
+)
+# A work's title may read like a street address ("21 Jump Street"); these keys skip that pattern.
+TITLE_KEYS = {"title", "name", "album", "artist", "track", "label"}
 
 # Plain-text component markers, as handoff drafts write them ("STEPS:", "FIGURE: path", ...).
 # A marker starts a block that runs to the next blank line; the second group only
@@ -736,6 +772,37 @@ def href_to(frm: dict, to: dict) -> str:
     return f"../../{page_folder(to)}/{to['slug']}/"
 
 
+def hoist_style_attributes(svg: str) -> tuple[str, str]:
+    """The svg with every style attribute replaced by data-s="n", and the rules that put the
+    same declarations back on those elements; equal declarations share one number."""
+    numbers: dict[str, int] = {}
+
+    def swap(m: re.Match[str]) -> str:
+        n = numbers.setdefault(m.group(1).strip(), len(numbers) + 1)
+        return f' data-s="{n}"'
+
+    svg = re.sub(r'\sstyle="([^"]*)"', swap, svg)
+    rules = "\n".join(f'.tp-chart-svg [data-s="{n}"] {{{d}}}' for d, n in numbers.items())
+    return svg, rules
+
+
+def scope_css(rules: str, fig_id: str) -> str:
+    """The rules of an inlined SVG, each selector scoped to that svg's id (".tp-chart-svg" at
+    the start of a selector means the svg itself)."""
+    out = []
+    for sel, body in re.findall(r"([^{}]+)\{([^}]*)\}", rules):
+        scoped = []
+        for part in sel.split(","):
+            part = part.strip()
+            if part.startswith(".tp-chart-svg"):
+                part = f"#{fig_id}" + part[len(".tp-chart-svg") :]
+            else:
+                part = f"#{fig_id} {part}"
+            scoped.append(part)
+        out.append(f"{', '.join(scoped)} {{{body.strip()}}}")
+    return "\n".join(out)
+
+
 def inline(s: str) -> str:
     out, last = [], 0
     for m in re.finditer(r"\[([^\]]+)\]\(([^)\s]+)\)", s):
@@ -792,7 +859,8 @@ class Page:
         self.figures = 0
         self.scripts = []  # page-only scripts (demo slots)
         self.styles = []  # page-only stylesheets (demo.css next to demo.js)
-        self.copies = []  # asset files to copy next to the page
+        self.copies = []  # asset files to copy next to the page, or (css text, name) to write
+        self.css = []  # rules hoisted out of inlined SVGs, written as figures.css
         self.held = 0  # HELD: notes (content waiting on a collaborator); a ready page may have none
 
     def asset(self, name: str, inline_svg: bool = False, copy: bool = True) -> str:
@@ -1158,9 +1226,10 @@ class Page:
                 body = re.sub(
                     r"\s(width|height)=\"[^\"]*\"", "", svg[: svg.index(">") + 1], count=2
                 )
+                fig_id = f"tp-svg-{len(self.css) + 1}"
                 body = re.sub(
                     r"^<svg",
-                    f'<svg class="tp-chart-svg" role="img" aria-label="{esc(alt)}" '
+                    f'<svg class="tp-chart-svg" id="{fig_id}" role="img" aria-label="{esc(alt)}" '
                     f'focusable="false"',
                     body,
                     count=1,
@@ -1171,6 +1240,14 @@ class Page:
                     + inner.group(1)
                     + "</svg>"
                 )
+                # The page's policy allows no inline <style> or style attribute: the figure's and
+                # the overlay's rules, and each element's style, go to the page's figures.css,
+                # scoped to this svg (an element keeps a data-s number in place of its style).
+                rules = "\n".join(re.findall(r"<style[^>]*>(.*?)</style>", svg, re.S))
+                svg = re.sub(r"<style[^>]*>.*?</style>", "", svg, flags=re.S)
+                svg, attribute_rules = hoist_style_attributes(svg)
+                svg = re.sub(r"[ \t]+\n", "\n", svg)
+                self.css.append(scope_css(rules + "\n" + attribute_rules, fig_id))
                 return (f'<figure class="tp-figure">{chart}{svg}</div>{cap}</figure>', 0, "figure")
             src = self.asset(arg)
             return (
@@ -1413,7 +1490,7 @@ class Page:
                 f'<div class="bar{" bar--neg" if len(c) > 2 and c[2] == "orange" else ""}"><span '
                 f'class="bar-label">{inline(c[0])}</span>'
                 f'<span class="bar-track"><span class="bar-fill" '
-                f'style="width:{v / top * 100:.1f}%"></span></span>'
+                f'data-width="{v / top * 100:.1f}"></span></span>'
                 f'<span class="bar-value">{esc(c[1])}</span></div>'
                 for c, v in zip(cells, vals)
             )
@@ -1817,6 +1894,61 @@ def check_live_data() -> None:
             f"'Lately is being updated.'",
             file=sys.stderr,
         )
+        return
+    found = private_shapes(d)
+    if found:
+        raise ContentError(
+            f"{LIVE_DATA} holds " + "; ".join(f"{what} at {path}" for path, what in found[:5])
+        )
+
+
+def private_shapes(data: object, path: str = "$") -> list[tuple[str, str]]:
+    """(path, what) for every string in the file shaped like a key, an email address, a phone
+    number, a street address or a path under /Users/; the value itself is never reported."""
+    found: list[tuple[str, str]] = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            found += private_shapes(v, f"{path}.{k}")
+        return found
+    if isinstance(data, list):
+        for i, v in enumerate(data):
+            found += private_shapes(v, f"{path}[{i}]")
+        return found
+    if not isinstance(data, str):
+        return found
+    key = path.rsplit(".", 1)[-1].split("[")[0]
+    for what, pattern in PRIVATE_SHAPES:
+        if what == "a street address" and key in TITLE_KEYS:
+            continue
+        if pattern.search(data):
+            return [(path, what)]
+    return found
+
+
+def check_pages(out: Path) -> None:
+    """Every page in out carries the policy and nothing it would break: no asset from another
+    host, no inline style or script. The site's own canonical links are first-party."""
+    own = re.match(r"https?://([^/]+)", SITE).group(1)
+    problems = []
+    for page in sorted(out.rglob("*.html")):
+        text = page.read_text(encoding="utf-8")
+        rel = page.relative_to(out)
+        if text.count(CSP_META) != 1:
+            problems.append(f"{rel}: no Content-Security-Policy meta")
+        for url in ASSET_REF.findall(text):
+            host = re.match(r"https?://([^/]+)", url)
+            if host and host.group(1) != own:
+                problems.append(f"{rel}: loads from {host.group(1)}")
+        m = INLINE_CODE.search(text)
+        if m:
+            problems.append(f"{rel}: inline code the policy blocks ({m.group(0).strip()})")
+    for sheet in sorted(out.rglob("*.css")):
+        for url in CSS_URL.findall(sheet.read_text(encoding="utf-8")):
+            host = re.match(r"https?://([^/]+)", url)
+            if host and host.group(1) != own:
+                problems.append(f"{sheet.relative_to(out)}: loads from {host.group(1)}")
+    if problems:
+        raise ContentError("\n".join(problems))
 
 
 # ---------- page output ----------
@@ -1911,11 +2043,10 @@ def render(
             if stamped
             else ""
         )
-        grow = max(1, round(s["secs"] / 20))
+        grow = "" if data else f' data-grow="{max(1, round(s["secs"] / 20))}"'
         seg_name = s.get("short") or s["title"].lower()
         seg_html.append(
-            f'<a class="tp-seg" href="#{s["id"]}" style="flex-grow:{grow}" '
-            f'data-secs="{s["secs"]:.1f}">'
+            f'<a class="tp-seg" href="#{s["id"]}"{grow} data-secs="{s["secs"]:.1f}">'
             f'<span class="tp-seg-fill" aria-hidden="true"></span>{stamp}<span '
             f'class="tp-seg-name">{esc(seg_name)}</span></a>'
         )
@@ -2075,6 +2206,8 @@ def render(
     badge = meta.get("badge") or meta.get("status_label")
     scripts = "".join(f'\n<script src="{esc(s)}" defer></script>' for s in page.scripts)
     scripts += "".join(f'\n<link rel="stylesheet" href="{esc(s)}">' for s in page.styles)
+    if page.css:
+        scripts += '\n<link rel="stylesheet" href="figures.css">'
     if data:
         scripts += (
             '\n<script src="../../js/lately-depth.js" defer></script>\n<script '
@@ -2100,6 +2233,7 @@ def render(
 <html lang="en">
 <head>
 <meta charset="utf-8">
+{CSP_META}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(title)} · Colin Nguyen</title>
 <meta name="description" content="{esc(desc)}">
@@ -2173,6 +2307,8 @@ Scroll, tap or press space to pause.</p>
 </body>
 </html>
 """
+    if page.css:
+        page.copies.append(("\n".join(page.css) + "\n", "figures.css"))
     return doc, page.copies
 
 
@@ -2323,10 +2459,11 @@ def write_pages(
     listed: int,
 ) -> None:
     """Writes each page in metas to out_root/<slug>/, removing earlier output there that
-    this build doesn't produce. Only folders build.py made (with OUT_MARK, or inside a site
-    folder it assembled) are touched."""
+    this build doesn't produce. Only folders build.py made are touched: those with OUT_MARK,
+    those inside a site folder it assembled, and those under a root whose .gitignore it wrote
+    (a fresh clone has the committed pages but not their marker files)."""
     out_root.mkdir(exist_ok=True)
-    owned = (out_root.parent / OUT_MARK).exists()
+    owned = (out_root.parent / OUT_MARK).exists() or owns_root(out_root)
     keep = {m["slug"] for m in metas}
     for d in out_root.iterdir():
         if d.is_dir() and (d / OUT_MARK).exists() and d.name not in keep:
@@ -2345,7 +2482,17 @@ def write_pages(
         (out / "index.html").write_text(doc, encoding="utf-8")
         for src, rel in copies:
             (out / rel).parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, out / rel)
+            if isinstance(src, str):
+                (out / rel).write_text(src, encoding="utf-8")
+            else:
+                shutil.copy2(src, out / rel)
+
+
+def owns_root(out_root: Path) -> bool:
+    """Whether build.py wrote out_root's .gitignore (it names OUT_MARK), so every page folder
+    under it is the build's own even when the marker files are not there."""
+    gitignore = out_root / ".gitignore"
+    return gitignore.is_file() and OUT_MARK in gitignore.read_text(encoding="utf-8")
 
 
 def assemble_site(out: Path) -> None:
@@ -2468,6 +2615,7 @@ def main() -> None:
     # publishes that folder. --drafts: the site again in _site-drafts/ with every page built
     # and linked from its main page. A plain build removes the preview.
     assemble_site(ROOT / SITE_DIR)
+    check_pages(ROOT / SITE_DIR)
     preview = ROOT / PREVIEW_DIR
     if preview.exists():
         if not (preview / OUT_MARK).exists():
