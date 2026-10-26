@@ -664,6 +664,10 @@ def variant(name: str) -> dict:
     a["eating"]["home_bias"]["values"]["date"] = "2026-09-14"
     if name == "few predictions":
         a["grading"]["predictions_stored"] = 19
+    if name == "finished tiered":
+        a["watching"]["crowd_agreement"]["values"]["points"].append(
+            {"title": "[Show title]", "year": 2016, "tier": "A", "type": "show"}
+        )
     if name == "young archive":
         # Three days of listening: everything but the not-available statistic waits for data.
         for k, st in a["listening"].items():
@@ -1854,6 +1858,10 @@ class Drawing(unittest.TestCase):
         self.assertIn("Still airing", now["text"])
         self.assertIn("Recently finished", now["text"])
         self.assertLessEqual(now["text"].count("finished"), 6)
+        # A finished title the crowd statistic tiers carries its tier chip before the type.
+        self.assertIn("[Show title]show", now["text"])
+        (tiered,) = blocks(draw("lately/watching/", name="finished tiered"), "watching.keeping_up")
+        self.assertIn("[Show title]Ashow", tiered["text"])
         self.assertIn("caught up", now["text"])
         self.assertTrue(
             all(re.fullmatch(r"\d+:\d\d", s[3]) for s in d["segs"]), d["segs"]

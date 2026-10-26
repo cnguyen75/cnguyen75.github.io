@@ -2091,7 +2091,8 @@
     }
 
     // The last five titles finished (the feed's recent list, newest first, status "finished"),
-    // each linked, with its tier chip when the analysis tiers it.
+    // each linked, with its tier chip before the type when the analysis tiers it (watching.tiers,
+    // else the crowd points, as the rankings do).
     var RECENTLY_FINISHED = 5;
     function recentlyFinished(data) {
         var w = isObj(data.watching) ? data.watching : {};
@@ -2103,7 +2104,13 @@
         if (!finished.length) return null;
         var tiers = {};
         var a = isObj(data.analysis) ? data.analysis : {};
-        list(isObj(a.watching) ? a.watching.tiers : null).forEach(function (t) {
+        var aw = isObj(a.watching) ? a.watching : {};
+        var tiered = Array.isArray(aw.tiers)
+            ? aw.tiers
+            : okStat(aw.crowd_agreement)
+              ? list(aw.crowd_agreement.values.points)
+              : [];
+        tiered.forEach(function (t) {
             if (isObj(t) && typeof t.title === 'string' && typeof t.tier === 'string')
                 tiers[t.type + '|' + t.title] = t.tier;
         });
