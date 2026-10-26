@@ -376,7 +376,6 @@ main {
     background: var(--ink);
 }
 .panel .control,
-.series .control,
 .chart--card .control,
 .tp-player .control,
 .tp-clip .control,
@@ -580,35 +579,6 @@ a.track:focus-visible::before {
     font-family: var(--font-label);
     font-size: var(--fs-14);
     color: var(--text-3);
-}
-/* A two-part series on sides B and C: one card panel (the lately panels' padding) with the
-   series line first, in the side-label style (text-3), then the two tracks, each part label
-   linking to the other. The track after the panel keeps its rule. */
-.series {
-    display: flex;
-    flex-direction: column;
-    background: var(--card);
-    padding: var(--s-24);
-}
-.series-head {
-    margin: 0;
-    padding: 0 0 var(--s-8);
-    font-family: var(--font-label);
-    font-size: var(--fs-13);
-    font-weight: 700;
-    color: var(--text-3);
-}
-.series > .track:first-of-type {
-    border-top: 0;
-    padding-top: var(--s-12);
-}
-.series > .track:last-child {
-    padding-bottom: 0;
-}
-@media (max-width: 520px) {
-    .series {
-        padding: var(--s-16);
-    }
 }
 .track-part-link {
     color: var(--text-3);

@@ -348,17 +348,9 @@ class Progress(unittest.TestCase):
         self.assertEqual(projects["18"], "A foot of space is worth eight seconds")
         self.assertEqual(projects["21"], "LLM 20 Questions")
         self.assertEqual(index.count("side c. projects"), 1)
-        # Each pair sits under a series header, in a .series wrapper, the part labels linking each
+        # Each pair is two plain rows, no panel or series header, the part labels linking each
         # other.
-        for first, second, head in (
-            ("10", "11", "efficient fine-tuning on one laptop"),
-            ("17", "18", "why players take the shots they take"),
-        ):
-            self.assertRegex(
-                index,
-                rf'<div class="series">\n<p class="series-head">two parts · {head}</p>\n'
-                rf'<(?:div|a) class="track track--wrap"[^>]*id="track-{first}">',
-            )
+        for first, second in (("10", "11"), ("17", "18")):
             self.assertRegex(
                 index,
                 rf'<span class="track-no">{first}</span>\s*<div class="track-body"><h3 '
@@ -376,7 +368,7 @@ class Progress(unittest.TestCase):
                 rf'<(?:a class="track-part-link" href|span class="track-part-link" data-href)='
                 rf'"#track-{first}">← follows {first}</(?:a|span)></span>',
             )
-        self.assertEqual(index.count('<div class="series">'), 2)
+        self.assertNotIn("series", index)
         # Every side B and C row shows its months (when: in the content file) under the title; side
         # A and the lately cards carry none.
         whens = dict(
