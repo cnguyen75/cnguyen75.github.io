@@ -21,6 +21,8 @@
     var MIN_CUISINE_PLACES = 15;
     // Sources with section "enrichment", by name until the pipeline writes the section.
     var ENRICHMENT = ['tmdb', 'omdb'];
+    // A weekly source's pull day, shown on its chip instead of the last pull's time.
+    var WEEKLY_PULL_DAYS = { beli: 'mondays' };
 
     // ---------- small helpers ----------
 
@@ -202,9 +204,11 @@
             );
         var at = parseTime(src.updated_at) || parseTime(src.last_ok_at);
         if (!at) return label + ' · ok';
-        return src.schedule === 'weekly'
-            ? label + ' · weekly · ' + weekday(at) + ' ' + clock(at)
-            : label + ' · ok · ' + clock(at);
+        if (src.schedule === 'weekly') {
+            var pullDay = WEEKLY_PULL_DAYS[key] || weekday(at) + ' ' + clock(at);
+            return label + ' · weekly · ' + pullDay;
+        }
+        return label + ' · ok · ' + clock(at);
     }
 
     function renderChips(data) {
