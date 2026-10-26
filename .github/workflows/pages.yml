@@ -20,11 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Require the Lately data file
-        # The workflow does not fetch data/lately.json yet. That needs the private lately
-        # repository's deploy key and secrets, which are set up by hand (README, Publishing).
         run: |
           if [ ! -f data/lately.json ]; then
-            echo "::error::data/lately.json is absent; the build will not run without it. Set up the private lately repository's deploy key and the fetch step first (README, Publishing)."
+            echo "::error::data/lately.json is absent; the build will not run without it. The nightly lately job commits it (README, Publishing)."
             exit 1
           fi
       - name: Build the site into _site

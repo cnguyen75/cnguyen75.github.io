@@ -1,5 +1,4 @@
 .DS_Store
-data/lately.json
 /content/drafts/
 /tools/node_modules/
 /tools/package-lock.json

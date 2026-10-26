@@ -16,7 +16,7 @@ content/lately/            one file per Lately feed page (the "data" register)
 lately/<feed>/             built Lately pages: frames only, no data (committed)
 tests/                     python3 tests/run.py (logs to ~/Personal/site-review-<date>/test-logs/); fixtures/analysis.json has placeholder names only, fixtures/lately.sample.json is the suite's data file
 data/lately.schema.json    JSON Schema (draft 2020-12) for the Lately data file
-data/lately.json           live data, written by the pipeline; in .gitignore so it is never added by hand, and committed only by the publish workflow (git add -f); the build fails without it
+data/lately.json           live data, written by the pipeline; the nightly job in ~/Code/lately copies it here and commits it; the build fails without it
 fonts/                     self-hosted Archivo (latin + vietnamese), Courier Prime, Caveat (latin) woff2 and their OFL licences
 images/colin-portrait.jpg  hero photo (faded in CSS, not in the file)
 images/og-image.png        1200×630 social preview, a render of the hero
@@ -270,18 +270,13 @@ A plain `python3 build.py` writes the ready pages in place and assembles the pub
 
 **Links.** A link to another site, and the résumé PDFs, open in a new tab with `rel="noopener"` (`new_tab()` in `build.py`, the `h()` helper in `js/lately.js`, and by hand in `index.html`); links within the site stay in the same tab. `tests/test_build.py` checks both rules.
 
-The page draws `data/lately.json`, which the pipeline writes. `build.py` stops with an error when the file is absent, so a deploy cannot go out without it; a file that is present but unreadable only prints a warning, and the site then shows "Lately is being updated.". The file is in `.gitignore` so it is never added by hand: after the first publish it is committed by the publish workflow with `git add -f`, and by nothing else. The test suite serves its own copy, `tests/fixtures/lately.sample.json`.
+The page draws `data/lately.json`, which the pipeline writes. `build.py` stops with an error when the file is absent, so a deploy cannot go out without it; a file that is present but unreadable only prints a warning, and the site then shows "Lately is being updated.". The file is committed by the pipeline's nightly job in `~/Code/lately`, which copies it here, commits it as "lately: data through <date>", and pushes `main`, and by nothing else. The test suite serves its own copy, `tests/fixtures/lately.sample.json`.
 
 ## Publishing
 
 `.github/workflows/pages.yml` builds the site with `python3 build.py` on every push to `main` and publishes `_site/` to GitHub Pages. The actions are pinned to commit SHAs, and the job has only `contents: read`, `pages: write` and `id-token: write`. Every page carries a Content-Security-Policy (`CSP` in `build.py`) that allows nothing from another host and no inline style or script; the build fails on a page that would break it, and on a `data/lately.json` that holds anything shaped like a key, an email address, a phone number, a street address or a path under `/Users/`.
 
-The workflow does not fetch `data/lately.json` yet, so it fails with a clear error when the file is absent. Two steps remain, both done by hand:
-
-1. **Create the private `lately` repository** on GitHub for the pipeline in `~/Code/lately`, which writes `data/lately.json` nightly, and push the pipeline there.
-2. **Add the deploy key and secrets.** Make a key pair; add the public half as a read-only deploy key on the private repository and the private half as an Actions secret on this one, with the repository name as a second secret. Then add a step to `pages.yml`, before the build, that clones the private repository with that key and copies its `data/lately.json` into place.
-
-Until then `data/lately.json` is committed by hand with `git add -f` after a pipeline run on this machine, as the build's own check requires.
+`data/lately.json` is committed to this repository by the pipeline's nightly job in `~/Code/lately`: after each run it copies the file here, commits it as "lately: data through <date>", and pushes `main`, which runs this workflow. The job commits nothing else, and skips the commit when the file is unchanged or the checkout has other changes. The workflow still fails with a clear error when the file is absent.
 
 ## Résumés
 
