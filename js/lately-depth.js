@@ -262,7 +262,7 @@
             'button',
             {
                 type: 'button',
-                class: 'control rows-more' + (opts.cls ? ' ' + opts.cls : ''),
+                class: 'control control--quiet rows-more' + (opts.cls ? ' ' + opts.cls : ''),
                 'aria-controls': container.id,
                 'aria-expanded': 'false',
             },
@@ -1272,7 +1272,11 @@
         if (opts.trails !== false && opts.trailToggle) {
             toggle = h(
                 'button',
-                { type: 'button', class: 'control quad-trails-toggle', 'aria-pressed': 'false' },
+                {
+                    type: 'button',
+                    class: 'control control--quiet quad-trails-toggle',
+                    'aria-pressed': 'false',
+                },
                 'show trail',
             );
             toggle.addEventListener('click', function () {
@@ -1924,7 +1928,11 @@
         if (opts.bandToggle) {
             toggle = h(
                 'button',
-                { type: 'button', class: 'control km-bands-toggle', 'aria-pressed': 'false' },
+                {
+                    type: 'button',
+                    class: 'control control--quiet km-bands-toggle',
+                    'aria-pressed': 'false',
+                },
                 'show 95% bands',
             );
             toggle.addEventListener('click', function () {
@@ -6185,7 +6193,7 @@
         return h(
             'details',
             { class: 'how', open: sec.hasAttribute('data-how-open') },
-            h('summary', { class: 'control' }, 'how'),
+            h('summary', { class: 'control control--quiet' }, 'how'),
             h('p', { class: 'how-text' }, e.stat.how),
         );
     }

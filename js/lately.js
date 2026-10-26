@@ -1115,7 +1115,7 @@
                         'button',
                         {
                             type: 'button',
-                            class: 'control tier-more',
+                            class: 'control control--quiet tier-more',
                             'aria-controls': strip.id,
                             'aria-expanded': 'false',
                         },

@@ -101,7 +101,18 @@
     align-self: center;
 }
 
-/* Play and speed are controls (site.css .control); only the play icon is drawn here. */
+/* Play is a primary control: filled ink, like the hero's email button. Speed is a block control
+   (site.css .control); only the play icon is drawn here. */
+.tp-play.control,
+.tp-play.control:hover {
+    padding: var(--s-8) var(--s-12);
+    background: var(--ink);
+    color: var(--card);
+    text-decoration: none;
+}
+.tp-play.control::before {
+    display: none;
+}
 .tp-play-icon {
     display: inline-block;
     width: 0;

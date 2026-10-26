@@ -516,7 +516,7 @@
             set(false);
             var btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'control rows-more';
+            btn.className = 'control control--quiet rows-more';
             btn.setAttribute('aria-controls', el.id);
             btn.setAttribute('aria-expanded', 'false');
             btn.textContent = more;

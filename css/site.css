@@ -344,26 +344,44 @@ main {
     font-weight: 500;
 }
 
-/* Every control on the site (DESIGN.md, "Controls"): the "more →" on the lately panels, "show
-   all N", "+N more", the "how" summary, the tabs, the reading bar's play and speed, the audio
-   grid's sentence picker. The hero's ink email button is the only primary button; links in
-   prose stay underlined text. A pressed one (the selected tab, bands on) is ink on paper. */
+/* Controls come in three weights (DESIGN.md, "Controls"). Block: the tabs, "more →" on the
+   lately panels, the reading bar's speed, the audio grid's sentence picker and the source
+   chips: the card surface (one step lighter on a card), no border, square corners, a small ink
+   square bullet, mono 13px; hover lifts it one step and underlines; the selected tab is ink
+   text over a 2px ink rule, never a filled block. Quiet (.control--quiet): "how", "show all N",
+   "+N more", bands and trail toggles: mono text with a ▸ or ▾ marker, no box, hover underline.
+   Primary: the hero's email button and play, filled ink. Links in prose stay underlined. */
 .control {
     display: inline-flex;
     align-items: center;
-    gap: var(--s-8);
+    gap: var(--s-6);
     margin: 0;
-    padding: var(--s-8) var(--s-12);
+    padding: var(--s-2) var(--s-3);
     font-family: var(--font-label);
     font-size: var(--fs-13);
     font-weight: 400;
     line-height: 1.3;
     color: var(--ink);
-    background: var(--paper);
-    border: 1px solid var(--ink);
+    background: var(--card);
+    border: 0;
     text-decoration: none;
     cursor: pointer;
     list-style: none;
+}
+.control::before {
+    content: '';
+    flex: none;
+    width: 6px;
+    height: 6px;
+    background: var(--ink);
+}
+.panel .control,
+.series .control,
+.chart--card .control,
+.tp-player .control,
+.tp-clip .control,
+.tp-demo .control {
+    background: var(--lift);
 }
 .control::-webkit-details-marker {
     display: none;
@@ -371,14 +389,40 @@ main {
 .control:hover {
     background: var(--lift);
     color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 .control:focus-visible {
     outline: 2px solid var(--ink);
     outline-offset: 2px;
 }
 .control[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: transparent;
+    color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--ink);
+}
+.control--quiet,
+.control--quiet:hover,
+.control--quiet[aria-pressed='true'] {
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+.control--quiet::before {
+    content: '▸';
+    width: auto;
+    height: auto;
+    background: none;
+    line-height: 1;
+}
+details[open] > .control--quiet::before,
+.control--quiet[aria-expanded='true']::before,
+.control--quiet[aria-pressed='true']::before {
+    content: '▾';
+}
+.control--quiet:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 /* ---------- Sides (tracklists) ---------- */
@@ -721,13 +765,13 @@ a.track:focus-visible::before {
 .chip {
     display: inline-flex;
     align-items: center;
-    gap: var(--s-8);
+    gap: var(--s-6);
     background: var(--card);
-    padding: var(--s-6) var(--s-10);
+    padding: var(--s-2) var(--s-3);
 }
 .chip-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: var(--ink);
 }
 
