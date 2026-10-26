@@ -457,13 +457,18 @@ class Progress(unittest.TestCase):
             stub = (build.ROOT / n / "index.html").read_text(encoding="utf-8")
             self.assertIn(f'content="0; url=/#track-{n}"', stub)
 
-    # Every page ends with "Views are my own.": the main page's contact column and the built pages'
-    # foot.
+    # Every page ends with "Views are my own." and the cookie-free counting line: the main page's
+    # contact column and the built pages' foot.
     def test_views_note(self) -> None:
         index = (build.ROOT / "index.html").read_text(encoding="utf-8")
-        self.assertIn('</nav>\n<p class="views-note">Views are my own.</p>', index)
         self.assertIn(
-            '<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>',
+            '</nav>\n<p class="views-note">Views are my own.</p>\n'
+            '<p class="views-note">Page views are counted without cookies.</p>',
+            index,
+        )
+        self.assertIn(
+            '<footer class="page-foot"><p class="views-note">Views are my own.</p>\n'
+            '<p class="views-note">Page views are counted without cookies.</p></footer>',
             self.render(),
         )
 
@@ -689,7 +694,8 @@ class Progress(unittest.TestCase):
             r"label</text></svg>",
         )
         self.assertIn('<link rel="stylesheet" href="figures.css">', doc)
-        self.assertNotIn("<img", doc.split('id="results"')[1])
+        results = doc.split('id="results"')[1].split("</section>")[0]
+        self.assertNotIn("<img", results)
         self.assertIn(
             "old label", (assets / "plot.svg").read_text()
         )  # the file itself is untouched
@@ -977,6 +983,29 @@ class Preview(unittest.TestCase):
             with self.subTest(page=str(page.relative_to(build.ROOT))):
                 self.assertEqual(text.count(build.CSP_META), 1)
                 self.assertIsNone(build.INLINE_CODE.search(text))
+
+    # Every page a visitor reads ends with one count image carrying its own path; the /01 to /08
+    # redirect stubs carry none. The policy allows the image and nothing else from that host.
+    def test_count_image_on_every_page(self) -> None:
+        self.assertIn(f"img-src 'self' data: {build.COUNT_HOST};", build.CSP)
+        paths = {build.ROOT / "index.html": "/"}
+        for folder in ("tracks", "lately"):
+            for page in sorted(build.ROOT.glob(f"{folder}/*/index.html")):
+                paths[page] = f"/{folder}/{page.parent.name}/"
+        self.assertGreater(len(paths), 15)
+        for page, path in paths.items():
+            text = page.read_text(encoding="utf-8")
+            with self.subTest(page=str(page.relative_to(build.ROOT))):
+                self.assertEqual(text.count(build.COUNT_HOST), 2)  # the policy and the image
+                self.assertTrue(text.endswith(build.count_image(path) + "\n</body>\n</html>\n"))
+        self.assertEqual(
+            build.count_image("/tracks/paper-trader/"),
+            '<img src="https://cnguyen75.goatcounter.com/count?p=%2Ftracks%2Fpaper-trader%2F" '
+            'alt="" width="1" height="1" loading="eager" decoding="async" '
+            'referrerpolicy="no-referrer-when-downgrade">',
+        )
+        for stub in sorted(build.ROOT.glob("0[1-8]/index.html")):
+            self.assertEqual(stub.read_text(encoding="utf-8").count(build.COUNT_HOST), 1)
 
     def test_private_shapes_in_the_data(self) -> None:
         found = build.private_shapes(

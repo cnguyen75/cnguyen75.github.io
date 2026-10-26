@@ -679,6 +679,10 @@ a.track:focus-visible::before {
     margin-top: var(--s-48);
     border-top: 1px solid var(--rule);
 }
+/* The view counter's 1×1 image, last in the body: a block, so it adds no line of space. */
+body > img {
+    display: block;
+}
 
 /* ---------- Side D, lately ---------- */
 

@@ -30,6 +30,7 @@ from pathlib import Path
 import re
 import shutil
 import sys
+from urllib.parse import quote
 
 
 ROOT = Path(__file__).resolve().parent
@@ -105,10 +106,14 @@ SITE_FILES = (
     "08",
 )
 NOT_COPIED = {".gitignore", OUT_MARK, ".DS_Store", "__pycache__"}
-# Every page carries this policy, so nothing loads from another host and no inline style or
-# script runs; the build fails on a page that would break it (check_pages).
+# Page views are counted by one image from this host, no script and no cookie; every page a
+# visitor reads loads it once with the page's site-relative path.
+COUNT_URL = "https://cnguyen75.goatcounter.com/count"
+COUNT_HOST = "https://cnguyen75.goatcounter.com"
+# Every page carries this policy, so nothing but the count image loads from another host and no
+# inline style or script runs; the build fails on a page that would break it (check_pages).
 CSP = (
-    "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
+    f"default-src 'self'; img-src 'self' data: {COUNT_HOST}; style-src 'self'; script-src 'self'; "
     "font-src 'self'; base-uri 'none'; form-action 'none'"
 )
 CSP_META = f'<meta http-equiv="Content-Security-Policy" content="{CSP}">'
@@ -1937,7 +1942,7 @@ def check_pages(out: Path) -> None:
             problems.append(f"{rel}: no Content-Security-Policy meta")
         for url in ASSET_REF.findall(text):
             host = re.match(r"https?://([^/]+)", url)
-            if host and host.group(1) != own:
+            if host and host.group(1) != own and not url.startswith(COUNT_URL + "?p="):
                 problems.append(f"{rel}: loads from {host.group(1)}")
         m = INLINE_CODE.search(text)
         if m:
@@ -1952,6 +1957,15 @@ def check_pages(out: Path) -> None:
 
 
 # ---------- page output ----------
+
+
+def count_image(path: str) -> str:
+    """The view counter's image for the page at path (site-relative, e.g. /tracks/paper-trader/):
+    one 1×1 image, no script, placed last in the body."""
+    return (
+        f'<img src="{COUNT_URL}?p={quote(path, safe="")}" alt="" width="1" height="1" '
+        'loading="eager" decoding="async" referrerpolicy="no-referrer-when-downgrade">'
+    )
 
 
 def clock(seconds: int) -> str:
@@ -2301,9 +2315,11 @@ Scroll, tap or press space to pause.</p>
 {"".join(nav)}
 </nav>
 </main>
-<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>
+<footer class="page-foot"><p class="views-note">Views are my own.</p>
+<p class="views-note">Page views are counted without cookies.</p></footer>
 </div>
 </div>
+{count_image(f"/{page_folder(meta)}/{meta['slug']}/")}
 </body>
 </html>
 """

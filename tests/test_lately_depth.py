@@ -176,7 +176,9 @@ class Register(unittest.TestCase):
             r'class="ld-asof-date">…</time></dd></div></dl></div></section>',
         )
         self.assertIn(
-            '<footer class="page-foot"><p class="views-note">Views are my own.</p></footer>', doc
+            '<footer class="page-foot"><p class="views-note">Views are my own.</p>\n'
+            '<p class="views-note">Page views are counted without cookies.</p></footer>',
+            doc,
         )
         doc = build.render_data_page(self.read("watching", content("watching")))
         self.assertIn(
