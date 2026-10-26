@@ -1152,21 +1152,24 @@ a.track:focus-visible::before {
 .ld-iv-label {
     overflow-wrap: anywhere;
 }
-/* A bar is 8px tall with square ends: the track colour with an ink mark at its end, blue only
-   when the row is the subject (me, a positive, the thing the question is about), orange when
-   negative. Films, shows and anime keep their colours. */
+/* A bar is 8px tall with square ends: axis grey on the track colour, with an ink mark at its
+   end; blue only when the row is the subject (me, a positive, the thing the question is about),
+   orange when negative. Films, shows and anime keep their colours. */
 .bar-track,
 .ld-iv-track,
 .ld-margin-track {
     position: relative;
     height: 8px;
 }
+.bar-track {
+    background: var(--track);
+}
 .bar-fill {
     position: absolute;
     top: 0;
     left: 0;
     height: 8px;
-    background: var(--track);
+    background: var(--axis);
 }
 .bar-fill::after {
     content: '';
@@ -1247,7 +1250,7 @@ a.track:focus-visible::before {
     position: relative;
     width: 18px;
     height: 8px;
-    background: var(--track);
+    background: var(--axis);
     vertical-align: middle;
 }
 .legend-bar::after {
@@ -1712,11 +1715,11 @@ a.track:focus-visible::before {
     line-height: 1;
 }
 .vol-bar {
-    background: var(--blue);
+    background: var(--axis);
     border-top: 2px solid var(--ink);
 }
 .vol-bar--partial {
-    background: var(--heat-2);
+    background: var(--track);
 }
 
 .list-items--prs .list-item {
@@ -1987,9 +1990,9 @@ a.track:focus-visible::before {
     line-height: 18px;
     white-space: nowrap;
 }
-/* A column is the track colour with an ink mark on top. */
+/* A column is axis grey with an ink mark on top. */
 .ld-col-bar {
-    background: var(--track);
+    background: var(--axis);
     border-top: 2px solid var(--ink);
     min-height: 0;
 }
