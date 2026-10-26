@@ -155,9 +155,10 @@ def _check_function(path: Path, node: ast.FunctionDef, lines: list[str]) -> list
             Finding(path, node.lineno, "function-length", f"{node.name} is {length} lines")
         )
     params = [a for a in node.args.args + node.args.kwonlyargs if a.arg not in {"self", "cls"}]
-    if len(params) > MAX_PARAMS:
+    positional = [a for a in node.args.args if a.arg not in {"self", "cls"}]
+    if len(positional) > MAX_PARAMS and not _is_test_file(path):
         findings.append(
-            Finding(path, node.lineno, "parameters", f"{node.name} takes {len(params)}")
+            Finding(path, node.lineno, "parameters", f"{node.name} takes {len(positional)}")
         )
     depth = _max_nesting(node)
     if depth > MAX_NESTING:
@@ -193,7 +194,7 @@ def _check_annotations(path: Path, node: ast.FunctionDef, params: list[ast.arg])
 
 
 def _is_test_file(path: Path) -> bool:
-    """Tests are exempt from the type-hint rules, as in ruff.toml's per-file-ignores."""
+    """Tests are exempt from the type-hint and parameter rules, as in ruff.toml."""
     return "tests" in path.parts or path.name.startswith("test_")
 
 

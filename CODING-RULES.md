@@ -87,7 +87,7 @@ Each function does one job and keeps its main path at the left margin.
 - **Aim for under ~30 lines.** Past 50, look for a piece to extract and name.
 - **Return early.** Handle invalid input and edge cases first, then write the main logic unindented.
 - **Max 2 to 3 levels of nesting.** Deeper than that, extract a helper or invert a condition.
-- **At most 3 to 4 parameters.** More than that, group them into a dataclass/object.
+- **At most 3 to 4 parameters.** More than that, group them into a dataclass/object. Test code is exempt from this limit and from the magic-value rule. Keyword-only parameters, the ones after a bare `*`, don't count: a function that takes many of them is a record constructor, and its call sites read fine without a dataclass. A `noqa: PLR0913` is allowed only on a function whose excess parameters are all keyword-only, with the reason "keyword-only record".
 - **No boolean flag parameters** that switch behavior (`save(user, True)`). Write two functions, or use a keyword-only argument with a clear name.
 - **No hidden side effects.** A function named `compute_` or `get_` doesn't write to disk, the network, or a global.
 - **Positive conditions:** `if is_valid:` reads better than `if not is_invalid:`.

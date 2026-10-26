@@ -24,7 +24,7 @@ select = [
 ignore = ["ANN401", "TRY003", "TRY400", "E501"]
 
 [lint.per-file-ignores]
-"tests/**" = ["PLR2004", "ANN"]
+"tests/**" = ["PLR0913", "PLR2004", "ANN"]
 "test_*.py" = ["PLR2004", "ANN"]
 
 [lint.pylint]
