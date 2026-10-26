@@ -25,7 +25,8 @@ statistics in the browser from `data/lately.json`.
 - Format: `npx prettier@3.3.3 --write js css` and `uvx ruff format build.py tests tools`,
   then `uvx ruff check build.py tests tools`
 
-Private and git-ignored, never committed: `content/drafts/`, `_site-drafts/` and
-`data/lately.json` (the pipeline writes it; the site is not built without it). The design
-source is `HANDOFF.md` (outside this repository) and `DESIGN.md` here: every colour and size
-in the stylesheets is a token from `DESIGN.md`, and the tests check that.
+Private and git-ignored, never committed: `content/drafts/` and `_site-drafts/`. The lately
+nightly job commits and pushes `data/lately.json` as "lately: data through <date>", and it is
+the only file that job touches. The design source is `HANDOFF.md` (outside this repository)
+and `DESIGN.md` here: every colour and size in the stylesheets is a token from `DESIGN.md`,
+and the tests check that.
