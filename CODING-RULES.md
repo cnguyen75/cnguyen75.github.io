@@ -258,6 +258,10 @@ A README is read by someone skimming from my website, often a recruiter or engin
 
 **My voice:** explaining a bit more than strictly needed is fine in "How it works." Padding isn't: no restating a point, no summary of what was just said.
 
+## Commits
+
+Commits carry one author, Colin Nguyen with the GitHub noreply address, and no tool co-author trailers.
+
 ## Pre-commit checklist
 
 Read the whole diff once as a reviewer trying to reject it, then tick through this list.
