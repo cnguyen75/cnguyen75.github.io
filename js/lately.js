@@ -2090,51 +2090,67 @@
                 ),
                 stat('Sessions, last 4 weeks', String(recent4), 'including this week so far'),
             ),
-            groups.length
-                ? h(
-                      'div',
-                      { class: 'chart' },
-                      h(
-                          'div',
-                          { class: 'chart-head' },
-                          h('div', { class: 'chart-title' }, 'How are my tracked lifts moving?'),
-                      ),
-                      groups.map(function (g) {
-                          return h(
-                              'div',
-                              { class: 'lift-split' },
-                              h('h4', { class: 'lift-split-title' }, g.label),
-                              h(
-                                  'div',
-                                  { class: 'lifts' },
-                                  g.items.map(function (lift) {
-                                      var t = rule[lift.name];
-                                      return liftTile(
-                                          lift,
-                                          b.unit,
-                                          t && typeof t.sessions === 'number' ? t.sessions : null,
-                                      );
-                                  }),
-                              ),
-                          );
-                      }),
-                      h(
-                          'p',
-                          { class: 'chart-foot' },
-                          'Tracked lifts have at least 12 sessions in the last 26 weeks' +
-                              (left > 0
-                                  ? '; ' +
-                                    plural(left, 'lift', 'lifts') +
-                                    ' below that ' +
-                                    (left === 1 ? 'is' : 'are') +
-                                    ' not shown'
-                                  : '') +
-                              '. ' +
-                              EPLEY_NOTE,
-                      ),
-                  )
-                : null,
+            groups.length ? liftChart(groups, rule, b.unit, left) : null,
         ];
+    }
+
+    // The tracked lifts' tiles by split; more than ten tiles show ten and a "show all N" button,
+    // and a split whose tiles are all folded away folds with them.
+    function liftChart(groups, rule, unit, left) {
+        var chart = h(
+            'div',
+            { class: 'chart' },
+            h(
+                'div',
+                { class: 'chart-head' },
+                h('div', { class: 'chart-title' }, 'How are my tracked lifts moving?'),
+            ),
+            groups.map(function (g) {
+                return h(
+                    'div',
+                    { class: 'lift-split' },
+                    h('h4', { class: 'lift-split-title' }, g.label),
+                    h(
+                        'div',
+                        { class: 'lifts' },
+                        g.items.map(function (lift) {
+                            var t = rule[lift.name];
+                            return liftTile(
+                                lift,
+                                unit,
+                                t && typeof t.sessions === 'number' ? t.sessions : null,
+                            );
+                        }),
+                    ),
+                );
+            }),
+            h(
+                'p',
+                { class: 'chart-foot' },
+                'Tracked lifts have at least 12 sessions in the last 26 weeks' +
+                    (left > 0
+                        ? '; ' +
+                          plural(left, 'lift', 'lifts') +
+                          ' below that ' +
+                          (left === 1 ? 'is' : 'are') +
+                          ' not shown'
+                        : '') +
+                    '. ' +
+                    EPLEY_NOTE,
+            ),
+        );
+        var tiles = chart.querySelectorAll('.lift');
+        var btn = collapse(chart, tiles, {
+            after: function () {
+                [].forEach.call(chart.querySelectorAll('.lift-split'), function (g) {
+                    g.hidden = ![].some.call(g.querySelectorAll('.lift'), function (t) {
+                        return !t.hidden;
+                    });
+                });
+            },
+        });
+        if (btn) chart.insertBefore(btn, chart.querySelector('.chart-foot'));
+        return chart;
     }
 
     // Sessions and volume by week, sets by muscle group, recent personal records.

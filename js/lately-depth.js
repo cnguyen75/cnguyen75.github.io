@@ -241,9 +241,10 @@
 
     var uid = 0;
     var SHOW_ROWS = 10;
-    // A list or table with more than SHOW_ROWS rows shows that many and a "show all N" button
-    // that opens the rest in place and closes them again. The rows stay in the DOM, hidden,
-    // and the button carries aria-expanded and aria-controls. Returns the button, or null.
+    // A list, table or any repeated group with more than SHOW_ROWS rows shows that many and a
+    // "show all N" button that opens the rest in place and closes them again. The rows stay in
+    // the DOM, hidden, and the button carries aria-expanded and aria-controls; opts.after(open)
+    // runs after each change. Returns the button, or null.
     function collapseRows(container, rows, opts) {
         opts = opts || {};
         var limit = opts.limit || SHOW_ROWS;
@@ -254,6 +255,7 @@
             rows.forEach(function (r, i) {
                 if (i >= limit) r.hidden = !open;
             });
+            if (opts.after) opts.after(open);
         }
         set(false);
         var more = 'show all ' + rows.length,
@@ -3551,6 +3553,9 @@
         },
         'lifting.progress.*': {
             n: 'sessions',
+            rank: function (e, analysis) {
+                return trackedLifts(analysis).indexOf(e.labels[e.labels.length - 1]) < 0 ? 1 : 0;
+            },
             value: function (s) {
                 return [signed(s.value, 1), 'lb a month, estimated one-rep max'];
             },
@@ -5594,6 +5599,15 @@
         legs: 'legs',
     };
     // The split series aligned to the overall weeks, from values.splits; [] when absent.
+    // The names of the lifts the strength index tracks, or none.
+    function trackedLifts(analysis) {
+        var si = isObj(analysis.lifting) ? analysis.lifting.strength_index : null;
+        return list(okStat(si) ? si.values.tracked : null)
+            .map(function (t) {
+                return isObj(t) ? t.name : null;
+            })
+            .filter(Boolean);
+    }
     function splitSeries(v, weeks) {
         if (!isObj(v) || !isObj(v.splits)) return [];
         return Object.keys(SPLIT_NAMES)
@@ -6013,6 +6027,7 @@
                     entries.push(e);
                 });
             });
+        entries = ranked(entries, analysis);
         if (!entries.length && found) {
             slot.hidden = true;
             return;
@@ -6136,6 +6151,7 @@
                 plain.forEach(function (e) {
                     drawInto(grid, e, analysis, ctx);
                 });
+                append(slot, collapseRows(grid, grid.children));
             }
             if (tabbed.length) slot.appendChild(tabbedBlocks(slot, tabbed, analysis, ctx));
         }
@@ -6143,6 +6159,20 @@
         // that holds it (or the slot that absorbed it).
         var sec = slot.closest('.ld-section');
         if (sec && holdsPrimary(slot, sec)) append(slot, sectionHow(sec, analysis));
+    }
+
+    // Entries in a stable order by their spec's rank (the tracked lifts before the rest).
+    function ranked(entries, analysis) {
+        return entries
+            .map(function (e, i) {
+                return { e: e, i: i, r: e.spec.rank ? e.spec.rank(e, analysis) : 0 };
+            })
+            .sort(function (a, b) {
+                return a.r - b.r || a.i - b.i;
+            })
+            .map(function (x) {
+                return x.e;
+            });
     }
 
     function drawInto(grid, e, analysis, ctx) {
