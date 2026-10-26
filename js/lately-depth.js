@@ -377,13 +377,21 @@
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '');
     }
+    // A hash part decoded, or as written when it is not valid percent-encoding.
+    function decodeHash(part) {
+        try {
+            return decodeURIComponent(part);
+        } catch (e) {
+            return part;
+        }
+    }
     // The hash: "#section", "#team=key" or "#section&team=key".
     function hashParts() {
         var parts = (location.hash || '').slice(1).split('&'),
             team = null;
         parts.forEach(function (p) {
             var m = /^team=(.+)$/.exec(p);
-            if (m) team = decodeURIComponent(m[1]);
+            if (m) team = decodeHash(m[1]);
         });
         return { id: /=/.test(parts[0]) ? '' : parts[0], team: team };
     }
@@ -2052,10 +2060,10 @@
 
     function floorNote(v, s) {
         var how = isObj(s) && typeof s.how === 'string' ? s.how : '';
-        var sentence = how.split(/(?<=\.)\s+/).filter(function (t) {
+        var sentence = (how.match(/[^.]*\.(?:\s+|$)/g) || [how]).filter(function (t) {
             return /no play before|invisible|floor/i.test(t);
         })[0];
-        return sentence ? h('p', { class: 'ld-note' }, sentence) : null;
+        return sentence ? h('p', { class: 'ld-note' }, sentence.trim()) : null;
     }
 
     // The credits in analysis.meta.attributions, as text or links, joined by dots.

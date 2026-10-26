@@ -115,6 +115,16 @@ def sources() -> list[Path]:
     return [p for p in files if p.is_file()]
 
 
+class Scripts(unittest.TestCase):
+    def test_no_lookbehind_in_the_scripts(self) -> None:
+        found = []
+        for path in sorted((ROOT / "js").glob("*.js")):
+            text = path.read_text(encoding="utf-8")
+            for m in re.finditer(r"\(\?<", text):
+                found.append(f"{path.relative_to(ROOT)}:{text.count(chr(10), 0, m.start()) + 1}")
+        self.assertEqual(found, [], "regex lookbehind, which Safari 16.3 and older cannot parse")
+
+
 class OneFamily(unittest.TestCase):
     def test_retired_class_names_are_gone(self) -> None:
         found = []
