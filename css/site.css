@@ -1756,12 +1756,16 @@ a.track:focus-visible::before {
     font-size: var(--fs-13);
     color: var(--text-3);
 }
-/* A card's "not enough data yet": the question stands over a box with n and min_n */
-.ld-section--why .ld-block--not-enough-data-yet .ld-wait,
+/* A card's "not enough data yet": the question stands over a box with n and min_n. A statistic
+   that carries its own question (.ld-wait--line) is one mono fact line instead, no box. */
+.ld-section--why .ld-block--not-enough-data-yet .ld-wait:not(.ld-wait--line),
 .panel-wait .ld-wait {
     border: 1px dashed var(--rule);
     padding: var(--s-12) var(--s-14);
     color: var(--text-2);
+}
+.ld-wait--line {
+    color: var(--text-3);
 }
 .ld-wait b {
     color: var(--ink);

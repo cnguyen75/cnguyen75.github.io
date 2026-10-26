@@ -1282,11 +1282,14 @@ class Drawing(unittest.TestCase):
         self.assertEqual(b["value"], "0.210")
         self.assertIn("Brier score", b["text"])
         self.assertIn("Predicted win chance against how often I won", b["text"])
-        # With fewer than 20 predictions stored the gate holds it back: the card (it is under
-        # Why) keeps its question over the box, with the gate's n and min_n.
+        # With fewer than 20 predictions stored the gate holds it back: one mono fact line with
+        # its question under the two platforms, not a box.
         few = draw("lately/fantasy/", name="few predictions")
         (fb,) = blocks(few, "grading.win_chance")
-        self.assertEqual((fb["status"], fb["wait"]), ("not enough data yet", "nothing to show yet"))
+        self.assertEqual(
+            (fb["status"], fb["wait"]),
+            ("not enough data yet", "Is the win chance honest? · nothing to show yet"),
+        )
         self.assertFalse(slot(few, "grading.win_chance")["hidden"])
 
     QUESTIONS = {

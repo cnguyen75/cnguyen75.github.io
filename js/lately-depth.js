@@ -2860,6 +2860,7 @@
         // ----- grading -----
         'grading.win_chance': {
             n: 'predictions',
+            question: 'Is the win chance honest?',
             // Not enough until twenty predictions are stored, whatever the block's status says.
             gate: function (s, a) {
                 var stored =
@@ -5810,7 +5811,7 @@
         if (label) block.appendChild(h('h3', { class: 'ld-block-title' }, label));
 
         if (status === 'not enough data yet') {
-            block.appendChild(firstLine(s));
+            block.appendChild(spec.question ? questionLine(spec.question, s) : firstLine(s));
             return block;
         }
         if (status !== 'ok') {
@@ -6517,6 +6518,17 @@
             { class: 'ld-wait' },
             h('b', null, (label ? label + ': ' : '') + 'nothing to show yet'),
             rest ? ': ' + rest : '',
+        );
+    }
+    // A statistic with a question of its own waits as one mono fact line under its neighbours,
+    // "Is the win chance honest? · nothing to show yet", with no box around it.
+    function questionLine(question, s) {
+        var rest = firstUnitText(s);
+        return h(
+            'p',
+            { class: 'ld-wait ld-wait--line' },
+            h('b', null, question),
+            ' · nothing to show yet' + (rest ? ': ' + rest : ''),
         );
     }
     // The line for a card or panel whose statistic isn't drawn: waiting (its first unit), another
