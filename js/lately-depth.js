@@ -6572,19 +6572,22 @@
         retime();
     }
 
-    // The "built with" attribution row shows while one of its licence lines does.
+    // A "built with" row with nothing visible in its value is left out: the attribution row
+    // shows while one of its licence lines does, and no row shows empty.
     function attributionRow() {
-        Array.prototype.forEach.call(
-            document.querySelectorAll('.tp-built-row--when'),
-            function (row) {
-                row.hidden = !Array.prototype.some.call(
-                    row.querySelectorAll('.ld-attribution, .ld-attributions'),
-                    function (p) {
-                        return !p.hidden;
-                    },
-                );
-            },
-        );
+        Array.prototype.forEach.call(document.querySelectorAll('.tp-built-row'), function (row) {
+            var dd = row.querySelector('dd');
+            var shown = Array.prototype.filter.call(dd ? dd.childNodes : [], function (n) {
+                return n.nodeType === 3 || !n.hidden;
+            });
+            var text = shown
+                .map(function (n) {
+                    return n.textContent;
+                })
+                .join('')
+                .trim();
+            row.hidden = !text;
+        });
     }
     // The reading bar (js/track.js) measures the sections once they are drawn.
     function retime() {

@@ -2305,8 +2305,8 @@ def data_built_with(meta: dict) -> str:
             f"hidden><dt>attribution</dt><dd>{when}</dd></div>"
         )
     rows.append(
-        '<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly '
-        "pipeline I wrote; the pipeline is private</dd></div>"
+        '<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>my own '
+        "nightly pipeline (private)</dd></div>"
     )
     rows.append(
         '<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time '

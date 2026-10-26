@@ -170,8 +170,8 @@ class Register(unittest.TestCase):
             r'<div class="tp-section-body"><dl data-secs="0.00" class="tp-built">'
             r'<div class="tp-built-row tp-built-row--data"><dt>data</dt><dd><a href="https://sleeper.com" target="_blank" rel="noopener">Sleeper</a> and <a href="https://www.espn.com/fantasy/football/" target="_blank" rel="noopener">ESPN</a></dd></div>'
             r'<div class="tp-built-row tp-built-row--when" hidden><dt>attribution</dt><dd><p class="ld-attribution" data-when-source="yahoo" hidden><a href="https://sports.yahoo.com/fantasy/" target="_blank" rel="noopener">Fantasy data provided by Yahoo Fantasy</a></p></dd></div>'
-            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>a nightly '
-            r"pipeline I wrote; the pipeline is private</dd></div>"
+            r'<div class="tp-built-row tp-built-row--made-with"><dt>made with</dt><dd>my own '
+            r"nightly pipeline \(private\)</dd></div>"
             r'<div class="tp-built-row tp-built-row--as-of ld-asof"><dt>as of</dt><dd><time '
             r'class="ld-asof-date">…</time></dd></div></dl></div></section>',
         )
@@ -1199,7 +1199,7 @@ class Drawing(unittest.TestCase):
                 )
                 self.assertEqual(
                     next(v for l, v, _ in d["builtRows"] if l == "made with"),
-                    "a nightly pipeline I wrote; the pipeline is private",
+                    "my own nightly pipeline (private)",
                 )
                 self.assertEqual(d["errors"], [])
 

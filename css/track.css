@@ -358,11 +358,16 @@
 /* Built with: a two-column grid, the label in the label face on the left, the value in the
    text face on the right, a soft rule between rows. One component on every track and lately
    page; the papers list is one of its rows. */
+/* A hairline above the first row and below the last; the label column as wide as its longest
+   label; a row with no value is left out (build.py for the track pages, js/lately-depth.js for
+   the rows the browser fills). */
 .tp-built {
     margin: 0;
     display: grid;
-    grid-template-columns: minmax(9em, max-content) minmax(0, 1fr);
+    grid-template-columns: max-content minmax(0, 1fr);
     column-gap: var(--s-24);
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
 }
 .tp-built-row {
     display: contents;
@@ -379,7 +384,6 @@
 .tp-built-row:first-child > dt,
 .tp-built-row:first-child > dd {
     border-top: 0;
-    padding-top: 0;
 }
 .tp-built-row > dt {
     font-family: var(--font-label);
