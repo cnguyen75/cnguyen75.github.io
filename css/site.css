@@ -536,39 +536,34 @@ a.track:focus-visible::before {
     font-size: var(--fs-14);
     color: var(--text-3);
 }
-/* A two-part series on sides B and C: a header in the side-label style (text-3) above the
-   pair, the two cards joined by a 1px rule down the number column, each card's part label
-   linking to the other. */
+/* A two-part series on sides B and C: one card panel (the lately panels' padding) with the
+   series line first, in the side-label style (text-3), then the two tracks, each part label
+   linking to the other. The track after the panel keeps its rule. */
+.series {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    padding: var(--s-24);
+}
 .series-head {
     margin: 0;
-    padding: var(--s-20) 0 var(--s-8);
+    padding: 0 0 var(--s-8);
     font-family: var(--font-label);
     font-size: var(--fs-13);
     font-weight: 700;
     color: var(--text-3);
 }
-.series {
-    display: flex;
-    flex-direction: column;
+.series > .track:first-of-type {
+    border-top: 0;
+    padding-top: var(--s-12);
 }
-.series > .track {
-    position: relative;
+.series > .track:last-child {
+    padding-bottom: 0;
 }
-.series > .track:first-child::after,
-.series > .track:last-child::before {
-    content: '';
-    position: absolute;
-    left: 9px;
-    width: 1px;
-    background: var(--rule);
-}
-.series > .track:first-child::after {
-    top: 44px;
-    bottom: 0;
-}
-.series > .track:last-child::before {
-    top: 0;
-    height: 16px;
+@media (max-width: 520px) {
+    .series {
+        padding: var(--s-16);
+    }
 }
 .track-part-link {
     color: var(--text-3);

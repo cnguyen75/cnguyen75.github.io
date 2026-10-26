@@ -355,7 +355,7 @@ class Progress(unittest.TestCase):
             ("17", "18", "why players take the shots they take"),
         ):
             self.assertIn(
-                f'<p class="series-head">two parts · {head}</p>\n<div class="series">\n<div '
+                f'<div class="series">\n<p class="series-head">two parts · {head}</p>\n<div '
                 f'class="track track--wrap" id="track-{first}">',
                 index,
             )
