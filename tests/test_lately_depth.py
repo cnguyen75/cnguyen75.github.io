@@ -234,8 +234,7 @@ class Register(unittest.TestCase):
             "watching": [
                 "my-rankings",
                 "tiers",
-                "recently",
-                "keeping-up",
+                "right-now",
                 "genres",
                 "taste-profile",
                 "whose-films",
@@ -1801,7 +1800,7 @@ class Drawing(unittest.TestCase):
         groups = {g["id"]: g for g in d["groups"]}
         self.assertEqual(
             groups["whats-happening"]["sections"],
-            ["my-rankings", "tiers", "recently", "keeping-up", "genres"],
+            ["my-rankings", "tiers", "right-now", "genres"],
         )
         self.assertEqual(
             groups["why"]["sections"],
@@ -1846,7 +1845,12 @@ class Drawing(unittest.TestCase):
             ["#" + i for i in groups["whats-happening"]["sections"] + groups["why"]["sections"]]
             + ["#built-with"],
         )
-        self.assertEqual(d["segs"][5][:3], ["#taste-profile", "taste", False])
+        self.assertEqual(d["segs"][4][:3], ["#taste-profile", "taste", False])
+        (now,) = blocks(d, "watching.keeping_up")
+        self.assertIn("Still airing", now["text"])
+        self.assertIn("Recently finished", now["text"])
+        self.assertLessEqual(now["text"].count("finished"), 6)
+        self.assertIn("caught up", now["text"])
         self.assertTrue(
             all(re.fullmatch(r"\d+:\d\d", s[3]) for s in d["segs"]), d["segs"]
         )  # every segment is timed once the page is drawn
@@ -2060,7 +2064,7 @@ class Drawing(unittest.TestCase):
     def test_feed_blocks(self) -> None:
         want = {
             "fantasy": ["fantasy.lineup", "fantasy.carry"],
-            "watching": ["watching.rankings", "watching.tiers", "watching.recent"],
+            "watching": ["watching.rankings", "watching.tiers"],
             "listening": ["listening.recent"],
             "eating": ["eating.recent"],
             "lifting": ["lifting.lifts", "lifting.training", "lifting.body_weight"],

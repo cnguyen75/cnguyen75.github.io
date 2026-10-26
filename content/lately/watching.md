@@ -18,12 +18,10 @@ short: tiers
 ALIAS: tiers-genres-and-decades
 FEED: watching.tiers
 
-## Recently
-short: recently
-FEED: watching.recent
-
-## Keeping up
-short: keeping up
+## Right now {#right-now}
+short: right now
+ALIAS: recently
+ALIAS: keeping-up
 STAT: watching.keeping_up
 
 ## Genres

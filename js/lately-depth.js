@@ -2087,6 +2087,57 @@
         });
     }
 
+    // The last five titles finished (the feed's recent list, newest first, status "finished"),
+    // each linked, with its tier chip when the analysis tiers it.
+    var RECENTLY_FINISHED = 5;
+    function recentlyFinished(data) {
+        var w = isObj(data.watching) ? data.watching : {};
+        var finished = list(w.recent)
+            .filter(function (r) {
+                return isObj(r) && typeof r.title === 'string' && r.status === 'finished';
+            })
+            .slice(0, RECENTLY_FINISHED);
+        if (!finished.length) return null;
+        var tiers = {};
+        var a = isObj(data.analysis) ? data.analysis : {};
+        list(isObj(a.watching) ? a.watching.tiers : null).forEach(function (t) {
+            if (isObj(t) && typeof t.title === 'string' && typeof t.tier === 'string')
+                tiers[t.type + '|' + t.title] = t.tier;
+        });
+        return h(
+            'div',
+            { class: 'list' },
+            h('div', { class: 'list-title' }, 'Recently finished'),
+            h(
+                'ul',
+                { class: 'list-items' },
+                finished.map(function (r) {
+                    var type = ['film', 'show', 'anime'].indexOf(r.type) >= 0 ? r.type : 'film';
+                    var tier = tiers[type + '|' + r.title] || null;
+                    var url = typeof r.url === 'string' && /^https:\/\//.test(r.url) ? r.url : null;
+                    return h(
+                        'li',
+                        { class: 'list-item' },
+                        h('span', { class: 'swatch fill--' + type, 'aria-hidden': 'true' }),
+                        h(
+                            'span',
+                            { class: 'item-name' },
+                            url ? h('a', { href: url }, r.title) : r.title,
+                        ),
+                        tier
+                            ? h(
+                                  'span',
+                                  { class: 'tier-chip tier-chip--tier', title: 'tier ' + tier },
+                                  tier,
+                              )
+                            : null,
+                        h('span', { class: 'item-meta' }, type),
+                    );
+                }),
+            ),
+        );
+    }
+
     // ---------- statistics ----------
     // Each entry: n (what n counts), value(stat) -> [text, unit] or null, intervalFmt,
     // draw(values, stat, ctx) -> nodes. Keys are the paths build.py writes.
@@ -4099,9 +4150,11 @@
                 );
             },
         },
+        // Right now: the still-airing table, the last five finished titles from the feed with
+        // their tier chips, then the caught-up and left-out counts.
         'watching.keeping_up': {
             n: 'titles',
-            draw: function (v) {
+            draw: function (v, s, ctx) {
                 return [
                     table(
                         'Still airing',
@@ -4123,6 +4176,7 @@
                         }),
                         { showCaption: true },
                     ),
+                    recentlyFinished(ctx && isObj(ctx.data) ? ctx.data : {}),
                     facts([
                         ['caught up', String(v.caught_up)],
                         ['left out (no episodes logged)', String(v.left_out_unknown)],
@@ -5791,6 +5845,7 @@
                 spec.draw(v, s, {
                     label: label,
                     weekdays: ctx.weekdays,
+                    data: ctx.data,
                     analysis: analysis,
                     typeClass: TYPE_CLASS[entry.key] ? 'fill--' + TYPE_CLASS[entry.key] : null,
                 }),
@@ -6534,7 +6589,7 @@
             isObj(a.cross) && isObj(a.cross.rhythm) && list(a.cross.rhythm.weekdays).length === 7
                 ? a.cross.rhythm.weekdays
                 : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        var ctx = { weekdays: weekdays };
+        var ctx = { weekdays: weekdays, data: data };
         Array.prototype.forEach.call(slots, function (slot) {
             fillSlot(slot, a, ctx);
         });

@@ -757,77 +757,6 @@
         ];
     }
 
-    // Recently: finished and watched titles.
-    function watchingRecent(data) {
-        var ws = watchingState(data),
-            w = ws.w,
-            state = ws.state;
-        if (!state.show) return null;
-        // "finished" items (bulk-completed on Simkl) always list after watched ones;
-        // a missing status counts as watched. The sort is stable within each group.
-        var recent = arr(w.recent, 'watching.recent')
-            .map(function (r, i) {
-                need(isObj(r), 'recent item');
-                return { item: r, finished: r.status === 'finished', i: i };
-            })
-            .sort(function (a, b) {
-                return a.finished - b.finished || a.i - b.i;
-            });
-        if (!recent.length) return null;
-        var types = { film: 'film', show: 'show', anime: 'anime' };
-        // With no ratings at all, drop the score column instead of leaving a gap.
-        var hasRatings = recent.some(function (e) {
-            return typeof e.item.rating === 'number';
-        });
-        var ul = h(
-            'ul',
-            { class: 'list-items' },
-            recent.map(function (entry) {
-                var r = entry.item;
-                var type = types[r.type] || 'film';
-                var title =
-                    str(r.title, 'title') +
-                    (!entry.finished && typeof r.season === 'number' ? ', season ' + r.season : '');
-                var url = safeUrl(r.url);
-                return h(
-                    'li',
-                    { class: 'list-item' },
-                    h('span', { class: 'swatch fill--' + type, 'aria-hidden': 'true' }),
-                    h(
-                        'span',
-                        { class: 'item-name' },
-                        url ? h('a', { href: url }, title) : title,
-                        entry.finished
-                            ? [' ', h('span', { class: 'item-status' }, 'finished')]
-                            : null,
-                    ),
-                    h('span', { class: 'item-meta' }, type),
-                    typeof r.rating === 'number'
-                        ? h(
-                              'span',
-                              {
-                                  class: 'item-score',
-                                  title: 'Rated ' + short(r.rating) + ' out of 10',
-                              },
-                              h('span', { class: 'sr-only' }, 'rated '),
-                              short(r.rating),
-                              h('span', { class: 'sr-only' }, ' out of 10'),
-                          )
-                        : hasRatings
-                          ? h('span', { class: 'item-score' })
-                          : null,
-                );
-            }),
-        );
-        return h(
-            'div',
-            { class: 'list' },
-            h('div', { class: 'list-title' }, 'Recently'),
-            ul,
-            collapse(ul, ul.children),
-        );
-    }
-
     // Optional extras below are lenient: a malformed entry is skipped, and a
     // missing or empty field hides its block, without failing the panel.
     function titled(it) {
@@ -2260,7 +2189,6 @@
         'fantasy.lineup': fantasyLineup,
         'fantasy.carry': fantasyCarry,
         'watching.hours': watchingHours,
-        'watching.recent': watchingRecent,
         'watching.rankings': watchingRankings,
         'watching.tiers': watchingTiers,
         'listening.recent': listeningRecent,

@@ -158,7 +158,6 @@ FEED_BLOCKS = (
     "fantasy.lineup",
     "fantasy.carry",
     "watching.hours",
-    "watching.recent",
     "watching.rankings",
     "watching.tiers",
     "listening.recent",
