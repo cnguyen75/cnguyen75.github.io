@@ -16,7 +16,10 @@ const LIFTS = '.ld-feed[data-block="lifting.lifts"]';
     try {
         const body = fs.readFileSync(fixture, 'utf8');
         async function open(pagePath, waitFor) {
-            const page = await browser.newPage({ viewport: { width: Number(width), height: 900 } });
+            const page = await browser.newPage({
+                viewport: { width: Number(width), height: 900 },
+                bypassCSP: true,
+            });
             await page.route('**/data/lately.json*', (r) =>
                 r.fulfill({ status: 200, contentType: 'application/json', body }),
             );

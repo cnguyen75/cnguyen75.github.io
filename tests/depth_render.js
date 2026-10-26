@@ -11,7 +11,10 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
 (async () => {
     const browser = await chromium.launch({ executablePath: CHROME });
     try {
-        const page = await browser.newPage({ viewport: { width: Number(width), height: 900 } });
+        const page = await browser.newPage({
+            viewport: { width: Number(width), height: 900 },
+            bypassCSP: true,
+        });
         const errors = [];
         page.on('pageerror', (e) => errors.push(String(e)));
         page.on('console', (m) => {
