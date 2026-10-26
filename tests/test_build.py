@@ -354,26 +354,27 @@ class Progress(unittest.TestCase):
             ("10", "11", "efficient fine-tuning on one laptop"),
             ("17", "18", "why players take the shots they take"),
         ):
-            self.assertIn(
-                f'<div class="series">\n<p class="series-head">two parts · {head}</p>\n<div '
-                f'class="track track--wrap" id="track-{first}">',
+            self.assertRegex(
                 index,
+                rf'<div class="series">\n<p class="series-head">two parts · {head}</p>\n'
+                rf'<(?:div|a) class="track track--wrap"[^>]*id="track-{first}">',
             )
             self.assertRegex(
                 index,
                 rf'<span class="track-no">{first}</span>\s*<div class="track-body"><h3 '
                 rf'class="track-title">[^<]+</h3>'
                 rf'<span class="track-when">[^<]+</span><span class="track-part">part one of two · '
-                rf'<a class="track-part-link" href="#track-{second}">continues in {second} '
-                rf"→</a></span>",
+                rf'<(?:a class="track-part-link" href|span class="track-part-link" data-href)='
+                rf'"#track-{second}">continues in {second} →</(?:a|span)></span>',
             )
             self.assertRegex(
                 index,
-                rf'<div class="track track--wrap" id="track-{second}">\s*<span '
+                rf'<(?:div|a) class="track track--wrap"[^>]*id="track-{second}">\s*<span '
                 rf'class="track-no">{second}</span>\s*<div class="track-body"><h3 '
                 rf'class="track-title">[^<]+</h3>'
                 rf'<span class="track-when">[^<]+</span><span class="track-part">part two of two · '
-                rf'<a class="track-part-link" href="#track-{first}">← follows {first}</a></span>',
+                rf'<(?:a class="track-part-link" href|span class="track-part-link" data-href)='
+                rf'"#track-{first}">← follows {first}</(?:a|span)></span>',
             )
         self.assertEqual(index.count('<div class="series">'), 2)
         # Every side B and C row shows its months (when: in the content file) under the title; side
@@ -451,21 +452,13 @@ class Progress(unittest.TestCase):
                 rf'<div class="track-body"><h3 class="track-title">[^<]+</h3><span '
                 rf'class="track-desc">',
             )
-        self.assertEqual(section.count('<ul class="track-points">'), 8)
-        # Each Athena row carries three bullets under its description, a bold lead then text.
-        leads = {
-            "01": ["Scenarios and graders.", "Simulated user.", "Gates."],
-            "02": ["Consensus.", "Judgement.", "In-turn validation."],
-            "03": ["Agents.", "Supervision.", "Migration."],
-            "04": ["Lifecycle.", "Disclosures.", "Identity."],
-            "05": ["Android.", "Testing.", "Pipelines."],
-            "06": ["Timing.", "Triggers.", "Tests."],
-        }
-        for n, want in leads.items():
-            row = re.search(rf'id="track-{n}">.*?</ul></div>\n</div>', section, re.S).group(0)
-            self.assertEqual(re.findall(r"<li><strong>([^<]+)</strong> [^<]+</li>", row), want, n)
-            self.assertIn('<span class="track-desc">', row)
-            self.assertLess(row.index("track-desc"), row.index("track-points"))
+        self.assertEqual(section.count('<ul class="track-points">'), 2)
+        # The Athena rows are one description each, two or three sentences, with no bullet list.
+        for n in ("01", "02", "03", "04", "05", "06"):
+            row = re.search(rf'id="track-{n}">.*?</div>\n</div>', section, re.S).group(0)
+            self.assertNotIn("track-points", row, n)
+            desc = re.search(r'<span class="track-desc">([^<]+)</span>', row).group(1)
+            self.assertGreaterEqual(len(re.findall(r"[.!?](\s|$)", desc)), 2, n)
         for f in (build.ROOT / "content").glob("*/*.md"):  # side A has no pages or drafts
             self.assertNotRegex(f.read_text(encoding="utf-8").split("\n---\n")[0], r"\nside: a\b")
         for n, _ in work:  # /01 to /08 redirect to the row

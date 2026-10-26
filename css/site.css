@@ -461,6 +461,7 @@ details[open] > .control--quiet::before,
 
 .track {
     display: flex;
+    align-items: start;
     gap: var(--s-24);
     border-top: 1px solid var(--rule);
     padding: var(--s-20) 0;

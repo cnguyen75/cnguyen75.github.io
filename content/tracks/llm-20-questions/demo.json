@@ -1,0 +1,217 @@
+{
+ "schema": "llm20q-replay/1",
+ "about": {
+  "what": "One self-play game of the LLM 20 Questions agent (2024 models, notebook code, game 0, whatever the outcome).",
+  "keyword_source": "Kaggle kaggle-environments keywords.py @ 367ad45 (Apache 2.0)",
+  "guess_matched_candidate": "the guess equals a Keyword in finalkeywords.csv exactly",
+  "model": "abacusai/Llama-3-Smaug-8B + Qwen/Qwen2-7B-Instruct"
+ },
+ "keyword": "orange zest",
+ "won": false,
+ "rounds_played": 20,
+ "category_path": "things",
+ "rounds": [
+  {
+   "round": 1,
+   "question": "Is it a city or country and not a thing or object? If it is an object, thing, or animal say no.",
+   "answer": "no",
+   "guess": "Earth",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 2,
+   "question": "Is it a living thing?",
+   "answer": "no",
+   "guess": "Air",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 3,
+   "question": "Is it a household",
+   "answer": "yes",
+   "guess": "Coat Rack",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 4,
+   "question": "Is it something that can be easily cleaned with a damp cloth?",
+   "answer": "yes",
+   "guess": "Cereal",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 5,
+   "question": "Is",
+   "answer": "no",
+   "guess": "Rags",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 6,
+   "question": "Is it often found near sinks",
+   "answer": "yes",
+   "guess": "Bath Mat",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 7,
+   "question": "Does it",
+   "answer": "yes",
+   "guess": "Broom",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 8,
+   "question": "Is it used in conjunction with a liquid or a solid for its",
+   "answer": "yes",
+   "guess": "Coffee Grinder",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 9,
+   "question": "Is the",
+   "answer": "yes",
+   "guess": "Dish soap",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 10,
+   "question": "Does the item have a unique feature or design that sets it apart from similar items",
+   "answer": "no",
+   "guess": "Cabinet",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 11,
+   "question": "Does the item involve a rotating motion for",
+   "answer": "no",
+   "guess": "Air Conditioner",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 12,
+   "question": "Does the item have a noticeable scent",
+   "answer": "yes",
+   "guess": "Latte",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 13,
+   "question": "Is the item",
+   "answer": "yes",
+   "guess": "Bread",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 14,
+   "question": "Is the item's effectiveness",
+   "answer": "no",
+   "guess": "Soda",
+   "guess_matched_candidate": true
+  },
+  {
+   "round": 15,
+   "question": "Is the item primarily used for maintenance or upkeep of",
+   "answer": "no",
+   "guess": "Fragrance",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 16,
+   "question": "Is the item commonly used",
+   "answer": "yes",
+   "guess": "Air conditioner",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 17,
+   "question": "Is the item's effectiveness related to the level of dampness or moisture it can absorb?",
+   "answer": "yes",
+   "guess": "Bathmat",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 18,
+   "question": "Is the item used for both practical and aesthetic purposes",
+   "answer": "yes",
+   "guess": "Air Filter",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 19,
+   "question": "Does the item come with different",
+   "answer": "no",
+   "guess": "Coffee Maker",
+   "guess_matched_candidate": false
+  },
+  {
+   "round": 20,
+   "question": "Is the item closely tied to maintaining personal hygiene and health, particularly in areas where moisture and cleanliness are crucial, such as the",
+   "answer": "no",
+   "guess": "Coffee grinder",
+   "guess_matched_candidate": false
+  }
+ ],
+ "turn_seconds": [
+  0.0,
+  0.47,
+  4.7,
+  0.0,
+  0.41,
+  4.38,
+  17.49,
+  0.31,
+  4.46,
+  17.51,
+  0.32,
+  4.48,
+  17.72,
+  0.3,
+  4.53,
+  17.69,
+  0.3,
+  4.59,
+  17.83,
+  0.34,
+  4.92,
+  17.89,
+  0.31,
+  4.7,
+  17.9,
+  0.31,
+  4.81,
+  18.18,
+  0.3,
+  4.94,
+  18.67,
+  0.31,
+  4.95,
+  18.89,
+  0.31,
+  9.96,
+  18.51,
+  0.31,
+  5.24,
+  18.32,
+  0.3,
+  5.01,
+  18.62,
+  0.31,
+  20.33,
+  18.69,
+  0.31,
+  10.3,
+  18.67,
+  0.3,
+  10.41,
+  18.75,
+  0.3,
+  5.19,
+  18.87,
+  0.31,
+  10.56,
+  18.94,
+  0.36,
+  5.63
+ ]
+}

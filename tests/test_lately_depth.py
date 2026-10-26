@@ -204,10 +204,11 @@ class Register(unittest.TestCase):
             for d in (doc, (ROOT / "lately" / feed / "index.html").read_text(encoding="utf-8")):
                 d = re.sub(
                     r"track \d\d of \d\d|<span class=\"tp-no\"[^>]*>\d\d</span>|Track \d\d: "
-                    r"|(?:previous|next) · \d\d|\d:\d\d|speed 1×",
+                    r"|(?:previous|next) · \d\d|\d:\d\d|speed 1×"
+                    r"|<nav class=\"tp-other\"[\s\S]*?</nav>",
                     "",
                     d,
-                )  # track numbers, the empty clock and the speed control are the only figures
+                )  # track numbers, the clock, the speed control and the other-track nav aside
                 self.assertNotRegex(
                     html.unescape(
                         re.sub(r"<[^>]+>", " ", re.sub(r"<head>.*?</head>", "", d, flags=re.S))
@@ -1525,9 +1526,9 @@ class Drawing(unittest.TestCase):
         self.assertEqual(lf["lineCount"], 5)
         self.assertEqual(lf["thinCount"], 4)  # body weight (points) and the three splits
         weeks = ANALYSIS["lifting"]["strength_index"]["values"]["weeks"]
-        # Every point is marked: the strength index and its three splits every week, body weight at
-        # each weigh-in.
-        full = 4 * len(weeks)
+        # Markers on the strength index every week and on body weight at each weigh-in; the three
+        # 1px split lines carry none.
+        full = len(weeks)
         self.assertEqual(
             lf["pointDots"], full + len([w for w in weeks if w["body_weight"] is not None])
         )

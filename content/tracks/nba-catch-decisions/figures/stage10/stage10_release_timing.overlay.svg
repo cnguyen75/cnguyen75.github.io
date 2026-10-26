@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504 331.2">
+<!-- Drawn over stage10_release_timing.svg on the page; that file is not edited.
+     The figure's annotation reads "0.13 ft"; the value is in seconds
+     (results.json: stage10_release_timing.correction_2026_10_14). The two annotation
+     lines are hidden and redrawn above the Thompson and Curry dots, with the second
+     line corrected. -->
+<style>.tp-chart-svg #text_19 > g { display: none; } .tp-relabel { font-family: "DejaVu Sans", Verdana, sans-serif; font-size: 8px; fill: #24292f; }</style>
+<text class="tp-relabel" x="62.76" y="252.6">faster closeouts, quicker releases: slope -0.011 s per ft/s</text>
+<text class="tp-relabel" x="62.76" y="261.6">space preserved at top-quartile closing speed: 0.13 s earlier, about 1.5 ft kept</text>
+</svg>

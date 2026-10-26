@@ -1,0 +1,2664 @@
+{
+ "schema_version": 1,
+ "generated_on": "2026-10-13",
+ "command": "uv run python scripts/site_export.py OUT_DIR",
+ "as_of": "2026-10-12",
+ "clock_start": {
+  "first_fill": "2026-09-04",
+  "equity_base_snapshot": "2026-09-03"
+ },
+ "voided": {
+  "week_of": "2026-08-24",
+  "reason": "Setup error: the first live week traded a $100,000 account against the pinned experiment scale, so it rehearsed a different experiment. Voided 2026-08-28; the clock restarted on the next fill (DECISION-v2.md, row W1)."
+ },
+ "decisions": [
+  {
+   "date": "2026-08-27",
+   "weekday": "Thu",
+   "week_of": "2026-08-24",
+   "week_code": "risk_halt",
+   "voided": true,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 11 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [
+     {
+      "symbol": "IWM",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 29.761416,
+        "price": 299.35,
+        "session_open": 299.7,
+        "price_at_0935": 298.96,
+        "deviation_vs_open_bps": -11.68,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "QQQ",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 12.34988,
+        "price": 721.39,
+        "session_open": 719.74,
+        "price_at_0935": 719.1574,
+        "deviation_vs_open_bps": 22.92,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "SPY",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 11.529805,
+        "price": 772.7,
+        "session_open": 771.76,
+        "price_at_0935": 769.99,
+        "deviation_vs_open_bps": 12.18,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLB",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 166.680636,
+        "price": 53.45,
+        "session_open": 53.66,
+        "price_at_0935": 53.6726,
+        "deviation_vs_open_bps": -39.14,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLE",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 142.363055,
+        "price": 62.58,
+        "session_open": 62.35,
+        "price_at_0935": 62.3191,
+        "deviation_vs_open_bps": 36.89,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLF",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 153.630862,
+        "price": 57.9902,
+        "session_open": 57.98,
+        "price_at_0935": 58.0531,
+        "deviation_vs_open_bps": 1.75,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLI",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 49.843795,
+        "price": 178.74,
+        "session_open": 179.44,
+        "price_at_0935": 178.9874,
+        "deviation_vs_open_bps": -39.01,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLK",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 47.255623,
+        "price": 188.5295,
+        "session_open": 188.07,
+        "price_at_0935": 187.5374,
+        "deviation_vs_open_bps": 24.43,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLP",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 104.427165,
+        "price": 85.3138,
+        "session_open": 85.5,
+        "price_at_0935": 85.432,
+        "deviation_vs_open_bps": -21.78,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLRE",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 199.352875,
+        "price": 44.69,
+        "session_open": 44.885,
+        "price_at_0935": 44.6715,
+        "deviation_vs_open_bps": -43.44,
+        "filled_at": "2026-08-28T13:03:12-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     },
+     {
+      "symbol": "XLV",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 8909.09,
+      "submit_date": "2026-08-28",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 52.10293,
+        "price": 170.99,
+        "session_open": 171.43,
+        "price_at_0935": 171.0683,
+        "deviation_vs_open_bps": -25.67,
+        "filled_at": "2026-08-28T13:03:13-04:00",
+        "recorded_by": "backfill"
+       }
+      ]
+     }
+    ],
+    "rebalance_outcome": {
+     "submitted": true,
+     "code": "executed"
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 299.32,
+    "QQQ": 721.31,
+    "SPY": 772.66,
+    "XLB": 53.43,
+    "XLC": 112.04,
+    "XLE": 62.59,
+    "XLF": 57.98,
+    "XLI": 178.68,
+    "XLK": 188.47,
+    "XLP": 85.32,
+    "XLRE": 44.68,
+    "XLU": 43.25,
+    "XLV": 170.99,
+    "XLY": 116.44
+   },
+   "equity_pct_from_clock_start": null
+  },
+  {
+   "date": "2026-08-28",
+   "weekday": "Fri",
+   "week_of": "2026-08-24",
+   "week_code": "risk_halt",
+   "voided": true,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [],
+    "target_weight": 0.0,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 295.75,
+    "QQQ": 716.43,
+    "SPY": 769.35,
+    "XLB": 53.18,
+    "XLC": 112.99,
+    "XLE": 62.68,
+    "XLF": 58.1,
+    "XLI": 177.14,
+    "XLK": 185.69,
+    "XLP": 85.45,
+    "XLRE": 44.48,
+    "XLU": 42.73,
+    "XLV": 171.16,
+    "XLY": 117.21
+   },
+   "equity_pct_from_clock_start": null
+  },
+  {
+   "date": "2026-09-03",
+   "weekday": "Thu",
+   "week_of": "2026-08-31",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 11 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [
+     {
+      "symbol": "IWM",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 1.51136,
+        "price": 294.728,
+        "session_open": 293.7,
+        "price_at_0935": 293.75,
+        "deviation_vs_open_bps": 35.0,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "QQQ",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.617582,
+        "price": 721.264,
+        "session_open": 719.345,
+        "price_at_0935": 720.3302,
+        "deviation_vs_open_bps": 26.68,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "SPY",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.576893,
+        "price": 772.136,
+        "session_open": 772.01,
+        "price_at_0935": 770.78,
+        "deviation_vs_open_bps": 1.63,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLB",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 8.532184,
+        "price": 52.207,
+        "session_open": 52.16,
+        "price_at_0935": 52.242,
+        "deviation_vs_open_bps": 9.02,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLE",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 6.989487,
+        "price": 63.73,
+        "session_open": 64.04,
+        "price_at_0935": 63.7616,
+        "deviation_vs_open_bps": -48.41,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLF",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 7.668101,
+        "price": 58.09,
+        "session_open": 58.04,
+        "price_at_0935": 58.1953,
+        "deviation_vs_open_bps": 8.61,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLI",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 2.54203,
+        "price": 175.23,
+        "session_open": 174.34,
+        "price_at_0935": 175.0627,
+        "deviation_vs_open_bps": 51.05,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLK",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 2.371001,
+        "price": 187.87,
+        "session_open": 187.19,
+        "price_at_0935": 187.4197,
+        "deviation_vs_open_bps": 36.33,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLP",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 5.241704,
+        "price": 84.98,
+        "session_open": 84.82,
+        "price_at_0935": 85.0769,
+        "deviation_vs_open_bps": 18.86,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLRE",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 10.093814,
+        "price": 44.13,
+        "session_open": 44.04,
+        "price_at_0935": 44.2497,
+        "deviation_vs_open_bps": 20.44,
+        "filled_at": "2026-09-04T10:01:33-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLV",
+      "side": "buy",
+      "kind": "entry",
+      "notional_usd": 445.45,
+      "submit_date": "2026-09-04",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 2.594897,
+        "price": 171.66,
+        "session_open": 171.39,
+        "price_at_0935": 171.9996,
+        "deviation_vs_open_bps": 15.75,
+        "filled_at": "2026-09-04T10:01:34-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     }
+    ],
+    "rebalance_outcome": {
+     "submitted": true,
+     "code": "executed"
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 295.19,
+    "QQQ": 717.67,
+    "SPY": 773.17,
+    "XLB": 52.62,
+    "XLC": 113.38,
+    "XLE": 64.62,
+    "XLF": 58.56,
+    "XLI": 174.56,
+    "XLK": 185.97,
+    "XLP": 85.26,
+    "XLRE": 44.25,
+    "XLU": 43.03,
+    "XLV": 173.26,
+    "XLY": 116.46
+   },
+   "equity_pct_from_clock_start": 0.0
+  },
+  {
+   "date": "2026-09-04",
+   "weekday": "Fri",
+   "week_of": "2026-08-31",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 296.01,
+    "QQQ": 718.96,
+    "SPY": 770.19,
+    "XLB": 52.44,
+    "XLC": 112.03,
+    "XLE": 64.06,
+    "XLF": 58.1,
+    "XLI": 175.27,
+    "XLK": 187.28,
+    "XLP": 84.58,
+    "XLRE": 43.93,
+    "XLU": 43.08,
+    "XLV": 171.45,
+    "XLY": 114.91
+   },
+   "equity_pct_from_clock_start": -0.15
+  },
+  {
+   "date": "2026-09-08",
+   "weekday": "Tue",
+   "week_of": "2026-09-07",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 294.67,
+    "QQQ": 718.36,
+    "SPY": 765.96,
+    "XLB": 51.94,
+    "XLC": 111.52,
+    "XLE": 64.77,
+    "XLF": 57.3,
+    "XLI": 174.42,
+    "XLK": 187.87,
+    "XLP": 84.02,
+    "XLRE": 43.9,
+    "XLU": 43.45,
+    "XLV": 167.13,
+    "XLY": 113.99
+   },
+   "equity_pct_from_clock_start": -0.643
+  },
+  {
+   "date": "2026-09-09",
+   "weekday": "Wed",
+   "week_of": "2026-09-07",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 290.64,
+    "QQQ": 716.31,
+    "SPY": 762.4,
+    "XLB": 51.39,
+    "XLC": 110.83,
+    "XLE": 65.31,
+    "XLF": 57.06,
+    "XLI": 171.79,
+    "XLK": 187.87,
+    "XLP": 83.05,
+    "XLRE": 43.41,
+    "XLU": 42.94,
+    "XLV": 166.58,
+    "XLY": 112.46
+   },
+   "equity_pct_from_clock_start": -1.384
+  },
+  {
+   "date": "2026-09-10",
+   "weekday": "Thu",
+   "week_of": "2026-09-07",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "BACKFILLED, then CORRECTED 2026-09-17: signal day, regime on; equal-weight all 10 eligible. The original backfill stored the 11 CURRENT positions; this column holds the TARGET book (decision.holdings = book.holdings). Derivation: fill.log line 152, 'target book (10)' -- XLI absent, it was the sell. Never submitted. INC-2026-09-11-01",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.1,
+    "orders": [],
+    "rebalance_outcome": {
+     "submitted": false,
+     "code": "runner_failure",
+     "incident": "INC-2026-09-11-01",
+     "why": "The fill run decided its orders, then died on a dropped connection during the pre-submit read. Nothing was sent."
+    }
+   },
+   "twin": null,
+   "match": null,
+   "closes": {},
+   "equity_pct_from_clock_start": -1.877
+  },
+  {
+   "date": "2026-09-11",
+   "weekday": "Fri",
+   "week_of": "2026-09-07",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 288.89,
+    "QQQ": 714.88,
+    "SPY": 764.29,
+    "XLB": 50.95,
+    "XLC": 112.6,
+    "XLE": 65.14,
+    "XLF": 57.25,
+    "XLI": 172.37,
+    "XLK": 187.67,
+    "XLP": 83.38,
+    "XLRE": 43.42,
+    "XLU": 42.39,
+    "XLV": 165.36,
+    "XLY": 112.96
+   },
+   "equity_pct_from_clock_start": -1.526
+  },
+  {
+   "date": "2026-09-14",
+   "weekday": "Mon",
+   "week_of": "2026-09-14",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 287.16,
+    "QQQ": 709.18,
+    "SPY": 760.88,
+    "XLB": 50.49,
+    "XLC": 115.07,
+    "XLE": 64.53,
+    "XLF": 57.03,
+    "XLI": 169.93,
+    "XLK": 184.28,
+    "XLP": 84.42,
+    "XLRE": 43.12,
+    "XLU": 41.82,
+    "XLV": 167.75,
+    "XLY": 112.85
+   },
+   "equity_pct_from_clock_start": -1.704
+  },
+  {
+   "date": "2026-09-15",
+   "weekday": "Tue",
+   "week_of": "2026-09-14",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 285.14,
+    "QQQ": 704.54,
+    "SPY": 757.39,
+    "XLB": 50.73,
+    "XLC": 114.03,
+    "XLE": 65.93,
+    "XLF": 56.85,
+    "XLI": 168.85,
+    "XLK": 183.74,
+    "XLP": 83.73,
+    "XLRE": 43.07,
+    "XLU": 41.32,
+    "XLV": 167.66,
+    "XLY": 110.88
+   },
+   "equity_pct_from_clock_start": -1.752
+  },
+  {
+   "date": "2026-09-16",
+   "weekday": "Wed",
+   "week_of": "2026-09-14",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 283.92,
+    "QQQ": 704.72,
+    "SPY": 754.05,
+    "XLB": 50.36,
+    "XLC": 113.0,
+    "XLE": 64.03,
+    "XLF": 55.93,
+    "XLI": 168.71,
+    "XLK": 183.93,
+    "XLP": 83.33,
+    "XLRE": 42.81,
+    "XLU": 41.32,
+    "XLV": 167.77,
+    "XLY": 110.18
+   },
+   "equity_pct_from_clock_start": -1.544
+  },
+  {
+   "date": "2026-09-17",
+   "weekday": "Thu",
+   "week_of": "2026-09-14",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 10 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.098,
+    "orders": [
+     {
+      "symbol": "XLI",
+      "side": "sell",
+      "kind": "exit",
+      "notional_usd": 428.36,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 2.537618,
+        "price": 168.8,
+        "session_open": 169.0,
+        "price_at_0935": 168.7161,
+        "deviation_vs_open_bps": -11.83,
+        "filled_at": "2026-09-18T09:35:03-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "IWM",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 50.05,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.176144,
+        "price": 284.086,
+        "session_open": 284.92,
+        "price_at_0935": 284.0041,
+        "deviation_vs_open_bps": -29.27,
+        "filled_at": "2026-09-18T09:35:03-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "QQQ",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 36.55,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.050855,
+        "price": 718.508,
+        "session_open": 718.83,
+        "price_at_0935": 718.6911,
+        "deviation_vs_open_bps": -4.48,
+        "filled_at": "2026-09-18T09:35:03-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "SPY",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 41.35,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.054336,
+        "price": 760.816,
+        "session_open": 761.31,
+        "price_at_0935": 760.8048,
+        "deviation_vs_open_bps": -6.49,
+        "filled_at": "2026-09-18T09:35:03-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLB",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 49.15,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.979704,
+        "price": 50.158,
+        "session_open": 50.425,
+        "price_at_0935": 50.1256,
+        "deviation_vs_open_bps": -52.95,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLE",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 29.7,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.462836,
+        "price": 64.148,
+        "session_open": 64.2,
+        "price_at_0935": 64.211,
+        "deviation_vs_open_bps": -8.1,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLF",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 53.99,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.970898,
+        "price": 55.598,
+        "session_open": 55.66,
+        "price_at_0935": 55.5757,
+        "deviation_vs_open_bps": -11.14,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLK",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 33.52,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.177844,
+        "price": 188.424,
+        "session_open": 189.23,
+        "price_at_0935": 188.4064,
+        "deviation_vs_open_bps": -42.59,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLP",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 44.6,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.537125,
+        "price": 83.016,
+        "session_open": 83.14,
+        "price_at_0935": 83.0016,
+        "deviation_vs_open_bps": -14.91,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLRE",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 47.91,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 1.12052,
+        "price": 42.748,
+        "session_open": 42.59,
+        "price_at_0935": 42.7184,
+        "deviation_vs_open_bps": 37.1,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLV",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 43.72,
+      "submit_date": "2026-09-18",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.258826,
+        "price": 168.878,
+        "session_open": 168.27,
+        "price_at_0935": 168.8811,
+        "deviation_vs_open_bps": 36.13,
+        "filled_at": "2026-09-18T09:35:04-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     }
+    ],
+    "rebalance_outcome": {
+     "submitted": true,
+     "code": "executed"
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 285.43,
+    "QQQ": 716.92,
+    "SPY": 760.71,
+    "XLB": 50.71,
+    "XLC": 112.35,
+    "XLE": 64.48,
+    "XLF": 55.88,
+    "XLI": 169.01,
+    "XLK": 188.06,
+    "XLP": 83.49,
+    "XLRE": 42.94,
+    "XLU": 41.69,
+    "XLV": 168.81,
+    "XLY": 111.39
+   },
+   "equity_pct_from_clock_start": -2.035
+  },
+  {
+   "date": "2026-09-18",
+   "weekday": "Fri",
+   "week_of": "2026-09-14",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 284.1,
+    "QQQ": 720.7,
+    "SPY": 761.69,
+    "XLB": 49.76,
+    "XLC": 110.45,
+    "XLE": 63.93,
+    "XLF": 55.66,
+    "XLI": 169.3,
+    "XLK": 189.38,
+    "XLP": 82.26,
+    "XLRE": 42.18,
+    "XLU": 40.8,
+    "XLV": 167.75,
+    "XLY": 110.79
+   },
+   "equity_pct_from_clock_start": -1.983
+  },
+  {
+   "date": "2026-09-21",
+   "weekday": "Mon",
+   "week_of": "2026-09-21",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 285.58,
+    "QQQ": 741.47,
+    "SPY": 773.5,
+    "XLB": 49.71,
+    "XLC": 114.75,
+    "XLE": 62.46,
+    "XLF": 55.9,
+    "XLI": 169.98,
+    "XLK": 194.85,
+    "XLP": 81.92,
+    "XLRE": 42.59,
+    "XLU": 40.66,
+    "XLV": 169.01,
+    "XLY": 112.23
+   },
+   "equity_pct_from_clock_start": -1.563
+  },
+  {
+   "date": "2026-09-22",
+   "weekday": "Tue",
+   "week_of": "2026-09-21",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 287.21,
+    "QQQ": 747.46,
+    "SPY": 773.38,
+    "XLB": 50.53,
+    "XLC": 113.53,
+    "XLE": 61.78,
+    "XLF": 54.8,
+    "XLI": 170.27,
+    "XLK": 196.27,
+    "XLP": 82.73,
+    "XLRE": 42.5,
+    "XLU": 40.53,
+    "XLV": 169.89,
+    "XLY": 112.33
+   },
+   "equity_pct_from_clock_start": -1.567
+  },
+  {
+   "date": "2026-09-23",
+   "weekday": "Wed",
+   "week_of": "2026-09-21",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 281.92,
+    "QQQ": 741.21,
+    "SPY": 767.81,
+    "XLB": 50.28,
+    "XLC": 112.56,
+    "XLE": 62.37,
+    "XLF": 54.54,
+    "XLI": 170.1,
+    "XLK": 195.34,
+    "XLP": 82.43,
+    "XLRE": 41.84,
+    "XLU": 39.75,
+    "XLV": 168.8,
+    "XLY": 110.65
+   },
+   "equity_pct_from_clock_start": -2.198
+  },
+  {
+   "date": "2026-09-24",
+   "weekday": "Thu",
+   "week_of": "2026-09-21",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 8 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLC",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLV"
+    ],
+    "target_weight": 0.1225,
+    "orders": [],
+    "rebalance_outcome": {
+     "submitted": false,
+     "code": "runner_failure",
+     "incident": "INC-2026-09-25-01",
+     "why": "An exit sized by dollar amount asked to sell slightly more shares than were held; the broker refused it and the run stopped. Nothing was sent."
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLC",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 281.66,
+    "QQQ": 741.1,
+    "SPY": 767.18,
+    "XLB": 49.68,
+    "XLC": 113.99,
+    "XLE": 62.6,
+    "XLF": 54.53,
+    "XLI": 168.83,
+    "XLK": 194.71,
+    "XLP": 81.7,
+    "XLRE": 41.65,
+    "XLU": 39.36,
+    "XLV": 169.87,
+    "XLY": 110.32
+   },
+   "equity_pct_from_clock_start": -2.196
+  },
+  {
+   "date": "2026-09-25",
+   "weekday": "Fri",
+   "week_of": "2026-09-21",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 281.97,
+    "QQQ": 744.5,
+    "SPY": 771.35,
+    "XLB": 49.8,
+    "XLC": 112.96,
+    "XLE": 62.04,
+    "XLF": 54.84,
+    "XLI": 170.43,
+    "XLK": 196.27,
+    "XLP": 82.06,
+    "XLRE": 41.56,
+    "XLU": 39.51,
+    "XLV": 170.7,
+    "XLY": 110.56
+   },
+   "equity_pct_from_clock_start": -2.245
+  },
+  {
+   "date": "2026-09-28",
+   "weekday": "Mon",
+   "week_of": "2026-09-28",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 280.02,
+    "QQQ": 736.53,
+    "SPY": 765.61,
+    "XLB": 49.47,
+    "XLC": 111.18,
+    "XLE": 62.1,
+    "XLF": 54.19,
+    "XLI": 168.78,
+    "XLK": 194.53,
+    "XLP": 82.28,
+    "XLRE": 41.35,
+    "XLU": 39.25,
+    "XLV": 171.26,
+    "XLY": 109.0
+   },
+   "equity_pct_from_clock_start": -2.509
+  },
+  {
+   "date": "2026-09-29",
+   "weekday": "Tue",
+   "week_of": "2026-09-28",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 279.01,
+    "QQQ": 737.93,
+    "SPY": 764.2,
+    "XLB": 49.1,
+    "XLC": 111.47,
+    "XLE": 61.54,
+    "XLF": 54.01,
+    "XLI": 169.13,
+    "XLK": 194.5,
+    "XLP": 81.85,
+    "XLRE": 41.34,
+    "XLU": 39.71,
+    "XLV": 170.73,
+    "XLY": 109.15
+   },
+   "equity_pct_from_clock_start": -2.847
+  },
+  {
+   "date": "2026-09-30",
+   "weekday": "Wed",
+   "week_of": "2026-09-28",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 277.89,
+    "QQQ": 739.77,
+    "SPY": 762.63,
+    "XLB": 48.7,
+    "XLC": 110.97,
+    "XLE": 61.5,
+    "XLF": 53.4,
+    "XLI": 166.98,
+    "XLK": 195.75,
+    "XLP": 80.6,
+    "XLRE": 40.91,
+    "XLU": 39.44,
+    "XLV": 168.42,
+    "XLY": 108.84
+   },
+   "equity_pct_from_clock_start": -3.447
+  },
+  {
+   "date": "2026-10-01",
+   "weekday": "Thu",
+   "week_of": "2026-09-28",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 7 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLV"
+    ],
+    "target_weight": 0.14,
+    "orders": [],
+    "rebalance_outcome": {
+     "submitted": false,
+     "code": "runner_failure",
+     "incident": null,
+     "why": "The host was offline at fill time and could not reach the data server. First coded data_stale, recoded runner_failure on 2026-10-05."
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 279.02,
+    "QQQ": 742.03,
+    "SPY": 763.99,
+    "XLB": 48.54,
+    "XLC": 109.94,
+    "XLE": 62.7,
+    "XLF": 53.46,
+    "XLI": 168.64,
+    "XLK": 197.81,
+    "XLP": 80.33,
+    "XLRE": 40.68,
+    "XLU": 39.68,
+    "XLV": 166.2,
+    "XLY": 108.81
+   },
+   "equity_pct_from_clock_start": -3.198
+  },
+  {
+   "date": "2026-10-02",
+   "weekday": "Fri",
+   "week_of": "2026-09-28",
+   "week_code": "runner_failure",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 281.52,
+    "QQQ": 749.58,
+    "SPY": 769.64,
+    "XLB": 48.86,
+    "XLC": 110.32,
+    "XLE": 62.82,
+    "XLF": 53.49,
+    "XLI": 169.95,
+    "XLK": 199.81,
+    "XLP": 80.53,
+    "XLRE": 40.81,
+    "XLU": 39.83,
+    "XLV": 166.18,
+    "XLY": 110.04
+   },
+   "equity_pct_from_clock_start": -2.807
+  },
+  {
+   "date": "2026-10-05",
+   "weekday": "Mon",
+   "week_of": "2026-10-05",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 280.97,
+    "QQQ": 760.3,
+    "SPY": 779.7,
+    "XLB": 49.73,
+    "XLC": 111.795,
+    "XLE": 63.88,
+    "XLF": 54.015,
+    "XLI": 171.6,
+    "XLK": 202.075,
+    "XLP": 81.795,
+    "XLRE": 41.095,
+    "XLU": 41.025,
+    "XLV": 167.0,
+    "XLY": 111.72
+   },
+   "equity_pct_from_clock_start": -1.727
+  },
+  {
+   "date": "2026-10-06",
+   "weekday": "Tue",
+   "week_of": "2026-10-05",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 281.34,
+    "QQQ": 759.66,
+    "SPY": 779.09,
+    "XLB": 49.73,
+    "XLC": 111.65,
+    "XLE": 63.75,
+    "XLF": 54.01,
+    "XLI": 171.58,
+    "XLK": 202.0,
+    "XLP": 81.8,
+    "XLRE": 41.1,
+    "XLU": 41.16,
+    "XLV": 167.09,
+    "XLY": 111.72
+   },
+   "equity_pct_from_clock_start": -2.017
+  },
+  {
+   "date": "2026-10-07",
+   "weekday": "Wed",
+   "week_of": "2026-10-05",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "target_weight": 0.0891,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLB",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLRE",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 277.7,
+    "QQQ": 757.73,
+    "SPY": 777.22,
+    "XLB": 48.98,
+    "XLC": 111.26,
+    "XLE": 63.36,
+    "XLF": 53.75,
+    "XLI": 167.84,
+    "XLK": 201.39,
+    "XLP": 81.7,
+    "XLRE": 40.57,
+    "XLU": 41.15,
+    "XLV": 168.81,
+    "XLY": 111.36
+   },
+   "equity_pct_from_clock_start": -2.324
+  },
+  {
+   "date": "2026-10-08",
+   "weekday": "Thu",
+   "week_of": "2026-10-05",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "rebalance",
+    "reason": "signal day, regime on; equal-weight all 8 eligible",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "target_weight": 0.1225,
+    "orders": [
+     {
+      "symbol": "XLB",
+      "side": "sell",
+      "kind": "exit",
+      "notional_usd": 472.65,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 9.511888,
+        "price": 49.26,
+        "session_open": 49.45,
+        "price_at_0935": 49.2677,
+        "deviation_vs_open_bps": -38.42,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLRE",
+      "side": "sell",
+      "kind": "exit",
+      "notional_usd": 462.82,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 11.214334,
+        "price": 41.28,
+        "session_open": 41.18,
+        "price_at_0935": 41.2886,
+        "deviation_vs_open_bps": 24.28,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "IWM",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 133.15,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.478962,
+        "price": 277.976,
+        "session_open": 278.21,
+        "price_at_0935": 278.0113,
+        "deviation_vs_open_bps": -8.41,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "QQQ",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 99.05,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.131686,
+        "price": 752.092,
+        "session_open": 752.55,
+        "price_at_0935": 751.6208,
+        "deviation_vs_open_bps": -6.09,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "SPY",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 112.44,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.14476,
+        "price": 776.664,
+        "session_open": 776.24,
+        "price_at_0935": 776.5816,
+        "deviation_vs_open_bps": 5.46,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLE",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 118.04,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 1.809499,
+        "price": 65.228,
+        "session_open": 64.96,
+        "price_at_0935": 65.2853,
+        "deviation_vs_open_bps": 41.26,
+        "filled_at": "2026-10-09T09:35:17-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLF",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 134.0,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 2.463504,
+        "price": 54.39,
+        "session_open": 54.25,
+        "price_at_0935": 54.3878,
+        "deviation_vs_open_bps": 25.81,
+        "filled_at": "2026-10-09T09:35:18-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLK",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 94.22,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.473312,
+        "price": 199.044,
+        "session_open": 199.4,
+        "price_at_0935": 198.8365,
+        "deviation_vs_open_bps": -17.85,
+        "filled_at": "2026-10-09T09:35:18-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLP",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 121.98,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 1.464437,
+        "price": 83.288,
+        "session_open": 82.958,
+        "price_at_0935": 83.3623,
+        "deviation_vs_open_bps": 39.78,
+        "filled_at": "2026-10-09T09:35:18-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     },
+     {
+      "symbol": "XLV",
+      "side": "buy",
+      "kind": "increase",
+      "notional_usd": 123.0,
+      "submit_date": "2026-10-09",
+      "status": "filled",
+      "fills": [
+       {
+        "shares": 0.727812,
+        "price": 168.986,
+        "session_open": 167.73,
+        "price_at_0935": 169.0068,
+        "deviation_vs_open_bps": 74.88,
+        "filled_at": "2026-10-09T09:35:18-04:00",
+        "recorded_by": "poll"
+       }
+      ]
+     }
+    ],
+    "rebalance_outcome": {
+     "submitted": true,
+     "code": "executed"
+    }
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 277.57,
+    "QQQ": 747.58,
+    "SPY": 773.93,
+    "XLB": 49.27,
+    "XLC": 112.07,
+    "XLE": 65.24,
+    "XLF": 54.23,
+    "XLI": 168.4,
+    "XLK": 197.78,
+    "XLP": 83.42,
+    "XLRE": 40.85,
+    "XLU": 41.07,
+    "XLV": 168.16,
+    "XLY": 111.71
+   },
+   "equity_pct_from_clock_start": -1.606
+  },
+  {
+   "date": "2026-10-09",
+   "weekday": "Fri",
+   "week_of": "2026-10-05",
+   "week_code": "executed",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "target_weight": 0.1089,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 278.94,
+    "QQQ": 751.27,
+    "SPY": 778.57,
+    "XLB": 49.43,
+    "XLC": 110.38,
+    "XLE": 65.08,
+    "XLF": 54.73,
+    "XLI": 169.25,
+    "XLK": 198.78,
+    "XLP": 83.43,
+    "XLRE": 41.61,
+    "XLU": 41.41,
+    "XLV": 170.81,
+    "XLY": 112.85
+   },
+   "equity_pct_from_clock_start": -1.188
+  },
+  {
+   "date": "2026-10-12",
+   "weekday": "Mon",
+   "week_of": "2026-10-12",
+   "week_code": "no_orders",
+   "voided": false,
+   "rule": {
+    "action": "hold",
+    "reason": "regime on, not a signal day; entries are weekly",
+    "regime_on": true,
+    "regime_confirmed_off": false
+   },
+   "paper": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "target_weight": 0.1089,
+    "orders": [],
+    "rebalance_outcome": null
+   },
+   "twin": {
+    "target_book": [
+     "IWM",
+     "QQQ",
+     "SPY",
+     "XLE",
+     "XLF",
+     "XLI",
+     "XLK",
+     "XLP",
+     "XLV"
+    ],
+    "inputs_identical": true
+   },
+   "match": true,
+   "closes": {
+    "IWM": 277.9,
+    "QQQ": 746.04,
+    "SPY": 778.1,
+    "XLB": 49.44,
+    "XLC": 111.45,
+    "XLE": 66.01,
+    "XLF": 55.05,
+    "XLI": 169.15,
+    "XLK": 196.36,
+    "XLP": 84.41,
+    "XLRE": 41.92,
+    "XLU": 41.63,
+    "XLV": 171.99,
+    "XLY": 112.27
+   },
+   "equity_pct_from_clock_start": -1.02
+  }
+ ]
+}

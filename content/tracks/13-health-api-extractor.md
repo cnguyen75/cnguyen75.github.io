@@ -32,7 +32,7 @@ description: A second mode below, offline, compares two saved exports with no to
 STEPS:
 1. Rewrite sign-in and the pull | Google OAuth 2.0 in place of Fitbit's, and a new data-pull layer for six data types, with timestamps read in the participant's local time and sub-minute samples aligned to minutes.
 2. Prove parity | A harness pulls the same person through both pipelines and compares the rows. It was itself tested by injecting faults into synthetic fixtures, and it has an offline mode that compares two saved exports with no credentials involved.
-3. Close the security gaps | Participant tokens encrypted at rest, CSRF protection, OAuth state checked, the fallback secret key removed, logs that redact, and a test suite that never touches Google or real data.
+3. Closed the security gaps found in review | Token storage, request forgery, sign-in state, logging; a test suite that never touches Google or real data.
 4. Hand it over | A service unit, an environment template and operations notes, plus a plain-language change list for the PI.
 
 ## where it stands

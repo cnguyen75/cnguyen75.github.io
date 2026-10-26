@@ -2,7 +2,16 @@
 *
 !.gitignore
 !/receptivity-evaluation/
+!/memory-efficient-fine-tuning/
+!/abstention-gate-option-shift/
 !/sleep-validation/
 !/health-api-extractor/
 !/asd-adhd-video-review/
+!/pokemon-tcg-agent/
+!/paper-trader/
+!/nba-shot-decisions/
+!/nba-catch-decisions/
+!/drug-target-network/
+!/speech-optimizers/
+!/llm-20-questions/
 .built-by-build-py

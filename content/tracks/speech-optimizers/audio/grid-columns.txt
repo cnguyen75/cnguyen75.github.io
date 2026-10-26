@@ -1,0 +1,7 @@
+ground_truth | Real recording | real
+pretrained | Before fine-tuning | synthetic
+sgd | SGD with momentum | synthetic
+adam | Adam | synthetic
+adamw | AdamW | synthetic
+rmsprop | RMSprop | synthetic
+lbfgs | L-BFGS | synthetic

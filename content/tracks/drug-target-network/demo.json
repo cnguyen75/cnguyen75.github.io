@@ -1,0 +1,2354 @@
+{
+ "schema_version": 1,
+ "generated_on": "2026-10-12",
+ "command": "python scripts/export_demo.py OUT.json --include-known",
+ "results_git_commit": "7b158a0",
+ "source": {
+  "file": "drugbank_all_full_database.xml.zip",
+  "version": "5.1",
+  "exported_on": "2025-01-02",
+  "note": "DrugBank full database export; licensed data, not in the repo"
+ },
+ "model": {
+  "description": "v3: random forest on 12 graph and Node2Vec features plus 8 attribute features (structure, protein family, categories, ATC, chemical class)",
+  "train_negatives": "degree_matched",
+  "calibration": "isotonic",
+  "copies": {
+   "seen": "drugs with known targets",
+   "cold": "drugs with no known targets"
+  },
+  "default_threshold": {
+   "seen": 0.95,
+   "cold": 0.9
+  }
+ },
+ "attribution": "Interaction data from DrugBank 5.1, used under CC BY-NC 4.0 for non-commercial purposes.",
+ "contents": "model outputs, public identifiers and each drug's known targets (UniProt accession and gene symbol)",
+ "score_note": "Calibrated (per model copy) on validation pairs with one non-interaction per interaction; a ranking signal, not the chance an interaction is real. score_tied marks scores that round to the same two decimals as another shown candidate.",
+ "drugs": [
+  {
+   "id": "DB00619",
+   "name": "Imatinib",
+   "model_copy": "seen",
+   "known_target_count": 11,
+   "candidates_at_or_above_default": 24,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P07948",
+     "gene": "LYN",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Bafetinib (Tanimoto 0.52), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P21802",
+     "gene": "FGFR2",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 23,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Fostamatinib, Regorafenib and 9 more, which share targets with Imatinib."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P51692",
+     "gene": "STAT5B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dasatinib, which shares targets with Imatinib."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q92570",
+     "gene": "NR4A3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dasatinib, which shares targets with Imatinib."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q9UQQ2",
+     "gene": "SH2B3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Pazopanib, which shares targets with Imatinib."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P00519",
+     "gene": "ABL1"
+    },
+    {
+     "uniprot": "P04629",
+     "gene": "NTRK1"
+    },
+    {
+     "uniprot": "P07333",
+     "gene": "CSF1R"
+    },
+    {
+     "uniprot": "P07949",
+     "gene": "RET"
+    },
+    {
+     "uniprot": "P09619",
+     "gene": "PDGFRB"
+    },
+    {
+     "uniprot": "P10721",
+     "gene": "KIT"
+    },
+    {
+     "uniprot": "P11274",
+     "gene": "BCR"
+    },
+    {
+     "uniprot": "P16234",
+     "gene": "PDGFRA"
+    },
+    {
+     "uniprot": "Q07820",
+     "gene": "MCL1"
+    },
+    {
+     "uniprot": "Q08345",
+     "gene": "DDR1"
+    },
+    {
+     "uniprot": "Q16832",
+     "gene": "DDR2"
+    }
+   ]
+  },
+  {
+   "id": "DB00317",
+   "name": "Gefitinib",
+   "model_copy": "seen",
+   "known_target_count": 1,
+   "candidates_at_or_above_default": 16,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q15303",
+     "gene": "ERBB4",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 8,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Canertinib (Tanimoto 0.70), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P04626",
+     "gene": "ERBB2",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 30,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Canertinib (Tanimoto 0.70), which binds it."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P35968",
+     "gene": "KDR",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 64,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Sorafenib, Vatalanib and 5 more, which share targets with Gefitinib."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O00418",
+     "gene": "EEF2K",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Lapatinib, which shares targets with Gefitinib."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P49336",
+     "gene": "CDK8",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Alvocidib, which shares targets with Gefitinib."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P00533",
+     "gene": "EGFR"
+    }
+   ]
+  },
+  {
+   "id": "DB00675",
+   "name": "Tamoxifen",
+   "model_copy": "seen",
+   "known_target_count": 10,
+   "candidates_at_or_above_default": 1,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q96QT4",
+     "gene": "TRPM7",
+     "score": 0.9761,
+     "score_tied": false,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Masoprocol, which shares targets with Tamoxifen."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "O75908",
+     "gene": "SOAT2",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Hesperetin, which shares targets with Tamoxifen."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P04155",
+     "gene": "TFF1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Afimoxifene (Tanimoto 0.90), which binds it."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O75907",
+     "gene": "DGAT1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Hesperetin, which shares targets with Tamoxifen."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q9UQF2",
+     "gene": "MAPK8IP1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 5,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Pyrazolanthrone, 6-CHLORO-9-HYDROXY-1,3-DIMETHYL-1,9-DIHYDRO-4H-PYRAZOLO[3,4-B]QUINOLIN-4-ONE and 2 more, which share targets with Tamoxifen."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O75469",
+     "gene": "NR1I2"
+    },
+    {
+     "uniprot": "P03372",
+     "gene": "ESR1"
+    },
+    {
+     "uniprot": "P04278",
+     "gene": "SHBG"
+    },
+    {
+     "uniprot": "P10275",
+     "gene": "AR"
+    },
+    {
+     "uniprot": "P17252",
+     "gene": "PRKCA"
+    },
+    {
+     "uniprot": "P45983",
+     "gene": "MAPK8"
+    },
+    {
+     "uniprot": "P62508",
+     "gene": "ESRRG"
+    },
+    {
+     "uniprot": "Q12809",
+     "gene": "KCNH2"
+    },
+    {
+     "uniprot": "Q15125",
+     "gene": "EBP"
+    },
+    {
+     "uniprot": "Q92731",
+     "gene": "ESR2"
+    }
+   ]
+  },
+  {
+   "id": "DB00563",
+   "name": "Methotrexate",
+   "model_copy": "seen",
+   "known_target_count": 5,
+   "candidates_at_or_above_default": 16,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P22102",
+     "gene": "GART",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 6,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Pemetrexed, which shares targets with Methotrexate."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q9HBH1",
+     "gene": "PDF",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 25,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Aminopterin (Tanimoto 0.71), which binds it."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q96DP5",
+     "gene": "MTFMT",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Tetrahydrofolic acid, which shares targets with Methotrexate."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P14207",
+     "gene": "FOLR2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Folic acid, which shares targets with Methotrexate."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q16698",
+     "gene": "DECR1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Nicotinamide adenine dinucleotide phosphate, which shares targets with Methotrexate."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P00374",
+     "gene": "DHFR"
+    },
+    {
+     "uniprot": "P04818",
+     "gene": "TYMS"
+    },
+    {
+     "uniprot": "P31939",
+     "gene": "ATIC"
+    },
+    {
+     "uniprot": "P41440",
+     "gene": "SLC19A1"
+    },
+    {
+     "uniprot": "Q96NT5",
+     "gene": "SLC46A1"
+    }
+   ]
+  },
+  {
+   "id": "DB00331",
+   "name": "Metformin",
+   "model_copy": "seen",
+   "known_target_count": 5,
+   "candidates_at_or_above_default": 4,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P50747",
+     "gene": "HLCS",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Biotin, which shares targets with Metformin."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q15842",
+     "gene": "KCNJ8",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 5,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Phenformin, which shares targets with Metformin."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P54619",
+     "gene": "PRKAG1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 6,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Phenformin, Tetrabromo-2-Benzotriazole and 4 more, which share targets with Metformin."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q13131",
+     "gene": "PRKAA1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 10,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Adenosine phosphate, Phenformin and 5 more, which share targets with Metformin."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P05165",
+     "gene": "PCCA",
+     "score": 0.912,
+     "score_tied": false,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Biotin, which shares targets with Metformin."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O00763",
+     "gene": "ACACB"
+    },
+    {
+     "uniprot": "P21695",
+     "gene": "GPD1"
+    },
+    {
+     "uniprot": "Q16134",
+     "gene": "ETFDH"
+    },
+    {
+     "uniprot": "Q96FL8",
+     "gene": "SLC47A1"
+    },
+    {
+     "uniprot": "Q9Y478",
+     "gene": "PRKAB1"
+    }
+   ]
+  },
+  {
+   "id": "DB01076",
+   "name": "Atorvastatin",
+   "model_copy": "seen",
+   "known_target_count": 5,
+   "candidates_at_or_above_default": 3,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q92831",
+     "gene": "KAT2B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Coenzyme A, which shares targets with Atorvastatin."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "O15379",
+     "gene": "HDAC3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 4,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Vorinostat, Pracinostat and 2 more, which share targets with Atorvastatin."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P20701",
+     "gene": "ITGAL",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 12,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Lovastatin, Simvastatin and 2 more, which share targets with Atorvastatin."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P35398",
+     "gene": "RORA",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Cholesterol, which shares targets with Atorvastatin."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P62136",
+     "gene": "PPP1CA",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Cantharidin, which shares targets with Atorvastatin."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P04035",
+     "gene": "HMGCR"
+    },
+    {
+     "uniprot": "P27487",
+     "gene": "DPP4"
+    },
+    {
+     "uniprot": "P35869",
+     "gene": "AHR"
+    },
+    {
+     "uniprot": "Q14994",
+     "gene": "NR1I3"
+    },
+    {
+     "uniprot": "Q92769",
+     "gene": "HDAC2"
+    }
+   ]
+  },
+  {
+   "id": "DB00641",
+   "name": "Simvastatin",
+   "model_copy": "seen",
+   "known_target_count": 3,
+   "candidates_at_or_above_default": 3,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q92830",
+     "gene": "KAT2A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Coenzyme A, which shares targets with Simvastatin."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q9UQL6",
+     "gene": "HDAC5",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Martinostat, which shares targets with Simvastatin."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P27487",
+     "gene": "DPP4",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 62,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Atorvastatin, which shares targets with Simvastatin."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P37268",
+     "gene": "FDFT1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by TAK-475, which shares targets with Simvastatin."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q8WUI4",
+     "gene": "HDAC7",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Martinostat, which shares targets with Simvastatin."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P04035",
+     "gene": "HMGCR"
+    },
+    {
+     "uniprot": "P20701",
+     "gene": "ITGAL"
+    },
+    {
+     "uniprot": "Q92769",
+     "gene": "HDAC2"
+    }
+   ]
+  },
+  {
+   "id": "DB00381",
+   "name": "Amlodipine",
+   "model_copy": "seen",
+   "known_target_count": 9,
+   "candidates_at_or_above_default": 18,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "O60840",
+     "gene": "CACNA1F",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 6,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Clevidipine (Tanimoto 0.50), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q08289",
+     "gene": "CACNB2",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 10,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Felodipine (Tanimoto 0.61), which binds it."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q01668",
+     "gene": "CACNA1D",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 16,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Levamlodipine (Tanimoto 1.00), which binds it."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P0DP23",
+     "gene": "CALM1",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 32,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Felodipine (Tanimoto 0.61), which binds it."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q13698",
+     "gene": "CACNA1S",
+     "score": 0.9767,
+     "score_tied": false,
+     "target_known_drug_count": 14,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Felodipine (Tanimoto 0.61), which binds it."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "A0A024R8I1",
+     "gene": "CACNA1B"
+    },
+    {
+     "uniprot": "P00915",
+     "gene": "CA1"
+    },
+    {
+     "uniprot": "P17405",
+     "gene": "SMPD1"
+    },
+    {
+     "uniprot": "P54289",
+     "gene": "CACNA2D1"
+    },
+    {
+     "uniprot": "Q00975",
+     "gene": "CACNA1B"
+    },
+    {
+     "uniprot": "Q02641",
+     "gene": "CACNB1"
+    },
+    {
+     "uniprot": "Q13936",
+     "gene": "CACNA1C"
+    },
+    {
+     "uniprot": "Q8IZS8",
+     "gene": "CACNA2D3"
+    },
+    {
+     "uniprot": "Q9P0X4",
+     "gene": "CACNA1I"
+    }
+   ]
+  },
+  {
+   "id": "DB00722",
+   "name": "Lisinopril",
+   "model_copy": "seen",
+   "known_target_count": 2,
+   "candidates_at_or_above_default": 8,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P09960",
+     "gene": "LTA4H",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 24,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Captopril and Acetate, which share targets with Lisinopril."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q9Y286",
+     "gene": "SIGLEC7",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by N-acetyl-alpha-D-glucosamine, which shares targets with Lisinopril."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P16615",
+     "gene": "ATP2A2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Gallopamil, which shares targets with Lisinopril."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q9BYF1",
+     "gene": "ACE2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 6,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by SPP1148, which shares targets with Lisinopril."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P46663",
+     "gene": "BDKRB1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Enalaprilat (Tanimoto 0.70), which binds it."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P00797",
+     "gene": "REN"
+    },
+    {
+     "uniprot": "P12821",
+     "gene": "ACE"
+    }
+   ]
+  },
+  {
+   "id": "DB00682",
+   "name": "Warfarin",
+   "model_copy": "seen",
+   "known_target_count": 2,
+   "candidates_at_or_above_default": 2,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q96S37",
+     "gene": "SLC22A12",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 8,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Sulfinpyrazone, which shares targets with Warfarin."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P15559",
+     "gene": "NQO1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 12,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Menadione and Dicoumarol, which share targets with Warfarin."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q8N0U8",
+     "gene": "VKORC1L1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Menadione, which shares targets with Warfarin."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O76054",
+     "gene": "SEC14L2",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Vitamin E, alpha-Tocopherol succinate and 1 more, which share targets with Warfarin."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P02818",
+     "gene": "BGLAP",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Menadione, which shares targets with Warfarin."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O75469",
+     "gene": "NR1I2"
+    },
+    {
+     "uniprot": "Q9BQB6",
+     "gene": "VKORC1"
+    }
+   ]
+  },
+  {
+   "id": "DB00758",
+   "name": "Clopidogrel",
+   "model_copy": "seen",
+   "known_target_count": 1,
+   "candidates_at_or_above_default": 2,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q8TD43",
+     "gene": "TRPM4",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Adenosine disphosphate, which shares targets with Clopidogrel."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P25105",
+     "gene": "PTAFR",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 5,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Ticlopidine, which shares targets with Clopidogrel."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q15077",
+     "gene": "P2RY6",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Adenosine disphosphate, which shares targets with Clopidogrel."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q13258",
+     "gene": "PTGDR",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 8,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Treprostinil, which shares targets with Clopidogrel."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P43119",
+     "gene": "PTGIR",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 10,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Treprostinil and Epoprostenol, which share targets with Clopidogrel."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "Q9H244",
+     "gene": "P2RY12"
+    }
+   ]
+  },
+  {
+   "id": "DB01050",
+   "name": "Ibuprofen",
+   "model_copy": "seen",
+   "known_target_count": 13,
+   "candidates_at_or_above_default": 12,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P49768",
+     "gene": "PSEN1",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 11,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Esflurbiprofen, which shares targets with Ibuprofen."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P50591",
+     "gene": "TNFSF10",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Nimesulide, which shares targets with Ibuprofen."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P49810",
+     "gene": "PSEN2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Esflurbiprofen, which shares targets with Ibuprofen."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q16647",
+     "gene": "PTGIS",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Phenylbutazone, which shares targets with Ibuprofen."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P16233",
+     "gene": "PNLIP",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 8,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Naproxen, which shares targets with Ibuprofen."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P07204",
+     "gene": "THBD"
+    },
+    {
+     "uniprot": "P07359",
+     "gene": "GP1BA"
+    },
+    {
+     "uniprot": "P10145",
+     "gene": "CXCL8"
+    },
+    {
+     "uniprot": "P10415",
+     "gene": "BCL2"
+    },
+    {
+     "uniprot": "P12104",
+     "gene": "FABP2"
+    },
+    {
+     "uniprot": "P13569",
+     "gene": "CFTR"
+    },
+    {
+     "uniprot": "P23219",
+     "gene": "PTGS1"
+    },
+    {
+     "uniprot": "P25024",
+     "gene": "CXCR1"
+    },
+    {
+     "uniprot": "P25025",
+     "gene": "CXCR2"
+    },
+    {
+     "uniprot": "P31151",
+     "gene": "S100A7"
+    },
+    {
+     "uniprot": "P35354",
+     "gene": "PTGS2"
+    },
+    {
+     "uniprot": "P37231",
+     "gene": "PPARG"
+    },
+    {
+     "uniprot": "Q07869",
+     "gene": "PPARA"
+    }
+   ]
+  },
+  {
+   "id": "DB00482",
+   "name": "Celecoxib",
+   "model_copy": "seen",
+   "known_target_count": 7,
+   "candidates_at_or_above_default": 4,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P25024",
+     "gene": "CXCR1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 5,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Ketoprofen, Ibuprofen and 1 more, which share targets with Celecoxib."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P02788",
+     "gene": "LTF",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Nimesulide and Parecoxib, which share targets with Celecoxib."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P43166",
+     "gene": "CA7",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Ethoxzolamide, Methazolamide and 5 more, which share targets with Celecoxib."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O43570",
+     "gene": "CA12",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 22,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Acetazolamide, Zonisamide and 19 more, which share targets with Celecoxib."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P15502",
+     "gene": "ELN",
+     "score": 0.912,
+     "score_tied": false,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Rofecoxib, which shares targets with Celecoxib."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O15530",
+     "gene": "PDPK1"
+    },
+    {
+     "uniprot": "P00918",
+     "gene": "CA2"
+    },
+    {
+     "uniprot": "P07451",
+     "gene": "CA3"
+    },
+    {
+     "uniprot": "P35354",
+     "gene": "PTGS2"
+    },
+    {
+     "uniprot": "P40763",
+     "gene": "STAT3"
+    },
+    {
+     "uniprot": "P55287",
+     "gene": "CDH11"
+    },
+    {
+     "uniprot": "Q99519",
+     "gene": "NEU1"
+    }
+   ]
+  },
+  {
+   "id": "DB00945",
+   "name": "Acetylsalicylic acid",
+   "model_copy": "seen",
+   "known_target_count": 19,
+   "candidates_at_or_above_default": 0,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P05305",
+     "gene": "EDN1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by TBC-3711, which shares targets with Acetylsalicylic acid."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P49662",
+     "gene": "CASP4",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Incadronic acid, which shares targets with Acetylsalicylic acid."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q01344",
+     "gene": "IL5RA",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dimethyl sulfoxide, which shares targets with Acetylsalicylic acid."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q8WXI7",
+     "gene": "MUC16",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dimethyl sulfoxide, which shares targets with Acetylsalicylic acid."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P55210",
+     "gene": "CASP7",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Emricasan and Incadronic acid, which share targets with Acetylsalicylic acid."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O14920",
+     "gene": "IKBKB"
+    },
+    {
+     "uniprot": "P01106",
+     "gene": "MYC"
+    },
+    {
+     "uniprot": "P04035",
+     "gene": "HMGCR"
+    },
+    {
+     "uniprot": "P04637",
+     "gene": "TP53"
+    },
+    {
+     "uniprot": "P11021",
+     "gene": "HSPA5"
+    },
+    {
+     "uniprot": "P12004",
+     "gene": "PCNA"
+    },
+    {
+     "uniprot": "P23219",
+     "gene": "PTGS1"
+    },
+    {
+     "uniprot": "P24385",
+     "gene": "CCND1"
+    },
+    {
+     "uniprot": "P25101",
+     "gene": "EDNRA"
+    },
+    {
+     "uniprot": "P25963",
+     "gene": "NFKBIA"
+    },
+    {
+     "uniprot": "P28482",
+     "gene": "MAPK1"
+    },
+    {
+     "uniprot": "P29466",
+     "gene": "CASP1"
+    },
+    {
+     "uniprot": "P35354",
+     "gene": "PTGS2"
+    },
+    {
+     "uniprot": "P42574",
+     "gene": "CASP3"
+    },
+    {
+     "uniprot": "P51812",
+     "gene": "RPS6KA3"
+    },
+    {
+     "uniprot": "P98066",
+     "gene": "TNFAIP6"
+    },
+    {
+     "uniprot": "Q04828",
+     "gene": "AKR1C1"
+    },
+    {
+     "uniprot": "Q13131",
+     "gene": "PRKAA1"
+    },
+    {
+     "uniprot": "Q99519",
+     "gene": "NEU1"
+    }
+   ]
+  },
+  {
+   "id": "DB00295",
+   "name": "Morphine",
+   "model_copy": "seen",
+   "known_target_count": 4,
+   "candidates_at_or_above_default": 13,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q99720",
+     "gene": "SIGMAR1",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 23,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Amitriptyline, Dextromethorphan and 4 more, which share targets with Morphine."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P16220",
+     "gene": "CREB1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Naloxone, which shares targets with Morphine."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P31391",
+     "gene": "SSTR4",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Somatostatin, which shares targets with Morphine."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q9UNK4",
+     "gene": "PLA2G2D",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Lauric acid, which shares targets with Morphine."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "O60858",
+     "gene": "TRIM13",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Dihydromorphine (Tanimoto 0.64), which binds it."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P35372",
+     "gene": "OPRM1"
+    },
+    {
+     "uniprot": "P41143",
+     "gene": "OPRD1"
+    },
+    {
+     "uniprot": "P41145",
+     "gene": "OPRK1"
+    },
+    {
+     "uniprot": "Q9Y6Y9",
+     "gene": "LY96"
+    }
+   ]
+  },
+  {
+   "id": "DB01104",
+   "name": "Sertraline",
+   "model_copy": "seen",
+   "known_target_count": 5,
+   "candidates_at_or_above_default": 3,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P04839",
+     "gene": "CYBB",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dextromethorphan, which shares targets with Sertraline."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P32297",
+     "gene": "CHRNA3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 16,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Dextromethorphan, Bupropion and 1 more, which share targets with Sertraline."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P41595",
+     "gene": "HTR2B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 45,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Amoxapine, Midomafetamine and 10 more, which share targets with Sertraline."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O95644",
+     "gene": "NFATC1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Pseudoephedrine, which shares targets with Sertraline."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P18846",
+     "gene": "ATF1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Pseudoephedrine, which shares targets with Sertraline."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O00264",
+     "gene": "PGRMC1"
+    },
+    {
+     "uniprot": "P23975",
+     "gene": "SLC6A2"
+    },
+    {
+     "uniprot": "P31645",
+     "gene": "SLC6A4"
+    },
+    {
+     "uniprot": "Q01959",
+     "gene": "SLC6A3"
+    },
+    {
+     "uniprot": "Q7RTT9",
+     "gene": "SLC29A4"
+    }
+   ]
+  },
+  {
+   "id": "DB00472",
+   "name": "Fluoxetine",
+   "model_copy": "seen",
+   "known_target_count": 7,
+   "candidates_at_or_above_default": 7,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P10696",
+     "gene": "ALPG",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Levamisole, which shares targets with Fluoxetine."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P41595",
+     "gene": "HTR2B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 45,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Doxepin, Amoxapine and 31 more, which share targets with Fluoxetine."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P25100",
+     "gene": "ADRA1D",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 51,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Amitriptyline, Imipramine and 21 more, which share targets with Fluoxetine."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q01959",
+     "gene": "SLC6A3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 57,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Seproxetine (Tanimoto 0.68), which binds it."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P23975",
+     "gene": "SLC6A2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 81,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Seproxetine (Tanimoto 0.68), which binds it."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P28335",
+     "gene": "HTR2C"
+    },
+    {
+     "uniprot": "P30926",
+     "gene": "CHRNB4"
+    },
+    {
+     "uniprot": "P31645",
+     "gene": "SLC6A4"
+    },
+    {
+     "uniprot": "P32297",
+     "gene": "CHRNA3"
+    },
+    {
+     "uniprot": "P61024",
+     "gene": "CKS1B"
+    },
+    {
+     "uniprot": "Q12809",
+     "gene": "KCNH2"
+    },
+    {
+     "uniprot": "Q15822",
+     "gene": "CHRNA2"
+    }
+   ]
+  },
+  {
+   "id": "DB00502",
+   "name": "Haloperidol",
+   "model_copy": "seen",
+   "known_target_count": 18,
+   "candidates_at_or_above_default": 2,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P21917",
+     "gene": "DRD4",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 36,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Pipamperone (Tanimoto 0.55), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P41595",
+     "gene": "HTR2B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 45,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Pipamperone (Tanimoto 0.55), which binds it."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P61024",
+     "gene": "CKS1B",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Fluoxetine, which shares targets with Haloperidol."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q8N1C3",
+     "gene": "GABRG1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Clozapine, which shares targets with Haloperidol."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P47898",
+     "gene": "HTR5A",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Ziprasidone, Loxapine and 5 more, which share targets with Haloperidol."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P08908",
+     "gene": "HTR1A"
+    },
+    {
+     "uniprot": "P08913",
+     "gene": "ADRA2A"
+    },
+    {
+     "uniprot": "P14416",
+     "gene": "DRD2"
+    },
+    {
+     "uniprot": "P18089",
+     "gene": "ADRA2B"
+    },
+    {
+     "uniprot": "P18825",
+     "gene": "ADRA2C"
+    },
+    {
+     "uniprot": "P20309",
+     "gene": "CHRM3"
+    },
+    {
+     "uniprot": "P21728",
+     "gene": "DRD1"
+    },
+    {
+     "uniprot": "P28223",
+     "gene": "HTR2A"
+    },
+    {
+     "uniprot": "P28335",
+     "gene": "HTR2C"
+    },
+    {
+     "uniprot": "P34969",
+     "gene": "HTR7"
+    },
+    {
+     "uniprot": "P35348",
+     "gene": "ADRA1A"
+    },
+    {
+     "uniprot": "P35367",
+     "gene": "HRH1"
+    },
+    {
+     "uniprot": "P35462",
+     "gene": "DRD3"
+    },
+    {
+     "uniprot": "P50406",
+     "gene": "HTR6"
+    },
+    {
+     "uniprot": "Q05940",
+     "gene": "SLC18A2"
+    },
+    {
+     "uniprot": "Q13224",
+     "gene": "GRIN2B"
+    },
+    {
+     "uniprot": "Q99705",
+     "gene": "MCHR1"
+    },
+    {
+     "uniprot": "Q99720",
+     "gene": "SIGMAR1"
+    }
+   ]
+  },
+  {
+   "id": "DB00829",
+   "name": "Diazepam",
+   "model_copy": "seen",
+   "known_target_count": 2,
+   "candidates_at_or_above_default": 22,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "P24046",
+     "gene": "GABRR1",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 4,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Fludiazepam (Tanimoto 0.72), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q99928",
+     "gene": "GABRG3",
+     "score": 1.0,
+     "score_tied": true,
+     "target_known_drug_count": 22,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Fludiazepam (Tanimoto 0.72), which binds it."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P78334",
+     "gene": "GABRE",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Fludiazepam (Tanimoto 0.72), which binds it."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P28472",
+     "gene": "GABRB3",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 7,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Fludiazepam (Tanimoto 0.72), which binds it."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P18507",
+     "gene": "GABRG2",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 11,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Fludiazepam (Tanimoto 0.72), which binds it."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P14867",
+     "gene": "GABRA1"
+    },
+    {
+     "uniprot": "P30536",
+     "gene": "TSPO"
+    }
+   ]
+  },
+  {
+   "id": "DB00203",
+   "name": "Sildenafil",
+   "model_copy": "seen",
+   "known_target_count": 6,
+   "candidates_at_or_above_default": 4,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "O60658",
+     "gene": "PDE8A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by 3-isobutyl-1-methyl-7H-xanthine, which shares targets with Sildenafil."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q9HCR9",
+     "gene": "PDE11A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Tadalafil, which shares targets with Sildenafil."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "O76083",
+     "gene": "PDE9A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 5,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by 3-isobutyl-1-methyl-7H-xanthine and gamma-Glutamyl[S-(2-iodobenzyl)cysteinyl]glycine, which share targets with Sildenafil."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O00408",
+     "gene": "PDE2A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 6,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by 3-isobutyl-1-methyl-7H-xanthine and Exisulind, which share targets with Sildenafil."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P52788",
+     "gene": "SMS",
+     "score": 0.912,
+     "score_tied": false,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Spermine, which shares targets with Sildenafil."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O76074",
+     "gene": "PDE5A"
+    },
+    {
+     "uniprot": "P05155",
+     "gene": "SERPING1"
+    },
+    {
+     "uniprot": "P11926",
+     "gene": "ODC1"
+    },
+    {
+     "uniprot": "P18545",
+     "gene": "PDE6G"
+    },
+    {
+     "uniprot": "Q13956",
+     "gene": "PDE6H"
+    },
+    {
+     "uniprot": "Q9NZQ7",
+     "gene": "CD274"
+    }
+   ]
+  },
+  {
+   "id": "DB00338",
+   "name": "Omeprazole",
+   "model_copy": "seen",
+   "known_target_count": 3,
+   "candidates_at_or_above_default": 2,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "O94760",
+     "gene": "DDAH1",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 4,
+     "reason": {
+      "kind": "structural_similarity",
+      "text": "Structurally similar to Esomeprazole (Tanimoto 0.85), which binds it."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q86XF0",
+     "gene": "DHFR2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 9,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Epigallocatechin gallate, which shares targets with Omeprazole."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P10589",
+     "gene": "NR2F1",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by beta-Naphthoflavone, which shares targets with Omeprazole."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "P62136",
+     "gene": "PPP1CA",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Cantharidin, which shares targets with Omeprazole."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "O00305",
+     "gene": "CACNB4",
+     "score": 0.912,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Nimodipine, which shares targets with Omeprazole."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P20648",
+     "gene": "ATP4A"
+    },
+    {
+     "uniprot": "P35869",
+     "gene": "AHR"
+    },
+    {
+     "uniprot": "P51164",
+     "gene": "ATP4B"
+    }
+   ]
+  },
+  {
+   "id": "DB00455",
+   "name": "Loratadine",
+   "model_copy": "seen",
+   "known_target_count": 2,
+   "candidates_at_or_above_default": 7,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "O95665",
+     "gene": "NTSR2",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Levocabastine, which shares targets with Loratadine."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "Q86YN6",
+     "gene": "PPARGC1B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Amiodarone, which shares targets with Loratadine."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P61024",
+     "gene": "CKS1B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Fluoxetine, which shares targets with Loratadine."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q92523",
+     "gene": "CPT1B",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 2,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Perhexiline, which shares targets with Loratadine."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P50416",
+     "gene": "CPT1A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 3,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Perhexiline, which shares targets with Loratadine."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "P35367",
+     "gene": "HRH1"
+    },
+    {
+     "uniprot": "Q12809",
+     "gene": "KCNH2"
+    }
+   ]
+  },
+  {
+   "id": "DB00201",
+   "name": "Caffeine",
+   "model_copy": "seen",
+   "known_target_count": 15,
+   "candidates_at_or_above_default": 9,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q14432",
+     "gene": "PDE3A",
+     "score": 0.9767,
+     "score_tied": true,
+     "target_known_drug_count": 14,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by 3-isobutyl-1-methyl-7H-xanthine, Theophylline and 6 more, which share targets with Caffeine."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "O60658",
+     "gene": "PDE8A",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by 3-isobutyl-1-methyl-7H-xanthine, which shares targets with Caffeine."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "Q15155",
+     "gene": "NOMO1",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Theophylline, which shares targets with Caffeine."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "Q7Z5B4",
+     "gene": "RIC3",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Theophylline, which shares targets with Caffeine."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "Q8TCT9",
+     "gene": "HM13",
+     "score": 0.9761,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "shared_target_drugs",
+      "text": "Bound by Theophylline, which shares targets with Caffeine."
+     }
+    }
+   ],
+   "known_targets": [
+    {
+     "uniprot": "O00329",
+     "gene": "PIK3CD"
+    },
+    {
+     "uniprot": "P0DMS8",
+     "gene": "ADORA3"
+    },
+    {
+     "uniprot": "P21589",
+     "gene": "NT5E"
+    },
+    {
+     "uniprot": "P21817",
+     "gene": "RYR1"
+    },
+    {
+     "uniprot": "P27815",
+     "gene": "PDE4A"
+    },
+    {
+     "uniprot": "P29274",
+     "gene": "ADORA2A"
+    },
+    {
+     "uniprot": "P29275",
+     "gene": "ADORA2B"
+    },
+    {
+     "uniprot": "P30542",
+     "gene": "ADORA1"
+    },
+    {
+     "uniprot": "P42336",
+     "gene": "PIK3CA"
+    },
+    {
+     "uniprot": "P42338",
+     "gene": "PIK3CB"
+    },
+    {
+     "uniprot": "P78527",
+     "gene": "PRKDC"
+    },
+    {
+     "uniprot": "Q07343",
+     "gene": "PDE4B"
+    },
+    {
+     "uniprot": "Q08499",
+     "gene": "PDE4D"
+    },
+    {
+     "uniprot": "Q13315",
+     "gene": "ATM"
+    },
+    {
+     "uniprot": "Q14643",
+     "gene": "ITPR1"
+    }
+   ]
+  },
+  {
+   "id": "DB00196",
+   "name": "Fluconazole",
+   "model_copy": "cold",
+   "known_target_count": 0,
+   "candidates_at_or_above_default": 2,
+   "predicted": [
+    {
+     "rank": 1,
+     "uniprot": "Q16850",
+     "gene": "CYP51A1",
+     "score": 0.9819,
+     "score_tied": false,
+     "target_known_drug_count": 4,
+     "reason": {
+      "kind": "chemical_class",
+      "text": "2 of 4 known binders share its chemical class (Benzene and substituted derivatives)."
+     }
+    },
+    {
+     "rank": 2,
+     "uniprot": "P05093",
+     "gene": "CYP17A1",
+     "score": 0.9412,
+     "score_tied": false,
+     "target_known_drug_count": 11,
+     "reason": {
+      "kind": "chemical_class",
+      "text": "1 of 11 known binders shares its chemical class (Benzene and substituted derivatives)."
+     }
+    },
+    {
+     "rank": 3,
+     "uniprot": "P20813",
+     "gene": "CYP2B6",
+     "score": 0.8871,
+     "score_tied": false,
+     "target_known_drug_count": 4,
+     "reason": {
+      "kind": "chemical_class",
+      "text": "2 of 4 known binders share its chemical class (Benzene and substituted derivatives)."
+     }
+    },
+    {
+     "rank": 4,
+     "uniprot": "O00255",
+     "gene": "MEN1",
+     "score": 0.8351,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "none",
+      "text": "No supporting evidence above threshold; ranked on model score alone."
+     }
+    },
+    {
+     "rank": 5,
+     "uniprot": "P05181",
+     "gene": "CYP2E1",
+     "score": 0.8351,
+     "score_tied": true,
+     "target_known_drug_count": 1,
+     "reason": {
+      "kind": "none",
+      "text": "No supporting evidence above threshold; ranked on model score alone."
+     }
+    }
+   ],
+   "known_targets": []
+  }
+ ],
+ "not_found": []
+}

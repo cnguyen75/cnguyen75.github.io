@@ -73,57 +73,27 @@
 <p class="side-intro">Founding AI Engineer, Athena Money, November 2025 to present</p>
 <div class="track track--wrap" id="track-01">
 <span class="track-no">01</span>
-<div class="track-body"><h3 class="track-title">Evaluation platform for LLM agents</h3><span class="track-desc">Multi-turn evaluation of production agents against cloned, sandboxed loan data: scenario graders, rubric-based LLM judges, a simulated user, CI tiers and regression gates.</span>
-<ul class="track-points">
-<li><strong>Scenarios and graders.</strong> Scripted multi-turn scenarios against cloned, sandboxed loan data, with separate graders for outcomes, per-turn quality and rubric-based judgement.</li>
-<li><strong>Simulated user.</strong> An LLM plays the borrower so an agent can be run end to end without a person in the loop.</li>
-<li><strong>Gates.</strong> Repeated trials, tiered CI and statistical regression tests, with the evaluation driver on durable workflows so any run can be replayed.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Evaluation platform for LLM agents</h3><span class="track-desc">An agent that handles a mortgage file can't be judged on one run. I built the platform that runs our agents through scripted scenarios against cloned, sandboxed loans, with a simulated borrower on the other side and separate graders for what came out, how each turn went and whether it matched the rubric, so a change is measured before it ships.</span></div>
 </div>
 <div class="track track--wrap" id="track-02">
 <span class="track-no">02</span>
-<div class="track-body"><h3 class="track-title">Making model outputs reliable enough to act on</h3><span class="track-desc">An experiments platform for comparing extraction and judgement approaches: field-level consensus across runs, LLM-as-judge scoring, and validation inside the turn before an output is used.</span>
-<ul class="track-points">
-<li><strong>Consensus.</strong> The same extraction run several times and agreed field by field before it is used.</li>
-<li><strong>Judgement.</strong> LLM-as-judge scoring, calibrated against human-checked sets.</li>
-<li><strong>In-turn validation.</strong> Outputs checked against schema and business rules inside the agent's turn, failing closed.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Making model outputs reliable enough to act on</h3><span class="track-desc">A model's answer is only useful if you know when to trust it. I built an experiments platform for comparing extraction and judgement approaches: the same extraction run several times and agreed field by field, LLM-as-judge scoring calibrated against human-checked sets, and validation inside the agent's turn so a bad output fails closed instead of flowing on.</span></div>
 </div>
 <div class="track track--wrap" id="track-03">
 <span class="track-no">03</span>
-<div class="track-body"><h3 class="track-title">Underwriting and follow-up agents</h3><span class="track-desc">Agents that request, check and adjudicate borrower documents and conditions, with a supervising layer that reviews their decisions and a borrower override path.</span>
-<ul class="track-points">
-<li><strong>Agents.</strong> Request, check and adjudicate borrower documents and conditions on a multi-turn agent framework with durable workflows.</li>
-<li><strong>Supervision.</strong> A supervising layer reviews agent decisions, a person approves before anything takes effect, and borrowers can override a revision request.</li>
-<li><strong>Migration.</strong> The legacy workflow moved onto the agents one request type at a time behind flags, then retired.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Underwriting and follow-up agents</h3><span class="track-desc">Underwriting is mostly asking borrowers for the right document and checking it when it arrives. I built agents that do that on a multi-turn framework with durable workflows, under a supervising layer that reviews their decisions, a person who approves before anything takes effect, and a path for the borrower to override a request; then moved the legacy workflow onto them one request type at a time and retired it.</span></div>
 </div>
 <div class="track track--wrap" id="track-04">
 <span class="track-no">04</span>
-<div class="track-body"><h3 class="track-title">Co-borrower and joint applications</h3><span class="track-desc">The joint-application lifecycle end to end: inviting or standing in for a co-borrower, joining an application at rate lock, and disclosures scoped to each applicant.</span>
-<ul class="track-points">
-<li><strong>Lifecycle.</strong> Inviting or standing in for a co-borrower, joining an application at rate lock, continuing alone, and removal.</li>
-<li><strong>Disclosures.</strong> Regulated disclosures scoped to each applicant.</li>
-<li><strong>Identity.</strong> Mismatches between what was entered and what was verified routed to review.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Co-borrower and joint applications</h3><span class="track-desc">Two people on one mortgage doubles every step. I built the joint-application lifecycle end to end: inviting a co-borrower or standing in for one, joining at rate lock, continuing alone, removal, disclosures scoped to each applicant, and routing to review when what was entered doesn't match what was verified.</span></div>
 </div>
 <div class="track track--wrap" id="track-05">
 <span class="track-no">05</span>
-<div class="track-body"><h3 class="track-title">Mobile banking apps</h3><span class="track-desc">Building the Android app to match the iOS app, snapshot testing on both platforms, and the CI and release pipelines behind them.</span>
-<ul class="track-points">
-<li><strong>Android.</strong> Built the Kotlin and Jetpack Compose app to match the iOS app screen for screen.</li>
-<li><strong>Testing.</strong> Snapshot-test harnesses on both platforms as blocking merge checks.</li>
-<li><strong>Pipelines.</strong> CI parallelised and release pipelines for both apps.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Mobile banking apps</h3><span class="track-desc">The Android app was a partial shell next to a finished iOS app. I built it out in Kotlin and Jetpack Compose to match iOS screen for screen, put snapshot tests on both platforms as blocking merge checks, and parallelised the CI and release pipelines so a change on either app ships the same way.</span></div>
 </div>
 <div class="track track--wrap" id="track-06">
 <span class="track-no">06</span>
-<div class="track-body"><h3 class="track-title">Disclosure timing and compliance</h3><span class="track-desc">Generating and tracking the regulated disclosures a mortgage requires: delivery dates, business-day rules, re-disclosure triggers, and tests that guard the sequencing.</span>
-<ul class="track-points">
-<li><strong>Timing.</strong> Delivery dates, business-day rules and the clocks that follow from them.</li>
-<li><strong>Triggers.</strong> Re-disclosure when pricing, terms or applicants change.</li>
-<li><strong>Tests.</strong> A safety net over sequencing and cascading events.</li>
-</ul></div>
+<div class="track-body"><h3 class="track-title">Disclosure timing and compliance</h3><span class="track-desc">A mortgage has disclosures that must go out on particular days, in a particular order, and again when terms change. I built the timing: delivery dates and business-day rules, the clocks that follow from them, re-disclosure when pricing, terms or applicants change, and a test safety net over the sequencing and the cascades.</span></div>
 </div>
 <p class="side-intro">Data Science and Generative AI Intern, Zeta Global, June to August 2025</p>
 <div class="track track--wrap" id="track-07">
@@ -155,16 +125,16 @@
 </a>
 <div class="series">
 <p class="series-head">two parts · efficient fine-tuning on one laptop</p>
-<div class="track track--wrap" id="track-10">
+<a class="track track--wrap" href="tracks/memory-efficient-fine-tuning/" data-page="memory-efficient-fine-tuning" id="track-10">
 <span class="track-no">10</span>
-<div class="track-body"><h3 class="track-title">Train it in a quarter of the memory</h3><span class="track-when">sep to oct 2026</span><span class="track-part">part one of two · <a class="track-part-link" href="#track-11">continues in 11 →</a></span><span class="track-desc">With Prof. Eric Suess, CSU East Bay. How far one laptop can push fine-tuning of a small language model, and what each memory-saving lever costs: five levers, measured one at a time and then stacked, took the largest trainable step from 8,192 to 131,072 tokens in 71% of the baseline's memory, for a throughput cost of 17 to 22%, all of it from checkpointing. A block-wise 8-bit AdamW written by hand matched torchao's optimizer state to the byte and was equivalent to full precision across six seeds, by margins fixed before the runs.</span></div>
+<div class="track-body"><h3 class="track-title">Train it in a quarter of the memory</h3><span class="track-when">sep to oct 2026</span><span class="track-part">part one of two · <span class="track-part-link" data-href="#track-11">continues in 11 →</span></span><span class="track-desc">With Prof. Eric Suess, CSU East Bay. How far one laptop can push fine-tuning of a small language model, and what each memory-saving lever costs: five levers, measured one at a time and then stacked, took the largest trainable step from 8,192 to 131,072 tokens in 71% of the baseline's memory, for a throughput cost of 17 to 22%, all of it from checkpointing. A block-wise 8-bit AdamW written by hand matched torchao's optimizer state to the byte and was equivalent to full precision across six seeds, by margins fixed before the runs.</span></div>
 <span class="track-meta track-meta--status">complete</span>
-</div>
-<div class="track track--wrap" id="track-11">
+</a>
+<a class="track track--wrap" href="tracks/abstention-gate-option-shift/" data-page="abstention-gate-option-shift" id="track-11">
 <span class="track-no">11</span>
-<div class="track-body"><h3 class="track-title">Does the guarantee survive more options?</h3><span class="track-when">oct 2026 to present</span><span class="track-part">part two of two · <a class="track-part-link" href="#track-10">← follows 10</a></span><span class="track-desc">With Prof. Eric Suess, CSU East Bay. A Learn-then-Test abstention gate promises that at most 5% of the answers it accepts are wrong; calibrated on 5 options and deployed on 150, it lets through 7.2% on a hosted decision model and 7.7% on a 135M-parameter model fine-tuned to match it. The exact fix, calibrating per option count, is underpowered at 500 items a bin, and rank-normalising the score makes it exchangeable by construction and still leaks.</span></div>
+<div class="track-body"><h3 class="track-title">Does the guarantee survive more options?</h3><span class="track-when">oct 2026 to present</span><span class="track-part">part two of two · <span class="track-part-link" data-href="#track-10">← follows 10</span></span><span class="track-desc">With Prof. Eric Suess, CSU East Bay. A Learn-then-Test abstention gate promises that at most 5% of the answers it accepts are wrong; calibrated on 5 options and deployed on 150, it lets through 7.2% on a hosted decision model and 7.7% on a 135M-parameter model fine-tuned to match it. The exact fix, calibrating per option count, is underpowered at 500 items a bin, and rank-normalising the score makes it exchangeable by construction and still leaks.</span></div>
 <span class="track-meta track-meta--status">in progress</span>
-</div>
+</a>
 </div>
 <a class="track track--wrap" href="tracks/sleep-validation/" data-page="sleep-validation">
 <span class="track-no">12</span>
@@ -185,38 +155,38 @@
 
 <section class="side" id="projects" aria-labelledby="projects-label">
 <h2 class="side-label" id="projects-label">side c. projects</h2>
-<div class="track track--wrap">
+<a class="track track--wrap" href="tracks/pokemon-tcg-agent/" data-page="pokemon-tcg-agent" data-ext-href="https://github.com/cnguyen75/pokemon-tcg-ai" data-ext-label="github →">
 <span class="track-no">15</span>
-<div class="track-body"><h3 class="track-title">Pokémon TCG agent</h3><span class="track-when">aug to sep 2026</span><span class="track-desc">An agent for Kaggle's Pokémon Trading Card Game AI competition, a hidden-information card game played on a live ranked ladder. A hand-written policy is wrapped in a whole-turn search over sampled hidden states, with a self-play-trained value network scoring positions. It finished 2,166th of 6,807 teams. Re-running identical local tests showed swings of 12 points, so most improvements smaller than that were noise.</span><span class="track-ext"><a href="https://github.com/cnguyen75/pokemon-tcg-ai" target="_blank" rel="noopener">github →</a></span></div>
-</div>
-<div class="track track--wrap">
+<div class="track-body"><h3 class="track-title">Pokémon TCG agent</h3><span class="track-when">aug to sep 2026</span><span class="track-desc">An agent for Kaggle's Pokémon Trading Card Game AI competition, a hidden-information card game played on a live ranked ladder. A hand-written policy is wrapped in a whole-turn search over sampled hidden states, with a self-play-trained value network scoring positions. It finished 2,166th of 6,807 teams. Re-running identical local tests showed swings of 12 points, so most improvements smaller than that were noise.</span></div>
+</a>
+<a class="track track--wrap" href="tracks/paper-trader/" data-page="paper-trader">
 <span class="track-no">16</span>
 <div class="track-body"><h3 class="track-title">Paper Trader</h3><span class="track-when">aug 2026 to present</span><span class="track-desc">An automated ETF-trading system that wrote down its pass and fail criteria before any backtest ran. The first strategy was shelved when a ten-year backtest returned a Sharpe ratio of 0.74 against a required 1.06. <span class="track-live" data-src="paper-trader/demo.json" data-template="Its successor runs on a paper account against a simulated twin: {decisions:matched} decisions since its clock started match{decisions:unchecked}, {as_of:asof}and it has already failed two of its own criteria.">Its successor runs on a paper account against a simulated twin: 26 of 27 decisions since its clock started match, 1 not yet checked, as of 12 October 2026, and it has already failed two of its own criteria.</span></span></div>
 <span class="track-meta track-meta--status">in progress</span>
-</div>
+</a>
 <div class="series">
 <p class="series-head">two parts · why players take the shots they take</p>
-<div class="track track--wrap" id="track-17">
+<a class="track track--wrap" href="tracks/nba-shot-decisions/" data-page="nba-shot-decisions" data-ext-href="https://github.com/cnguyen75/NBA-Inverse-Shot-Optimization" data-ext-label="github →" id="track-17">
 <span class="track-no">17</span>
-<div class="track-body"><h3 class="track-title">Why did they take that shot?</h3><span class="track-when">jan to mar 2025</span><span class="track-part">part one of two · <a class="track-part-link" href="#track-18">continues in 18 →</a></span><span class="track-desc">Asks why LeBron James, Stephen Curry and James Harden took the shots they did, using 128,069 shots from the 2014–15 season. A small network picks the real shot from plausible alternatives about half the time on held-out shots, against under a third by chance. Auditing it a year later, I found the original optimality conditions never touched the learned cost, and a pre-registered attempt to recover each player's cost ended in a negative result: without court position, defender distance is a consequence of the shot, not an input to it.</span><span class="track-ext"><a href="https://github.com/cnguyen75/NBA-Inverse-Shot-Optimization" target="_blank" rel="noopener">github →</a></span></div>
-</div>
-<div class="track track--wrap" id="track-18">
+<div class="track-body"><h3 class="track-title">Why did they take that shot?</h3><span class="track-when">jan to mar 2025</span><span class="track-part">part one of two · <span class="track-part-link" data-href="#track-18">continues in 18 →</span></span><span class="track-desc">Asks why LeBron James, Stephen Curry and James Harden took the shots they did, using 128,069 shots from the 2014–15 season. A small network picks the real shot from plausible alternatives about half the time on held-out shots, against under a third by chance. Auditing it a year later, I found the original optimality conditions never touched the learned cost, and a pre-registered attempt to recover each player's cost ended in a negative result: without court position, defender distance is a consequence of the shot, not an input to it.</span></div>
+</a>
+<a class="track track--wrap" href="tracks/nba-catch-decisions/" data-page="nba-catch-decisions" data-ext-href="https://github.com/cnguyen75/nba-catch-decisions" data-ext-label="github →" id="track-18">
 <span class="track-no">18</span>
-<div class="track-body"><h3 class="track-title">A foot of space is worth eight seconds</h3><span class="track-when">oct 2026</span><span class="track-part">part two of two · <a class="track-part-link" href="#track-17">← follows 17</a></span><span class="track-desc">Public player tracking from 2015–16 puts the defender before the decision. A foot of space at the catch is worth about eight seconds of shot clock to the league, nearly nine on threes and when trailing, and the defender takes most of it back before the release. Whether shooters are right to want it, the data can't say: three instruments were too weak to value the shots they passed up.</span><span class="track-ext"><a href="https://github.com/cnguyen75/nba-catch-decisions" target="_blank" rel="noopener">github →</a></span></div>
+<div class="track-body"><h3 class="track-title">A foot of space is worth eight seconds</h3><span class="track-when">oct 2026</span><span class="track-part">part two of two · <span class="track-part-link" data-href="#track-17">← follows 17</span></span><span class="track-desc">Public player tracking from 2015–16 puts the defender before the decision. A foot of space at the catch is worth about eight seconds of shot clock to the league, nearly nine on threes and when trailing, and the defender takes most of it back before the release. Whether shooters are right to want it, the data can't say: three instruments were too weak to value the shots they passed up.</span></div>
+</a>
 </div>
-</div>
-<div class="track track--wrap">
+<a class="track track--wrap" href="tracks/drug-target-network/" data-page="drug-target-network" data-ext-href="https://github.com/cnguyen75/Drug-Target-Interaction-Network" data-ext-label="github →">
 <span class="track-no">19</span>
-<div class="track-body"><h3 class="track-title">Drug–target interaction network</h3><span class="track-when">aug 2025, rebuilt 2026</span><span class="track-desc">A dashboard that turns DrugBank into a network of 7,393 drugs, 2,981 human targets and 18,038 interactions, and suggests new drug–target links with the evidence behind each. For a drug the network has never seen, it ranks real targets above untested ones at 0.85 ROC-AUC, against 0.69 for a structural-similarity baseline; about 0.76 is the fairer figure for a new compound. Rebuilt in 2026 after I found leakage in my own first version.</span><span class="track-ext"><a href="https://github.com/cnguyen75/Drug-Target-Interaction-Network" target="_blank" rel="noopener">github →</a></span></div>
-</div>
-<div class="track track--wrap">
+<div class="track-body"><h3 class="track-title">Drug–target interaction network</h3><span class="track-when">aug 2025, rebuilt 2026</span><span class="track-desc">A dashboard that turns DrugBank into a network of 7,393 drugs, 2,981 human targets and 18,038 interactions, and suggests new drug–target links with the evidence behind each. For a drug the network has never seen, it ranks real targets above untested ones at 0.85 ROC-AUC, against 0.69 for a structural-similarity baseline; about 0.76 is the fairer figure for a new compound. Rebuilt in 2026 after I found leakage in my own first version.</span></div>
+</a>
+<a class="track track--wrap" href="tracks/speech-optimizers/" data-page="speech-optimizers">
 <span class="track-no">20</span>
 <div class="track-body"><h3 class="track-title">Which optimizer trains a speech model best?</h3><span class="track-when">2025, rebuilt 2026</span><span class="track-desc">Five optimizers fine-tune a small text-to-speech model to a new voice, five seeds each. Four could not be told apart within the spread across seeds, L-BFGS was clearly worse, and the standard metrics scored 44% of clips that failed to stop as error-free.</span></div>
-</div>
-<div class="track track--wrap">
+</a>
+<a class="track track--wrap" href="tracks/llm-20-questions/" data-page="llm-20-questions" data-ext-href="https://github.com/cnguyen75/MLProjects" data-ext-label="github →">
 <span class="track-no">21</span>
-<div class="track-body"><h3 class="track-title">LLM 20 Questions</h3><span class="track-when">may to aug 2024</span><span class="track-desc">A two-model agent for Kaggle's LLM 20 Questions competition (2024): one 8-billion-parameter model asks and guesses, another answers, with scripted openings and a fixed list of candidate answers. It finished 495th of 832 teams. Replayed against itself on 12 secret words, it won none, though the secret word was on its list every time; the same agent with a 2025 model won 1 of 12.</span><span class="track-ext"><a href="https://github.com/cnguyen75/MLProjects" target="_blank" rel="noopener">github →</a></span></div>
-</div>
+<div class="track-body"><h3 class="track-title">LLM 20 Questions</h3><span class="track-when">may to aug 2024</span><span class="track-desc">A two-model agent for Kaggle's LLM 20 Questions competition (2024): one 8-billion-parameter model asks and guesses, another answers, with scripted openings and a fixed list of candidate answers. It finished 495th of 832 teams. Replayed against itself on 12 secret words, it won none, though the secret word was on its list every time; the same agent with a 2025 model won 1 of 12.</span></div>
+</a>
 </section>
 
 <section class="lately" id="lately" aria-labelledby="lately-title">

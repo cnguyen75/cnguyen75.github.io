@@ -899,7 +899,8 @@
                 if (isNum(v)) pts.push([x(i), y(v)]);
             });
             // A sparse series (s.points: measurements at some weeks only) and a thin one are 1px
-            // lines, a full series 2px; every series marks every point it has.
+            // lines, a full series 2px; a series marks every point it has unless it says not to
+            // (s.noMarkers: the strength index's split lines).
             if (pts.length > 1)
                 svg.appendChild(
                     polyline(
@@ -908,7 +909,7 @@
                     ),
                 );
             s.values.forEach(function (v, i) {
-                if (isNum(v))
+                if (isNum(v) && !s.noMarkers)
                     points.push({
                         k: k,
                         left: x(i),
@@ -3418,7 +3419,9 @@
                           'How old was the music I played, by ' + (weekly ? 'week' : 'month') + '?',
                           rows.map(function (r) {
                               return {
-                                  label: weekly ? dateText(r.week_start) : monthText(r.month),
+                                  label: weekly
+                                      ? 'week of ' + dateText(r.week_start)
+                                      : monthText(r.month),
                                   value: r.median_release_year,
                               };
                           }),
@@ -5626,6 +5629,7 @@
                         return isNum(by[w.week_start]) ? by[w.week_start] : null;
                     }),
                     thin: true,
+                    noMarkers: true,
                     lifts: list(v.splits[k].lifts),
                 };
             });
@@ -5640,7 +5644,7 @@
             return isNum(w.body_weight);
         }).length;
         var labels = weeks.map(function (w) {
-            return dateText(w.week_start);
+            return 'week of ' + dateText(w.week_start);
         });
         var common = {
             fmt: function (x) {

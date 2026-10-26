@@ -1,0 +1,676 @@
+{
+ "schema": "nba-shot-decisions/1",
+ "about": {
+  "season": "2014-15 regular season (NBA shot logs, Kaggle: dansbecker/nba-shot-logs)",
+  "zones": "distance bands from the course notebook: 0–4, 4–14, 14–22 and 22+ ft",
+  "importance_model": "bce",
+  "content": "aggregates only; no shot-level rows",
+  "commands": [
+   "python scripts/evaluate.py",
+   "python scripts/export_demo.py demo.json"
+  ],
+  "generated": "2026-10-13"
+ },
+ "players": [
+  {
+   "id": "lebron-james",
+   "name": "LeBron James",
+   "attempts": 978,
+   "made": 478,
+   "fg_pct": 0.489,
+   "zones": [
+    {
+     "zone": "restricted_area",
+     "label": "0–4 ft",
+     "attempts": 181,
+     "made": 135,
+     "fg_pct": 0.746,
+     "three_point_attempts": 0,
+     "median_defender_ft": 2.7,
+     "share_of_attempts": 0.185
+    },
+    {
+     "zone": "mid_range",
+     "label": "4–14 ft",
+     "attempts": 321,
+     "made": 164,
+     "fg_pct": 0.511,
+     "three_point_attempts": 0,
+     "median_defender_ft": 2.8,
+     "share_of_attempts": 0.328
+    },
+    {
+     "zone": "long_range",
+     "label": "14–22 ft",
+     "attempts": 187,
+     "made": 81,
+     "fg_pct": 0.433,
+     "three_point_attempts": 1,
+     "median_defender_ft": 4.4,
+     "share_of_attempts": 0.191
+    },
+    {
+     "zone": "deep_three",
+     "label": "22+ ft",
+     "attempts": 289,
+     "made": 98,
+     "fg_pct": 0.339,
+     "three_point_attempts": 251,
+     "median_defender_ft": 4.8,
+     "share_of_attempts": 0.296
+    }
+   ],
+   "importance": {
+    "method": "mean |d score / d input|, normalised to sum to 1; mean and range over 5 training seeds",
+    "values": {
+     "Shot Distance": {
+      "mean": 0.1783,
+      "min": 0.1711,
+      "max": 0.2005
+     },
+     "Defender Distance": {
+      "mean": 0.2991,
+      "min": 0.2654,
+      "max": 0.3308
+     },
+     "Shot Clock": {
+      "mean": 0.0766,
+      "min": 0.0697,
+      "max": 0.0816
+     },
+     "Dribbles": {
+      "mean": 0.037,
+      "min": 0.0326,
+      "max": 0.0409
+     },
+     "Player FG%": {
+      "mean": 0.0284,
+      "min": 0.0251,
+      "max": 0.0327
+     },
+     "Restricted Area": {
+      "mean": 0.062,
+      "min": 0.045,
+      "max": 0.0829
+     },
+     "Mid Range": {
+      "mean": 0.0541,
+      "min": 0.0381,
+      "max": 0.0739
+     },
+     "Long Range": {
+      "mean": 0.0553,
+      "min": 0.0443,
+      "max": 0.0651
+     },
+     "Deep Three": {
+      "mean": 0.0895,
+      "min": 0.0788,
+      "max": 0.0999
+     },
+     "Early Game": {
+      "mean": 0.0384,
+      "min": 0.0277,
+      "max": 0.0586
+     },
+     "Mid Game": {
+      "mean": 0.0408,
+      "min": 0.0259,
+      "max": 0.0652
+     },
+     "Late Game": {
+      "mean": 0.0405,
+      "min": 0.028,
+      "max": 0.064
+     }
+    }
+   },
+   "logistic_regression_coefficients": {
+    "Shot Distance": 0.0034,
+    "Defender Distance": -0.0425,
+    "Shot Clock": 0.0758,
+    "Dribbles": 0.0672,
+    "Player FG%": 0.0004,
+    "Restricted Area": -0.1845,
+    "Mid Range": 0.1117,
+    "Long Range": 0.1808,
+    "Deep Three": -0.1087,
+    "Early Game": -0.0515,
+    "Mid Game": 0.0094,
+    "Late Game": 0.0414
+   },
+   "test": {
+    "majority_class": {
+     "accuracy": 0.7237,
+     "roc_auc": 0.5,
+     "log_loss": null,
+     "top1_within_shot": null,
+     "top1_chance": 0.287
+    },
+    "logistic_regression": {
+     "accuracy": 0.7237,
+     "roc_auc": 0.5441,
+     "log_loss": 0.5882,
+     "top1_within_shot": 0.2875,
+     "top1_chance": 0.287
+    },
+    "model_repo": {
+     "accuracy": 0.7547,
+     "roc_auc": 0.7572,
+     "log_loss": 0.5038,
+     "top1_within_shot": 0.5312,
+     "top1_chance": 0.287
+    },
+    "model_bce": {
+     "accuracy": 0.7409,
+     "roc_auc": 0.7465,
+     "log_loss": 0.5177,
+     "top1_within_shot": 0.5437,
+     "top1_chance": 0.287
+    }
+   },
+   "test_ci95": {
+    "logistic_regression": {
+     "accuracy": [
+      0.7158,
+      0.7302
+     ],
+     "roc_auc": [
+      0.5113,
+      0.5764
+     ],
+     "log_loss": [
+      0.5809,
+      0.5969
+     ],
+     "top1_within_shot": [
+      0.2188,
+      0.3563
+     ]
+    },
+    "model_repo": {
+     "accuracy": [
+      0.7273,
+      0.7824
+     ],
+     "roc_auc": [
+      0.7172,
+      0.7968
+     ],
+     "log_loss": [
+      0.4746,
+      0.5338
+     ],
+     "top1_within_shot": [
+      0.45,
+      0.6062
+     ]
+    },
+    "model_bce": {
+     "accuracy": [
+      0.7215,
+      0.7605
+     ],
+     "roc_auc": [
+      0.7029,
+      0.7878
+     ],
+     "log_loss": [
+      0.4929,
+      0.5449
+     ],
+     "top1_within_shot": [
+      0.4688,
+      0.6188
+     ]
+    },
+    "majority_class": {
+     "accuracy": [
+      0.7168,
+      0.7306
+     ]
+    }
+   }
+  },
+  {
+   "id": "stephen-curry",
+   "name": "Stephen Curry",
+   "attempts": 968,
+   "made": 470,
+   "fg_pct": 0.486,
+   "zones": [
+    {
+     "zone": "restricted_area",
+     "label": "0–4 ft",
+     "attempts": 132,
+     "made": 92,
+     "fg_pct": 0.697,
+     "three_point_attempts": 0,
+     "median_defender_ft": 2.8,
+     "share_of_attempts": 0.136
+    },
+    {
+     "zone": "mid_range",
+     "label": "4–14 ft",
+     "attempts": 206,
+     "made": 114,
+     "fg_pct": 0.553,
+     "three_point_attempts": 1,
+     "median_defender_ft": 2.9,
+     "share_of_attempts": 0.213
+    },
+    {
+     "zone": "long_range",
+     "label": "14–22 ft",
+     "attempts": 145,
+     "made": 68,
+     "fg_pct": 0.469,
+     "three_point_attempts": 6,
+     "median_defender_ft": 4.1,
+     "share_of_attempts": 0.15
+    },
+    {
+     "zone": "deep_three",
+     "label": "22+ ft",
+     "attempts": 485,
+     "made": 196,
+     "fg_pct": 0.404,
+     "three_point_attempts": 449,
+     "median_defender_ft": 5.0,
+     "share_of_attempts": 0.501
+    }
+   ],
+   "importance": {
+    "method": "mean |d score / d input|, normalised to sum to 1; mean and range over 5 training seeds",
+    "values": {
+     "Shot Distance": {
+      "mean": 0.1578,
+      "min": 0.1465,
+      "max": 0.1654
+     },
+     "Defender Distance": {
+      "mean": 0.2101,
+      "min": 0.1805,
+      "max": 0.2367
+     },
+     "Shot Clock": {
+      "mean": 0.0716,
+      "min": 0.0629,
+      "max": 0.08
+     },
+     "Dribbles": {
+      "mean": 0.0618,
+      "min": 0.0559,
+      "max": 0.069
+     },
+     "Player FG%": {
+      "mean": 0.025,
+      "min": 0.0184,
+      "max": 0.034
+     },
+     "Restricted Area": {
+      "mean": 0.0854,
+      "min": 0.0713,
+      "max": 0.1085
+     },
+     "Mid Range": {
+      "mean": 0.0708,
+      "min": 0.0584,
+      "max": 0.0806
+     },
+     "Long Range": {
+      "mean": 0.0953,
+      "min": 0.0811,
+      "max": 0.1057
+     },
+     "Deep Three": {
+      "mean": 0.0923,
+      "min": 0.0744,
+      "max": 0.1104
+     },
+     "Early Game": {
+      "mean": 0.0369,
+      "min": 0.0274,
+      "max": 0.0472
+     },
+     "Mid Game": {
+      "mean": 0.0422,
+      "min": 0.0359,
+      "max": 0.0515
+     },
+     "Late Game": {
+      "mean": 0.0509,
+      "min": 0.0416,
+      "max": 0.0623
+     }
+    }
+   },
+   "logistic_regression_coefficients": {
+    "Shot Distance": 0.1619,
+    "Defender Distance": 0.0077,
+    "Shot Clock": 0.0983,
+    "Dribbles": 0.084,
+    "Player FG%": -0.005,
+    "Restricted Area": -0.0109,
+    "Mid Range": -0.0102,
+    "Long Range": -0.0282,
+    "Deep Three": 0.0484,
+    "Early Game": -0.0221,
+    "Mid Game": 0.0111,
+    "Late Game": 0.0102
+   },
+   "test": {
+    "majority_class": {
+     "accuracy": 0.7227,
+     "roc_auc": 0.5,
+     "log_loss": null,
+     "top1_within_shot": null,
+     "top1_chance": 0.299
+    },
+    "logistic_regression": {
+     "accuracy": 0.7227,
+     "roc_auc": 0.5552,
+     "log_loss": 0.5866,
+     "top1_within_shot": 0.3187,
+     "top1_chance": 0.299
+    },
+    "model_repo": {
+     "accuracy": 0.721,
+     "roc_auc": 0.7037,
+     "log_loss": 0.5354,
+     "top1_within_shot": 0.4625,
+     "top1_chance": 0.299
+    },
+    "model_bce": {
+     "accuracy": 0.7227,
+     "roc_auc": 0.704,
+     "log_loss": 0.538,
+     "top1_within_shot": 0.4875,
+     "top1_chance": 0.299
+    }
+   },
+   "test_ci95": {
+    "logistic_regression": {
+     "accuracy": [
+      0.7143,
+      0.7302
+     ],
+     "roc_auc": [
+      0.5163,
+      0.5916
+     ],
+     "log_loss": [
+      0.5783,
+      0.596
+     ],
+     "top1_within_shot": [
+      0.2437,
+      0.3937
+     ]
+    },
+    "model_repo": {
+     "accuracy": [
+      0.7043,
+      0.7372
+     ],
+     "roc_auc": [
+      0.664,
+      0.7404
+     ],
+     "log_loss": [
+      0.5177,
+      0.5552
+     ],
+     "top1_within_shot": [
+      0.3936,
+      0.5375
+     ]
+    },
+    "model_bce": {
+     "accuracy": [
+      0.7102,
+      0.7347
+     ],
+     "roc_auc": [
+      0.6668,
+      0.7384
+     ],
+     "log_loss": [
+      0.5207,
+      0.5562
+     ],
+     "top1_within_shot": [
+      0.4125,
+      0.5687
+     ]
+    },
+    "majority_class": {
+     "accuracy": [
+      0.7138,
+      0.7297
+     ]
+    }
+   }
+  },
+  {
+   "id": "james-harden",
+   "name": "James Harden",
+   "attempts": 1054,
+   "made": 474,
+   "fg_pct": 0.45,
+   "zones": [
+    {
+     "zone": "restricted_area",
+     "label": "0–4 ft",
+     "attempts": 221,
+     "made": 130,
+     "fg_pct": 0.588,
+     "three_point_attempts": 0,
+     "median_defender_ft": 2.4,
+     "share_of_attempts": 0.21
+    },
+    {
+     "zone": "mid_range",
+     "label": "4–14 ft",
+     "attempts": 248,
+     "made": 121,
+     "fg_pct": 0.488,
+     "three_point_attempts": 1,
+     "median_defender_ft": 2.5,
+     "share_of_attempts": 0.235
+    },
+    {
+     "zone": "long_range",
+     "label": "14–22 ft",
+     "attempts": 171,
+     "made": 67,
+     "fg_pct": 0.392,
+     "three_point_attempts": 2,
+     "median_defender_ft": 3.9,
+     "share_of_attempts": 0.162
+    },
+    {
+     "zone": "deep_three",
+     "label": "22+ ft",
+     "attempts": 414,
+     "made": 156,
+     "fg_pct": 0.377,
+     "three_point_attempts": 403,
+     "median_defender_ft": 4.4,
+     "share_of_attempts": 0.393
+    }
+   ],
+   "importance": {
+    "method": "mean |d score / d input|, normalised to sum to 1; mean and range over 5 training seeds",
+    "values": {
+     "Shot Distance": {
+      "mean": 0.1641,
+      "min": 0.1424,
+      "max": 0.1847
+     },
+     "Defender Distance": {
+      "mean": 0.1963,
+      "min": 0.134,
+      "max": 0.2852
+     },
+     "Shot Clock": {
+      "mean": 0.0508,
+      "min": 0.0361,
+      "max": 0.0622
+     },
+     "Dribbles": {
+      "mean": 0.029,
+      "min": 0.0204,
+      "max": 0.0343
+     },
+     "Player FG%": {
+      "mean": 0.0139,
+      "min": 0.0097,
+      "max": 0.0187
+     },
+     "Restricted Area": {
+      "mean": 0.0968,
+      "min": 0.0715,
+      "max": 0.1339
+     },
+     "Mid Range": {
+      "mean": 0.0877,
+      "min": 0.0709,
+      "max": 0.1207
+     },
+     "Long Range": {
+      "mean": 0.0711,
+      "min": 0.0451,
+      "max": 0.0919
+     },
+     "Deep Three": {
+      "mean": 0.17,
+      "min": 0.1451,
+      "max": 0.2202
+     },
+     "Early Game": {
+      "mean": 0.0343,
+      "min": 0.0268,
+      "max": 0.0477
+     },
+     "Mid Game": {
+      "mean": 0.0413,
+      "min": 0.0334,
+      "max": 0.0489
+     },
+     "Late Game": {
+      "mean": 0.0448,
+      "min": 0.032,
+      "max": 0.0529
+     }
+    }
+   },
+   "logistic_regression_coefficients": {
+    "Shot Distance": -0.5721,
+    "Defender Distance": -0.2267,
+    "Shot Clock": 0.0739,
+    "Dribbles": 0.0821,
+    "Player FG%": -0.0049,
+    "Restricted Area": -0.6872,
+    "Mid Range": -0.5408,
+    "Long Range": 0.4246,
+    "Deep Three": 0.797,
+    "Early Game": -0.0157,
+    "Mid Game": -0.0043,
+    "Late Game": 0.0136
+   },
+   "test": {
+    "majority_class": {
+     "accuracy": 0.7246,
+     "roc_auc": 0.5,
+     "log_loss": null,
+     "top1_within_shot": null,
+     "top1_chance": 0.2906
+    },
+    "logistic_regression": {
+     "accuracy": 0.7246,
+     "roc_auc": 0.5777,
+     "log_loss": 0.5828,
+     "top1_within_shot": 0.2562,
+     "top1_chance": 0.2906
+    },
+    "model_repo": {
+     "accuracy": 0.759,
+     "roc_auc": 0.7836,
+     "log_loss": 0.4814,
+     "top1_within_shot": 0.625,
+     "top1_chance": 0.2906
+    },
+    "model_bce": {
+     "accuracy": 0.7728,
+     "roc_auc": 0.7943,
+     "log_loss": 0.4746,
+     "top1_within_shot": 0.6375,
+     "top1_chance": 0.2906
+    }
+   },
+   "test_ci95": {
+    "logistic_regression": {
+     "accuracy": [
+      0.7163,
+      0.732
+     ],
+     "roc_auc": [
+      0.545,
+      0.612
+     ],
+     "log_loss": [
+      0.5723,
+      0.594
+     ],
+     "top1_within_shot": [
+      0.1875,
+      0.325
+     ]
+    },
+    "model_repo": {
+     "accuracy": [
+      0.7271,
+      0.7891
+     ],
+     "roc_auc": [
+      0.7447,
+      0.8231
+     ],
+     "log_loss": [
+      0.4512,
+      0.5107
+     ],
+     "top1_within_shot": [
+      0.55,
+      0.7
+     ]
+    },
+    "model_bce": {
+     "accuracy": [
+      0.7417,
+      0.8021
+     ],
+     "roc_auc": [
+      0.7544,
+      0.8324
+     ],
+     "log_loss": [
+      0.4441,
+      0.506
+     ],
+     "top1_within_shot": [
+      0.5625,
+      0.7188
+     ]
+    },
+    "majority_class": {
+     "accuracy": [
+      0.7158,
+      0.7324
+     ]
+    }
+   }
+  }
+ ]
+}

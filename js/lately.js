@@ -1695,7 +1695,7 @@
             'div',
             { class: 'axis', 'aria-hidden': 'true' },
             h('span', null, 'week of ' + dateText(weeks[0].start, false)),
-            h('span', null, 'this week'),
+            h('span', null, 'week of ' + dateText(weeks[n - 1].start, false)),
         );
         var figure = h('div', { class: 'chart-body chart-body--tight' }, chart, axis);
         var t = tableToggle(
