@@ -2655,7 +2655,7 @@
             ];
             nums = [medianNum, hrNum, shareNum];
             chart = chartOr(function (c) {
-                var block = c.survivalChart(null, curves, { bands: false, guide: true });
+                var block = c.survivalChart(null, curves, { bands: false });
                 append(block, d.longestLine(v.longest_lived));
                 return block;
             });

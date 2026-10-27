@@ -1145,7 +1145,7 @@ class Drawing(unittest.TestCase):
         (sv,) = blocks(l, "listening.artist_survival")
         self.assertEqual(
             (sv["kmBands"], sv["kmBandsShown"], sv["kmToggle"], sv["kmGuide"]),
-            (2, 0, "show 95% bands", 0),
+            (2, 0, "show 95% bands", 1),
         )
         self.assertEqual(
             sv["chartTitles"],
@@ -1451,15 +1451,15 @@ class Drawing(unittest.TestCase):
         )
         self.assertNotIn("1.62", li["answer"])
         # The panel's chart: the question as its title, "still in rotation" on the y axis, no bands,
-        # one 50% guide
-        # with each curve's crossing point marked and labelled from its median.
+        # one 50% guide with each curve's median marked where it crosses, the medians in the
+        # legend and nothing on the axis row.
         self.assertEqual(
             li["chartTitles"],
             ["Of the artists I start playing, how many am I still playing 24 months later?"],
         )
         self.assertEqual(
             (li["kmYLabel"], li["kmBands"], li["kmGuide"], li["kmCross"]),
-            ("still in rotation", 0, 1, ["catalog 16 mo", "new 12 mo"]),
+            ("still in rotation", 0, 1, ["catalog · median 16 mo", "new · median 12 mo"]),
         )
         self.assertTrue(
             li["answer"].endswith(
@@ -1474,8 +1474,8 @@ class Drawing(unittest.TestCase):
             "pre-sync artists excluded · see the listening page for the version that includes them",
         )
         self.assertEqual(li["kmCurves"], 2)
-        self.assertEqual(li["kmMedians"], len([c for c in sv["curves"] if c["median"] is not None]))
-        self.assertIn("catalog · n = " + str(sv["n"]["catalog"]), d["bodyText"])
+        self.assertEqual(li["kmMedians"], 0)
+        self.assertIn("catalog · n = " + str(sv["n"]["catalog"]) + " · median 16 mo", d["bodyText"])
         self.assertIn(
             "Longest in rotation: "
             + sv["longest_lived"][0]["artist"]

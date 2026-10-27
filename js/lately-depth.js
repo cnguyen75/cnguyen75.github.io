@@ -240,6 +240,11 @@
     }
 
     var uid = 0;
+    // A tick within this share of the scale's span from an end is dropped; it would touch the end.
+    var TICK_CLEARANCE = 0.12;
+    // The label face's width per character, in em, as the line charts' end labels size themselves.
+    var EM_PER_CHAR = 0.62;
+    var TIP_GAP_PX = 6;
     var SHOW_ROWS = 10;
     // A list, table or any repeated group with more than SHOW_ROWS rows shows that many and a
     // "show all N" button that opens the rest in place and closes them again. The rows stay in
@@ -416,6 +421,184 @@
             t,
             after || null,
         );
+    }
+
+    // ---------- axes and hover text, shared by every chart with a continuous scale ----------
+
+    // The round number ({1, 2, 5} times a power of ten) nearest v.
+    function roundNear(v) {
+        var mag = Math.pow(10, Math.floor(Math.log(v) / Math.LN10));
+        return [1, 2, 5, 10]
+            .map(function (m) {
+                return m * mag;
+            })
+            .sort(function (a, b) {
+                return Math.abs(a - v) - Math.abs(b - v);
+            })[0];
+    }
+
+    // A tick's place on a scale, in percent from the top (y) or the left (x).
+    function tickAt(v, lo, hi, fromTop) {
+        var share = hi > lo ? (v - lo) / (hi - lo) : 1;
+        return (fromTop ? 1 - share : share) * 100;
+    }
+
+    // The y ticks of a scale from lo (the bottom) to hi: both ends, and the round value nearest
+    // the middle when it sits clear of them. [{at: percent from the top, text}]
+    function scaleTicks(lo, hi, fmt) {
+        var ticks = [
+            { at: 0, text: fmt(hi) },
+            { at: 100, text: fmt(lo) },
+        ];
+        if (hi <= lo) return ticks;
+        var step = roundNear((hi - lo) / 2);
+        var mid = Math.round((lo + hi) / 2 / step) * step;
+        var clear = (hi - lo) * TICK_CLEARANCE;
+        if (mid - lo > clear && hi - mid > clear)
+            ticks.splice(1, 0, { at: tickAt(mid, lo, hi, true), text: fmt(mid) });
+        return ticks;
+    }
+
+    // The x ticks of a series drawn at even steps: the first label, the middle one and the last.
+    function indexTicks(labels) {
+        var n = labels.length,
+            mid = Math.floor((n - 1) / 2);
+        if (n < 2) return [{ at: 100, text: String(labels[0] || '') }];
+        var ticks = [
+            { at: 0, text: String(labels[0]) },
+            { at: 100, text: String(labels[n - 1]) },
+        ];
+        if (mid > 0) ticks.splice(1, 0, { at: (mid / (n - 1)) * 100, text: String(labels[mid]) });
+        return ticks;
+    }
+
+    function tickSpan(tick, i, ticks, side, centred) {
+        var cls = 'axis-tick';
+        if (!centred && i === 0) cls += ' axis-start';
+        if (!centred && i === ticks.length - 1) cls += ' axis-end';
+        var style = {};
+        style[side] = tick.at + '%';
+        return h('span', { class: cls, style: style }, tick.text);
+    }
+
+    function axisEl(side, ticks, centred, width) {
+        return h(
+            'div',
+            {
+                class: 'axis axis--' + side,
+                'aria-hidden': 'true',
+                style: width ? { width: width } : null,
+            },
+            ticks.map(function (t, i) {
+                return tickSpan(t, i, ticks, side === 'y' ? 'top' : 'left', centred);
+            }),
+        );
+    }
+
+    function axisTitle(side, text) {
+        if (!text) return null;
+        return h('div', { class: 'axis-title axis-title--' + side, 'aria-hidden': 'true' }, text);
+    }
+
+    // Frames a chart with a continuous scale in its axes (DESIGN.md, "Axes"): the y ticks on the
+    // left beside the y title, the x ticks under the plot, both aria-hidden (the chart's own
+    // label and its table carry the numbers). x and y: [{at: percent, text}], y from the top
+    // down. opts.kind names the plot's inset in the stylesheet (line, cols, vol, km, quad);
+    // opts.centred puts the x ticks under column centres instead of flush with the ends;
+    // opts.endWidth is a line chart's end-label column, which the x axis stops short of.
+    function plotGrid(chart, x, y, opts) {
+        opts = opts || {};
+        var yChars = Math.max.apply(
+            null,
+            y
+                .map(function (t) {
+                    return t.text.length;
+                })
+                .concat(1),
+        );
+        var yTicks = y.slice().sort(function (a, b) {
+            return a.at - b.at;
+        });
+        chart.classList.add('plot-area');
+        var frame = h(
+            'div',
+            { class: 'plot-grid' + (opts.kind ? ' plot-grid--' + opts.kind : '') },
+            axisTitle('y', opts.yTitle),
+            axisEl('y', yTicks, false, 'calc(' + yChars * EM_PER_CHAR + 'em + var(--s-6))'),
+            chart,
+            axisEl('x', x, opts.centred),
+            axisTitle('x', opts.xTitle),
+        );
+        if (opts.endWidth) frame.style.setProperty('--end-width', opts.endWidth);
+        return frame;
+    }
+
+    // Hover text (an element's title) shows beside the element, inside its chart and below the
+    // chart's title, in place of the browser's tooltip, which would float wherever the pointer
+    // is. The title moves to data-tip on the first hover: that is what keeps the browser's own
+    // tooltip from showing too, while the DOM a test reads keeps every title until then.
+    // A row in a bar list is display: contents, so its box is the union of its cells'.
+    function boxOf(el) {
+        var own = el.getBoundingClientRect();
+        if (own.width || own.height || !el.children.length) return own;
+        var box = { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity };
+        Array.prototype.forEach.call(el.children, function (c) {
+            var r = c.getBoundingClientRect();
+            box.left = Math.min(box.left, r.left);
+            box.top = Math.min(box.top, r.top);
+            box.right = Math.max(box.right, r.right);
+            box.bottom = Math.max(box.bottom, r.bottom);
+        });
+        box.width = box.right - box.left;
+        box.height = box.bottom - box.top;
+        return box;
+    }
+
+    function placeTip(tip, chart, el, pointerX) {
+        tip.textContent = el.getAttribute('data-tip');
+        chart.appendChild(tip);
+        var box = chart.getBoundingClientRect(),
+            at = boxOf(el),
+            head = chart.querySelector('.chart-head, .chart-title');
+        var minTop = head ? head.getBoundingClientRect().bottom - box.top + TIP_GAP_PX : 0;
+        var w = tip.offsetWidth,
+            tall = tip.offsetHeight,
+            left,
+            top;
+        if (at.width > box.width / 2) {
+            left = pointerX - box.left - w / 2;
+            top = at.bottom - box.top + TIP_GAP_PX;
+            if (top + tall > box.height) top = at.top - box.top - TIP_GAP_PX - tall;
+        } else {
+            left = at.right - box.left + TIP_GAP_PX;
+            if (left + w > box.width) left = at.left - box.left - TIP_GAP_PX - w;
+            top = at.top - box.top + at.height / 2 - tall / 2;
+        }
+        tip.style.left = Math.max(0, Math.min(box.width - w, left)) + 'px';
+        tip.style.top = Math.max(minTop, Math.min(box.height - tall, top)) + 'px';
+    }
+
+    function hoverTarget(e) {
+        var el = e.target && e.target.closest ? e.target.closest('[title], [data-tip]') : null;
+        return el && el.closest('.chart') ? el : null;
+    }
+
+    function installTips() {
+        var tip = h('div', { class: 'chart-tip', 'aria-hidden': 'true' });
+        document.addEventListener('mouseover', function (e) {
+            var el = hoverTarget(e);
+            if (!el) return;
+            if (el.hasAttribute('title')) {
+                el.setAttribute('data-tip', el.getAttribute('title'));
+                el.removeAttribute('title');
+            }
+            placeTip(tip, el.closest('.chart'), el, e.clientX);
+        });
+        document.addEventListener('mouseout', function (e) {
+            var el = hoverTarget(e);
+            if (el && tip.parentNode && !el.contains(e.relatedTarget))
+                tip.parentNode.removeChild(tip);
+        });
     }
 
     // Vertical columns, e.g. months or weekdays. items: {label, value, text, title}
@@ -1715,12 +1898,11 @@
     }
 
     // Kaplan–Meier step curves, catalog against new: months since discovery across, the share
-    // still in rotation up, a shaded 95% band, the median marked with a dropped line and label.
+    // still in rotation up, a shaded 95% band, a 50% guide labelled at its right end with each
+    // curve's median marked where it crosses, and the medians in the legend.
     // curves: [{type, n, median, points: [{months, survival, lower, upper, at_risk}]}]
     // opts.bands: the 95% bands drawn from the start; opts.bandToggle: a "show 95% bands" button,
-    // off by default (the listening page); opts.guide: one horizontal 50% guide with each curve's
-    // crossing point marked and labelled from its median (the main page's panel), in place of
-    // the dropped median lines. The title is the question the chart answers.
+    // off by default (the listening page). The title is the question the chart answers.
     function survivalChart(title, curves, opts) {
         opts = opts || {};
         curves = list(curves).filter(function (c) {
@@ -1751,17 +1933,16 @@
             return (1 - v) * 100;
         }
         var svg = plotSvg();
-        if (opts.guide)
-            svg.appendChild(
-                sv('line', {
-                    class: 'km-guide',
-                    x1: 0,
-                    x2: 100,
-                    y1: 50,
-                    y2: 50,
-                    'vector-effect': 'non-scaling-stroke',
-                }),
-            );
+        svg.appendChild(
+            sv('line', {
+                class: 'km-guide',
+                x1: 0,
+                x2: 100,
+                y1: 50,
+                y2: 50,
+                'vector-effect': 'non-scaling-stroke',
+            }),
+        );
         curves.forEach(function (c, k) {
             var pts = c.points
                 .filter(function (p) {
@@ -1804,52 +1985,45 @@
                 step.push([x(p.months), y(p.survival)]);
             });
             if (step.length > 1) svg.appendChild(polyline(step, cls + ' km-step'));
-            if (isNum(c.median) && !opts.guide) {
-                svg.appendChild(
-                    sv('line', {
-                        class: 'km-median ' + cls,
-                        x1: x(c.median).toFixed(2),
-                        x2: x(c.median).toFixed(2),
-                        y1: 50,
-                        y2: 100,
-                        'vector-effect': 'non-scaling-stroke',
-                    }),
-                );
-            }
         });
-        // The crossing points on the guide (the panel), or each curve's median label on its own
-        // line under the plot, so close medians never overlap.
-        var crossings = opts.guide
-            ? curves
-                  .filter(function (c) {
-                      return isNum(c.median);
-                  })
-                  .map(function (c) {
-                      var k = curves.indexOf(c);
-                      return h('span', {
-                          class: 'km-cross ' + SERIES[k % SERIES.length],
-                          style: { left: x(c.median) + '%', top: '50%' },
-                          title: c.type + ' ' + c.median + ' mo',
-                      });
-                  })
-            : null;
-        var labels = curves
+        function medianText(c) {
+            return c.type + ' · median ' + c.median + ' mo';
+        }
+        var crossings = curves
             .filter(function (c) {
                 return isNum(c.median);
             })
             .map(function (c) {
                 var k = curves.indexOf(c);
-                return h(
-                    'span',
-                    {
-                        class: 'km-median-label ' + SERIES[k % SERIES.length],
-                        style: { left: x(c.median) + '%', top: k * 14 + 'px' },
-                    },
-                    opts.guide
-                        ? c.type + ' ' + c.median + ' mo'
-                        : c.type + ' median ' + c.median + ' mo',
-                );
+                return h('span', {
+                    class: 'km-cross ' + SERIES[k % SERIES.length],
+                    style: { left: x(c.median) + '%', top: '50%' },
+                    title: medianText(c),
+                });
             });
+        var midMonths = roundNear(maxM / 2);
+        var plot = plotGrid(
+            h(
+                'div',
+                { class: 'km-plot' },
+                h(
+                    'div',
+                    { class: 'line-plot' },
+                    svg,
+                    h('span', { class: 'km-guide-label', 'aria-hidden': 'true' }, pct(0.5)),
+                    crossings,
+                ),
+            ),
+            [
+                { at: 0, text: '0' },
+                { at: x(midMonths), text: String(midMonths) },
+                { at: 100, text: String(maxM) },
+            ],
+            [1, 0.5, 0].map(function (v) {
+                return { at: y(v), text: pct(v) };
+            }),
+            { kind: 'km', yTitle: 'still in rotation', xTitle: 'months since first play' },
+        );
         var chart = h(
             'div',
             {
@@ -1879,26 +2053,7 @@
                         })
                         .join('; '),
             },
-            h(
-                'div',
-                { class: 'km-plot' },
-                h('div', { class: 'km-ylabel', 'aria-hidden': 'true' }, 'still in rotation'),
-                h('div', { class: 'line-plot' }, svg, crossings),
-                h(
-                    'div',
-                    { class: 'km-y', 'aria-hidden': 'true' },
-                    [1, 0.5, 0].map(function (v) {
-                        return h('span', { style: { top: y(v) + '%' } }, pct(v));
-                    }),
-                ),
-            ),
-            h('div', { class: 'km-medians', 'aria-hidden': 'true' }, labels),
-            h(
-                'div',
-                { class: 'axis', 'aria-hidden': 'true' },
-                h('span', null, '0 months since first play'),
-                h('span', null, maxM + ' months'),
-            ),
+            plot,
         );
         var months = [];
         curves.forEach(function (c) {
@@ -1921,11 +2076,15 @@
             'p',
             { class: 'legend legend--mono' },
             curves.map(function (c, k) {
-                return legendItem(SERIES[k % SERIES.length], c.type + ' · n = ' + c.n);
+                return legendItem(
+                    SERIES[k % SERIES.length],
+                    c.type +
+                        ' · n = ' +
+                        c.n +
+                        (isNum(c.median) ? ' · median ' + c.median + ' mo' : ''),
+                );
             }),
-            opts.guide
-                ? legendItem('s-base', 'guide: half still playing')
-                : legendItem('s-base', 'dropped line: median'),
+            legendItem('s-cross', 'square: the median, where the curve crosses 50%'),
         );
         var toggle = null;
         if (opts.bandToggle) {
@@ -6570,6 +6729,10 @@
         selectTabs: selectTabs,
         selectTabKey: selectTabKey,
         slug: slug,
+        plotGrid: plotGrid,
+        scaleTicks: scaleTicks,
+        indexTicks: indexTicks,
+        tickAt: tickAt,
         charts: {
             multiLine: multiLine,
             quadrant: quadrant,
@@ -6822,6 +6985,7 @@
             });
     }
 
+    installTips();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
     else start();
 })();

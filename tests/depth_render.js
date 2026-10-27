@@ -359,7 +359,7 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
                     kmBandsShown: [...p.querySelectorAll('.km-band')].filter(
                         (b) => getComputedStyle(b).display !== 'none',
                     ).length,
-                    kmYLabel: txt(p.querySelector('.km-ylabel')),
+                    kmYLabel: txt(p.querySelector('.km .axis-title--y')),
                     chartTitles: [...p.querySelectorAll('.chart-title')].map(txt),
                     quadTrails: p.querySelectorAll('.quad-trail').length,
                     lineCount: p.querySelectorAll('.line-svg polyline').length,
