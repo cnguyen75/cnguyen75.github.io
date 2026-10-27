@@ -5302,7 +5302,7 @@
                             text: String(m.new_cuisines),
                         };
                     }),
-                    { labelHeading: 'Month', valueHeading: 'New cuisines' },
+                    { labelHeading: 'Month', valueHeading: 'New cuisines', fmt: big },
                 );
             },
         },
@@ -5439,7 +5439,11 @@
                                       text: pct(m.median_percentile),
                                   };
                               }),
-                              { labelHeading: 'Month', valueHeading: 'Median percentile' },
+                              {
+                                  labelHeading: 'Month',
+                                  valueHeading: 'Median percentile',
+                                  fmt: pct,
+                              },
                           )
                         : null,
                 ];
