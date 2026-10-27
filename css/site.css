@@ -1478,12 +1478,13 @@ body > img {
 .plot-grid--stack > .axis--y {
     margin-top: var(--s-8);
 }
-/* The retention plot keeps half a median square inside its right edge. */
+/* The retention plot keeps half a median square and its ring inside its right edge; the end
+   tick stays under the data end. */
 .plot-grid--km > .axis--y {
     margin-top: var(--s-4);
 }
 .plot-grid--km > .axis--x {
-    margin-right: var(--s-5);
+    margin-right: var(--s-8);
 }
 
 /* Lists (recently watched, top restaurants) */
@@ -2617,7 +2618,7 @@ body > img {
     position: absolute;
     width: 10px;
     height: 10px;
-    margin: calc(-1 * var(--s-4)) 0 0 calc(-1 * var(--s-4));
+    margin: calc(-1 * var(--s-5)) 0 0 calc(-1 * var(--s-5));
     background: var(--blue);
     box-shadow: 0 0 0 2px var(--card);
 }
@@ -2625,7 +2626,7 @@ body > img {
     background: var(--orange);
 }
 .km-plot .line-plot {
-    inset: var(--s-4) var(--s-5) 0 0;
+    inset: var(--s-4) var(--s-8) 0 0;
 }
 .ld-stacked {
     display: flex;

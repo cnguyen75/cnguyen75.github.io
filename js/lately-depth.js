@@ -249,6 +249,8 @@
     var EM_PER_CHAR = 0.62;
     var END_PAD_EM = 0.4;
     var TIP_GAP_PX = 6;
+    // Two scale values this close are the same tick.
+    var TICK_MATCH = 1e-9;
     var LINE_HEIGHT_PX = 90;
     var QUAD_X_STEP = 0.05;
     var QUAD_Y_STEP = 0.5;
@@ -458,16 +460,24 @@
     // sets one. [{at: percent from the top, text}]
     function scaleTicks(lo, hi, fmt, heightPx) {
         var ticks = [
-            { at: 0, text: fmt(hi) },
-            { at: 100, text: fmt(lo) },
+            { at: 0, value: hi, text: fmt(hi) },
+            { at: 100, value: lo, text: fmt(lo) },
         ];
         if (hi <= lo) return ticks;
         var step = roundNear((hi - lo) / 2);
         var mid = Math.round((lo + hi) / 2 / step) * step;
         var clear = (hi - lo) * (heightPx ? TICK_LINE_PX / heightPx : TICK_CLEARANCE);
         if (mid - lo > clear && hi - mid > clear)
-            ticks.splice(1, 0, { at: tickAt(mid, lo, hi, true), text: fmt(mid) });
+            ticks.splice(1, 0, { at: tickAt(mid, lo, hi, true), value: mid, text: fmt(mid) });
         return ticks;
+    }
+
+    // Whether a tick already shows this value, in which case a reference line at it needs no
+    // label of its own (DESIGN.md, "Axes").
+    function tickShows(ticks, value) {
+        return ticks.some(function (t) {
+            return isNum(t.value) && Math.abs(t.value - value) < TICK_MATCH;
+        });
     }
 
     // The x ticks of a series drawn at even steps: the first label, the middle one and the last.
@@ -1185,6 +1195,7 @@
                     left: x(lastIdx),
                 });
         });
+        var yTicks = scaleTicks(lo, hi, fmt, height);
         var plot = h(
             'div',
             { class: 'line-plot' },
@@ -1196,7 +1207,7 @@
                     style: { left: d.left + '%', top: d.top + '%' },
                 });
             }),
-            isNum(opts.base)
+            isNum(opts.base) && !tickShows(yTicks, opts.base)
                 ? h(
                       'span',
                       {
@@ -1278,7 +1289,7 @@
                         : null,
                 ),
                 indexTicks(labels),
-                scaleTicks(lo, hi, fmt, height),
+                yTicks,
                 { kind: 'line', endWidth: endWidth },
             ),
         );
@@ -2090,6 +2101,9 @@
                 });
             });
         var midMonths = roundNear(maxM / 2);
+        var yTicks = [1, 0.5, 0].map(function (v) {
+            return { at: y(v), value: v, text: pct(v) };
+        });
         var plot = plotGrid(
             h(
                 'div',
@@ -2098,11 +2112,13 @@
                     'div',
                     { class: 'line-plot' },
                     svg,
-                    h(
-                        'span',
-                        { class: 'ref-label', 'aria-hidden': 'true', style: { top: '50%' } },
-                        pct(0.5),
-                    ),
+                    tickShows(yTicks, 0.5)
+                        ? null
+                        : h(
+                              'span',
+                              { class: 'ref-label', 'aria-hidden': 'true', style: { top: '50%' } },
+                              pct(0.5),
+                          ),
                     crossings,
                 ),
             ),
@@ -2111,9 +2127,7 @@
                 { at: x(midMonths), text: String(midMonths) },
                 { at: 100, text: String(maxM) },
             ],
-            [1, 0.5, 0].map(function (v) {
-                return { at: y(v), text: pct(v) };
-            }),
+            yTicks,
             { kind: 'km', yTitle: 'still in rotation', xTitle: 'months since first play' },
         );
         var chart = h(
