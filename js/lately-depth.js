@@ -240,11 +240,19 @@
     }
 
     var uid = 0;
-    // A tick within this share of the scale's span from an end is dropped; it would touch the end.
+    // A tick label's height: a middle tick nearer than this to an end is dropped, it would touch.
+    var TICK_LINE_PX = 18;
+    // The same, as a share of the span, for a plot whose height the stylesheet sets.
     var TICK_CLEARANCE = 0.12;
-    // The label face's width per character, in em, as the line charts' end labels size themselves.
+    // The label face's width per character and the room after it, in em: how a line chart's end
+    // label column and the y ticks size themselves.
     var EM_PER_CHAR = 0.62;
+    var END_PAD_EM = 0.4;
     var TIP_GAP_PX = 6;
+    var LINE_HEIGHT_PX = 90;
+    // A reference line this close to the top of the plot carries its label below the line.
+    var REF_LABEL_BELOW_PCT = 15;
+    var MULTI_LINE_HEIGHT_PX = 120;
     var SHOW_ROWS = 10;
     // A list, table or any repeated group with more than SHOW_ROWS rows shows that many and a
     // "show all N" button that opens the rest in place and closes them again. The rows stay in
@@ -444,8 +452,9 @@
     }
 
     // The y ticks of a scale from lo (the bottom) to hi: both ends, and the round value nearest
-    // the middle when it sits clear of them. [{at: percent from the top, text}]
-    function scaleTicks(lo, hi, fmt) {
+    // the middle when it sits clear of them, judged on the plot's height in px when the caller
+    // sets one. [{at: percent from the top, text}]
+    function scaleTicks(lo, hi, fmt, heightPx) {
         var ticks = [
             { at: 0, text: fmt(hi) },
             { at: 100, text: fmt(lo) },
@@ -453,7 +462,7 @@
         if (hi <= lo) return ticks;
         var step = roundNear((hi - lo) / 2);
         var mid = Math.round((lo + hi) / 2 / step) * step;
-        var clear = (hi - lo) * TICK_CLEARANCE;
+        var clear = (hi - lo) * (heightPx ? TICK_LINE_PX / heightPx : TICK_CLEARANCE);
         if (mid - lo > clear && hi - mid > clear)
             ticks.splice(1, 0, { at: tickAt(mid, lo, hi, true), text: fmt(mid) });
         return ticks;
@@ -472,16 +481,23 @@
         return ticks;
     }
 
-    function tickSpan(tick, i, ticks, side, centred) {
+    // Where column i of n is ticked: the first and last at the plot's ends, the rest under their
+    // centres.
+    function columnAt(i, n) {
+        if (i === 0) return 0;
+        return i === n - 1 ? 100 : ((i + 0.5) / n) * 100;
+    }
+
+    function tickSpan(tick, i, ticks, side) {
         var cls = 'axis-tick';
-        if (!centred && i === 0) cls += ' axis-start';
-        if (!centred && i === ticks.length - 1) cls += ' axis-end';
+        if (i === 0) cls += ' axis-start';
+        if (i === ticks.length - 1) cls += ' axis-end';
         var style = {};
         style[side] = tick.at + '%';
         return h('span', { class: cls, style: style }, tick.text);
     }
 
-    function axisEl(side, ticks, centred, width) {
+    function axisEl(side, ticks, width) {
         return h(
             'div',
             {
@@ -490,7 +506,7 @@
                 style: width ? { width: width } : null,
             },
             ticks.map(function (t, i) {
-                return tickSpan(t, i, ticks, side === 'y' ? 'top' : 'left', centred);
+                return tickSpan(t, i, ticks, side === 'y' ? 'top' : 'left');
             }),
         );
     }
@@ -503,9 +519,9 @@
     // Frames a chart with a continuous scale in its axes (DESIGN.md, "Axes"): the y ticks on the
     // left beside the y title, the x ticks under the plot, both aria-hidden (the chart's own
     // label and its table carry the numbers). x and y: [{at: percent, text}], y from the top
-    // down. opts.kind names the plot's inset in the stylesheet (line, cols, vol, km, quad);
-    // opts.centred puts the x ticks under column centres instead of flush with the ends;
-    // opts.endWidth is a line chart's end-label column, which the x axis stops short of.
+    // down, the first and last flush with the plot's ends. opts.kind names the plot's inset in
+    // the stylesheet (line, cols, vol, km, quad); opts.endWidth is a line chart's end-label
+    // column, which the x axis stops short of.
     function plotGrid(chart, x, y, opts) {
         opts = opts || {};
         var yChars = Math.max.apply(
@@ -524,13 +540,51 @@
             'div',
             { class: 'plot-grid' + (opts.kind ? ' plot-grid--' + opts.kind : '') },
             axisTitle('y', opts.yTitle),
-            axisEl('y', yTicks, false, 'calc(' + yChars * EM_PER_CHAR + 'em + var(--s-6))'),
+            axisEl('y', yTicks, 'calc(' + yChars * EM_PER_CHAR + 'em + var(--s-6))'),
             chart,
-            axisEl('x', x, opts.centred),
+            axisEl('x', x),
             axisTitle('x', opts.xTitle),
         );
         if (opts.endWidth) frame.style.setProperty('--end-width', opts.endWidth);
         return frame;
+    }
+
+    // A middle x tick that would run into an end tick, on a narrow plot with long labels, is
+    // hidden; a tick in a hidden tab has no box and is left alone. Runs after anything is drawn
+    // and on resize.
+    function fitAxis(axis) {
+        var ticks = Array.prototype.slice.call(axis.children);
+        var ends = ticks.filter(function (t) {
+            return /axis-start|axis-end/.test(t.className);
+        });
+        ticks.forEach(function (t) {
+            if (ends.indexOf(t) >= 0) return;
+            t.hidden = false;
+            var box = t.getBoundingClientRect();
+            if (!box.width) return;
+            t.hidden = ends.some(function (e) {
+                var end = e.getBoundingClientRect();
+                return box.left < end.right + TIP_GAP_PX && box.right > end.left - TIP_GAP_PX;
+            });
+        });
+    }
+
+    function fitAxes() {
+        Array.prototype.forEach.call(document.querySelectorAll('.axis--x'), fitAxis);
+    }
+
+    function watchAxes() {
+        var pending = false;
+        function soon() {
+            if (pending) return;
+            pending = true;
+            requestAnimationFrame(function () {
+                pending = false;
+                fitAxes();
+            });
+        }
+        new MutationObserver(soon).observe(document.body, { childList: true, subtree: true });
+        window.addEventListener('resize', soon);
     }
 
     // Hover text (an element's title) shows beside the element, inside its chart and below the
@@ -909,27 +963,11 @@
         svg.appendChild(line);
         var last = points[n - 1],
             first = points[0];
-        var chart = h(
-            'div',
-            {
-                class: 'ld-line',
-                role: 'img',
-                'aria-label':
-                    title +
-                    ', ' +
-                    n +
-                    ' points from ' +
-                    first.label +
-                    ' to ' +
-                    last.label +
-                    ': ' +
-                    fmt(first.value) +
-                    ' to ' +
-                    fmt(last.value),
-            },
+        var endWidth = fmt(last.value).length * EM_PER_CHAR + END_PAD_EM + 'em';
+        var plot = plotGrid(
             h(
                 'div',
-                { class: 'line-chart', style: { height: '90px' } },
+                { class: 'line-chart', style: { height: LINE_HEIGHT_PX + 'px' } },
                 h(
                     'div',
                     { class: 'line-area' },
@@ -950,10 +988,7 @@
                 ),
                 h(
                     'div',
-                    {
-                        class: 'line-end',
-                        style: { width: fmt(last.value).length * 0.62 + 0.4 + 'em' },
-                    },
+                    { class: 'line-end', style: { width: endWidth } },
                     h(
                         'span',
                         {
@@ -964,12 +999,33 @@
                     ),
                 ),
             ),
-            h(
-                'div',
-                { class: 'axis', 'aria-hidden': 'true' },
-                h('span', null, first.label),
-                h('span', null, last.label),
+            indexTicks(
+                points.map(function (p) {
+                    return p.label;
+                }),
             ),
+            scaleTicks(lo, hi, fmt, LINE_HEIGHT_PX),
+            { kind: 'line', endWidth: endWidth },
+        );
+        var chart = h(
+            'div',
+            {
+                class: 'ld-line',
+                role: 'img',
+                'aria-label':
+                    title +
+                    ', ' +
+                    n +
+                    ' points from ' +
+                    first.label +
+                    ' to ' +
+                    last.label +
+                    ': ' +
+                    fmt(first.value) +
+                    ' to ' +
+                    fmt(last.value),
+            },
+            plot,
         );
         return charted(
             title,
@@ -1037,6 +1093,7 @@
     // end. A series' line runs through every point it has, however far apart they are.
     function multiLine(title, labels, series, opts) {
         opts = opts || {};
+        var height = opts.height || MULTI_LINE_HEIGHT_PX;
         var fmt =
             opts.fmt ||
             function (x) {
@@ -1123,6 +1180,19 @@
                     style: { left: d.left + '%', top: d.top + '%' },
                 });
             }),
+            isNum(opts.base)
+                ? h(
+                      'span',
+                      {
+                          class:
+                              'ref-label' +
+                              (y(opts.base) < REF_LABEL_BELOW_PCT ? ' ref-label--below' : ''),
+                          'aria-hidden': 'true',
+                          style: { top: y(opts.base) + '%' },
+                      },
+                      String(opts.base),
+                  )
+                : null,
         );
         // End labels: nudged apart when two sit within 14% of each other.
         ends.sort(function (a, b) {
@@ -1133,14 +1203,20 @@
         var endText = ends.map(function (e) {
             return fmt(e.v);
         });
-        var width = Math.max.apply(
-            null,
-            endText
-                .map(function (t) {
-                    return t.length;
-                })
-                .concat(1),
-        );
+        var endWidth =
+            opts.endLabels === false
+                ? null
+                : Math.max.apply(
+                      null,
+                      endText
+                          .map(function (t) {
+                              return t.length;
+                          })
+                          .concat(1),
+                  ) *
+                      EM_PER_CHAR +
+                  END_PAD_EM +
+                  'em';
         var summary = series
             .map(function (s) {
                 var vals = s.values.filter(isNum);
@@ -1163,32 +1239,31 @@
                     ': ' +
                     summary,
             },
-            h(
-                'div',
-                { class: 'line-chart', style: { height: (opts.height || 120) + 'px' } },
-                h('div', { class: 'line-area' }, plot),
-                opts.endLabels === false
-                    ? null
-                    : h(
-                          'div',
-                          { class: 'line-end', style: { width: width * 0.62 + 0.4 + 'em' } },
-                          ends.map(function (e) {
-                              return h(
-                                  'span',
-                                  {
-                                      class: 'line-end-label ' + SERIES[e.k % SERIES.length],
-                                      style: { top: Math.min(Math.max(e.top, 6), 94) + '%' },
-                                  },
-                                  fmt(e.v),
-                              );
-                          }),
-                      ),
-            ),
-            h(
-                'div',
-                { class: 'axis', 'aria-hidden': 'true' },
-                h('span', null, labels[0]),
-                h('span', null, n > 1 ? labels[n - 1] : ''),
+            plotGrid(
+                h(
+                    'div',
+                    { class: 'line-chart', style: { height: height + 'px' } },
+                    h('div', { class: 'line-area' }, plot),
+                    endWidth
+                        ? h(
+                              'div',
+                              { class: 'line-end', style: { width: endWidth } },
+                              ends.map(function (e) {
+                                  return h(
+                                      'span',
+                                      {
+                                          class: 'line-end-label ' + SERIES[e.k % SERIES.length],
+                                          style: { top: Math.min(Math.max(e.top, 6), 94) + '%' },
+                                      },
+                                      fmt(e.v),
+                                  );
+                              }),
+                          )
+                        : null,
+                ),
+                indexTicks(labels),
+                scaleTicks(lo, hi, fmt, height),
+                { kind: 'line', endWidth: endWidth },
             ),
         );
         var legend =
@@ -2010,7 +2085,11 @@
                     'div',
                     { class: 'line-plot' },
                     svg,
-                    h('span', { class: 'km-guide-label', 'aria-hidden': 'true' }, pct(0.5)),
+                    h(
+                        'span',
+                        { class: 'ref-label', 'aria-hidden': 'true', style: { top: '50%' } },
+                        pct(0.5),
+                    ),
                     crossings,
                 ),
             ),
@@ -6732,6 +6811,7 @@
         plotGrid: plotGrid,
         scaleTicks: scaleTicks,
         indexTicks: indexTicks,
+        columnAt: columnAt,
         tickAt: tickAt,
         charts: {
             multiLine: multiLine,
@@ -6986,6 +7066,7 @@
     }
 
     installTips();
+    watchAxes();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
     else start();
 })();

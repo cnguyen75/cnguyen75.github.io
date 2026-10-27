@@ -1376,6 +1376,7 @@
         'December',
     ];
     var MIN_TREND_SESSIONS = 3; // fewer than this shows "n sessions so far" instead of a line
+    var LIFT_LINE_HEIGHT_PX = 64;
     var EPLEY_NOTE =
         'Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are ' +
         'not comparable with barbell lifts.';
@@ -1421,7 +1422,12 @@
     // first. The line is SVG stretched to the box; dots and the end label are
     // HTML placed in percentages, so they keep their shape at any width.
     // opts: {label (aria), endText, height}; every point is marked.
+    // A line over dated points in its axes: y ticks at the padded ends and a round value between,
+    // x ticks at the first, middle and last dates (js/lately-depth.js draws the frame).
     function lineChart(points, opts) {
+        var d = LD();
+        need(d && d.plotGrid, 'LatelyDepth.plotGrid');
+        var height = opts.height || LIFT_LINE_HEIGHT_PX;
         var xs = points.map(function (p) {
             return dayNumber(p.date);
         });
@@ -1474,32 +1480,42 @@
             );
         });
         var end = Math.min(Math.max(y(points.length - 1), 10), 90);
-        return h(
+        var endWidth = opts.endText.length * 0.62 + 0.4 + 'em';
+        var chart = h(
             'div',
             {
                 class: 'line-chart',
                 role: 'img',
                 'aria-label': opts.label,
-                style: { height: (opts.height || 64) + 'px' },
+                style: { height: height + 'px' },
             },
             h('div', { class: 'line-area' }, plot),
             h(
                 'div',
-                { class: 'line-end', style: { width: opts.endText.length * 0.62 + 0.4 + 'em' } },
+                { class: 'line-end', style: { width: endWidth } },
                 h('span', { class: 'line-end-label', style: { top: end + '%' } }, opts.endText),
             ),
         );
+        return d.plotGrid(
+            chart,
+            dateTicks(points[0].date, points[points.length - 1].date),
+            d.scaleTicks(lo, hi, short, height),
+            { kind: 'line', endWidth: endWidth },
+        );
     }
 
-    function axisDates(first, last) {
+    // The first, middle and last dates of a span; one point alone has its date at the right,
+    // under it.
+    function dateTicks(first, last) {
         var withYear = first.getUTCFullYear() !== last.getUTCFullYear();
-        var same = first.getTime() === last.getTime(); // one point: one date, under it
-        return h(
-            'div',
-            { class: 'axis', 'aria-hidden': 'true' },
-            h('span', null, same ? '' : dateText(first, withYear)),
-            h('span', null, dateText(last, withYear)),
-        );
+        if (first.getTime() === last.getTime())
+            return [{ at: 100, text: dateText(last, withYear) }];
+        var mid = new Date((first.getTime() + last.getTime()) / 2);
+        return [
+            { at: 0, text: dateText(first, withYear) },
+            { at: 50, text: dateText(mid, withYear) },
+            { at: 100, text: dateText(last, withYear) },
+        ];
     }
 
     // ruleSessions: the count the tracked set was chosen on (sessions in the rule's window), when
@@ -1584,7 +1600,6 @@
                         ' on ' +
                         dateText(bestDate, true),
                 }),
-                axisDates(first.date, last.date),
             );
             var t = tableToggle(
                 name + ', estimated one-rep max by session',
@@ -1695,13 +1710,19 @@
                 );
             }),
         );
-        var axis = h(
-            'div',
-            { class: 'axis', 'aria-hidden': 'true' },
-            h('span', null, 'week of ' + dateText(weeks[0].start, false)),
-            h('span', null, 'week of ' + dateText(weeks[n - 1].start, false)),
+        var d = LD();
+        need(d && d.plotGrid, 'LatelyDepth.plotGrid');
+        var ends = [0];
+        if (n > 2) ends.push(Math.floor((n - 1) / 2));
+        if (n > 1) ends.push(n - 1);
+        var figure = d.plotGrid(
+            chart,
+            ends.map(function (i) {
+                return { at: d.columnAt(i, n), text: dateText(weeks[i].start, false) };
+            }),
+            d.scaleTicks(0, max, thousands),
+            { kind: 'vol', xTitle: 'week of' },
         );
-        var figure = h('div', { class: 'chart-body chart-body--tight' }, chart, axis);
         var t = tableToggle(
             'Sessions and volume per week, last ' + n + ' weeks',
             [
@@ -1944,7 +1965,6 @@
                         })
                         .join('; '),
             }),
-            axisDates(first.date, last.date),
         );
         var t = tableToggle(
             'Body weight measurements',

@@ -124,7 +124,7 @@ Every chart on the site, on the main page, the five lately pages and the track p
 
 **Lines.** A line connects every point and marks each one with a square (`.line-dot`, the last one larger). Bands and trails are off by default. A lately page may offer a control to show them (the retention chart's bands, the quadrant's "show trail"); the main page never does.
 
-**Axes.** A bar list carries its value labels and has no axis, except a zero line when any value is negative. Every chart with a continuous scale (a line, a retention curve, the quadrant, columns over time) has both axes: ticks at each end and at one or two round values between, the y ticks on the left beside the y title, the x ticks under the plot, all `.axis` at `--fs-11`. A reference line is labelled on the line at its right end. A marker such as a median is explained in the legend, never on the axis row.
+**Axes.** A bar list carries its value labels and has no axis, except a zero line when any value is negative. Every chart with a continuous scale (a line, a retention curve, the quadrant, columns over time) has both axes: ticks at each end and at one or two round values between, the y ticks on the left beside the y title, the x ticks under the plot, all `.axis` at `--fs-11`. A reference line is labelled on the line at its right end (`.ref-label`). A marker such as a median is explained in the legend, never on the axis row.
 
 **Stat tiles.** At most three on a main-page panel. On a lately page, one headline figure per section: the first value in the section (or the first in each tab panel, when the section is only tabs) keeps its size, and every other value is a one-line mono fact (`.ld-value--line`: number, unit, interval).
 

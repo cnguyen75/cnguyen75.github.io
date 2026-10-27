@@ -2614,15 +2614,19 @@ body > img {
     height: 150px;
     border-bottom: 1px solid var(--axis);
 }
-.km-guide-label {
+/* A reference line's label, on the line at its right end (the 50% guide, the 100 base). */
+.ref-label {
     position: absolute;
     right: 0;
-    top: 50%;
     transform: translateY(-100%);
     padding-bottom: var(--s-6);
     font-family: var(--font-label);
     font-size: var(--fs-11);
     color: var(--text-3);
+}
+.ref-label--below {
+    transform: none;
+    padding: var(--s-6) 0 0;
 }
 .km-band {
     stroke: none;
