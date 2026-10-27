@@ -250,6 +250,8 @@
     var END_PAD_EM = 0.4;
     var TIP_GAP_PX = 6;
     var LINE_HEIGHT_PX = 90;
+    var QUAD_X_STEP = 0.05;
+    var QUAD_Y_STEP = 0.5;
     // A reference line this close to the top of the plot carries its label below the line.
     var REF_LABEL_BELOW_PCT = 15;
     var MULTI_LINE_HEIGHT_PX = 120;
@@ -1342,10 +1344,13 @@
                 if (isObj(p) && isNum(p.luck)) ys.push(Math.abs(p.luck));
             });
         });
-        // 0.25 to 0.75 is shown; the range widens only when a team sits outside it.
+        // 0.25 to 0.75 is shown; the range widens, in 5% steps, only when a team sits outside it.
         var x0 = Math.min(0.25, Math.min.apply(null, xs.concat(0.25)) - 0.03),
             x1 = Math.max(0.75, Math.max.apply(null, xs.concat(0.75)) + 0.03);
+        x0 = Math.max(0, Math.floor(x0 / QUAD_X_STEP) * QUAD_X_STEP);
+        x1 = Math.min(1, Math.ceil(x1 / QUAD_X_STEP) * QUAD_X_STEP);
         var yMax = Math.max(1.5, Math.max.apply(null, ys.concat(0)) + 0.4);
+        yMax = Math.ceil(yMax / QUAD_Y_STEP) * QUAD_Y_STEP;
         function x(a) {
             return ((a - x0) / (x1 - x0)) * 100;
         }
@@ -1483,7 +1488,7 @@
         var chart = h(
             'div',
             {
-                class: 'quad',
+                class: 'quad-frame',
                 role: 'img',
                 'aria-label':
                     'Strength against luck, week ' +
@@ -1505,15 +1510,15 @@
                     others.length +
                     ' other teams as unlabelled points',
             },
-            h('div', { class: 'quad-y', 'aria-hidden': 'true' }, 'wins above expected ↑'),
-            plot,
-            h(
-                'div',
-                { class: 'quad-x', 'aria-hidden': 'true' },
-                [0.25, 0.5, 0.75].map(function (a) {
-                    return h('span', { style: { left: x(a) + '%' } }, pct(a));
+            plotGrid(
+                plot,
+                [x0, 0.5, x1].map(function (a) {
+                    return { at: x(a), text: pct(a) };
                 }),
-                h('span', { class: 'quad-x-label' }, 'all-play win share →'),
+                [yMax, 0, -yMax].map(function (l) {
+                    return { at: y(l), text: signed(l) };
+                }),
+                { kind: 'quad', yTitle: 'wins above expected ↑', xTitle: 'all-play win share →' },
             ),
         );
         var rows = mine
@@ -2417,7 +2422,11 @@
                     text: num(w.bench_points, 1),
                 };
             }),
-            { labelHeading: 'Week', valueHeading: 'Points on the bench' },
+            {
+                labelHeading: 'Week',
+                valueHeading: 'Points on the bench',
+                fmt: num,
+            },
         );
     }
 
