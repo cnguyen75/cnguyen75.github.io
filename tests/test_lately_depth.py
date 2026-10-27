@@ -1155,6 +1155,30 @@ class Drawing(unittest.TestCase):
         two = draw("lately/listening/", name="two genre months")
         self.assertIn("genres-by-month", two["hiddenSections"])
 
+    # Every chart with a continuous scale sits in its axes (DESIGN.md, "Axes"): lines, retention
+    # curves, the quadrant and the crowd plot, and columns over time or hours; columns over
+    # weekdays or decades are a bar list and carry none.
+    def test_axes_on_continuous_charts(self) -> None:
+        over_time = re.compile(
+            r"each (week|month)|by (week|month)|the year|hours do I|of each month"
+        )
+        kinds = set()
+        for page in (
+            "index.html",
+            "lately/listening/",
+            "lately/watching/",
+            "lately/lifting/",
+            "lately/fantasy/",
+            "lately/eating/",
+        ):
+            for plot in draw(page)["plots"]:
+                if plot["kind"] == "ld-cols" and not over_time.search(plot["title"]):
+                    self.assertFalse(plot["x"] or plot["y"], (page, plot))
+                    continue
+                self.assertTrue(plot["x"] and plot["y"], (page, plot))
+                kinds.add(plot["kind"])
+        self.assertLessEqual({"line-chart", "km-plot", "quad-plot", "vol-chart", "ld-cols"}, kinds)
+
     # Eating: "Recently tried" in alphabetical order without cities, so it carries no dates;
     # the home city is never named (it's "my most-ranked city").
     def test_eating_places(self) -> None:

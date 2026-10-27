@@ -407,6 +407,18 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
                 titles: [...document.querySelectorAll('[title]')].map((e) =>
                     e.getAttribute('title'),
                 ),
+                // Every plot that could carry axes, with its chart's title and whether its frame
+                // has x and y ticks.
+                plots: [
+                    ...document.querySelectorAll(
+                        '.line-chart, .km-plot, .quad-plot, .vol-chart, .stack-chart, .ld-cols',
+                    ),
+                ].map((e) => ({
+                    kind: e.classList[0],
+                    title: txt(e.closest('.chart').querySelector('.chart-title')),
+                    x: !!e.parentElement.querySelector(':scope > .axis.axis--x .axis-tick'),
+                    y: !!e.parentElement.querySelector(':scope > .axis.axis--y .axis-tick'),
+                })),
             };
         });
         facts.errors = errors;
