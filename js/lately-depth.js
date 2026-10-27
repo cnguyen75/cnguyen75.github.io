@@ -655,7 +655,9 @@
         });
     }
 
-    // Vertical columns, e.g. months or weekdays. items: {label, value, text, title}
+    // Vertical columns, e.g. months or weekdays. items: {label, value, text, title}. opts.fmt
+    // marks a chart over time (or another continuous scale): it is framed in its axes, the y ticks
+    // in that format, the x ticks the first, middle and last labels in place of one per column.
     function columns(title, items, opts) {
         opts = opts || {};
         var max = Math.max.apply(
@@ -666,6 +668,7 @@
                 })
                 .concat(0),
         );
+        var n = items.length;
         var chart = h(
             'div',
             {
@@ -681,7 +684,7 @@
                         .join('; '),
                 style: { gridTemplateColumns: 'repeat(' + items.length + ', minmax(0, 1fr))' },
             },
-            items.map(function (i, k) {
+            items.map(function (i) {
                 return h(
                     'div',
                     { class: 'ld-col', title: (i.title || i.label) + ': ' + i.text },
@@ -695,14 +698,25 @@
                                     : '0',
                         },
                     }),
-                    h(
-                        'span',
-                        { class: 'ld-col-label', 'aria-hidden': 'true' },
-                        opts.every && k % opts.every ? '' : i.label,
-                    ),
+                    opts.fmt
+                        ? null
+                        : h('span', { class: 'ld-col-label', 'aria-hidden': 'true' }, i.label),
                 );
             }),
         );
+        if (opts.fmt) {
+            var ends = [0];
+            if (n > 2) ends.push(Math.round((n - 1) / 2));
+            if (n > 1) ends.push(n - 1);
+            chart = plotGrid(
+                chart,
+                ends.map(function (k) {
+                    return { at: ((k + 0.5) / n) * 100, text: items[k].label };
+                }),
+                scaleTicks(0, max, opts.fmt),
+                { kind: 'cols', centred: true },
+            );
+        }
         return charted(
             title,
             chart,
@@ -3232,7 +3246,7 @@
                             text: pct(m.share),
                         };
                     }),
-                    { labelHeading: 'Month', valueHeading: 'Share by new artists' },
+                    { labelHeading: 'Month', valueHeading: 'Share by new artists', fmt: pct },
                 );
             },
         },
@@ -3259,7 +3273,7 @@
                                 text: pct(m.top_five_share),
                             };
                         }),
-                        { labelHeading: 'Month', valueHeading: "Top five's share" },
+                        { labelHeading: 'Month', valueHeading: "Top five's share", fmt: pct },
                     ),
                     isObj(d)
                         ? facts([
@@ -3463,7 +3477,7 @@
                                       text: big(c),
                                   };
                               }),
-                              { labelHeading: 'Hour', valueHeading: 'Plays', every: 6 },
+                              { labelHeading: 'Hour', valueHeading: 'Plays', fmt: big },
                           )
                         : null,
                 ];
@@ -3638,6 +3652,7 @@
                           {
                               labelHeading: weekly ? 'Week of' : 'Month',
                               valueHeading: 'Effective artists',
+                              fmt: num,
                           },
                       )
                     : null;

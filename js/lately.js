@@ -1713,7 +1713,7 @@
         var d = LD();
         need(d && d.plotGrid, 'LatelyDepth.plotGrid');
         var ends = [0];
-        if (n > 2) ends.push(Math.floor((n - 1) / 2));
+        if (n > 2) ends.push(Math.round((n - 1) / 2));
         if (n > 1) ends.push(n - 1);
         var figure = d.plotGrid(
             chart,
