@@ -840,6 +840,17 @@ def inline_text(s: str) -> str:
     return s
 
 
+def bar_fill_position(value: float, zero: float, span: float) -> str:
+    """A bar's data-width (and data-left when the list has a zero line) as attributes, in
+    percent of the track; js/track.js applies them, as the page's policy allows no style
+    attributes. A negative bar grows left from the zero line."""
+    width = abs(value) / span * 100
+    if zero == 0:
+        return f'data-width="{width:.1f}"'
+    left = zero - width if value < 0 else zero
+    return f'data-left="{left:.1f}" data-width="{width:.1f}"'
+
+
 def words(s: str) -> int:
     return len(re.findall(r"[\w’'–-]+", re.sub(r"<[^>]+>", " ", s)))
 
@@ -1490,14 +1501,18 @@ class Page:
                     vals.append(float(c[1]))
                 except (IndexError, ValueError):
                     raise ContentError(f"::: bars row {c!r} needs label | number")
-            top = max(vals + [0]) or 1
+            low = min(vals + [0])
+            span = (max(vals + [0]) - low) or 1
+            zero = -low / span * 100
+            zero_html = f'<span class="bar-zero" data-left="{zero:.1f}"></span>' if low < 0 else ""
+            negatives = [v < 0 or (len(c) > 2 and c[2] == "orange") for c, v in zip(cells, vals)]
             rows_html = "".join(
-                f'<div class="bar{" bar--neg" if len(c) > 2 and c[2] == "orange" else ""}"><span '
-                f'class="bar-label">{inline(c[0])}</span>'
-                f'<span class="bar-track"><span class="bar-fill" '
-                f'data-width="{v / top * 100:.1f}"></span></span>'
+                f'<div class="bar{" bar--neg" if negative else ""}">'
+                f'<span class="bar-label">{inline(c[0])}</span>'
+                f'<span class="bar-track">{zero_html}<span class="bar-fill" '
+                f"{bar_fill_position(v, zero, span)}></span></span>"
                 f'<span class="bar-value">{esc(c[1])}</span></div>'
-                for c, v in zip(cells, vals)
+                for c, v, negative in zip(cells, vals, negatives)
             )
             summary = "; ".join(f"{c[0]} {c[1]}" for c in cells)
             return (

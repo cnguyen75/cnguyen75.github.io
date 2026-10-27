@@ -716,6 +716,16 @@ class Progress(unittest.TestCase):
         )
         self.assertNotIn("<details", doc)
 
+    def test_bars_with_a_negative_get_a_zero_line(self) -> None:
+        doc = self.render(sections={"results": "::: bars Change by arm\nA | 3\nB | -2\n:::"})
+        self.assertIn('<span class="bar-zero" data-left="40.0"></span>', doc)
+        self.assertIn('<div class="bar bar--neg"><span class="bar-label">B</span>', doc)
+        self.assertIn('<span class="bar-fill" data-left="0.0" data-width="40.0">', doc)
+        self.assertIn('<span class="bar-fill" data-left="40.0" data-width="60.0">', doc)
+        plain = self.render(sections={"results": "::: bars Counts\nA | 3\nB | 2\n:::"})
+        self.assertNotIn("bar-zero", plain)
+        self.assertIn('<span class="bar-fill" data-width="66.7">', plain)
+
     # DEMO: takes one or more data files; the first is data-src, the rest data-more.
     def test_demo_files(self) -> None:
         assets = self.dir / "demo-page"

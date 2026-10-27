@@ -42,6 +42,9 @@
     [].forEach.call(document.querySelectorAll('[data-width]'), function (el) {
         el.style.width = el.getAttribute('data-width') + '%';
     });
+    [].forEach.call(document.querySelectorAll('[data-left]'), function (el) {
+        el.style.left = el.getAttribute('data-left') + '%';
+    });
     if (!sections.length || !segs.length) return;
 
     // ---------- timeline ----------
