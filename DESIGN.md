@@ -118,7 +118,7 @@ Every chart on the site, on the main page, the five lately pages and the track p
 
 **Geometry.** Bars and tracks are 8px tall with square ends. Chips, controls, swatches, markers and heat cells are square. No rounded corners anywhere: `border-radius` does not appear in the stylesheets.
 
-**Type.** Ticks, value labels and legends are the label face at `--fs-11` (`.bar-value`, `.axis`, `.legend`, `.ld-col-value`, `.vol-count`, `.line-end-label`, `.meter-value`, the quadrant's tick labels). Axis titles are `--fs-13` (`.axis-title`, `.quad-x-label`, `.quad-y`). The chart title is the text face, bold, `--fs-15`, the same on every page, and is phrased as the question the chart answers ("Who is carrying my teams, in points above replacement per game?", not "Points above replacement").
+**Type.** Ticks, value labels and legends are the label face at `--fs-11` (`.bar-value`, `.axis`, `.legend`, `.ld-col-value`, `.vol-count`, `.line-end-label`, `.meter-value`, the quadrant's tick labels). Axis titles are `--fs-13` (`.axis-title`). The chart title is the text face, bold, `--fs-15`, the same on every page, and is phrased as the question the chart answers ("Who is carrying my teams, in points above replacement per game?", not "Points above replacement").
 
 **Numbers.** A true minus sign (U+2212), never a hyphen. Thousands separators from 1,000 up. Decimals as the pipeline gives them, or the statistic's stated precision. Percentages are whole numbers; a share under 10 points keeps one decimal, where it tells 4% from 4.9%.
 

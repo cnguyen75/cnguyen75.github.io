@@ -659,7 +659,7 @@
             return a + b;
         }, 0);
         var maxTotal = Math.max.apply(null, totals.concat(1));
-        var pxPerHour = Math.min(14, 142 / maxTotal); // 150px plot, minus the 2px gaps
+        var pxPerHour = Math.min(14, (STACK_HEIGHT_PX - STACK_TOP_PX) / maxTotal);
         function weekText(wk, i) {
             return (
                 'Week ' +
@@ -703,13 +703,24 @@
                 );
             }),
         );
-        var axis = h(
-            'div',
-            { class: 'axis', 'aria-hidden': 'true' },
-            h('span', null, n + ' weeks ago'),
-            h('span', null, 'this week'),
+        var d = LD();
+        need(d && d.plotGrid, 'LatelyDepth.plotGrid');
+        var ends = [0];
+        if (n > 2) ends.push(Math.round((n - 1) / 2));
+        if (n > 1) ends.push(n - 1);
+        var figure = d.plotGrid(
+            chart,
+            ends.map(function (i) {
+                var ago = n - 1 - i;
+                return {
+                    at: ((i + 0.5) / n) * 100,
+                    text: ago === 0 ? 'this week' : plural(ago, 'week ago', 'weeks ago'),
+                };
+            }),
+            d.scaleTicks(0, (STACK_HEIGHT_PX - STACK_TOP_PX) / pxPerHour, short),
+            { kind: 'stack' },
+            { centred: true },
         );
-        var figure = h('div', { class: 'chart-body' }, chart, axis);
         var t = tableToggle(
             'Hours watched per week, last ' + n + ' weeks',
             [
@@ -1377,6 +1388,8 @@
     ];
     var MIN_TREND_SESSIONS = 3; // fewer than this shows "n sessions so far" instead of a line
     var LIFT_LINE_HEIGHT_PX = 64;
+    var STACK_HEIGHT_PX = 150; // .stack-chart in the stylesheet
+    var STACK_TOP_PX = 8; // the tallest stack stops this short of the top, for the top tick
     var EPLEY_NOTE =
         'Estimated with the Epley formula from sets of 1 to 10 reps. Machine and cable lifts are ' +
         'not comparable with barbell lifts.';

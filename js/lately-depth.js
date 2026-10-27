@@ -1713,8 +1713,9 @@
         var xs = pts.concat(marks).map(function (p) {
             return p.community;
         });
-        var x0 = Math.min.apply(null, xs.concat(10)) - 0.2,
-            x1 = Math.max.apply(null, xs.concat(0)) + 0.2;
+        // Whole scores at the ends, with room past the outermost titles.
+        var x0 = Math.floor(Math.min.apply(null, xs.concat(10)) - 0.2),
+            x1 = Math.ceil(Math.max.apply(null, xs.concat(0)) + 0.2);
         function x(c) {
             return ((c - x0) / (x1 - x0)) * 100;
         }
@@ -1777,12 +1778,11 @@
                 );
             }),
         );
-        var ticks = [];
-        for (var t = Math.ceil(x0); t <= Math.floor(x1); t++) ticks.push(t);
+        var ticks = [x0, Math.round((x0 + x1) / 2), x1];
         var chart = h(
             'div',
             {
-                class: 'quad',
+                class: 'quad-frame',
                 role: 'img',
                 'aria-label':
                     'Community score against my tier for ' +
@@ -1790,21 +1790,15 @@
                     '; the largest disagreements: ' +
                     marks.map(hover).join('; '),
             },
-            h(
-                'div',
-                { class: 'quad-y crowd-y', 'aria-hidden': 'true' },
-                TIER_ORDER.map(function (t, k) {
-                    return h('span', { style: { top: 90 - k * 20 + '%' } }, t);
-                }),
-            ),
-            plot,
-            h(
-                'div',
-                { class: 'quad-x', 'aria-hidden': 'true' },
+            plotGrid(
+                plot,
                 ticks.map(function (t) {
-                    return h('span', { style: { left: x(t) + '%' } }, String(t));
+                    return { at: x(t), text: String(t) };
                 }),
-                h('span', { class: 'quad-x-label' }, 'Simkl community score →'),
+                TIER_ORDER.map(function (t, k) {
+                    return { at: 90 - k * 20, text: t };
+                }),
+                { kind: 'quad', xTitle: 'Simkl community score →' },
             ),
         );
         var key = marks.length
@@ -5006,7 +5000,11 @@
                             text: num(y.mean_tier_score, 1),
                         };
                     }),
-                    { labelHeading: 'Year', valueHeading: 'Mean tier score' },
+                    {
+                        labelHeading: 'Year',
+                        valueHeading: 'Mean tier score',
+                        fmt: num,
+                    },
                 );
             },
         },

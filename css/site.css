@@ -1475,6 +1475,9 @@ body > img {
 .plot-grid--vol > .axis--y {
     margin-top: 15px;
 }
+.plot-grid--stack > .axis--y {
+    margin-top: var(--s-8);
+}
 /* The retention plot keeps half a median square inside its right edge. */
 .plot-grid--km > .axis--y {
     margin-top: var(--s-4);
@@ -2360,20 +2363,6 @@ body > img {
 }
 
 /* Strength against luck: other teams grey and unlabelled, mine blue with labels and trails */
-.quad {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--s-4) var(--s-8);
-}
-.quad-y {
-    grid-row: 1;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    align-self: center;
-    font-family: var(--font-label);
-    font-size: var(--fs-13);
-    color: var(--text-3);
-}
 .quad-plot {
     position: relative;
     height: 320px;
@@ -2468,24 +2457,6 @@ body > img {
 .quad-corner--br {
     right: 0;
     bottom: 0;
-}
-.quad-x {
-    grid-column: 2;
-    position: relative;
-    height: 38px;
-    font-family: var(--font-label);
-    font-size: var(--fs-11);
-    color: var(--text-3);
-}
-.quad-x > span {
-    position: absolute;
-    top: 0;
-    transform: translateX(-50%);
-}
-.quad-x > .quad-x-label {
-    left: 50%;
-    top: 18px;
-    font-size: var(--fs-13);
 }
 /* Tier bars: the fixed D..S scale under the bars */
 .bars--tier .axis-ticks {
@@ -2676,21 +2647,6 @@ body > img {
 /* The crowd plot: five tier rows, the community score across */
 .crowd-plot {
     height: 300px;
-}
-.crowd-y {
-    position: relative;
-    align-self: stretch;
-    writing-mode: horizontal-tb;
-    transform: none;
-    width: 1.2em;
-    font-family: var(--font-label);
-    font-size: var(--fs-11);
-    color: var(--text-3);
-}
-.crowd-y > span {
-    position: absolute;
-    left: 0;
-    transform: translateY(-50%);
 }
 .ld-attributions,
 #lately-attributions {
