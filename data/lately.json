@@ -1,46 +1,46 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-03T05:50:39Z",
+  "generated_at": "2026-11-03T06:00:26Z",
   "sources": {
     "sleeper": {
       "label": "sleeper",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-03T05:45:32Z",
-      "last_ok_at": "2026-11-03T05:45:32Z"
+      "updated_at": "2026-11-03T06:00:26Z",
+      "last_ok_at": "2026-11-03T06:00:26Z"
     },
     "espn": {
       "label": "espn",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-03T05:45:32Z",
-      "last_ok_at": "2026-11-03T05:45:32Z"
+      "updated_at": "2026-11-03T06:00:26Z",
+      "last_ok_at": "2026-11-03T06:00:26Z"
     },
     "yahoo": {
       "label": "yahoo",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-03T05:50:39Z",
-      "last_ok_at": "2026-11-03T05:50:39Z"
+      "updated_at": "2026-11-03T06:00:26Z",
+      "last_ok_at": "2026-11-03T06:00:26Z"
     },
     "simkl": {
       "label": "simkl",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-02T23:10:09Z",
-      "last_ok_at": "2026-11-02T23:10:09Z"
+      "updated_at": "2026-11-03T06:00:26Z",
+      "last_ok_at": "2026-11-03T06:00:26Z"
     },
     "lastfm": {
       "label": "last.fm",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-02T23:10:09Z",
-      "last_ok_at": "2026-11-02T23:10:09Z"
+      "updated_at": "2026-11-03T06:00:26Z",
+      "last_ok_at": "2026-11-03T06:00:26Z"
     },
     "beli": {
       "label": "beli",
@@ -372,33 +372,33 @@
       },
       {
         "films": 0.0,
-        "shows": 0.0,
-        "anime": 0.0
+        "shows": 7.1,
+        "anime": 0.4
       }
     ],
     "recent": [
-      {
-        "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
-        "type": "anime",
-        "season": null,
-        "rating": null,
-        "url": "https://simkl.com/anime/2671730/bleach-sennen-kessen-hen---kashin-tan",
-        "status": "watched"
-      },
-      {
-        "title": "Severance",
-        "type": "show",
-        "season": 1,
-        "rating": null,
-        "url": "https://simkl.com/tv/1203662/severance",
-        "status": "watched"
-      },
       {
         "title": "Kusuriya no Hitorigoto",
         "type": "anime",
         "season": null,
         "rating": null,
         "url": "https://simkl.com/anime/2830472/kusuriya-no-hitorigoto",
+        "status": "watched"
+      },
+      {
+        "title": "Severance",
+        "type": "show",
+        "season": 2,
+        "rating": null,
+        "url": "https://simkl.com/tv/1203662/severance",
+        "status": "watched"
+      },
+      {
+        "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
+        "type": "anime",
+        "season": null,
+        "rating": null,
+        "url": "https://simkl.com/anime/2671730/bleach-sennen-kessen-hen---kashin-tan",
         "status": "watched"
       },
       {
@@ -444,25 +444,25 @@
     ],
     "currently_watching": [
       {
+        "title": "Kusuriya no Hitorigoto",
+        "type": "anime",
+        "season": 1,
+        "episode": 5,
+        "url": "https://simkl.com/anime/2830472/kusuriya-no-hitorigoto"
+      },
+      {
+        "title": "Severance",
+        "type": "show",
+        "season": 2,
+        "episode": 9,
+        "url": "https://simkl.com/tv/1203662/severance"
+      },
+      {
         "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
         "type": "anime",
         "season": 1,
         "episode": 10,
         "url": "https://simkl.com/anime/2671730/bleach-sennen-kessen-hen---kashin-tan"
-      },
-      {
-        "title": "Severance",
-        "type": "show",
-        "season": 1,
-        "episode": 4,
-        "url": "https://simkl.com/tv/1203662/severance"
-      },
-      {
-        "title": "Kusuriya no Hitorigoto",
-        "type": "anime",
-        "season": 1,
-        "episode": 4,
-        "url": "https://simkl.com/anime/2830472/kusuriya-no-hitorigoto"
       },
       {
         "title": "One Piece",
@@ -640,11 +640,11 @@
   },
   "listening": {
     "source": "lastfm",
-    "plays_this_month": 1,
+    "plays_this_month": 28,
     "top_artists": [
       {
         "name": "Kanye West",
-        "plays": 70
+        "plays": 72
       },
       {
         "name": "Kendrick Lamar",
@@ -680,11 +680,11 @@
       35,
       19,
       42,
-      59,
-      62,
+      70,
+      71,
       106,
-      54,
-      69,
+      58,
+      72,
       55,
       5,
       6
@@ -10444,7 +10444,7 @@
       }
     },
     "listening": {
-      "plays": 719,
+      "plays": 746,
       "album_half_life": {
         "status": "not enough data yet",
         "n": 0,
@@ -10480,7 +10480,7 @@
         "as_of": "2026-11-02",
         "how": "Each month (with at least 50 plays) the five most-played artists' share of plays, the same by ISO week while the archive is young (every week with a play, with its play count); and the most plays of one track in one day; the value is the latest week's share.",
         "small_sample": false,
-        "value": 0.292,
+        "value": 0.304,
         "values": {
           "months": [
             {
@@ -10507,15 +10507,15 @@
             },
             {
               "week_start": "2026-10-26",
-              "top_five_share": 0.292,
-              "plays": 144
+              "top_five_share": 0.304,
+              "plays": 171
             }
           ],
           "most_in_a_day": {
-            "artist": "Bruno Mars",
-            "track": "Too Good to Say Goodbye",
-            "plays": 2,
-            "date": "2026-10-11"
+            "artist": "Baby Keem",
+            "track": "STATS",
+            "plays": 3,
+            "date": "2026-11-01"
           }
         }
       },
@@ -10710,18 +10710,18 @@
               15,
               4,
               8,
+              20,
               9,
-              0,
               10,
-              13,
-              19,
+              17,
+              22,
               9,
               3,
               6
             ]
           ],
           "per_weekday": 30.0,
-          "per_weekend_day": 34.1
+          "per_weekend_day": 38.0
         }
       },
       "genre_mix": {
@@ -10780,7 +10780,7 @@
         "as_of": "2026-11-02",
         "how": "Shannon entropy, in bits, of plays across artists, by month (months with at least 50 plays) and by ISO week while the archive is young (every week with a play), with the equivalent number of equally played artists, 2 to the entropy; the value is the latest week's.",
         "small_sample": false,
-        "value": 5.64,
+        "value": 5.63,
         "values": {
           "months": [
             {
@@ -10815,10 +10815,10 @@
             },
             {
               "week_start": "2026-10-26",
-              "plays": 144,
-              "artists": 72,
-              "entropy_bits": 5.64,
-              "effective_artists": 50.0
+              "plays": 171,
+              "artists": 75,
+              "entropy_bits": 5.63,
+              "effective_artists": 49.6
             }
           ]
         }
@@ -10861,8 +10861,8 @@
             },
             {
               "week_start": "2026-10-26",
-              "plays": 144,
-              "known": 140,
+              "plays": 171,
+              "known": 166,
               "median_release_year": 2019
             }
           ],
@@ -16040,7 +16040,7 @@
       },
       "hours_by_month": {
         "status": "ok",
-        "n": 1,
+        "n": 2,
         "min_n": 1,
         "as_of": "2026-11-02",
         "how": "Hours watched each month by type, from dated watches with a known runtime (backfilled past watches count no hours); months with at least 5 hours.",
@@ -16054,6 +16054,15 @@
                 "film": 0.0,
                 "show": 0.829,
                 "anime": 0.171
+              }
+            },
+            {
+              "month": "2026-11",
+              "hours": 7.5,
+              "share": {
+                "film": 0.0,
+                "show": 0.945,
+                "anime": 0.055
               }
             }
           ]
@@ -16667,13 +16676,6 @@
         "values": {
           "titles": [
             {
-              "title": "Severance",
-              "type": "show",
-              "watched": 4,
-              "released": 19,
-              "behind": 15
-            },
-            {
               "title": "House of the Dragon",
               "type": "show",
               "watched": 18,
@@ -16681,11 +16683,11 @@
               "behind": 8
             },
             {
-              "title": "Kusuriya no Hitorigoto",
-              "type": "anime",
-              "watched": 4,
-              "released": 5,
-              "behind": 1
+              "title": "Severance",
+              "type": "show",
+              "watched": 13,
+              "released": 19,
+              "behind": 6
             },
             {
               "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
@@ -16693,9 +16695,16 @@
               "watched": 10,
               "released": 9,
               "behind": 0
+            },
+            {
+              "title": "Kusuriya no Hitorigoto",
+              "type": "anime",
+              "watched": 5,
+              "released": 5,
+              "behind": 0
             }
           ],
-          "caught_up": 1,
+          "caught_up": 2,
           "left_out_unknown": 1
         }
       },
@@ -23369,16 +23378,37 @@
     "cross": {
       "lifting_soundtrack": {
         "status": "ok",
-        "n": 147,
+        "n": 167,
         "min_n": 20,
         "as_of": "2026-11-02",
         "how": "Plays whose time falls between a workout's start and end: the most-played artists in workouts this month, and the artists played in sessions where a tracked lift's best e1RM was set.",
         "small_sample": false,
         "values": {
-          "plays_in_workouts": 147,
-          "workouts_with_music": 13,
+          "plays_in_workouts": 167,
+          "workouts_with_music": 14,
           "workouts_since_first_play": 19,
-          "top_artists_this_month": [],
+          "top_artists_this_month": [
+            {
+              "artist": "Baby Keem",
+              "plays": 9
+            },
+            {
+              "artist": "Mac Miller",
+              "plays": 3
+            },
+            {
+              "artist": "JPEGMAFIA",
+              "plays": 3
+            },
+            {
+              "artist": "Kanye West",
+              "plays": 2
+            },
+            {
+              "artist": "Blxst",
+              "plays": 1
+            }
+          ],
           "artists_at_bests": [
             {
               "artist": "Kendrick Lamar",
@@ -23404,7 +23434,7 @@
         ],
         "plays": {
           "status": "ok",
-          "n": 719,
+          "n": 746,
           "min_n": 50,
           "as_of": "2026-11-02",
           "how": "Plays by weekday (Monday first) and by hour, Pacific.",
@@ -23417,7 +23447,7 @@
               68,
               66,
               96,
-              143
+              170
             ],
             "by_hour": [
               14,
@@ -23436,11 +23466,11 @@
               35,
               19,
               42,
-              59,
-              62,
+              70,
+              71,
               106,
-              54,
-              69,
+              58,
+              72,
               55,
               5,
               6
@@ -23525,7 +23555,7 @@
                 1.33,
                 1.32,
                 2.05,
-                2.14
+                2.46
               ]
             },
             "training": {
@@ -23553,7 +23583,7 @@
               1.33,
               1.32,
               2.05,
-              2.14
+              2.46
             ],
             "training": [
               0.57,
