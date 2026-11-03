@@ -16,6 +16,10 @@
     var NOT_CONNECTED = 'Not connected yet.';
     var BROKEN = "Couldn't draw this panel right now.";
     var NO_CHANCE = 'not available this week';
+    var GUILLOTINE = 'guillotine';
+    var NO_H2H = 'guillotine league: no head-to-head';
+    var MARGIN_TITLE = 'Margin above the cut, by week';
+    var PLOT_HEIGHT_PX = 150; // the signed column plot, as the stylesheet sizes .ld-cols
     var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
     // A cuisine's median is compared with the overall median from this many places.
     var MIN_CUISINE_PLACES = 15;
@@ -420,6 +424,131 @@
         return staleNote(oldest);
     }
 
+    function isGuillotine(t) {
+        return t.format === GUILLOTINE;
+    }
+    // The platform line under a team's name: "yahoo · league 2 · guillotine".
+    function platformText(s, t) {
+        var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
+        return [
+            srcLabel,
+            t.league_label,
+            isGuillotine(t) ? GUILLOTINE : null,
+            isOk(s.src) ? null : (s.src && (s.src.message || s.src.status)) || 'unknown',
+        ]
+            .filter(Boolean)
+            .join(' · ');
+    }
+    // "alive · 7 of 13", "cut · week 4" or "won · 13 of 13".
+    function survivalRecord(sv) {
+        var of = isNum(sv.regular_weeks) ? ' of ' + sv.regular_weeks : '';
+        if (sv.status === 'cut') return 'cut · week ' + survivalCutWeek(sv);
+        return sv.status + ' · ' + num(sv.weeks_survived, 'weeks_survived') + of;
+    }
+    function survivalCutWeek(sv) {
+        var weeks = arr(sv.weeks, 'survival.weeks');
+        return weeks.length ? num(weeks[weeks.length - 1].week, 'week') : null;
+    }
+    // One square per completed week: filled when survived, ✗ on the cut week, empty after it.
+    function survivalSquares(sv, played) {
+        var survived = {};
+        arr(sv.weeks, 'survival.weeks').forEach(function (w) {
+            if (w.survived) survived[w.week] = true;
+        });
+        var cut = sv.status === 'cut' ? survivalCutWeek(sv) : null;
+        var squares = [];
+        for (var week = 1; week <= played; week++) {
+            var state = survived[week] ? 'survived' : week === cut ? 'cut' : 'after';
+            squares.push({
+                week: week,
+                state: state,
+                text: state === 'cut' ? 'cut' : state === 'survived' ? 'survived' : 'after the cut',
+            });
+        }
+        return squares;
+    }
+    function survivalStrip(name, squares, weeksLabel) {
+        return h(
+            'div',
+            {
+                class: 'results results--survival',
+                role: 'img',
+                'aria-label':
+                    name +
+                    ', ' +
+                    weeksLabel.toLowerCase() +
+                    ': ' +
+                    squares
+                        .map(function (q) {
+                            return q.text;
+                        })
+                        .join(', '),
+            },
+            squares.map(function (q) {
+                return h(
+                    'span',
+                    { class: 'result result--' + q.state, title: 'Week ' + q.week + ': ' + q.text },
+                    q.state === 'cut' ? '\u2717' : '',
+                );
+            }),
+        );
+    }
+    function keySquare(state, text) {
+        return h(
+            'span',
+            { class: 'legend-item' },
+            h(
+                'span',
+                { class: 'result result--key result--' + state, 'aria-hidden': 'true' },
+                state === 'cut' ? '\u2717' : '',
+            ),
+            text,
+        );
+    }
+    // The legend under the teams grid, when a guillotine team is in it.
+    function survivalLegend() {
+        return h(
+            'div',
+            { class: 'legend legend--mono legend--survival' },
+            keySquare('survived', 'survived the week'),
+            keySquare('cut', 'cut that week'),
+            keySquare('after', 'after the cut'),
+        );
+    }
+    // A guillotine team's row: the survival strip in place of W/L marks, its standing in place of
+    // a record, n/a for luck and the win chance (the cut week in place of a projection).
+    function survivalRow(s, nameCell, name, week) {
+        var sv = s.team.survival;
+        need(isObj(sv), 'team.survival');
+        var played = week - 1;
+        var weeksLabel = played > 1 ? 'Weeks 1 to ' + played : 'Week 1';
+        var cutText = sv.status === 'cut' ? 'cut in week ' + survivalCutWeek(sv) : null;
+        return h(
+            'div',
+            { class: 'team-row' },
+            nameCell,
+            h('div', { class: 'team-record' }, survivalRecord(sv)),
+            survivalStrip(name, survivalSquares(sv, played), weeksLabel),
+            h('div', { class: 'meter-note', title: NO_H2H }, 'n/a'),
+            h('div', { class: 'meter-note', title: cutText || NO_H2H }, cutText || 'n/a'),
+        );
+    }
+    function survivalTableRow(s, t, platform, played) {
+        var sv = t.survival;
+        return [
+            t.name,
+            platform,
+            survivalRecord(sv),
+            survivalSquares(sv, played)
+                .map(function (q) {
+                    return q.text;
+                })
+                .join(' '),
+            'n/a',
+            sv.status === 'cut' ? 'cut in week ' + survivalCutWeek(sv) : 'n/a',
+        ];
+    }
+
     // My teams, week by week: record, results, luck and this week's win chance, with its table.
     function fantasyLineup(data) {
         var ctx = fantasyTeams(data);
@@ -438,18 +567,15 @@
                 }),
             ),
         );
+        var anyGuillotine = shown.some(function (s) {
+            return s.state.show && isGuillotine(s.team);
+        });
 
         var rows = shown.map(function (s) {
             var t = s.team;
             var name = str(t.name, 'team.name');
             var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
-            var platform = [
-                srcLabel,
-                t.league_label,
-                isOk(s.src) ? null : (s.src && (s.src.message || s.src.status)) || 'unknown',
-            ]
-                .filter(Boolean)
-                .join(' · ');
+            var platform = platformText(s, t);
             var repeats =
                 platform === srcLabel &&
                 new RegExp(
@@ -469,6 +595,7 @@
                     nameCell,
                     h('div', { class: 'team-missing' }, NOT_CONNECTED),
                 );
+            if (isGuillotine(t)) return survivalRow(s, nameCell, name, week);
 
             var results = arr(t.results, 'team.results');
             var words = { W: 'win', L: 'loss', T: 'tie' };
@@ -577,9 +704,13 @@
             var t = s.team;
             var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
             if (!s.state.show) return [t.name, srcLabel, NOT_CONNECTED, '', '', ''];
+            var platform = [srcLabel, t.league_label, isGuillotine(t) ? GUILLOTINE : null]
+                .filter(Boolean)
+                .join(' · ');
+            if (isGuillotine(t)) return survivalTableRow(s, t, platform, played);
             return [
                 t.name,
-                [srcLabel, t.league_label].filter(Boolean).join(' · '),
+                platform,
                 record(t.wins, t.losses, t.ties || 0),
                 t.results.join(' '),
                 signed(t.luck),
@@ -599,7 +730,180 @@
             tableRows,
             grid,
         );
-        return [fantasyStale(shown), h('div', { class: 'chart' }, grid, t.table)];
+        return [
+            fantasyStale(shown),
+            h('div', { class: 'chart' }, grid, anyGuillotine ? survivalLegend() : null, t.table),
+        ];
+    }
+
+    // Margin above the cut, by week: one signed column chart per guillotine league (the fantasy
+    // page only), the cut week's column negative, the zero line labelled "cut".
+    function fantasySurvival(data) {
+        var ctx = fantasyTeams(data);
+        if (!ctx.any) return null;
+        var charts = ctx.shown
+            .filter(function (s) {
+                return s.state.show && isGuillotine(s.team);
+            })
+            .map(function (s) {
+                return marginChart(s);
+            });
+        return charts.length ? charts : null;
+    }
+
+    function marginText(w) {
+        var how = w.survived ? ' above the cut' : ' below the cut, cut';
+        return (
+            short(w.points) +
+            ' points, ' +
+            (w.survived ? 'cut at ' : 'lowest survivor ') +
+            short(w.cut_points) +
+            ', ' +
+            signed(w.margin) +
+            how +
+            ', rank ' +
+            w.rank +
+            ' of ' +
+            w.alive_count
+        );
+    }
+
+    function marginChart(s) {
+        var t = s.team;
+        var name = str(t.name, 'team.name');
+        var weeks = arr(t.survival.weeks, 'survival.weeks').filter(isObj);
+        var d = LD();
+        var title = h('div', { class: 'chart-title' }, MARGIN_TITLE);
+        var sub = h('div', { class: 'team-platform' }, name + ' · ' + platformText(s, t));
+        if (!d || !d.plotGrid || !weeks.length)
+            return h(
+                'div',
+                { class: 'chart' },
+                h('div', { class: 'chart-head' }, title),
+                sub,
+                h('p', { class: 'panel-empty' }, "Couldn't draw this chart right now."),
+            );
+        var values = weeks.map(function (w) {
+            return num(w.margin, 'margin');
+        });
+        var hi = Math.max.apply(null, values.concat(0));
+        var lo = Math.min.apply(null, values.concat(0));
+        if (hi === lo) hi = lo + 1;
+        function y(v) {
+            return ((hi - v) / (hi - lo)) * 100;
+        }
+        var zero = y(0);
+        var n = weeks.length;
+        var cols = weeks.map(function (w, i) {
+            var neg = w.margin < 0;
+            var end = y(w.margin);
+            return h(
+                'div',
+                {
+                    class: 'ld-col',
+                    title: 'Week ' + w.week + ': ' + marginText(w),
+                    style: { left: (i / n) * 100 + '%', width: 100 / n + '%' },
+                },
+                h('div', {
+                    class: 'ld-col-bar' + (neg ? ' ld-col-bar--neg' : ''),
+                    style: {
+                        top: (neg ? zero : end) + '%',
+                        height: Math.abs(end - zero) + '%',
+                    },
+                }),
+                h(
+                    'span',
+                    {
+                        class:
+                            'ld-col-value ' + (neg ? 'ld-col-value--below' : 'ld-col-value--above'),
+                        style: { top: end + '%' },
+                    },
+                    signed(w.margin),
+                ),
+            );
+        });
+        var plot = h(
+            'div',
+            {
+                class: 'ld-cols ld-cols--signed',
+                role: 'img',
+                'aria-label':
+                    MARGIN_TITLE +
+                    ', ' +
+                    name +
+                    ': ' +
+                    weeks
+                        .map(function (w) {
+                            return 'week ' + w.week + ' ' + signed(w.margin);
+                        })
+                        .join('; '),
+            },
+            cols,
+            h('div', { class: 'ld-col-zero', 'aria-hidden': 'true', style: { top: zero + '%' } }),
+            lo < 0
+                ? h(
+                      'span',
+                      { class: 'ref-label', 'aria-hidden': 'true', style: { top: zero + '%' } },
+                      'cut',
+                  )
+                : null,
+        );
+        // The zero line is the cut: labelled at its right end when it sits inside the plot, else
+        // by the bottom tick, which would otherwise read 0.
+        var yTicks = d
+            .scaleTicks(
+                lo,
+                hi,
+                function (v) {
+                    return fsigned(v, 0);
+                },
+                PLOT_HEIGHT_PX,
+            )
+            .map(function (tick) {
+                return lo === 0 && tick.value === 0 ? { at: tick.at, value: 0, text: 'cut' } : tick;
+            });
+        var ends = [0];
+        if (n > 2) ends.push(Math.round((n - 1) / 2));
+        if (n > 1) ends.push(n - 1);
+        var frame = d.plotGrid(
+            plot,
+            ends.map(function (k) {
+                return { at: d.columnAt(k, n), text: 'wk ' + weeks[k].week };
+            }),
+            yTicks,
+            { kind: 'signed', yTitle: 'points above the cut', xTitle: 'week' },
+        );
+        var table = tableToggle(
+            MARGIN_TITLE + ', ' + name,
+            [
+                { label: 'Week' },
+                { label: 'Points', num: true },
+                { label: 'Cut', num: true },
+                { label: 'Margin', num: true },
+                { label: 'Rank', num: true },
+                { label: 'Alive', num: true },
+                { label: 'Outcome' },
+            ],
+            weeks.map(function (w) {
+                return [
+                    'Week ' + w.week,
+                    short(w.points),
+                    short(w.cut_points),
+                    signed(w.margin),
+                    String(w.rank),
+                    String(w.alive_count),
+                    w.survived ? 'survived' : 'cut',
+                ];
+            }),
+        );
+        return h(
+            'div',
+            { class: 'chart chart--survival' },
+            h('div', { class: 'chart-head' }, title),
+            sub,
+            frame,
+            table.table,
+        );
     }
 
     // Who is carrying my teams: points above replacement per game.
@@ -2241,6 +2545,7 @@
     var BLOCKS = {
         'fantasy.lineup': fantasyLineup,
         'fantasy.carry': fantasyCarry,
+        'fantasy.survival': fantasySurvival,
         'watching.hours': watchingHours,
         'watching.rankings': watchingRankings,
         'watching.tiers': watchingTiers,

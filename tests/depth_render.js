@@ -293,8 +293,44 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
                 ]),
                 squares: [...document.querySelectorAll('.results .result')].map((e) => ({
                     letter: e.textContent,
+                    cls: e.className,
                     bg: getComputedStyle(e).backgroundColor,
                     border: getComputedStyle(e).borderTopStyle,
+                    borderColor: getComputedStyle(e).borderTopColor,
+                })),
+                // The teams grid: each row's name line, record cell, marks and the two meters.
+                teamRows: [...document.querySelectorAll('.team-row')].map((r) => ({
+                    name: txt(r.querySelector('.team-name')),
+                    platform: txt(r.querySelector('.team-platform')),
+                    record: txt(r.querySelector('.team-record')),
+                    marks: [...r.querySelectorAll('.result')].map((e) => e.className),
+                    strip: r.querySelector('.results')
+                        ? r.querySelector('.results').getAttribute('aria-label')
+                        : null,
+                    notes: [...r.querySelectorAll('.meter-note')].map((e) => [
+                        txt(e),
+                        e.getAttribute('title'),
+                    ]),
+                    meters: r.querySelectorAll('.meter').length,
+                })),
+                teamsLegend: [...document.querySelectorAll('.legend--survival .legend-item')].map(
+                    txt,
+                ),
+                // The margin charts under the grid: one per guillotine league.
+                marginCharts: [...document.querySelectorAll('.chart--survival')].map((c) => ({
+                    title: txt(c.querySelector('.chart-title')),
+                    sub: txt(c.querySelector('.team-platform')),
+                    cols: c.querySelectorAll('.ld-col').length,
+                    negative: c.querySelectorAll('.ld-col-bar--neg').length,
+                    values: [...c.querySelectorAll('.ld-col-value')].map(txt),
+                    zeroLabel: txt(c.querySelector('.ref-label')),
+                    xTicks: [...c.querySelectorAll('.axis--x .axis-tick')].map(txt),
+                    yTicks: [...c.querySelectorAll('.axis--y .axis-tick')].map(txt),
+                    axisTitles: [...c.querySelectorAll('.axis-title')].map(txt),
+                    rows: c.querySelectorAll('table tbody tr').length,
+                    titles: [...c.querySelectorAll('.ld-col[title]')].map((e) =>
+                        e.getAttribute('title'),
+                    ),
                 })),
                 recordParts: [...document.querySelectorAll('.ld-record-bar > span')].map((e) => ({
                     cls: e.className,

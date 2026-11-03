@@ -82,6 +82,7 @@
         "name": "[Team name 1]",
         "source": "sleeper",
         "league_label": null,
+        "format": "h2h",
         "wins": 4,
         "losses": 1,
         "ties": 0,
@@ -99,6 +100,7 @@
         "name": "[Team name 2]",
         "source": "espn",
         "league_label": "league 1",
+        "format": "h2h",
         "wins": 3,
         "losses": 2,
         "ties": 0,
@@ -116,6 +118,7 @@
         "name": "[Team name 3]",
         "source": "espn",
         "league_label": "league 2",
+        "format": "h2h",
         "wins": 4,
         "losses": 1,
         "ties": 0,
@@ -133,6 +136,7 @@
         "name": "[Team name 4]",
         "source": "yahoo",
         "league_label": null,
+        "format": "h2h",
         "wins": 2,
         "losses": 3,
         "ties": 0,
@@ -145,6 +149,60 @@
         ],
         "luck": -0.3,
         "win_probability": 0.41
+      },
+      {
+        "name": "[Team name 5]",
+        "source": "espn",
+        "league_label": "league 3",
+        "format": "guillotine",
+        "survival": {
+          "weeks": [
+            {
+              "week": 1,
+              "points": 118.06,
+              "cut_points": 40.34,
+              "margin": 77.72,
+              "rank": 3,
+              "alive_count": 14,
+              "survived": true
+            },
+            {
+              "week": 2,
+              "points": 95.74,
+              "cut_points": 45.5,
+              "margin": 50.24,
+              "rank": 5,
+              "alive_count": 13,
+              "survived": true
+            },
+            {
+              "week": 3,
+              "points": 108.06,
+              "cut_points": 58.54,
+              "margin": 49.52,
+              "rank": 3,
+              "alive_count": 12,
+              "survived": true
+            },
+            {
+              "week": 4,
+              "points": 62.0,
+              "cut_points": 70.5,
+              "margin": -8.5,
+              "rank": 11,
+              "alive_count": 11,
+              "survived": false
+            }
+          ],
+          "status": "cut",
+          "weeks_survived": 3,
+          "regular_weeks": 13,
+          "mean_margin": 42.25,
+          "closest_call": {
+            "week": 3,
+            "margin": 49.52
+          }
+        }
       }
     ],
     "top_players": [

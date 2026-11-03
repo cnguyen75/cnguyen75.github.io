@@ -197,6 +197,7 @@ DATA_GROUP_IDS = {"What's happening": "whats-happening", "Why": "why"}
 # Blocks of the feed itself (not the analysis) that js/lately.js draws into a FEED: slot.
 FEED_BLOCKS = (
     "fantasy.lineup",
+    "fantasy.survival",
     "fantasy.carry",
     "watching.hours",
     "watching.rankings",

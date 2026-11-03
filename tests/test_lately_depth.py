@@ -38,6 +38,7 @@ ANALYSIS = json.loads((ROOT / "tests/fixtures/analysis.json").read_text(encoding
 ]
 CHROME = os.environ.get("CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 FEEDS = build.DATA_FEEDS
+GUILLOTINE_TEAM = "[Team name 5]"
 WIDTHS = (360, 390, 1280)
 INK = "rgb(35, 31, 27)"
 CLEAR = "rgba(0, 0, 0, 0)"
@@ -1247,6 +1248,76 @@ class Drawing(unittest.TestCase):
         self.assertTrue(all(s["bg"] == INK for s in wins))
         self.assertTrue(all(s["bg"] == CLEAR and s["border"] == "solid" for s in losses))
 
+    # A guillotine team (the fixture's fifth, an ESPN league cut in week 4 of five played): the
+    # survival strip in
+    # place of W/L marks, its standing in place of a record, n/a for luck, the cut week in place of
+    # a win chance, the chip naming the format and the legend under the grid. The head-to-head
+    # rows keep their shape beside it.
+    def test_guillotine_team(self) -> None:
+        d = draw("lately/fantasy/")
+        rows = {r["name"]: r for r in d["teamRows"]}
+        g, h2h = rows[GUILLOTINE_TEAM], rows["[Team name 1]"]
+        self.assertEqual(g["platform"], "espn · league 3 · guillotine")
+        self.assertEqual(g["record"], "cut · week 4")
+        self.assertEqual(
+            g["marks"],
+            [
+                "result result--survived",
+                "result result--survived",
+                "result result--survived",
+                "result result--cut",
+                "result result--after",
+            ],
+        )
+        self.assertEqual(
+            g["strip"],
+            "[Team name 5], weeks 1 to 5: survived, survived, survived, cut, after the cut",
+        )
+        self.assertEqual(
+            g["notes"],
+            [
+                ["n/a", "guillotine league: no head-to-head"],
+                ["cut in week 4", "cut in week 4"],
+            ],
+        )
+        self.assertEqual(g["meters"], 0)
+        self.assertEqual((h2h["record"], h2h["meters"], h2h["notes"]), ("4–1", 2, []))
+        self.assertEqual(h2h["marks"][:2], ["result result--win", "result result--win"])
+        squares = {s["cls"]: s for s in d["squares"]}
+        self.assertEqual(squares["result result--survived"]["bg"], INK)
+        self.assertEqual(squares["result result--cut"]["letter"], "✗")
+        self.assertEqual(squares["result result--cut"]["bg"], CLEAR)
+        self.assertEqual(squares["result result--after"]["letter"], "")
+        self.assertNotEqual(
+            squares["result result--after"]["borderColor"],
+            squares["result result--cut"]["borderColor"],
+        )
+        self.assertEqual(d["teamsLegend"], ["survived the week", "✗cut that week", "after the cut"])
+
+    # Under the grid, one margin chart per guillotine league: the survived weeks' margins above
+    # a zero line labelled "cut", the cut week's below it in orange, y ticks in points and x ticks
+    # by week, with its table. The main page draws neither the chart nor the grid.
+    def test_margin_chart(self) -> None:
+        d = draw("lately/fantasy/")
+        (chart,) = d["marginCharts"]
+        self.assertEqual(chart["title"], "Margin above the cut, by week")
+        self.assertEqual(chart["sub"], "[Team name 5] · espn · league 3 · guillotine")
+        self.assertEqual((chart["cols"], chart["negative"], chart["rows"]), (4, 1, 4))
+        self.assertEqual(chart["values"], ["+77.7", "+50.2", "+49.5", "−8.5"])
+        self.assertEqual(chart["zeroLabel"], "cut")
+        self.assertEqual(chart["xTicks"], ["wk 1", "wk 3", "wk 4"])
+        self.assertEqual(chart["yTicks"][0], "+78")
+        self.assertEqual(chart["yTicks"][-1], "−9")
+        self.assertEqual(chart["axisTitles"], ["points above the cut", "week"])
+        self.assertIn(
+            "Week 4: 62 points, lowest survivor 70.5, −8.5 below the cut, cut, rank 11 of 11",
+            chart["titles"],
+        )
+        # The main page draws no margin chart and no teams grid.
+        main = draw("index.html")
+        self.assertEqual(main["marginCharts"], [])
+        self.assertEqual(main["teamRows"], [])
+
     # Waiver adds: hit rate with its interval, net points available against captured, adds a
     # week, then every add with the best and worst three marked, and the how-line under it.
     def test_waiver_adds(self) -> None:
@@ -1395,6 +1466,7 @@ class Drawing(unittest.TestCase):
         self.assertEqual(
             sorted(f["quadMine"]), sorted(t["name"] for t in ANALYSIS["fantasy"]["teams"])
         )
+        self.assertNotIn(GUILLOTINE_TEAM, f["quadMine"])  # no wins to plot
         self.assertEqual(f["quadOthers"], len(ANALYSIS["fantasy"]["quadrant"]["values"]["others"]))
         for t in f["quadTitles"]:  # hover: record and all-play only
             self.assertRegex(t, r"^\d+–\d+(–\d+)? · all-play \d+%$")
@@ -2101,7 +2173,7 @@ class Drawing(unittest.TestCase):
 
     def test_feed_blocks(self) -> None:
         want = {
-            "fantasy": ["fantasy.lineup", "fantasy.carry"],
+            "fantasy": ["fantasy.lineup", "fantasy.survival", "fantasy.carry"],
             "watching": ["watching.rankings", "watching.tiers"],
             "listening": ["listening.recent"],
             "eating": ["eating.recent"],

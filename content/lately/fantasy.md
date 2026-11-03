@@ -12,6 +12,7 @@ attribution_when: yahoo | Fantasy data provided by Yahoo Fantasy | https://sport
 ## My teams, week by week
 short: teams
 FEED: fantasy.lineup
+FEED: fantasy.survival
 
 ## Who is carrying my teams
 short: carrying

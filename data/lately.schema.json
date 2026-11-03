@@ -180,80 +180,21 @@
             "favoured_of": {
               "$ref": "#/$defs/count"
             }
-          }
+          },
+          "description": "Over the head-to-head teams only: a guillotine team has no record, expected wins or matchup."
         },
         "teams": {
           "type": "array",
-          "description": "Colin's own teams only. Never include other managers' names or team names.",
+          "description": "Colin's own teams only. Never include other managers' names or team names. Each team carries its format: a head-to-head team cannot carry survival, a guillotine team cannot carry a record.",
           "items": {
-            "type": "object",
-            "required": [
-              "name",
-              "source",
-              "wins",
-              "losses",
-              "results",
-              "luck",
-              "win_probability"
-            ],
-            "additionalProperties": false,
-            "properties": {
-              "name": {
-                "type": "string",
-                "minLength": 1
+            "oneOf": [
+              {
+                "$ref": "#/$defs/fantasy_team_h2h"
               },
-              "source": {
-                "type": "string",
-                "description": "Key into sources, e.g. 'espn'."
-              },
-              "league_label": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Shown after the platform, e.g. 'league 1'."
-              },
-              "wins": {
-                "$ref": "#/$defs/count"
-              },
-              "losses": {
-                "$ref": "#/$defs/count"
-              },
-              "ties": {
-                "$ref": "#/$defs/count"
-              },
-              "results": {
-                "type": "array",
-                "items": {
-                  "enum": [
-                    "W",
-                    "L",
-                    "T"
-                  ]
-                },
-                "description": "Weekly results, week 1 first."
-              },
-              "luck": {
-                "type": "number",
-                "description": "Wins versus expected for this team."
-              },
-              "win_probability": {
-                "type": [
-                  "number",
-                  "null"
-                ],
-                "minimum": 0,
-                "maximum": 1,
-                "description": "Chance to win the current week, or null when it can't be estimated. When null the page shows win_probability_note, or 'not available this week' if there is no note."
-              },
-              "win_probability_note": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "description": "Optional short public text shown in place of the win-chance bar when win_probability is null (e.g. 'too few weeks'). Ignored when win_probability is a number."
+              {
+                "$ref": "#/$defs/fantasy_team_guillotine"
               }
-            }
+            ]
           }
         },
         "top_players": {
@@ -274,6 +215,221 @@
                 "type": "number",
                 "description": "Points above a replacement starter per game played. Can be negative."
               }
+            }
+          }
+        }
+      }
+    },
+    "fantasy_team_h2h": {
+      "type": "object",
+      "required": [
+        "name",
+        "source",
+        "format",
+        "wins",
+        "losses",
+        "results",
+        "luck",
+        "win_probability"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "description": "Key into sources, e.g. 'espn'."
+        },
+        "league_label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Shown after the platform, e.g. 'league 1'."
+        },
+        "format": {
+          "const": "h2h"
+        },
+        "wins": {
+          "$ref": "#/$defs/count"
+        },
+        "losses": {
+          "$ref": "#/$defs/count"
+        },
+        "ties": {
+          "$ref": "#/$defs/count"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "W",
+              "L",
+              "T"
+            ]
+          },
+          "description": "Weekly results, week 1 first."
+        },
+        "luck": {
+          "type": "number",
+          "description": "Wins versus expected for this team."
+        },
+        "win_probability": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Chance to win the current week, or null when it can't be estimated. When null the page shows win_probability_note, or 'not available this week' if there is no note."
+        },
+        "win_probability_note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Optional short public text shown in place of the win-chance bar when win_probability is null (e.g. 'too few weeks'). Ignored when win_probability is a number."
+        }
+      },
+      "description": "A head-to-head team: its record, weekly results, luck and this week's win chance."
+    },
+    "fantasy_team_guillotine": {
+      "type": "object",
+      "description": "A guillotine team (the lowest score each week is cut, until one team is left): no record, luck or win chance, a survival line instead.",
+      "required": [
+        "name",
+        "source",
+        "format",
+        "survival"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "description": "Key into sources, e.g. 'espn'."
+        },
+        "league_label": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Shown after the platform, e.g. 'league 1'."
+        },
+        "format": {
+          "const": "guillotine"
+        },
+        "survival": {
+          "$ref": "#/$defs/survival"
+        }
+      }
+    },
+    "survival": {
+      "description": "A guillotine team's run: every completed week it was alive (points, the cut score, the margin above it, its rank among the teams alive) and the season line. On the week it was cut, cut_points is the lowest surviving score, so that margin is negative.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weeks",
+        "status",
+        "weeks_survived",
+        "regular_weeks",
+        "mean_margin",
+        "closest_call"
+      ],
+      "properties": {
+        "weeks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "week",
+              "points",
+              "cut_points",
+              "margin",
+              "rank",
+              "alive_count",
+              "survived"
+            ],
+            "properties": {
+              "week": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "points": {
+                "type": "number"
+              },
+              "cut_points": {
+                "type": "number",
+                "description": "the cut team's score; on the week I was cut, the lowest surviving score"
+              },
+              "margin": {
+                "type": "number",
+                "description": "points minus cut_points"
+              },
+              "rank": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "among the teams alive that week"
+              },
+              "alive_count": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "survived": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "status": {
+          "enum": [
+            "alive",
+            "cut",
+            "won"
+          ],
+          "description": "cut: the last week listed is the one I was cut in; won: the last cut left one team, mine"
+        },
+        "weeks_survived": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "regular_weeks": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "mean_margin": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "over every week played, the cut week included"
+        },
+        "closest_call": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "week",
+            "margin"
+          ],
+          "properties": {
+            "week": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "margin": {
+              "type": "number",
+              "description": "the smallest positive margin"
             }
           }
         }

@@ -1064,9 +1064,23 @@ body > img {
     align-items: center;
     justify-content: center;
 }
-.result--win {
+.result--win,
+.result--survived {
     background: var(--ink);
     color: var(--card);
+}
+/* A guillotine team's strip: filled when survived, ✗ on the cut week, empty after it. */
+.result--after {
+    border-color: var(--axis);
+}
+.result--key {
+    width: 10px;
+    height: 10px;
+    border-width: 1px;
+    font-size: var(--fs-10);
+}
+.legend--survival {
+    margin-top: var(--s-12);
 }
 
 .meter {
@@ -2101,6 +2115,55 @@ body > img {
 }
 .ld-cols--dense {
     gap: var(--s-2);
+}
+/* Signed columns (margin above the cut): each column placed from the zero line, the cut week's
+   orange below it with the ink mark at its end. */
+.ld-cols--signed {
+    position: relative;
+    display: block;
+    border-bottom: 0;
+}
+.ld-cols--signed > .ld-col {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: block;
+    padding: 0 var(--s-2);
+    box-sizing: border-box;
+}
+.ld-cols--signed .ld-col-bar {
+    position: absolute;
+    left: var(--s-2);
+    right: var(--s-2);
+}
+.ld-cols--signed .ld-col-bar--neg {
+    background: var(--orange);
+    border-top: 0;
+    border-bottom: 2px solid var(--ink);
+}
+.ld-cols--signed .ld-col-value {
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+.ld-cols--signed .ld-col-value--above {
+    transform: translateY(-100%);
+}
+.ld-col-zero {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--axis);
+}
+.plot-grid--signed > .ld-cols {
+    margin: var(--s-10) 0 0;
+}
+.plot-grid--signed > .axis--y {
+    margin-top: var(--s-10);
+}
+.chart--survival .team-platform {
+    margin-bottom: var(--s-8);
 }
 
 .ld-margins {
