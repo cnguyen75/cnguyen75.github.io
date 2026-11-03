@@ -18,8 +18,7 @@
     var NO_CHANCE = 'not available this week';
     var GUILLOTINE = 'guillotine';
     var NO_H2H = 'guillotine league: no head-to-head';
-    var MARGIN_TITLE = 'Margin above the cut, by week';
-    var PLOT_HEIGHT_PX = 150; // the signed column plot, as the stylesheet sizes .ld-cols
+    var MARGIN_TITLE = 'How far above the cut did I finish each week?';
     var MAX_CUISINES = 6; // named bars; anything beyond goes in the "Other" line
     // A cuisine's median is compared with the overall median from this many places.
     var MIN_CUISINE_PLACES = 15;
@@ -439,6 +438,18 @@
             .filter(Boolean)
             .join(' · ');
     }
+    // Whether the team's display name already names its platform ("ESPN · 10-team, 2 flex"), so
+    // neither its row nor its margin chart needs the platform line.
+    function namesPlatform(s, t) {
+        var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
+        var word = srcLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return isOk(s.src) && new RegExp('(^|\\W)' + word + '(\\W|$)', 'i').test(t.name);
+    }
+    // The team on one line: its name, after it the platform line when the name does not carry it.
+    function teamLine(s, t) {
+        var name = str(t.name, 'team.name');
+        return namesPlatform(s, t) ? name : name + ' · ' + platformText(s, t);
+    }
     // "alive · 7 of 13", "cut · week 4" or "won · 13 of 13".
     function survivalRecord(sv) {
         var of = isNum(sv.regular_weeks) ? ' of ' + sv.regular_weeks : '';
@@ -574,19 +585,13 @@
         var rows = shown.map(function (s) {
             var t = s.team;
             var name = str(t.name, 'team.name');
-            var srcLabel = s.src && s.src.label ? s.src.label : String(t.source);
-            var platform = platformText(s, t);
-            var repeats =
-                platform === srcLabel &&
-                new RegExp(
-                    '(^|\\W)' + srcLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\W|$)',
-                    'i',
-                ).test(name);
             var nameCell = h(
                 'div',
                 null,
                 h('div', { class: 'team-name' }, name),
-                repeats ? null : h('div', { class: 'team-platform' }, platform),
+                namesPlatform(s, t)
+                    ? null
+                    : h('div', { class: 'team-platform' }, platformText(s, t)),
             );
             if (!s.state.show)
                 return h(
@@ -774,8 +779,8 @@
         var weeks = arr(t.survival.weeks, 'survival.weeks').filter(isObj);
         var d = LD();
         var title = h('div', { class: 'chart-title' }, MARGIN_TITLE);
-        var sub = h('div', { class: 'team-platform' }, name + ' · ' + platformText(s, t));
-        if (!d || !d.plotGrid || !weeks.length)
+        var sub = h('div', { class: 'team-platform' }, teamLine(s, t));
+        if (!d || !d.plotGrid || !d.stepScale || !weeks.length)
             return h(
                 'div',
                 { class: 'chart' },
@@ -789,6 +794,13 @@
         var hi = Math.max.apply(null, values.concat(0));
         var lo = Math.min.apply(null, values.concat(0));
         if (hi === lo) hi = lo + 1;
+        // Round steps from the cut (the zero line, ticked "cut") to the first at or above the
+        // best week, and down to the first at or under the worst.
+        var scale = d.stepScale(lo, hi, function (v) {
+            return v === 0 ? 'cut' : fsigned(v, 0);
+        });
+        hi = scale.hi;
+        lo = scale.lo;
         function y(v) {
             return ((hi - v) / (hi - lo)) * 100;
         }
@@ -840,28 +852,7 @@
             },
             cols,
             h('div', { class: 'ld-col-zero', 'aria-hidden': 'true', style: { top: zero + '%' } }),
-            lo < 0
-                ? h(
-                      'span',
-                      { class: 'ref-label', 'aria-hidden': 'true', style: { top: zero + '%' } },
-                      'cut',
-                  )
-                : null,
         );
-        // The zero line is the cut: labelled at its right end when it sits inside the plot, else
-        // by the bottom tick, which would otherwise read 0.
-        var yTicks = d
-            .scaleTicks(
-                lo,
-                hi,
-                function (v) {
-                    return fsigned(v, 0);
-                },
-                PLOT_HEIGHT_PX,
-            )
-            .map(function (tick) {
-                return lo === 0 && tick.value === 0 ? { at: tick.at, value: 0, text: 'cut' } : tick;
-            });
         var ends = [0];
         if (n > 2) ends.push(Math.round((n - 1) / 2));
         if (n > 1) ends.push(n - 1);
@@ -870,7 +861,7 @@
             ends.map(function (k) {
                 return { at: d.columnAt(k, n), text: 'wk ' + weeks[k].week };
             }),
-            yTicks,
+            scale.ticks,
             { kind: 'signed', yTitle: 'points above the cut', xTitle: 'week' },
         );
         var table = tableToggle(

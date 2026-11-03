@@ -712,6 +712,10 @@ def variant(name: str) -> dict:
             }
             for i in range(20)
         ]
+    if name == "named leagues":
+        d["fantasy"]["teams"][3]["name"] = "Yahoo · 12-team"
+        d["fantasy"]["teams"][2]["name"] = "ESPN · 10-team, 2 flex"
+        d["fantasy"]["teams"][4]["name"] = "ESPN · 14-team guillotine"
     if name == "no bids":
         for add in a["fantasy"]["teams"][0]["waiver_adds"]["values"]["all"]:
             add["spent"] = {"kind": "free agent", "amount": 0}
@@ -1295,19 +1299,19 @@ class Drawing(unittest.TestCase):
         self.assertEqual(d["teamsLegend"], ["survived the week", "✗cut that week", "after the cut"])
 
     # Under the grid, one margin chart per guillotine league: the survived weeks' margins above
-    # a zero line labelled "cut", the cut week's below it in orange, y ticks in points and x ticks
-    # by week, with its table. The main page draws neither the chart nor the grid.
+    # the zero line, the cut week's below it in orange, y ticks at every round step from the cut
+    # (ticked "cut", so the line needs no label of its own) and x ticks by week, with its table.
+    # The main page draws neither the chart nor the grid.
     def test_margin_chart(self) -> None:
         d = draw("lately/fantasy/")
         (chart,) = d["marginCharts"]
-        self.assertEqual(chart["title"], "Margin above the cut, by week")
+        self.assertEqual(chart["title"], "How far above the cut did I finish each week?")
         self.assertEqual(chart["sub"], "[Team name 5] · espn · league 3 · guillotine")
         self.assertEqual((chart["cols"], chart["negative"], chart["rows"]), (4, 1, 4))
         self.assertEqual(chart["values"], ["+77.7", "+50.2", "+49.5", "−8.5"])
-        self.assertEqual(chart["zeroLabel"], "cut")
+        self.assertIsNone(chart["zeroLabel"])
         self.assertEqual(chart["xTicks"], ["wk 1", "wk 3", "wk 4"])
-        self.assertEqual(chart["yTicks"][0], "+78")
-        self.assertEqual(chart["yTicks"][-1], "−9")
+        self.assertEqual(chart["yTicks"], ["+100", "+75", "+50", "+25", "cut", "−25"])
         self.assertEqual(chart["axisTitles"], ["points above the cut", "week"])
         self.assertIn(
             "Week 4: 62 points, lowest survivor 70.5, −8.5 below the cut, cut, rank 11 of 11",
@@ -1317,6 +1321,21 @@ class Drawing(unittest.TestCase):
         main = draw("index.html")
         self.assertEqual(main["marginCharts"], [])
         self.assertEqual(main["teamRows"], [])
+
+    # A team whose display name already names its platform ("ESPN · 14-team guillotine") gets no
+    # platform line under it, and its margin chart's subtitle is that one line; the table's
+    # platform column still carries the league and format. A name alone doesn't hide a source's
+    # trouble: the pending Yahoo team keeps its line.
+    def test_named_leagues(self) -> None:
+        d = draw("lately/fantasy/", name="named leagues")
+        rows = {r["name"]: r for r in d["teamRows"]}
+        self.assertIsNone(rows["ESPN · 10-team, 2 flex"]["platform"])
+        self.assertIsNone(rows["ESPN · 14-team guillotine"]["platform"])
+        self.assertEqual(rows["[Team name 2]"]["platform"], "espn · league 1")
+        self.assertTrue(rows["Yahoo · 12-team"]["platform"].startswith("yahoo · "))
+        (chart,) = d["marginCharts"]
+        self.assertEqual(chart["sub"], "ESPN · 14-team guillotine")
+        self.assertIn(["ESPN · 14-team guillotine", "espn · league 3 · guillotine"], d["teamTable"])
 
     # Waiver adds: hit rate with its interval, net points available against captured, adds a
     # week, then every add with the best and worst three marked, and the how-line under it.

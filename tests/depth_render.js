@@ -316,6 +316,12 @@ const [base, pagePath, fixture, width] = process.argv.slice(2);
                 teamsLegend: [...document.querySelectorAll('.legend--survival .legend-item')].map(
                     txt,
                 ),
+                // The teams table behind the grid: each row's name and platform cells.
+                teamTable: (() => {
+                    const grid = document.querySelector('.scroll-x[aria-label^="Fantasy teams"]');
+                    const body = grid && grid.parentElement.querySelector('table tbody');
+                    return body ? [...body.rows].map((r) => [...r.cells].slice(0, 2).map(txt)) : [];
+                })(),
                 // The margin charts under the grid: one per guillotine league.
                 marginCharts: [...document.querySelectorAll('.chart--survival')].map((c) => ({
                     title: txt(c.querySelector('.chart-title')),

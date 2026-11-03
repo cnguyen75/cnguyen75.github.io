@@ -251,6 +251,10 @@
     var TIP_GAP_PX = 6;
     // Two scale values this close are the same tick.
     var TICK_MATCH = 1e-9;
+    // A stepped scale's step is the round value nearest this share of its range.
+    var STEP_INTERVALS = 3;
+    var ROUND_MULTIPLIERS = [1, 2, 5, 10];
+    var STEP_MULTIPLIERS = [1, 2, 2.5, 5, 10];
     var LINE_HEIGHT_PX = 90;
     var QUAD_X_STEP = 0.05;
     var QUAD_Y_STEP = 0.5;
@@ -438,15 +442,36 @@
     // ---------- axes and hover text, shared by every chart with a continuous scale ----------
 
     // The round number ({1, 2, 5} times a power of ten) nearest v.
+    function magnitudeOf(v) {
+        return Math.pow(10, Math.floor(Math.log(v) / Math.LN10));
+    }
+    function nearestOf(v, candidates) {
+        return candidates.slice().sort(function (a, b) {
+            return Math.abs(a - v) - Math.abs(b - v);
+        })[0];
+    }
+    // The round value nearest v: 1, 2, 5 or 10 times its magnitude.
     function roundNear(v) {
-        var mag = Math.pow(10, Math.floor(Math.log(v) / Math.LN10));
-        return [1, 2, 5, 10]
-            .map(function (m) {
+        var mag = magnitudeOf(v);
+        return nearestOf(
+            v,
+            ROUND_MULTIPLIERS.map(function (m) {
                 return m * mag;
-            })
-            .sort(function (a, b) {
-                return Math.abs(a - v) - Math.abs(b - v);
-            })[0];
+            }),
+        );
+    }
+    // The round step nearest v: as roundNear, plus 2.5 times the magnitude when that is a whole
+    // number (25, 250), the quarter steps a scale of points reads in.
+    function roundStep(v) {
+        var mag = magnitudeOf(v);
+        return nearestOf(
+            v,
+            STEP_MULTIPLIERS.filter(function (m) {
+                return m !== 2.5 || mag >= 10;
+            }).map(function (m) {
+                return m * mag;
+            }),
+        );
     }
 
     // A tick's place on a scale, in percent from the top (y) or the left (x).
@@ -470,6 +495,21 @@
         if (mid - lo > clear && hi - mid > clear)
             ticks.splice(1, 0, { at: tickAt(mid, lo, hi, true), value: mid, text: fmt(mid) });
         return ticks;
+    }
+
+    // A scale in round steps, ticked at every one: from the step at or under lo to the first at
+    // or above hi, the step the round value nearest a third of the range. The caller draws on
+    // the returned lo and hi. {lo, hi, ticks: [{at: percent from the top, value, text}]}
+    function stepScale(lo, hi, fmt) {
+        var step = roundStep((hi - lo) / STEP_INTERVALS);
+        var bottom = Math.floor(lo / step) * step;
+        var top = Math.ceil(hi / step) * step;
+        var ticks = [];
+        for (var k = Math.round((top - bottom) / step); k >= 0; k--) {
+            var v = bottom + k * step;
+            ticks.push({ at: tickAt(v, bottom, top, true), value: v, text: fmt(v) });
+        }
+        return { lo: bottom, hi: top, ticks: ticks };
     }
 
     // Whether a tick already shows this value, in which case a reference line at it needs no
@@ -6850,6 +6890,7 @@
         slug: slug,
         plotGrid: plotGrid,
         scaleTicks: scaleTicks,
+        stepScale: stepScale,
         indexTicks: indexTicks,
         columnAt: columnAt,
         tickAt: tickAt,
