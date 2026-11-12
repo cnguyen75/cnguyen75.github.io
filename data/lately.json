@@ -1,46 +1,46 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-11T23:10:00Z",
+  "generated_at": "2026-11-12T23:10:06Z",
   "sources": {
     "sleeper": {
       "label": "sleeper",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T23:10:00Z",
-      "last_ok_at": "2026-11-11T23:10:00Z"
+      "updated_at": "2026-11-12T23:10:06Z",
+      "last_ok_at": "2026-11-12T23:10:06Z"
     },
     "espn": {
       "label": "espn",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T23:10:00Z",
-      "last_ok_at": "2026-11-11T23:10:00Z"
+      "updated_at": "2026-11-12T23:10:06Z",
+      "last_ok_at": "2026-11-12T23:10:06Z"
     },
     "yahoo": {
       "label": "yahoo",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T23:10:00Z",
-      "last_ok_at": "2026-11-11T23:10:00Z"
+      "updated_at": "2026-11-12T23:10:06Z",
+      "last_ok_at": "2026-11-12T23:10:06Z"
     },
     "simkl": {
       "label": "simkl",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T23:10:00Z",
-      "last_ok_at": "2026-11-11T23:10:00Z"
+      "updated_at": "2026-11-12T23:10:06Z",
+      "last_ok_at": "2026-11-12T23:10:06Z"
     },
     "lastfm": {
       "label": "last.fm",
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T23:10:00Z",
-      "last_ok_at": "2026-11-11T23:10:00Z"
+      "updated_at": "2026-11-12T23:10:06Z",
+      "last_ok_at": "2026-11-12T23:10:06Z"
     },
     "beli": {
       "label": "beli",
@@ -55,8 +55,8 @@
       "status": "ok",
       "message": null,
       "schedule": "nightly",
-      "updated_at": "2026-11-11T11:30:05Z",
-      "last_ok_at": "2026-11-11T11:30:05Z"
+      "updated_at": "2026-11-12T11:30:05Z",
+      "last_ok_at": "2026-11-12T11:30:05Z"
     }
   },
   "fantasy": {
@@ -97,7 +97,7 @@
           "L"
         ],
         "luck": 1.36,
-        "win_probability": 0.552,
+        "win_probability": 0.534,
         "win_probability_note": null
       },
       {
@@ -120,7 +120,7 @@
           "W"
         ],
         "luck": 1.44,
-        "win_probability": 0.376,
+        "win_probability": 0.382,
         "win_probability_note": null
       },
       {
@@ -143,7 +143,7 @@
           "W"
         ],
         "luck": 1.11,
-        "win_probability": 0.506,
+        "win_probability": 0.539,
         "win_probability_note": null
       },
       {
@@ -166,7 +166,7 @@
           "W"
         ],
         "luck": -0.05,
-        "win_probability": 0.637,
+        "win_probability": 0.622,
         "win_probability_note": null
       },
       {
@@ -312,18 +312,18 @@
           "L"
         ],
         "luck": 0.78,
-        "win_probability": 0.638,
+        "win_probability": 0.647,
         "win_probability_note": null
       }
     ],
     "top_players": [
       {
         "name": "Bijan Robinson",
-        "points_above_replacement": 12.6
+        "points_above_replacement": 12.3
       },
       {
         "name": "Christian Watson",
-        "points_above_replacement": 10.9
+        "points_above_replacement": 10.86
       },
       {
         "name": "Jaxon Smith-Njigba",
@@ -334,8 +334,8 @@
         "points_above_replacement": 9.85
       },
       {
-        "name": "Kenneth Walker III",
-        "points_above_replacement": 9.77
+        "name": "Christian Watson",
+        "points_above_replacement": 9.83
       }
     ]
   },
@@ -399,8 +399,8 @@
       },
       {
         "films": 0.0,
-        "shows": 0.0,
-        "anime": 0.0
+        "shows": 1.3,
+        "anime": 0.4
       }
     ],
     "recent": [
@@ -474,15 +474,8 @@
         "title": "Kusuriya no Hitorigoto",
         "type": "anime",
         "season": 1,
-        "episode": 5,
+        "episode": 6,
         "url": "https://simkl.com/anime/2830472/kusuriya-no-hitorigoto"
-      },
-      {
-        "title": "Severance",
-        "type": "show",
-        "season": 2,
-        "episode": 9,
-        "url": "https://simkl.com/tv/1203662/severance"
       },
       {
         "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
@@ -490,6 +483,13 @@
         "season": 1,
         "episode": 10,
         "url": "https://simkl.com/anime/2671730/bleach-sennen-kessen-hen---kashin-tan"
+      },
+      {
+        "title": "Cyberpunk: Edgerunners",
+        "type": "anime",
+        "season": null,
+        "episode": null,
+        "url": "https://simkl.com/anime/1377443/cyberpunk-edgerunners"
       },
       {
         "title": "One Piece",
@@ -667,27 +667,27 @@
   },
   "listening": {
     "source": "lastfm",
-    "plays_this_month": 171,
+    "plays_this_month": 206,
     "top_artists": [
       {
         "name": "Kanye West",
-        "plays": 76
+        "plays": 77
       },
       {
         "name": "Kendrick Lamar",
-        "plays": 67
+        "plays": 68
       },
       {
         "name": "The Weeknd",
-        "plays": 61
+        "plays": 62
       },
       {
         "name": "Laufey",
-        "plays": 56
+        "plays": 57
       },
       {
-        "name": "Steve Lacy",
-        "plays": 50
+        "name": "Daniel Caesar",
+        "plays": 51
       }
     ],
     "plays_by_hour": [
@@ -699,19 +699,19 @@
       0,
       0,
       0,
-      28,
-      124,
+      27,
+      123,
       26,
       32,
       33,
       37,
       24,
       23,
-      65,
-      90,
-      135,
-      72,
-      77,
+      56,
+      92,
+      152,
+      78,
+      76,
       66,
       7,
       4
@@ -806,9 +806,9 @@
   "lifting": {
     "source": "hevy",
     "unit": "lb",
-    "data_through": "2026-11-10",
+    "data_through": "2026-11-11",
     "first_workout": "2026-06-16",
-    "workout_count": 108,
+    "workout_count": 109,
     "main_lifts": [
       {
         "name": "Lat Pulldown",
@@ -2111,12 +2111,12 @@
         "exercise": "Lying Leg Curl (Machine)",
         "machine": true,
         "split": "legs",
-        "sessions": 24,
+        "sessions": 25,
         "current": {
-          "date": "2026-11-06",
-          "e1rm": 180.8,
+          "date": "2026-11-11",
+          "e1rm": 186.0,
           "weight": 155.0,
-          "reps": 5
+          "reps": 6
         },
         "best": {
           "date": "2026-08-02",
@@ -2223,6 +2223,10 @@
           {
             "date": "2026-11-06",
             "e1rm": 180.8
+          },
+          {
+            "date": "2026-11-11",
+            "e1rm": 186.0
           }
         ]
       },
@@ -2347,12 +2351,12 @@
         "exercise": "Leg Extension (Machine)",
         "machine": true,
         "split": "legs",
-        "sessions": 18,
+        "sessions": 19,
         "current": {
-          "date": "2026-10-21",
-          "e1rm": 291.7,
-          "weight": 250.0,
-          "reps": 5
+          "date": "2026-11-11",
+          "e1rm": 318.0,
+          "weight": 265.0,
+          "reps": 6
         },
         "best": {
           "date": "2026-08-17",
@@ -2435,6 +2439,10 @@
           {
             "date": "2026-10-21",
             "e1rm": 291.7
+          },
+          {
+            "date": "2026-11-11",
+            "e1rm": 318.0
           }
         ]
       },
@@ -2507,9 +2515,9 @@
         "exercise": "Hip Adduction (Machine)",
         "machine": true,
         "split": "legs",
-        "sessions": 12,
+        "sessions": 13,
         "current": {
-          "date": "2026-11-06",
+          "date": "2026-11-11",
           "e1rm": 228.0,
           "weight": 190.0,
           "reps": 6
@@ -2570,6 +2578,10 @@
           },
           {
             "date": "2026-11-06",
+            "e1rm": 228.0
+          },
+          {
+            "date": "2026-11-11",
             "e1rm": 228.0
           }
         ]
@@ -2633,8 +2645,8 @@
       },
       {
         "week_start": "2026-11-09",
-        "sessions": 2,
-        "volume": 11863
+        "sessions": 3,
+        "volume": 20548
       }
     ],
     "streak_weeks": 22,
@@ -2740,6 +2752,15 @@
           ]
         },
         {
+          "muscle": "abdominals",
+          "sets": [
+            8,
+            2,
+            5,
+            3
+          ]
+        },
+        {
           "muscle": "biceps",
           "sets": [
             8,
@@ -2758,12 +2779,21 @@
           ]
         },
         {
-          "muscle": "abdominals",
+          "muscle": "quadriceps",
           "sets": [
-            8,
+            6,
             2,
-            5,
-            0
+            4,
+            2
+          ]
+        },
+        {
+          "muscle": "hamstrings",
+          "sets": [
+            4,
+            2,
+            4,
+            2
           ]
         },
         {
@@ -2776,15 +2806,6 @@
           ]
         },
         {
-          "muscle": "quadriceps",
-          "sets": [
-            6,
-            2,
-            4,
-            0
-          ]
-        },
-        {
           "muscle": "upper_back",
           "sets": [
             4,
@@ -2794,21 +2815,12 @@
           ]
         },
         {
-          "muscle": "hamstrings",
-          "sets": [
-            4,
-            2,
-            4,
-            0
-          ]
-        },
-        {
           "muscle": "adductors",
           "sets": [
             2,
             2,
             4,
-            0
+            2
           ]
         },
         {
@@ -2881,7 +2893,7 @@
     }
   },
   "analysis": {
-    "as_of": "2026-11-11",
+    "as_of": "2026-11-12",
     "fantasy": {
       "teams": [
         {
@@ -2893,7 +2905,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "small_sample": false,
             "value": 0.053,
@@ -2911,7 +2923,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "small_sample": false,
             "values": {
@@ -2931,7 +2943,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 195.5,
@@ -2987,7 +2999,7 @@
               "waiver_hits_left_on_bench": {
                 "adds": 3,
                 "benched_points": 85.2,
-                "points_available": 16.44
+                "points_available": 16.42
               }
             }
           },
@@ -2995,7 +3007,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "value": 0.378,
@@ -3008,7 +3020,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.194,
@@ -3022,7 +3034,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "small_sample": false,
             "value": 1.29,
@@ -3075,7 +3087,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -3139,7 +3151,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 205.98,
@@ -3167,7 +3179,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -3193,7 +3205,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "small_sample": false,
             "values": {
@@ -3305,7 +3317,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "small_sample": false,
             "values": {
@@ -3387,7 +3399,7 @@
             "status": "ok",
             "n": 12,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.5,
@@ -3401,8 +3413,8 @@
                 "insurance": 0
               },
               "judged": 12,
-              "net_points_available": -35.12,
-              "net_points_captured": -49.8,
+              "net_points_available": -35.21,
+              "net_points_captured": -49.86,
               "adds_per_week": 1.56,
               "all": [
                 {
@@ -3418,8 +3430,8 @@
                   },
                   "weeks_on_roster": 9,
                   "weeks_started": 6,
-                  "points_available": 14.4,
-                  "points_captured": 8.13,
+                  "points_available": 14.35,
+                  "points_captured": 8.1,
                   "class": "hit, captured",
                   "best": true,
                   "worst": false
@@ -3555,8 +3567,8 @@
                   },
                   "weeks_on_roster": 3,
                   "weeks_started": 1,
-                  "points_available": 12.07,
-                  "points_captured": -3.04,
+                  "points_available": 12.05,
+                  "points_captured": -3.05,
                   "class": "hit, left on the bench",
                   "best": true,
                   "worst": false
@@ -3612,8 +3624,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": -4.44,
-                  "points_captured": -4.44,
+                  "points_available": -4.45,
+                  "points_captured": -4.45,
                   "class": "miss",
                   "best": false,
                   "worst": false
@@ -3631,8 +3643,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": -8.34,
-                  "points_captured": -8.34,
+                  "points_available": -8.35,
+                  "points_captured": -8.35,
                   "class": "miss",
                   "best": false,
                   "worst": true
@@ -3690,8 +3702,8 @@
                   },
                   "weeks_on_roster": 9,
                   "weeks_started": 6,
-                  "points_available": 14.4,
-                  "points_captured": 8.13,
+                  "points_available": 14.35,
+                  "points_captured": 8.1,
                   "class": "hit, captured"
                 },
                 {
@@ -3707,8 +3719,8 @@
                   },
                   "weeks_on_roster": 3,
                   "weeks_started": 1,
-                  "points_available": 12.07,
-                  "points_captured": -3.04,
+                  "points_available": 12.05,
+                  "points_captured": -3.05,
                   "class": "hit, left on the bench"
                 },
                 {
@@ -3779,8 +3791,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": -8.34,
-                  "points_captured": -8.34,
+                  "points_available": -8.35,
+                  "points_captured": -8.35,
                   "class": "miss"
                 }
               ]
@@ -3794,7 +3806,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -3820,7 +3832,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": -19.73,
@@ -3959,7 +3971,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "small_sample": false,
             "value": 0.224,
@@ -3977,7 +3989,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "small_sample": false,
             "values": {
@@ -3997,7 +4009,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 215.2,
@@ -4062,7 +4074,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "value": 0.267,
@@ -4075,7 +4087,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.221,
@@ -4089,7 +4101,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "small_sample": false,
             "value": 1.37,
@@ -4142,7 +4154,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -4206,7 +4218,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 372.32,
@@ -4234,7 +4246,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -4260,7 +4272,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "small_sample": false,
             "values": {
@@ -4354,7 +4366,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "small_sample": false,
             "values": {
@@ -4436,7 +4448,7 @@
             "status": "ok",
             "n": 20,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.2,
@@ -4450,8 +4462,8 @@
                 "insurance": 1
               },
               "judged": 20,
-              "net_points_available": -72.46,
-              "net_points_captured": -61.81,
+              "net_points_available": -72.01,
+              "net_points_captured": -62.05,
               "adds_per_week": 2.78,
               "all": [
                 {
@@ -4467,7 +4479,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -6.82,
+                  "points_available": -6.72,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -4507,7 +4519,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -3.22,
+                  "points_available": -3.12,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -4526,8 +4538,8 @@
                   },
                   "weeks_on_roster": 7,
                   "weeks_started": 5,
-                  "points_available": -1.12,
-                  "points_captured": -9.98,
+                  "points_available": -0.46,
+                  "points_captured": -9.51,
                   "class": "miss",
                   "best": false,
                   "worst": false
@@ -4545,7 +4557,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -8.52,
+                  "points_available": -8.42,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -4583,7 +4595,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -9.92,
+                  "points_available": -9.82,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -4874,8 +4886,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": -2.75,
-                  "points_captured": -2.75,
+                  "points_available": -3.46,
+                  "points_captured": -3.46,
                   "class": "stash",
                   "best": false,
                   "worst": false
@@ -4893,7 +4905,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": 1.78,
+                  "points_available": 1.88,
                   "points_captured": 0.0,
                   "class": "stash",
                   "best": false,
@@ -5058,7 +5070,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -5084,7 +5096,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": -118.62,
@@ -5239,7 +5251,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "small_sample": false,
             "value": 0.871,
@@ -5257,7 +5269,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "small_sample": false,
             "values": {
@@ -5277,7 +5289,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 237.62,
@@ -5341,7 +5353,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "value": 0.45,
@@ -5354,7 +5366,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.255,
@@ -5368,7 +5380,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "small_sample": false,
             "value": -0.94,
@@ -5421,7 +5433,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -5485,7 +5497,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 106.8,
@@ -5513,7 +5525,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -5539,7 +5551,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "small_sample": false,
             "values": {
@@ -5639,7 +5651,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "small_sample": false,
             "values": {
@@ -5721,7 +5733,7 @@
             "status": "ok",
             "n": 15,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.267,
@@ -5735,7 +5747,7 @@
                 "insurance": 0
               },
               "judged": 15,
-              "net_points_available": -20.79,
+              "net_points_available": -21.11,
               "net_points_captured": -55.57,
               "adds_per_week": 1.67,
               "all": [
@@ -5963,7 +5975,7 @@
                   },
                   "weeks_on_roster": 3,
                   "weeks_started": 0,
-                  "points_available": -3.65,
+                  "points_available": -3.97,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -6149,7 +6161,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -6175,7 +6187,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": 171.11,
@@ -6322,7 +6334,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "missing": "guillotine"
           },
@@ -6330,7 +6342,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "missing": "guillotine"
           },
@@ -6338,7 +6350,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 151.18,
@@ -6394,7 +6406,7 @@
               "waiver_hits_left_on_bench": {
                 "adds": 1,
                 "benched_points": 45.6,
-                "points_available": 8.46
+                "points_available": 6.14
               }
             }
           },
@@ -6402,7 +6414,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "values": {
@@ -6414,7 +6426,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.193,
@@ -6428,7 +6440,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "missing": "guillotine"
           },
@@ -6436,7 +6448,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -6500,7 +6512,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 275.24,
@@ -6528,7 +6540,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -6550,7 +6562,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "missing": "guillotine"
           },
@@ -6558,7 +6570,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "missing": "guillotine"
           },
@@ -6566,7 +6578,7 @@
             "status": "ok",
             "n": 13,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.385,
@@ -6580,8 +6592,8 @@
                 "insurance": 0
               },
               "judged": 13,
-              "net_points_available": -148.77,
-              "net_points_captured": -30.5,
+              "net_points_available": -152.25,
+              "net_points_captured": -31.66,
               "adds_per_week": 1.67,
               "all": [
                 {
@@ -6698,8 +6710,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": -8.01,
-                  "points_captured": -8.01,
+                  "points_available": -8.59,
+                  "points_captured": -8.59,
                   "class": "miss",
                   "best": false,
                   "worst": false
@@ -6738,7 +6750,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -3.91,
+                  "points_available": -4.49,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -6757,8 +6769,8 @@
                   },
                   "weeks_on_roster": 4,
                   "weeks_started": 1,
-                  "points_available": 8.46,
-                  "points_captured": -5.31,
+                  "points_available": 6.14,
+                  "points_captured": -5.89,
                   "class": "hit, left on the bench",
                   "best": true,
                   "worst": false
@@ -6926,8 +6938,8 @@
                   },
                   "weeks_on_roster": 4,
                   "weeks_started": 1,
-                  "points_available": 8.46,
-                  "points_captured": -5.31,
+                  "points_available": 6.14,
+                  "points_captured": -5.89,
                   "class": "hit, left on the bench"
                 }
               ],
@@ -6998,7 +7010,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -7024,7 +7036,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": 317.44,
@@ -7155,7 +7167,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "missing": "guillotine"
           },
@@ -7163,7 +7175,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "missing": "guillotine"
           },
@@ -7171,7 +7183,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 27.02,
@@ -7235,7 +7247,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "values": {
@@ -7247,7 +7259,7 @@
             "status": "ok",
             "n": 1,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": true,
             "values": {
@@ -7260,7 +7272,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "missing": "guillotine"
           },
@@ -7268,7 +7280,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -7332,7 +7344,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 0.0,
@@ -7347,7 +7359,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -7369,7 +7381,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "missing": "guillotine"
           },
@@ -7377,7 +7389,7 @@
             "status": "not available from source",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "missing": "guillotine"
           },
@@ -7385,7 +7397,7 @@
             "status": "ok",
             "n": 1,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": true,
             "value": 0.0,
@@ -7471,7 +7483,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -7497,7 +7509,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": -455.91,
@@ -7628,7 +7640,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "small_sample": false,
             "value": 0.272,
@@ -7645,7 +7657,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "small_sample": false,
             "values": {
@@ -7665,7 +7677,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 114.6,
@@ -7720,7 +7732,7 @@
               "waiver_hits_left_on_bench": {
                 "adds": 2,
                 "benched_points": 34.4,
-                "points_available": 10.38
+                "points_available": 10.1
               }
             }
           },
@@ -7728,7 +7740,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "values": {
@@ -7740,7 +7752,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.284,
@@ -7754,7 +7766,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "small_sample": false,
             "value": 0.86,
@@ -7807,7 +7819,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -7871,7 +7883,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 219.18,
@@ -7899,7 +7911,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -7925,7 +7937,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "small_sample": false,
             "values": {
@@ -8019,7 +8031,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "small_sample": false,
             "values": {
@@ -8101,7 +8113,7 @@
             "status": "ok",
             "n": 15,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.667,
@@ -8115,8 +8127,8 @@
                 "insurance": 0
               },
               "judged": 15,
-              "net_points_available": 33.04,
-              "net_points_captured": 32.16,
+              "net_points_available": 32.26,
+              "net_points_captured": 31.87,
               "adds_per_week": 1.78,
               "all": [
                 {
@@ -8210,8 +8222,8 @@
                   },
                   "weeks_on_roster": 6,
                   "weeks_started": 3,
-                  "points_available": 39.83,
-                  "points_captured": 16.97,
+                  "points_available": 39.5,
+                  "points_captured": 16.8,
                   "class": "hit, captured",
                   "best": true,
                   "worst": false
@@ -8229,8 +8241,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": 19.04,
-                  "points_captured": 19.04,
+                  "points_available": 18.98,
+                  "points_captured": 18.98,
                   "class": "hit, captured",
                   "best": true,
                   "worst": false
@@ -8248,8 +8260,8 @@
                   },
                   "weeks_on_roster": 3,
                   "weeks_started": 1,
-                  "points_available": 4.97,
-                  "points_captured": 2.96,
+                  "points_available": 4.8,
+                  "points_captured": 2.9,
                   "class": "hit, left on the bench",
                   "best": false,
                   "worst": false
@@ -8383,7 +8395,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -5.99,
+                  "points_available": -6.1,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -8402,7 +8414,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": 5.41,
+                  "points_available": 5.3,
                   "points_captured": 0.0,
                   "class": "hit, left on the bench",
                   "best": true,
@@ -8442,8 +8454,8 @@
                   },
                   "weeks_on_roster": 6,
                   "weeks_started": 3,
-                  "points_available": 39.83,
-                  "points_captured": 16.97,
+                  "points_available": 39.5,
+                  "points_captured": 16.8,
                   "class": "hit, captured"
                 },
                 {
@@ -8459,8 +8471,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": 19.04,
-                  "points_captured": 19.04,
+                  "points_available": 18.98,
+                  "points_captured": 18.98,
                   "class": "hit, captured"
                 },
                 {
@@ -8476,7 +8488,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": 5.41,
+                  "points_available": 5.3,
                   "points_captured": 0.0,
                   "class": "hit, left on the bench"
                 }
@@ -8529,7 +8541,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -5.99,
+                  "points_available": -6.1,
                   "points_captured": 0.0,
                   "class": "miss"
                 }
@@ -8544,7 +8556,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -8570,7 +8582,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": -260.81,
@@ -8709,7 +8721,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "10,000 simulated seasons: each remaining game's score is drawn from that team's own weekly scores (with under 4 weeks, every team's scores shifted to its mean), and teams are seeded by wins, then total points, as the league's settings say.",
             "small_sample": false,
             "value": 0.952,
@@ -8727,7 +8739,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week my score against the median of every team's score that week, beside all-play (my score against every other team's each week).",
             "small_sample": false,
             "values": {
@@ -8747,7 +8759,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each week the best lineup my roster allowed under the league's slot rules, with hindsight, minus what I started; ranked against every team (1 = fewest points left on the bench); and, apart, waiver adds that out-produced their baseline but sat on my bench.",
             "small_sample": false,
             "value": 85.9,
@@ -8802,7 +8814,7 @@
               "waiver_hits_left_on_bench": {
                 "adds": 3,
                 "benched_points": 35.1,
-                "points_available": 9.9
+                "points_available": 9.22
               }
             }
           },
@@ -8810,7 +8822,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "A close call is a starter and the best-projected bench player who could fill that slot projected within 3 points of each other; it was right if the starter scored at least as much.",
             "small_sample": false,
             "values": {
@@ -8822,7 +8834,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Standard deviation of my weekly scores divided by their mean (lower = steadier), ranked against every team (1 = steadiest).",
             "small_sample": false,
             "value": 0.258,
@@ -8836,7 +8848,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "The season scoring average of each opponent I've played, averaged, minus the league's average weekly score; ranked against every team (1 = hardest schedule).",
             "small_sample": false,
             "value": 0.05,
@@ -8889,7 +8901,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "For each of my picks, its rank in points per game among every drafted player who has played, minus where it was drafted (negative = better than its draft slot).",
             "small_sample": false,
             "values": {
@@ -8953,7 +8965,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in my starting lineup by players I didn't draft (waivers, free agents, trades), and their share of my starters' points.",
             "small_sample": false,
             "value": 290.68,
@@ -8981,7 +8993,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Share of my starters' points from each position, beside the average of every team's shares.",
             "small_sample": false,
             "values": {
@@ -9007,7 +9019,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My scores replayed against each other team's opponents week by week (where that opponent was me, against that team instead); how many of those schedules give me a better or worse record.",
             "small_sample": false,
             "values": {
@@ -9125,7 +9137,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My score minus my opponent's each completed week; close games are decided by under 5 points.",
             "small_sample": false,
             "values": {
@@ -9207,7 +9219,7 @@
             "status": "ok",
             "n": 23,
             "min_n": 5,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each add after the draft, judged on his points while on my roster against the dropped player's points per game elsewhere, else the replacement level. Out-producing it is a hit (captured or benched), else a miss, stash or insurance. The value is the hit rate with a 95% Wilson interval.",
             "small_sample": false,
             "value": 0.522,
@@ -9221,8 +9233,8 @@
                 "insurance": 0
               },
               "judged": 23,
-              "net_points_available": 77.48,
-              "net_points_captured": 116.14,
+              "net_points_available": 76.1,
+              "net_points_captured": 116.01,
               "adds_per_week": 2.89,
               "all": [
                 {
@@ -9316,7 +9328,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -2.0,
+                  "points_available": -2.04,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9335,7 +9347,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -8.3,
+                  "points_available": -8.39,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9392,7 +9404,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": 2.1,
+                  "points_available": 2.06,
                   "points_captured": 0.0,
                   "class": "hit, left on the bench",
                   "best": false,
@@ -9449,8 +9461,8 @@
                   },
                   "weeks_on_roster": 5,
                   "weeks_started": 2,
-                  "points_available": -3.8,
-                  "points_captured": 2.2,
+                  "points_available": -4.02,
+                  "points_captured": 2.11,
                   "class": "miss",
                   "best": false,
                   "worst": false
@@ -9489,7 +9501,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": -6.7,
+                  "points_available": -6.74,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9527,7 +9539,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -1.1,
+                  "points_available": -1.19,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9546,7 +9558,7 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 0,
-                  "points_available": 6.0,
+                  "points_available": 5.96,
                   "points_captured": 0.0,
                   "class": "hit, left on the bench",
                   "best": false,
@@ -9565,7 +9577,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -11.4,
+                  "points_available": -11.49,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9603,7 +9615,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -1.5,
+                  "points_available": -1.59,
                   "points_captured": 0.0,
                   "class": "miss",
                   "best": false,
@@ -9622,7 +9634,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": 1.8,
+                  "points_available": 1.2,
                   "points_captured": 0.0,
                   "class": "hit, left on the bench",
                   "best": false,
@@ -9660,8 +9672,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": 7.78,
-                  "points_captured": 7.78,
+                  "points_available": 7.74,
+                  "points_captured": 7.74,
                   "class": "hit, captured",
                   "best": true,
                   "worst": false
@@ -9757,8 +9769,8 @@
                   },
                   "weeks_on_roster": 1,
                   "weeks_started": 1,
-                  "points_available": 7.78,
-                  "points_captured": 7.78,
+                  "points_available": 7.74,
+                  "points_captured": 7.74,
                   "class": "hit, captured"
                 },
                 {
@@ -9793,7 +9805,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -11.4,
+                  "points_available": -11.49,
                   "points_captured": 0.0,
                   "class": "miss"
                 },
@@ -9810,7 +9822,7 @@
                   },
                   "weeks_on_roster": 2,
                   "weeks_started": 0,
-                  "points_available": -8.3,
+                  "points_available": -8.39,
                   "points_captured": 0.0,
                   "class": "miss"
                 },
@@ -9842,7 +9854,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points scored in each team's starting lineup over the completed weeks, split by how the player reached that roster (drafted; a waiver claim or free-agent pickup; a trade; otherwise kept or commissioner-moved), mine against the league's median team on each split.",
             "small_sample": false,
             "values": {
@@ -9868,7 +9880,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Each of my picks' points to date while on my roster (started or benched over the completed weeks, nothing after a drop) against the median of the same for every player taken in that round league-wide; value is my residuals summed.",
             "small_sample": false,
             "value": -41.07,
@@ -10005,7 +10017,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Actual minus projected points for every player I started; bias is the mean (positive = the platform under-projected), with a 95% t-interval, and MAE the mean absolute error.",
             "small_sample": false,
             "value": -1.36,
@@ -10057,7 +10069,7 @@
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Actual minus projected points for every player I started; bias is the mean (positive = the platform under-projected), with a 95% t-interval, and MAE the mean absolute error.",
             "small_sample": false,
             "value": -1.17,
@@ -10109,7 +10121,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Actual minus projected points for every player I started; bias is the mean (positive = the platform under-projected), with a 95% t-interval, and MAE the mean absolute error.",
             "values": {
               "first_unit": "one player I started with a projection"
@@ -10121,7 +10133,7 @@
         "status": "ok",
         "n": 9,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For every team in my leagues over the completed weeks: the all-play win share (my score against every other team's each week, ties half) against luck, actual wins minus the sum of weekly all-play shares. My teams carry a week-by-week trail; other teams are labelled points.",
         "small_sample": false,
         "values": {
@@ -10967,7 +10979,7 @@
             "status": "ok",
             "n": 106,
             "min_n": 10,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points per week my picks scored on my roster above their round's baseline: each league's pick points standardised, the round's mean across my leagues mapped back onto each league's scale. The interval is a bootstrap over my picks; rank and percentile are among every manager across my leagues.",
             "small_sample": false,
             "value": -15.48,
@@ -10986,7 +10998,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 2,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points per week my set lineup gave up against the best legal lineup by the projections known at each player's kickoff, from the last snapshot before it. A t-interval over my team-weeks, needing two weeks of snapshots; rank and percentile are among every manager across my leagues.",
             "values": {
               "first_unit": "one completed week with a lineup snapshot taken"
@@ -10996,26 +11008,26 @@
             "status": "ok",
             "n": 102,
             "min_n": 3,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "Points per week from my waiver claims, pickups and trades: each acquired player's points on my roster from the move's week, minus what the players he replaced scored over the same weeks elsewhere, else their season average. Rank and percentile are among every manager across my leagues.",
             "small_sample": false,
-            "value": 14.77,
+            "value": 14.61,
             "values": {
-              "rank": 22,
+              "rank": 23,
               "of": 76,
-              "percentile": 0.72,
+              "percentile": 0.707,
               "moves": 102
             },
             "interval": [
-              7.81,
-              22.29
+              7.6,
+              22.06
             ]
           },
           "strength": {
             "status": "ok",
             "n": 9,
             "min_n": 4,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My all-play win share over the completed weeks, pooled across my teams, with a Wilson interval; rank in each league and, for the percentile, among every manager across my leagues.",
             "small_sample": false,
             "value": 0.466,
@@ -11072,32 +11084,32 @@
           "status": "ok",
           "n": 9,
           "min_n": 1,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "The mean of the ok components' percentiles, the share of managers across my leagues I beat on each; the interval a bootstrap over the completed weeks, every component recomputed on each resample.",
           "small_sample": false,
-          "value": 0.48,
+          "value": 0.476,
           "values": {
-            "percentile": 0.48,
+            "percentile": 0.476,
             "components": {
               "draft": 0.24,
-              "moves": 0.72,
+              "moves": 0.707,
               "strength": 0.48
             }
           },
           "interval": [
             0.348,
-            0.574
+            0.569
           ]
         }
       }
     },
     "listening": {
-      "plays": 889,
+      "plays": 924,
       "album_half_life": {
         "status": "ok",
         "n": 7,
         "min_n": 3,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For albums with at least 10 plays in their first 7 days, an exponential decay fitted (Poisson, by maximum likelihood) to daily plays over their first 4 weeks; the median half-life across albums, and this week's most-played album with its half-life so far.",
         "small_sample": false,
         "value": 2.0,
@@ -11108,7 +11120,7 @@
             "artist": "Rex Orange County",
             "album": "Dream Fatigue",
             "plays_last_7_days": 6,
-            "days_so_far": 4,
+            "days_so_far": 5,
             "half_life_days": null,
             "half_life_interval": null,
             "status": "not enough data yet"
@@ -11119,15 +11131,15 @@
         "status": "ok",
         "n": 1,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Share of each month's plays by artists first played that month (none earlier in the archive); months with at least 50 plays, from the archive's second month.",
         "small_sample": false,
         "values": {
           "months": [
             {
               "month": "2026-11",
-              "share": 0.094,
-              "plays": 171
+              "share": 0.117,
+              "plays": 206
             }
           ]
         }
@@ -11136,7 +11148,7 @@
         "status": "not available from source",
         "n": 0,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Share of plays whose previous play, within 15 minutes, is the preceding track of the same album.",
         "missing": "track number on the album (scrobbles carry the album's name only)"
       },
@@ -11144,10 +11156,10 @@
         "status": "ok",
         "n": 6,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Each month (with at least 50 plays) the five most-played artists' share of plays, the same by ISO week while the archive is young (every week with a play, with its play count); and the most plays of one track in one day; the value is the latest week's share.",
         "small_sample": false,
-        "value": 0.283,
+        "value": 0.259,
         "values": {
           "months": [
             {
@@ -11157,8 +11169,8 @@
             },
             {
               "month": "2026-11",
-              "top_five_share": 0.38,
-              "plays": 171
+              "top_five_share": 0.354,
+              "plays": 206
             }
           ],
           "weeks": [
@@ -11189,8 +11201,8 @@
             },
             {
               "week_start": "2026-11-09",
-              "top_five_share": 0.283,
-              "plays": 46
+              "top_five_share": 0.259,
+              "plays": 81
             }
           ],
           "most_in_a_day": {
@@ -11203,9 +11215,9 @@
       },
       "heatmap": {
         "status": "ok",
-        "n": 32,
+        "n": 33,
         "min_n": 14,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Plays by weekday (Monday first) and hour, Pacific; and plays per weekday against per weekend day, over every day since the first play.",
         "small_sample": false,
         "values": {
@@ -11280,8 +11292,8 @@
               0,
               0,
               0,
-              9,
-              50,
+              11,
+              57,
               0,
               0,
               0,
@@ -11289,9 +11301,9 @@
               0,
               0,
               1,
-              28,
-              41,
-              9,
+              30,
+              58,
+              15,
               4,
               16,
               2,
@@ -11307,7 +11319,7 @@
               0,
               0,
               2,
-              24,
+              25,
               0,
               0,
               1,
@@ -11402,7 +11414,7 @@
               6
             ]
           ],
-          "per_weekday": 26.5,
+          "per_weekday": 26.9,
           "per_weekend_day": 31.0
         }
       },
@@ -11410,7 +11422,7 @@
         "status": "ok",
         "n": 2,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Each month's plays (months with at least 50) by the artist's top Last.fm tag, the 8 largest named, the rest as other; artists not yet looked up are untagged.",
         "small_sample": false,
         "values": {
@@ -11433,18 +11445,18 @@
             },
             {
               "month": "2026-11",
-              "plays": 171,
+              "plays": 206,
               "genres": {
-                "rnb": 0.409,
-                "hip-hop": 0.263,
-                "soul": 0.099,
-                "pop": 0.058,
-                "indie pop": 0.041,
-                "free jazz": 0.023,
-                "acoustic": 0.012,
-                "jazz": 0.012,
-                "other": 0.058,
-                "untagged": 0.023
+                "rnb": 0.369,
+                "hip-hop": 0.272,
+                "soul": 0.092,
+                "pop": 0.053,
+                "indie pop": 0.034,
+                "indie": 0.024,
+                "rap": 0.024,
+                "free jazz": 0.019,
+                "other": 0.087,
+                "untagged": 0.024
               }
             }
           ]
@@ -11454,7 +11466,7 @@
         "status": "ok",
         "n": 2,
         "min_n": 4,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Artists with at least 20 plays in a month after 3 or more months with none (and some play before that), newest first.",
         "small_sample": true,
         "values": {
@@ -11465,7 +11477,7 @@
         "status": "not enough data yet",
         "n": 0,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Hours between a new track's first and second play (new = first played after the archive's first 30 days); the median over tracks played twice.",
         "values": {
           "first_unit": "one track first played after the archive's first 30 days and played a second time"
@@ -11475,10 +11487,10 @@
         "status": "ok",
         "n": 6,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Shannon entropy, in bits, of plays across artists, by month (months with at least 50 plays) and by ISO week while the archive is young (every week with a play), with the equivalent number of equally played artists, 2 to the entropy; the value is the latest week's.",
         "small_sample": false,
-        "value": 4.94,
+        "value": 5.46,
         "values": {
           "months": [
             {
@@ -11490,10 +11502,10 @@
             },
             {
               "month": "2026-11",
-              "plays": 171,
-              "artists": 74,
-              "entropy_bits": 5.39,
-              "effective_artists": 42.1
+              "plays": 206,
+              "artists": 88,
+              "entropy_bits": 5.66,
+              "effective_artists": 50.5
             }
           ],
           "weeks": [
@@ -11534,10 +11546,10 @@
             },
             {
               "week_start": "2026-11-09",
-              "plays": 46,
-              "artists": 34,
-              "entropy_bits": 4.94,
-              "effective_artists": 30.7
+              "plays": 81,
+              "artists": 52,
+              "entropy_bits": 5.46,
+              "effective_artists": 44.1
             }
           ]
         }
@@ -11546,10 +11558,10 @@
         "status": "ok",
         "n": 6,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "The median release year of the tracks played each month (months with at least 50 plays and 25 with a known year) and by ISO week; the value is the latest week's. Release years come from Last.fm's album wiki, else the Apple Music library; plays with neither are left out.",
         "small_sample": false,
-        "value": 2016,
+        "value": 2018,
         "values": {
           "months": [
             {
@@ -11560,8 +11572,8 @@
             },
             {
               "month": "2026-11",
-              "plays": 171,
-              "known": 164,
+              "plays": 206,
+              "known": 199,
               "median_release_year": 2018
             }
           ],
@@ -11598,9 +11610,9 @@
             },
             {
               "week_start": "2026-11-09",
-              "plays": 46,
-              "known": 44,
-              "median_release_year": 2016
+              "plays": 81,
+              "known": 79,
+              "median_release_year": 2018
             }
           ],
           "unknown_albums": 14,
@@ -11611,7 +11623,7 @@
         "status": "not enough data yet",
         "n": 0,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each month after the archive's first, the share of artists first played that month with another play within 30 and 90 days. A month is listed once every first play's 30 days are up, the 90-day figure null until those are; the value is the latest 30-day share.",
         "values": {
           "first_unit": "one month after the archive's first whose new artists are all 30 days past their first play"
@@ -11621,7 +11633,7 @@
         "status": "ok",
         "n": 399,
         "min_n": 20,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "From Apple Music's lifetime play counts: each artist's plays divided by the years since their first track entered the library. Most tracks entered on the day the library was synced, not at a first listen, so the rate is plays per year of library membership; the top 15.",
         "small_sample": false,
         "values": {
@@ -11637,105 +11649,105 @@
               "plays": 4146,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 1231.2
+              "plays_per_year": 1230.2
             },
             {
               "artist": "Kanye West",
               "plays": 3790,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 1125.4
+              "plays_per_year": 1124.5
             },
             {
               "artist": "J. Cole",
               "plays": 1754,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 520.9
+              "plays_per_year": 520.4
             },
             {
               "artist": "Steve Lacy",
               "plays": 1136,
               "first_added": "2024-06",
               "years": 2.4,
-              "plays_per_year": 476.9
+              "plays_per_year": 476.4
             },
             {
               "artist": "The Weeknd",
               "plays": 1515,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 449.9
+              "plays_per_year": 449.5
             },
             {
               "artist": "Laufey",
               "plays": 1368,
               "first_added": "2023-09",
               "years": 3.2,
-              "plays_per_year": 431.5
+              "plays_per_year": 431.1
             },
             {
               "artist": "Drake",
               "plays": 1146,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 340.3
+              "plays_per_year": 340.0
             },
             {
               "artist": "Bruno Mars",
               "plays": 1053,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 312.7
+              "plays_per_year": 312.4
             },
             {
               "artist": "Frank Ocean",
               "plays": 953,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 283.0
+              "plays_per_year": 282.8
             },
             {
               "artist": "Baby Keem",
               "plays": 925,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 274.7
+              "plays_per_year": 274.5
             },
             {
               "artist": "Tyler, The Creator",
               "plays": 873,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 259.2
+              "plays_per_year": 259.0
             },
             {
               "artist": "Daniel Caesar",
               "plays": 632,
               "first_added": "2023-12",
               "years": 2.9,
-              "plays_per_year": 217.4
+              "plays_per_year": 217.2
             },
             {
               "artist": "SZA",
               "plays": 685,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 203.4
+              "plays_per_year": 203.2
             },
             {
               "artist": "Mac Miller",
               "plays": 547,
               "first_added": "2023-06",
               "years": 3.4,
-              "plays_per_year": 162.4
+              "plays_per_year": 162.3
             },
             {
               "artist": "Rex Orange County",
               "plays": 285,
               "first_added": "2025-01",
               "years": 1.8,
-              "plays_per_year": 156.3
+              "plays_per_year": 156.1
             }
           ]
         }
@@ -11744,7 +11756,7 @@
         "status": "ok",
         "n": 115,
         "min_n": 30,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Months an artist stays in rotation, from their first track entering the library to their last play; a play in the last 60 days counts as ongoing. Kaplan–Meier curves by discovery type, a log-rank test and Cox hazard ratios. Cohort: artists added after the export's first recorded play.",
         "small_sample": false,
         "value": 0.92,
@@ -12125,7 +12137,7 @@
         "status": "ok",
         "n": 398,
         "min_n": 30,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Months an artist stays in rotation, from their first track entering the library to their last play; a play in the last 60 days counts as ongoing. Kaplan–Meier curves by discovery type, a log-rank test and Cox hazard ratios. Every artist counted, sync-day additions dated from the sync.",
         "small_sample": false,
         "value": 1.4,
@@ -13185,7 +13197,7 @@
         "status": "ok",
         "n": 63,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each album in the Apple Music library with at least 5 tracks and 20 plays, the Gini coefficient of plays across its tracks (0: every track played equally; near 1: one track has them all). The value is the share of such albums below 0.4, played as albums.",
         "small_sample": false,
         "value": 1.0,
@@ -13643,7 +13655,7 @@
         "status": "ok",
         "n": 851,
         "min_n": 50,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Of the tracks added to the Apple Music library each year, the share released at least 5 years earlier (digging back) against the rest (keeping up), by the year added. Tracks added on the sync date, when the library came in whole, are left out.",
         "small_sample": false,
         "value": 0.558,
@@ -13693,13 +13705,13 @@
           "status": "ok",
           "n": 26,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 5.5,
           "values": {
             "sessions": 26,
-            "sessions_per_week": 1.22,
+            "sessions_per_week": 1.21,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 10,
@@ -13720,13 +13732,13 @@
           "status": "ok",
           "n": 25,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": -2.7,
           "values": {
             "sessions": 25,
-            "sessions_per_week": 1.2,
+            "sessions_per_week": 1.19,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 9,
@@ -13743,11 +13755,38 @@
             -0.6
           ]
         },
+        "Lying Leg Curl": {
+          "status": "ok",
+          "n": 25,
+          "min_n": 6,
+          "as_of": "2026-11-12",
+          "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+          "small_sample": false,
+          "value": 4.5,
+          "values": {
+            "sessions": 25,
+            "sessions_per_week": 1.17,
+            "plateau": true,
+            "last_8_weeks": {
+              "sessions": 9,
+              "direction": "flat",
+              "lb_per_month": 1.7,
+              "interval": [
+                -2.5,
+                6.0
+              ]
+            }
+          },
+          "interval": [
+            0.4,
+            8.7
+          ]
+        },
         "Single Arm Triceps Pushdown": {
           "status": "ok",
           "n": 25,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 1.7,
@@ -13770,44 +13809,17 @@
             2.5
           ]
         },
-        "Lying Leg Curl": {
-          "status": "ok",
-          "n": 24,
-          "min_n": 6,
-          "as_of": "2026-11-11",
-          "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
-          "small_sample": false,
-          "value": 4.6,
-          "values": {
-            "sessions": 24,
-            "sessions_per_week": 1.14,
-            "plateau": true,
-            "last_8_weeks": {
-              "sessions": 8,
-              "direction": "flat",
-              "lb_per_month": 0.0,
-              "interval": [
-                -3.8,
-                3.7
-              ]
-            }
-          },
-          "interval": [
-            0.1,
-            9.2
-          ]
-        },
         "Hack Squat": {
           "status": "ok",
           "n": 23,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 2.0,
           "values": {
             "sessions": 23,
-            "sessions_per_week": 1.09,
+            "sessions_per_week": 1.08,
             "plateau": false,
             "last_8_weeks": {
               "sessions": 8,
@@ -13828,7 +13840,7 @@
           "status": "ok",
           "n": 23,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 3.5,
@@ -13855,13 +13867,13 @@
           "status": "ok",
           "n": 21,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": -0.7,
           "values": {
             "sessions": 21,
-            "sessions_per_week": 0.99,
+            "sessions_per_week": 0.98,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 8,
@@ -13880,39 +13892,42 @@
         },
         "Leg Extension": {
           "status": "ok",
-          "n": 18,
+          "n": 19,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
-          "value": 13.1,
+          "value": 11.5,
           "values": {
-            "sessions": 18,
-            "sessions_per_week": 0.85,
-            "plateau": null,
+            "sessions": 19,
+            "sessions_per_week": 0.89,
+            "plateau": true,
             "last_8_weeks": {
-              "sessions": 3,
-              "direction": null,
-              "lb_per_month": null,
-              "interval": null
+              "sessions": 4,
+              "direction": "flat",
+              "lb_per_month": -2.9,
+              "interval": [
+                -62.7,
+                56.9
+              ]
             }
           },
           "interval": [
-            -1.3,
-            27.4
+            -0.6,
+            23.6
           ]
         },
         "Reverse Fly Single Arm": {
           "status": "ok",
           "n": 18,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 0.5,
           "values": {
             "sessions": 18,
-            "sessions_per_week": 0.85,
+            "sessions_per_week": 0.84,
             "plateau": false,
             "last_8_weeks": {
               "sessions": 7,
@@ -13933,7 +13948,7 @@
           "status": "ok",
           "n": 16,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": -0.1,
@@ -13960,13 +13975,13 @@
           "status": "ok",
           "n": 17,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 7.0,
           "values": {
             "sessions": 17,
-            "sessions_per_week": 0.82,
+            "sessions_per_week": 0.81,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 5,
@@ -13987,13 +14002,13 @@
           "status": "ok",
           "n": 17,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": -1.2,
           "values": {
             "sessions": 17,
-            "sessions_per_week": 0.89,
+            "sessions_per_week": 0.88,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 7,
@@ -14014,7 +14029,7 @@
           "status": "ok",
           "n": 10,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": -28.8,
@@ -14038,13 +14053,13 @@
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 0.0,
           "values": {
             "sessions": 15,
-            "sessions_per_week": 0.73,
+            "sessions_per_week": 0.72,
             "plateau": true,
             "last_8_weeks": {
               "sessions": 7,
@@ -14065,7 +14080,7 @@
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 4.5,
@@ -14089,7 +14104,7 @@
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 7.5,
@@ -14112,11 +14127,38 @@
             13.7
           ]
         },
+        "Hip Adduction": {
+          "status": "ok",
+          "n": 13,
+          "min_n": 6,
+          "as_of": "2026-11-12",
+          "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
+          "small_sample": false,
+          "value": 9.9,
+          "values": {
+            "sessions": 13,
+            "sessions_per_week": 0.69,
+            "plateau": false,
+            "last_8_weeks": {
+              "sessions": 7,
+              "direction": "up",
+              "lb_per_month": 57.1,
+              "interval": [
+                7.5,
+                106.7
+              ]
+            }
+          },
+          "interval": [
+            -2.9,
+            22.6
+          ]
+        },
         "Lateral Raise (Machine)": {
           "status": "ok",
           "n": 13,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
           "small_sample": false,
           "value": 1.5,
@@ -14135,40 +14177,13 @@
             -1.8,
             4.8
           ]
-        },
-        "Hip Adduction": {
-          "status": "ok",
-          "n": 12,
-          "min_n": 6,
-          "as_of": "2026-11-11",
-          "how": "A straight line fitted to each session's best e1RM against its date, in lb per month with a 95% interval; a plateau is a last-8-weeks slope whose interval includes zero, with at least 4 sessions in those weeks (otherwise the direction is up or down).",
-          "small_sample": false,
-          "value": 8.6,
-          "values": {
-            "sessions": 12,
-            "sessions_per_week": 0.64,
-            "plateau": false,
-            "last_8_weeks": {
-              "sessions": 6,
-              "direction": "up",
-              "lb_per_month": 72.8,
-              "interval": [
-                8.6,
-                137.0
-              ]
-            }
-          },
-          "interval": [
-            -5.5,
-            22.8
-          ]
         }
       },
       "body_weight_rate": {
         "status": "ok",
         "n": 10,
         "min_n": 4,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "A straight line fitted to every weigh-in since the cut started, in lb per week with a 95% interval.",
         "small_sample": false,
         "value": -0.97,
@@ -14188,7 +14203,7 @@
           "status": "ok",
           "n": 13,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.051,
@@ -14258,7 +14273,7 @@
           "status": "ok",
           "n": 9,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.014,
@@ -14308,11 +14323,85 @@
             0.024
           ]
         },
+        "Lying Leg Curl": {
+          "status": "ok",
+          "n": 14,
+          "min_n": 4,
+          "as_of": "2026-11-12",
+          "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+          "small_sample": false,
+          "value": 0.05,
+          "values": {
+            "latest": 1.036,
+            "series": [
+              {
+                "date": "2026-06-17",
+                "ratio": 0.68
+              },
+              {
+                "date": "2026-06-22",
+                "ratio": 0.734
+              },
+              {
+                "date": "2026-06-29",
+                "ratio": 0.995
+              },
+              {
+                "date": "2026-07-04",
+                "ratio": 0.835
+              },
+              {
+                "date": "2026-07-08",
+                "ratio": 0.758
+              },
+              {
+                "date": "2026-07-13",
+                "ratio": 0.805
+              },
+              {
+                "date": "2026-10-13",
+                "ratio": 0.972
+              },
+              {
+                "date": "2026-10-17",
+                "ratio": 0.979
+              },
+              {
+                "date": "2026-10-21",
+                "ratio": 0.951
+              },
+              {
+                "date": "2026-10-25",
+                "ratio": 0.989
+              },
+              {
+                "date": "2026-10-29",
+                "ratio": 1.0
+              },
+              {
+                "date": "2026-11-02",
+                "ratio": 1.0
+              },
+              {
+                "date": "2026-11-06",
+                "ratio": 1.007
+              },
+              {
+                "date": "2026-11-11",
+                "ratio": 1.036
+              }
+            ]
+          },
+          "interval": [
+            0.029,
+            0.07
+          ]
+        },
         "Single Arm Triceps Pushdown": {
           "status": "ok",
           "n": 11,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.021,
@@ -14370,81 +14459,11 @@
             0.026
           ]
         },
-        "Lying Leg Curl": {
-          "status": "ok",
-          "n": 13,
-          "min_n": 4,
-          "as_of": "2026-11-11",
-          "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
-          "small_sample": false,
-          "value": 0.049,
-          "values": {
-            "latest": 1.007,
-            "series": [
-              {
-                "date": "2026-06-17",
-                "ratio": 0.68
-              },
-              {
-                "date": "2026-06-22",
-                "ratio": 0.734
-              },
-              {
-                "date": "2026-06-29",
-                "ratio": 0.995
-              },
-              {
-                "date": "2026-07-04",
-                "ratio": 0.835
-              },
-              {
-                "date": "2026-07-08",
-                "ratio": 0.758
-              },
-              {
-                "date": "2026-07-13",
-                "ratio": 0.805
-              },
-              {
-                "date": "2026-10-13",
-                "ratio": 0.972
-              },
-              {
-                "date": "2026-10-17",
-                "ratio": 0.979
-              },
-              {
-                "date": "2026-10-21",
-                "ratio": 0.951
-              },
-              {
-                "date": "2026-10-25",
-                "ratio": 0.989
-              },
-              {
-                "date": "2026-10-29",
-                "ratio": 1.0
-              },
-              {
-                "date": "2026-11-02",
-                "ratio": 1.0
-              },
-              {
-                "date": "2026-11-06",
-                "ratio": 1.007
-              }
-            ]
-          },
-          "interval": [
-            0.026,
-            0.072
-          ]
-        },
         "Hack Squat": {
           "status": "ok",
           "n": 12,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.059,
@@ -14510,7 +14529,7 @@
           "status": "ok",
           "n": 14,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.042,
@@ -14584,7 +14603,7 @@
           "status": "ok",
           "n": 9,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.0,
@@ -14636,14 +14655,14 @@
         },
         "Leg Extension": {
           "status": "ok",
-          "n": 7,
+          "n": 8,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
-          "value": 0.064,
+          "value": 0.076,
           "values": {
-            "latest": 1.578,
+            "latest": 1.771,
             "series": [
               {
                 "date": "2026-06-17",
@@ -14672,19 +14691,23 @@
               {
                 "date": "2026-10-21",
                 "ratio": 1.578
+              },
+              {
+                "date": "2026-11-11",
+                "ratio": 1.771
               }
             ]
           },
           "interval": [
-            -0.021,
-            0.149
+            0.014,
+            0.138
           ]
         },
         "Reverse Fly Single Arm": {
           "status": "ok",
           "n": 6,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.007,
@@ -14726,7 +14749,7 @@
           "status": "ok",
           "n": 6,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.001,
@@ -14768,7 +14791,7 @@
           "status": "ok",
           "n": 6,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.06,
@@ -14810,7 +14833,7 @@
           "status": "ok",
           "n": 5,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.014,
@@ -14848,7 +14871,7 @@
           "status": "ok",
           "n": 6,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": -0.097,
@@ -14890,7 +14913,7 @@
           "status": "ok",
           "n": 9,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.003,
@@ -14944,7 +14967,7 @@
           "status": "ok",
           "n": 8,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.041,
@@ -14994,7 +15017,7 @@
           "status": "ok",
           "n": 6,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
           "value": 0.093,
@@ -15032,48 +15055,14 @@
             0.111
           ]
         },
-        "Lateral Raise (Machine)": {
-          "status": "ok",
-          "n": 4,
-          "min_n": 4,
-          "as_of": "2026-11-11",
-          "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
-          "small_sample": false,
-          "value": 0.035,
-          "values": {
-            "latest": 0.735,
-            "series": [
-              {
-                "date": "2026-06-16",
-                "ratio": 0.562
-              },
-              {
-                "date": "2026-07-07",
-                "ratio": 0.608
-              },
-              {
-                "date": "2026-10-28",
-                "ratio": 0.722
-              },
-              {
-                "date": "2026-11-05",
-                "ratio": 0.735
-              }
-            ]
-          },
-          "interval": [
-            0.023,
-            0.046
-          ]
-        },
         "Hip Adduction": {
           "status": "ok",
-          "n": 7,
+          "n": 8,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
           "small_sample": false,
-          "value": 0.037,
+          "value": 0.042,
           "values": {
             "latest": 1.269,
             "series": [
@@ -15104,12 +15093,50 @@
               {
                 "date": "2026-11-06",
                 "ratio": 1.269
+              },
+              {
+                "date": "2026-11-11",
+                "ratio": 1.269
               }
             ]
           },
           "interval": [
-            -0.071,
-            0.145
+            -0.05,
+            0.134
+          ]
+        },
+        "Lateral Raise (Machine)": {
+          "status": "ok",
+          "n": 4,
+          "min_n": 4,
+          "as_of": "2026-11-12",
+          "how": "Each session's best e1RM divided by the nearest weigh-in within 3 days; the trend is a straight line through those ratios, per month with a 95% interval.",
+          "small_sample": false,
+          "value": 0.035,
+          "values": {
+            "latest": 0.735,
+            "series": [
+              {
+                "date": "2026-06-16",
+                "ratio": 0.562
+              },
+              {
+                "date": "2026-07-07",
+                "ratio": 0.608
+              },
+              {
+                "date": "2026-10-28",
+                "ratio": 0.722
+              },
+              {
+                "date": "2026-11-05",
+                "ratio": 0.735
+              }
+            ]
+          },
+          "interval": [
+            0.023,
+            0.046
           ]
         }
       },
@@ -15118,23 +15145,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 1.29,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 26,
             "weigh_ins": 10,
-            "e1rm_change": 26.6,
+            "e1rm_change": 26.8,
             "e1rm_change_interval": [
               4.6,
-              48.6
+              48.9
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15146,23 +15173,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -0.63,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 25,
             "weigh_ins": 10,
-            "e1rm_change": -13.0,
+            "e1rm_change": -13.1,
             "e1rm_change_interval": [
-              -22.9,
+              -23.0,
               -3.1
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15170,27 +15197,55 @@
             -0.09
           ]
         },
+        "Lying Leg Curl": {
+          "status": "ok",
+          "n": 10,
+          "min_n": 4,
+          "as_of": "2026-11-12",
+          "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+          "small_sample": false,
+          "value": 1.08,
+          "values": {
+            "days": 149,
+            "sessions": 25,
+            "weigh_ins": 10,
+            "e1rm_change": 22.2,
+            "e1rm_change_interval": [
+              1.7,
+              42.8
+            ],
+            "weight_change": -20.7,
+            "weight_change_interval": [
+              -23.0,
+              -18.4
+            ]
+          },
+          "interval": [
+            -0.04,
+            2.19
+          ]
+        },
         "Single Arm Triceps Pushdown": {
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 0.41,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 25,
             "weigh_ins": 10,
             "e1rm_change": 8.5,
             "e1rm_change_interval": [
               4.6,
-              12.4
+              12.5
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15198,55 +15253,27 @@
             0.63
           ]
         },
-        "Lying Leg Curl": {
-          "status": "ok",
-          "n": 10,
-          "min_n": 4,
-          "as_of": "2026-11-11",
-          "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
-          "small_sample": false,
-          "value": 1.1,
-          "values": {
-            "days": 148,
-            "sessions": 24,
-            "weigh_ins": 10,
-            "e1rm_change": 22.6,
-            "e1rm_change_interval": [
-              0.5,
-              44.6
-            ],
-            "weight_change": -20.5,
-            "weight_change_interval": [
-              -22.8,
-              -18.3
-            ]
-          },
-          "interval": [
-            -0.1,
-            2.3
-          ]
-        },
         "Hack Squat": {
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 0.48,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 23,
             "weigh_ins": 10,
-            "e1rm_change": 9.9,
+            "e1rm_change": 10.0,
             "e1rm_change_interval": [
               -10.3,
-              30.1
+              30.3
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15258,23 +15285,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 0.82,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 23,
             "weigh_ins": 10,
-            "e1rm_change": 16.8,
+            "e1rm_change": 16.9,
             "e1rm_change_interval": [
               5.7,
-              27.9
+              28.1
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15286,23 +15313,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -0.16,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 21,
             "weigh_ins": 10,
             "e1rm_change": -3.3,
             "e1rm_change_interval": [
-              -13.3,
-              6.7
+              -13.4,
+              6.8
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15314,40 +15341,40 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
-          "value": 3.09,
+          "value": 2.72,
           "values": {
-            "days": 148,
-            "sessions": 18,
+            "days": 149,
+            "sessions": 19,
             "weigh_ins": 10,
-            "e1rm_change": 63.5,
+            "e1rm_change": 56.2,
             "e1rm_change_interval": [
-              -6.3,
-              133.3
+              -3.0,
+              115.4
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
-            -0.62,
-            6.8
+            -0.43,
+            5.86
           ]
         },
         "Reverse Fly Single Arm": {
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 0.11,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 18,
             "weigh_ins": 10,
             "e1rm_change": 2.2,
@@ -15355,10 +15382,10 @@
               -1.9,
               6.4
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15370,23 +15397,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -0.02,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 16,
             "weigh_ins": 10,
-            "e1rm_change": -0.4,
+            "e1rm_change": -0.5,
             "e1rm_change_interval": [
-              -6.8,
+              -6.9,
               5.9
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15398,23 +15425,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 1.67,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 17,
             "weigh_ins": 10,
-            "e1rm_change": 34.3,
+            "e1rm_change": 34.5,
             "e1rm_change_interval": [
-              15.0,
-              53.5
+              15.2,
+              53.8
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15426,23 +15453,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -0.29,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 17,
             "weigh_ins": 10,
-            "e1rm_change": -5.9,
+            "e1rm_change": -6.0,
             "e1rm_change_interval": [
-              -21.6,
-              9.7
+              -21.7,
+              9.8
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15454,23 +15481,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -6.82,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 10,
             "weigh_ins": 10,
-            "e1rm_change": -140.0,
+            "e1rm_change": -141.0,
             "e1rm_change_interval": [
-              -208.6,
-              -71.4
+              -210.1,
+              -71.9
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15482,12 +15509,12 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": -0.01,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 15,
             "weigh_ins": 10,
             "e1rm_change": -0.2,
@@ -15495,10 +15522,10 @@
               -5.9,
               5.5
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15510,23 +15537,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 1.06,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 15,
             "weigh_ins": 10,
-            "e1rm_change": 21.8,
+            "e1rm_change": 21.9,
             "e1rm_change_interval": [
-              -16.1,
-              59.7
+              -16.2,
+              60.1
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15538,23 +15565,23 @@
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 1.77,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 15,
             "weigh_ins": 10,
-            "e1rm_change": 36.4,
+            "e1rm_change": 36.7,
             "e1rm_change_interval": [
               6.2,
-              66.7
+              67.2
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
@@ -15562,60 +15589,60 @@
             3.36
           ]
         },
+        "Hip Adduction": {
+          "status": "ok",
+          "n": 10,
+          "min_n": 4,
+          "as_of": "2026-11-12",
+          "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
+          "small_sample": false,
+          "value": 2.33,
+          "values": {
+            "days": 149,
+            "sessions": 13,
+            "weigh_ins": 10,
+            "e1rm_change": 48.2,
+            "e1rm_change_interval": [
+              -14.0,
+              110.5
+            ],
+            "weight_change": -20.7,
+            "weight_change_interval": [
+              -23.0,
+              -18.4
+            ]
+          },
+          "interval": [
+            -0.83,
+            5.5
+          ]
+        },
         "Lateral Raise (Machine)": {
           "status": "ok",
           "n": 10,
           "min_n": 4,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
           "small_sample": false,
           "value": 0.35,
           "values": {
-            "days": 148,
+            "days": 149,
             "sessions": 13,
             "weigh_ins": 10,
             "e1rm_change": 7.3,
             "e1rm_change_interval": [
               -8.9,
-              23.4
+              23.6
             ],
-            "weight_change": -20.5,
+            "weight_change": -20.7,
             "weight_change_interval": [
-              -22.8,
-              -18.3
+              -23.0,
+              -18.4
             ]
           },
           "interval": [
             -0.47,
             1.18
-          ]
-        },
-        "Hip Adduction": {
-          "status": "ok",
-          "n": 10,
-          "min_n": 4,
-          "as_of": "2026-11-11",
-          "how": "Over the cut so far, the change in fitted e1RM and the change in fitted body weight (each slope times the days since the cut started, with 95% intervals), and e1RM lb kept per lb lost.",
-          "small_sample": false,
-          "value": 2.04,
-          "values": {
-            "days": 148,
-            "sessions": 12,
-            "weigh_ins": 10,
-            "e1rm_change": 42.0,
-            "e1rm_change_interval": [
-              -26.8,
-              110.8
-            ],
-            "weight_change": -20.5,
-            "weight_change_interval": [
-              -22.8,
-              -18.3
-            ]
-          },
-          "interval": [
-            -1.43,
-            5.52
           ]
         }
       },
@@ -15623,7 +15650,7 @@
         "status": "ok",
         "n": 7,
         "min_n": 16,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Correlation between each week's change in body weight and the change in e1RM (averaged over the tracked lifts trained both weeks) 0-3 weeks later, with 95% intervals; at least 16 weeks of pairs.",
         "small_sample": true,
         "values": {
@@ -15640,28 +15667,28 @@
             {
               "lag_weeks": 1,
               "n": 7,
-              "r": -0.767,
+              "r": -0.771,
               "interval": [
                 -0.964,
-                -0.033
+                -0.042
               ]
             },
             {
               "lag_weeks": 2,
               "n": 6,
-              "r": 0.755,
+              "r": 0.735,
               "interval": [
-                -0.146,
-                0.971
+                -0.19,
+                0.969
               ]
             },
             {
               "lag_weeks": 3,
               "n": 5,
-              "r": -0.161,
+              "r": -0.238,
               "interval": [
-                -0.914,
-                0.841
+                -0.926,
+                0.815
               ]
             }
           ]
@@ -15671,17 +15698,17 @@
         "status": "ok",
         "n": 22,
         "min_n": 4,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Each ISO week since the cut started: body weight (the week's mean weigh-in) and strength, the mean of each tracked lift's best e1RM that week, both indexed to 100 at their first week with data. A lift not trained that week carries its last value forward.",
         "small_sample": false,
-        "value": 113.0,
+        "value": 113.8,
         "values": {
           "cut_start": "2026-06-16",
           "lifts": [
             "Preacher Curl",
             "Lat Pulldown",
-            "Single Arm Triceps Pushdown",
             "Lying Leg Curl",
+            "Single Arm Triceps Pushdown",
             "Hack Squat",
             "Seated Row",
             "Reverse Curl",
@@ -15694,8 +15721,8 @@
             "Lateral Raise (Cable)",
             "Overhead Triceps Extension",
             "Seated Shoulder Press",
-            "Lateral Raise (Machine)",
-            "Hip Adduction"
+            "Hip Adduction",
+            "Lateral Raise (Machine)"
           ],
           "untracked": [],
           "tracked": [
@@ -15712,16 +15739,16 @@
               "split": "chest_back"
             },
             {
+              "name": "Lying Leg Curl",
+              "exercise": "Lying Leg Curl (Machine)",
+              "sessions": 25,
+              "split": "legs"
+            },
+            {
               "name": "Single Arm Triceps Pushdown",
               "exercise": "Single Arm Triceps Pushdown (Cable)",
               "sessions": 25,
               "split": "shoulders_arms"
-            },
-            {
-              "name": "Lying Leg Curl",
-              "exercise": "Lying Leg Curl (Machine)",
-              "sessions": 24,
-              "split": "legs"
             },
             {
               "name": "Hack Squat",
@@ -15744,7 +15771,7 @@
             {
               "name": "Leg Extension",
               "exercise": "Leg Extension (Machine)",
-              "sessions": 18,
+              "sessions": 19,
               "split": "legs"
             },
             {
@@ -15796,22 +15823,22 @@
               "split": "shoulders_arms"
             },
             {
+              "name": "Hip Adduction",
+              "exercise": "Hip Adduction (Machine)",
+              "sessions": 13,
+              "split": "legs"
+            },
+            {
               "name": "Lateral Raise (Machine)",
               "exercise": "Lateral Raise (Machine)",
               "sessions": 13,
               "split": "shoulders_arms"
-            },
-            {
-              "name": "Hip Adduction",
-              "exercise": "Hip Adduction (Machine)",
-              "sessions": 12,
-              "split": "legs"
             }
           ],
           "tracked_changes": {
             "added": [],
             "dropped": [],
-            "since": "2026-11-10"
+            "since": "2026-11-11"
           },
           "splits": {
             "chest_back": {
@@ -16003,7 +16030,7 @@
               ]
             },
             "legs": {
-              "current": 107.6,
+              "current": 110.5,
               "lifts": 5,
               "weeks": [
                 {
@@ -16092,7 +16119,7 @@
                 },
                 {
                   "week_start": "2026-11-09",
-                  "strength": 107.6
+                  "strength": 110.5
                 }
               ]
             }
@@ -16279,8 +16306,8 @@
                 "Calf Extension",
                 "Overhead Triceps Extension",
                 "Seated Shoulder Press",
-                "Lateral Raise (Machine)",
-                "Hip Adduction"
+                "Hip Adduction",
+                "Lateral Raise (Machine)"
               ]
             },
             {
@@ -16313,8 +16340,8 @@
                 "Calf Extension",
                 "Overhead Triceps Extension",
                 "Seated Shoulder Press",
-                "Lateral Raise (Machine)",
-                "Hip Adduction"
+                "Hip Adduction",
+                "Lateral Raise (Machine)"
               ]
             },
             {
@@ -16370,27 +16397,29 @@
             {
               "week_start": "2026-11-09",
               "body_weight": null,
-              "strength": 113.0,
+              "strength": 113.8,
               "lifts": 18,
               "carried": [
-                "Lying Leg Curl",
                 "Hack Squat",
-                "Leg Extension",
                 "Seated Palms Up Wrist Curl",
                 "Chest Fly",
                 "Calf Extension",
                 "Lateral Raise (Cable)",
                 "Overhead Triceps Extension",
-                "Lateral Raise (Machine)",
-                "Hip Adduction"
+                "Lateral Raise (Machine)"
               ]
             }
           ],
           "current": {
-            "strength": 113.0,
+            "strength": 113.8,
             "body_weight": 89.4
           },
           "lifts_change": {
+            "Lying Leg Curl": {
+              "start": 138.0,
+              "latest": 186.0,
+              "change_pct": 0.348
+            },
             "Reverse Fly Single Arm": {
               "start": 24.0,
               "latest": 32.1,
@@ -16401,15 +16430,15 @@
               "latest": 162.0,
               "change_pct": 0.314
             },
-            "Lying Leg Curl": {
-              "start": 138.0,
-              "latest": 180.8,
-              "change_pct": 0.31
-            },
             "Lateral Raise (Cable)": {
               "start": 28.5,
               "latest": 37.0,
               "change_pct": 0.298
+            },
+            "Leg Extension": {
+              "start": 246.0,
+              "latest": 318.0,
+              "change_pct": 0.293
             },
             "Preacher Curl": {
               "start": 132.0,
@@ -16425,11 +16454,6 @@
               "start": 58.3,
               "latest": 72.0,
               "change_pct": 0.234
-            },
-            "Leg Extension": {
-              "start": 246.0,
-              "latest": 291.7,
-              "change_pct": 0.186
             },
             "Lateral Raise (Machine)": {
               "start": 114.0,
@@ -16483,8 +16507,8 @@
             }
           },
           "best_held_lift": {
-            "name": "Reverse Fly Single Arm",
-            "change_pct": 0.337
+            "name": "Lying Leg Curl",
+            "change_pct": 0.348
           },
           "worst_held_lift": {
             "name": "Calf Extension",
@@ -16493,15 +16517,15 @@
         }
       },
       "best_held_lift": {
-        "name": "Reverse Fly Single Arm",
-        "change_pct": 0.337
+        "name": "Lying Leg Curl",
+        "change_pct": 0.348
       },
       "retention": {
         "Seated Shoulder Press": {
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 51.5,
@@ -16521,7 +16545,7 @@
           "status": "ok",
           "n": 25,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 9.9,
@@ -16541,7 +16565,7 @@
           "status": "ok",
           "n": 26,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 21.6,
@@ -16561,7 +16585,7 @@
           "status": "ok",
           "n": 17,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 27.5,
@@ -16579,29 +16603,29 @@
         },
         "Lying Leg Curl": {
           "status": "ok",
-          "n": 24,
+          "n": 25,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
-          "value": 20.8,
+          "value": 21.6,
           "values": {
             "start": 159.2,
-            "latest": 180.0,
-            "change_pct": 0.131,
+            "latest": 180.8,
+            "change_pct": 0.136,
             "sessions_start": 6,
-            "sessions_latest": 6
+            "sessions_latest": 7
           },
           "interval": [
-            2.4,
-            34.6
+            5.2,
+            35.7
           ]
         },
         "Lateral Raise (Machine)": {
           "status": "ok",
           "n": 13,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 14.8,
@@ -16617,11 +16641,31 @@
             18.0
           ]
         },
+        "Leg Extension": {
+          "status": "ok",
+          "n": 19,
+          "min_n": 6,
+          "as_of": "2026-11-12",
+          "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
+          "small_sample": false,
+          "value": 31.6,
+          "values": {
+            "start": 273.2,
+            "latest": 304.8,
+            "change_pct": 0.116,
+            "sessions_start": 5,
+            "sessions_latest": 2
+          },
+          "interval": [
+            -1.0,
+            62.1
+          ]
+        },
         "Overhead Triceps Extension": {
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 15.2,
@@ -16641,7 +16685,7 @@
           "status": "ok",
           "n": 23,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 15.2,
@@ -16661,7 +16705,7 @@
           "status": "ok",
           "n": 18,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 2.0,
@@ -16677,31 +16721,11 @@
             7.4
           ]
         },
-        "Leg Extension": {
-          "status": "ok",
-          "n": 18,
-          "min_n": 6,
-          "as_of": "2026-11-11",
-          "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
-          "small_sample": false,
-          "value": 18.5,
-          "values": {
-            "start": 273.2,
-            "latest": 291.7,
-            "change_pct": 0.068,
-            "sessions_start": 5,
-            "sessions_latest": 1
-          },
-          "interval": [
-            -11.1,
-            39.1
-          ]
-        },
         "Incline Chest Press": {
           "status": "ok",
           "n": 17,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 5.3,
@@ -16721,7 +16745,7 @@
           "status": "ok",
           "n": 15,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 1.2,
@@ -16739,21 +16763,21 @@
         },
         "Hip Adduction": {
           "status": "ok",
-          "n": 12,
+          "n": 13,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
-          "value": 7.2,
+          "value": 8.0,
           "values": {
             "start": 216.0,
-            "latest": 223.2,
-            "change_pct": 0.033,
+            "latest": 224.0,
+            "change_pct": 0.037,
             "sessions_start": 1,
-            "sessions_latest": 5
+            "sessions_latest": 6
           },
           "interval": [
-            -2.4,
+            0.0,
             12.0
           ]
         },
@@ -16761,7 +16785,7 @@
           "status": "ok",
           "n": 23,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": 7.4,
@@ -16781,7 +16805,7 @@
           "status": "ok",
           "n": 25,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": -6.8,
@@ -16801,7 +16825,7 @@
           "status": "ok",
           "n": 16,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": -3.2,
@@ -16821,7 +16845,7 @@
           "status": "ok",
           "n": 21,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": -8.4,
@@ -16841,7 +16865,7 @@
           "status": "ok",
           "n": 10,
           "min_n": 6,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Mean session e1RM in the 28 days from the cut's start against the latest 28 days, Hevy sessions only: the change in lb (the value) and as a share, with a bootstrap interval over the sessions in both windows.",
           "small_sample": false,
           "value": -97.9,
@@ -16862,10 +16886,10 @@
         "status": "ok",
         "n": 21,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Pearson correlation between a week's training volume (weight x reps over working sets, lb) and the change in the strength index the following week, with a Fisher interval.",
         "small_sample": false,
-        "value": 0.173,
+        "value": 0.17,
         "values": {
           "lag_weeks": 1,
           "weeks": 21,
@@ -16973,23 +16997,23 @@
             {
               "week_start": "2026-11-02",
               "volume": 29220,
-              "next_e1rm_change": -1.09
+              "next_e1rm_change": -0.29
             }
           ]
         },
         "interval": [
-          -0.28,
-          0.562
+          -0.282,
+          0.561
         ]
       },
       "consistency": {
         "status": "ok",
         "n": 21,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Sessions logged in a week against that week's change in the strength index: a straight line's slope (index points per extra session a week) with a 95% interval, and the mean change by sessions bucket.",
         "small_sample": false,
-        "value": 0.576,
+        "value": 0.567,
         "values": {
           "weeks": 21,
           "buckets": [
@@ -17005,19 +17029,19 @@
             },
             {
               "sessions_per_week": "2",
-              "weeks": 2,
-              "mean_e1rm_change": 0.06
+              "weeks": 1,
+              "mean_e1rm_change": 1.21
             },
             {
               "sessions_per_week": "3+",
-              "weeks": 19,
-              "mean_e1rm_change": 0.68
+              "weeks": 20,
+              "mean_e1rm_change": 0.63
             }
           ]
         },
         "interval": [
-          -0.194,
-          1.347
+          -0.241,
+          1.374
         ]
       }
     },
@@ -17030,7 +17054,7 @@
         "status": "ok",
         "n": 2,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Hours watched each month by type, from dated watches with a known runtime (backfilled past watches count no hours); months with at least 5 hours.",
         "small_sample": false,
         "values": {
@@ -17046,11 +17070,11 @@
             },
             {
               "month": "2026-11",
-              "hours": 7.5,
+              "hours": 9.2,
               "share": {
                 "film": 0.0,
-                "show": 0.945,
-                "anime": 0.055
+                "show": 0.91,
+                "anime": 0.09
               }
             }
           ]
@@ -17061,7 +17085,7 @@
           "status": "ok",
           "n": 67,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the shows I've watched (any status but plan to watch) carrying each Simkl genre, the 8 most common.",
           "small_sample": false,
           "values": {
@@ -17081,7 +17105,7 @@
           "status": "ok",
           "n": 212,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the films I've watched (any status but plan to watch) carrying each Simkl genre, the 8 most common.",
           "small_sample": false,
           "values": {
@@ -17099,21 +17123,21 @@
         },
         "anime": {
           "status": "ok",
-          "n": 144,
+          "n": 145,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the animes I've watched (any status but plan to watch) carrying each Simkl genre, the 8 most common.",
           "small_sample": false,
           "values": {
             "genres": {
-              "Shounen": 0.701,
-              "Action": 0.625,
-              "Fantasy": 0.424,
-              "Adventure": 0.403,
-              "Comedy": 0.375,
-              "School": 0.264,
-              "Super Power": 0.257,
-              "Drama": 0.215
+              "Shounen": 0.703,
+              "Action": 0.628,
+              "Fantasy": 0.421,
+              "Adventure": 0.4,
+              "Comedy": 0.372,
+              "School": 0.262,
+              "Super Power": 0.255,
+              "Drama": 0.214
             }
           }
         },
@@ -17121,7 +17145,7 @@
           "status": "not enough data yet",
           "n": 0,
           "min_n": 1,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "By the year I watched them (dated watches only), the share of titles carrying each genre; years with at least 10 titles.",
           "values": {
             "first_unit": "one year with 10 dated titles with genres"
@@ -17132,7 +17156,7 @@
         "status": "ok",
         "n": 212,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Films I've finished by the decade they came out.",
         "small_sample": false,
         "values": {
@@ -17175,15 +17199,15 @@
           "status": "ok",
           "n": 63,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Finished over finished plus dropped; titles on hold are counted separately, in neither.",
           "small_sample": false,
           "value": 0.667,
           "values": {
             "finished": 42,
             "dropped": 21,
-            "on_hold": 2,
-            "watching": 2,
+            "on_hold": 3,
+            "watching": 1,
             "plan_to_watch": 3
           }
         },
@@ -17191,7 +17215,7 @@
           "status": "ok",
           "n": 212,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Finished over finished plus dropped; titles on hold are counted separately, in neither.",
           "small_sample": false,
           "value": 1.0,
@@ -17207,7 +17231,7 @@
           "status": "ok",
           "n": 139,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Finished over finished plus dropped; titles on hold are counted separately, in neither.",
           "small_sample": false,
           "value": 0.964,
@@ -17215,8 +17239,8 @@
             "finished": 134,
             "dropped": 5,
             "on_hold": 2,
-            "watching": 3,
-            "plan_to_watch": 2
+            "watching": 4,
+            "plan_to_watch": 1
           }
         }
       },
@@ -17224,7 +17248,7 @@
         "status": "ok",
         "n": 1,
         "min_n": 3,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For finished shows and anime with dated episode logs (never backfilled ones), weeks from the first to the last logged episode against the episodes logged; the median pace in episodes a week.",
         "small_sample": true,
         "value": 35.0,
@@ -17245,7 +17269,7 @@
           "status": "ok",
           "n": 67,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the shows I've watched by Simkl's country of origin; titles whose Simkl country is known to be wrong are left out and noted.",
           "small_sample": false,
           "values": {
@@ -17262,7 +17286,7 @@
           "status": "ok",
           "n": 212,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the films I've watched by Simkl's country of origin; titles whose Simkl country is known to be wrong are left out and noted.",
           "small_sample": false,
           "values": {
@@ -17275,9 +17299,9 @@
         },
         "anime": {
           "status": "ok",
-          "n": 101,
+          "n": 102,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Share of the animes I've watched by Simkl's country of origin; titles whose Simkl country is known to be wrong are left out and noted.",
           "small_sample": false,
           "values": {
@@ -17296,7 +17320,7 @@
           "status": "ok",
           "n": 10,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "For my top ten, Simkl's community rating; the Spearman rank correlation between my order and theirs (95% interval by Fisher's z), and the title placed furthest above and below where the community would put it among those ten.",
           "small_sample": false,
           "value": 0.425,
@@ -17397,7 +17421,7 @@
           "status": "ok",
           "n": 10,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "For my top ten, Simkl's community rating; the Spearman rank correlation between my order and theirs (95% interval by Fisher's z), and the title placed furthest above and below where the community would put it among those ten.",
           "small_sample": false,
           "value": -0.068,
@@ -17498,7 +17522,7 @@
           "status": "ok",
           "n": 10,
           "min_n": 5,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "For my top ten, Simkl's community rating; the Spearman rank correlation between my order and theirs (95% interval by Fisher's z), and the title placed furthest above and below where the community would put it among those ten.",
           "small_sample": false,
           "value": -0.024,
@@ -17600,7 +17624,7 @@
         "status": "ok",
         "n": 212,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Runtime of the films I've finished: the median, and the share over 120 minutes.",
         "small_sample": false,
         "value": 119.5,
@@ -17613,14 +17637,14 @@
         "status": "ok",
         "n": 2,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "From the date each title went on my plan-to-watch list, the median days until its first dated watch (from 5 started titles); and titles added to that list against titles finished, each month (backfilled titles left out).",
         "small_sample": true,
         "value": 8.5,
         "values": {
           "median_wait_days": 8.5,
           "started": 2,
-          "waiting": 12,
+          "waiting": 11,
           "months": [
             {
               "month": "2026-10",
@@ -17634,7 +17658,7 @@
         "status": "ok",
         "n": 187,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Shows and anime I dropped with at most one episode watched, over every show and anime I started; titles backfilled with no episodes logged are left out (how far I got isn't known).",
         "small_sample": false,
         "value": 0.0,
@@ -17656,9 +17680,9 @@
       },
       "keeping_up": {
         "status": "ok",
-        "n": 4,
+        "n": 3,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For shows and anime I'm watching that are still airing, episodes watched against episodes released (titles backfilled with no episodes logged are left out).",
         "small_sample": false,
         "values": {
@@ -17671,28 +17695,21 @@
               "behind": 8
             },
             {
-              "title": "Severance",
-              "type": "show",
-              "watched": 13,
-              "released": 19,
-              "behind": 6
-            },
-            {
-              "title": "Kusuriya no Hitorigoto",
-              "type": "anime",
-              "watched": 5,
-              "released": 6,
-              "behind": 1
-            },
-            {
               "title": "Bleach: Sennen Kessen Hen - Kashin Tan",
               "type": "anime",
               "watched": 10,
               "released": 9,
               "behind": 0
+            },
+            {
+              "title": "Kusuriya no Hitorigoto",
+              "type": "anime",
+              "watched": 6,
+              "released": 6,
+              "behind": 0
             }
           ],
-          "caught_up": 1,
+          "caught_up": 2,
           "left_out_unknown": 1
         }
       },
@@ -17701,7 +17718,7 @@
           "status": "ok",
           "n": 212,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "How my tiered (finished) titles split across tiers S to D.",
           "small_sample": false,
           "values": {
@@ -17738,7 +17755,7 @@
           "status": "ok",
           "n": 42,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "How my tiered (finished) titles split across tiers S to D.",
           "small_sample": false,
           "values": {
@@ -17775,7 +17792,7 @@
           "status": "ok",
           "n": 69,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "How my tiered (finished) titles split across tiers S to D.",
           "small_sample": false,
           "values": {
@@ -17813,7 +17830,7 @@
         "status": "ok",
         "n": 5,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each tier with at least 5 titles (films, shows and anime together), the share carrying each Simkl genre (the 5 most common) and the share from each release decade.",
         "small_sample": false,
         "values": {
@@ -17917,7 +17934,7 @@
           "status": "ok",
           "n": 212,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over every tiered title, the Spearman rank correlation between my tier and Simkl's community rating (95% interval by Fisher's z), and the titles whose tier sits furthest above and below their rating, comparing percentile ranks within the type.",
           "small_sample": false,
           "value": 0.584,
@@ -17972,7 +17989,7 @@
           "status": "ok",
           "n": 42,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over every tiered title, the Spearman rank correlation between my tier and Simkl's community rating (95% interval by Fisher's z), and the titles whose tier sits furthest above and below their rating, comparing percentile ranks within the type.",
           "small_sample": false,
           "value": 0.577,
@@ -18027,7 +18044,7 @@
           "status": "ok",
           "n": 69,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Over every tiered title, the Spearman rank correlation between my tier and Simkl's community rating (95% interval by Fisher's z), and the titles whose tier sits furthest above and below their rating, comparing percentile ranks within the type.",
           "small_sample": false,
           "value": 0.524,
@@ -18083,7 +18100,7 @@
         "status": "ok",
         "n": 320,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each tier, completion (finished over finished plus dropped; this falls below 1 only if a tiered title is later dropped) and, for shows and anime with at least 3 dated titles in the tier, the median pace in episodes a week; backfilled watches never count.",
         "small_sample": false,
         "values": {
@@ -18136,7 +18153,7 @@
         "status": "ok",
         "n": 323,
         "min_n": 100,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "The share of tiered titles in S, by type and by release decade (decades with at least 10 titles), and for each genre on at least 10 titles its share among S titles over its share among B titles with a bootstrap interval. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.108,
@@ -18381,7 +18398,7 @@
         "status": "ok",
         "n": 323,
         "min_n": 150,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "An ordered logistic model of my tier on type, the eight most common genres, release decade, runtime and Simkl's community score, numeric features standardised. Scored by leave-one-out accuracy against guessing the commonest tier; each effect in log-odds with a bootstrap interval. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.424,
@@ -18506,7 +18523,7 @@
         "status": "not enough data yet",
         "n": 0,
         "min_n": 3,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Mean tier score of the titles I finished in each year, from the dated finish (a film's watch, a show's last logged episode), years with at least 10 dated finishes. The value is a straight line's slope per year; undated (backfilled) titles are left out. Tiers cover finished titles only.",
         "values": {
           "first_unit": "one year with 10 dated finishes of tiered titles"
@@ -18516,7 +18533,7 @@
         "status": "ok",
         "n": 323,
         "min_n": 30,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each genre on at least 10 titles, my tier score standardised over every tiered title minus Simkl's community score standardised the same way, the mean with a 95% t-interval (positive where I rate the genre higher than the community does). Tiers cover finished titles only.",
         "small_sample": false,
         "values": {
@@ -18708,7 +18725,7 @@
         "status": "ok",
         "n": 2,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Mean tier score (S 5 to D 1) of finished shows and anime with dated episode logs, by the weeks from the first to the last logged episode: under 2 weeks, 2 to 8 weeks, over 8 weeks; backfilled watches are left out. Tiers cover finished titles only.",
         "small_sample": true,
         "values": {
@@ -18735,7 +18752,7 @@
         "status": "ok",
         "n": 22,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each director (TMDB credits) with at least 3 of my tiered films, the mean tier score with the films and their tiers, best first; a pair credited on the same films is one row. The value is the top director's mean. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 4.0,
@@ -19247,7 +19264,7 @@
         "status": "ok",
         "n": 10,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each studio (Simkl's anime data) with at least 3 of my tiered anime, the mean tier score with the titles and their tiers, best first; an anime whose Simkl entry names no studio is left out. The value is the top studio's mean. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 3.83,
@@ -19511,7 +19528,7 @@
         "status": "ok",
         "n": 21,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each top-billed actor (first in TMDB's credits) with at least 3 of my tiered films, the mean tier score with the films and their tiers, best first; two leads on the same films are one row. The value is the top actor's mean. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 3.67,
@@ -20040,7 +20057,7 @@
         "status": "ok",
         "n": 210,
         "min_n": 40,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Tier score (S 5 to D 1) against the log of TMDB revenue over budget, for films with both, as a straight line's slope per unit of log ratio with a 95% interval; and the mean tier by TMDB popularity quartile (1 = least popular). Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.195,
@@ -20079,7 +20096,7 @@
         "status": "ok",
         "n": 36,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Within each TMDB collection where I tiered two or more films, the first film's tier score (S 5 to D 1, first by release date) minus the mean of the later ones, averaged over collections with a 95% t-interval (positive: the first film rated higher). Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.42,
@@ -20856,7 +20873,7 @@
         "status": "ok",
         "n": 1,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "The share of my tiered films whose TMDB original language is not English, and the mean tier score (S 5 to D 1) of English against other-language films with a 95% t-interval on the difference. Tiers cover finished titles only.",
         "small_sample": true,
         "value": 0.005,
@@ -20885,7 +20902,7 @@
         "status": "not available from source",
         "n": 0,
         "min_n": 15,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Films where the Rotten Tomatoes critic and audience scores differ by at least 20 points: my tier sides with the critics when my standardised tier score sits above the standardised midpoint of the two scores; the value is the critics' share with a Wilson interval. Tiers cover finished titles only.",
         "missing": "a Rotten Tomatoes audience score (OMDb gives critic scores only now)"
       },
@@ -20893,7 +20910,7 @@
         "status": "ok",
         "n": 323,
         "min_n": 50,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Every tiered title's Simkl community score against my tier score: Spearman's rank correlation with a Fisher interval, the three titles furthest above and below the community by standardised gap, the genres where my tiers run furthest from the community, and the tier model's leave-one-out accuracy. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.555,
@@ -23558,7 +23575,7 @@
         "status": "ok",
         "n": 323,
         "min_n": 150,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "An ordered logistic model of my tier on type, the eight most common genres, TMDB log popularity, sequel, runtime in hours, released before 2000, and Simkl's standardised community score. Each effect is in log-odds with a bootstrap interval, clear when it excludes zero. Tiers cover finished titles only.",
         "small_sample": false,
         "value": 0.43,
@@ -23769,7 +23786,7 @@
         "status": "ok",
         "n": 291,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Median and quartiles of my Beli scores, overall and by cuisine and by city (groups of at least 5 places).",
         "small_sample": false,
         "value": 7.96,
@@ -23982,7 +23999,7 @@
         "status": "ok",
         "n": 291,
         "min_n": 20,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Each cuisine's share of the places I've tried against its share of my top quartile by score (cuisines with at least 5 places; the rest together as other).",
         "small_sample": false,
         "values": {
@@ -24097,7 +24114,7 @@
         "status": "ok",
         "n": 264,
         "min_n": 30,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Score against the order places were ranked (1 = first), within cuisine (a fixed effect for each), as the change in score per 100 places with a 95% interval. Beli moves a place's ranked date when it's re-ranked.",
         "small_sample": false,
         "value": -0.097,
@@ -24114,7 +24131,7 @@
         "status": "ok",
         "n": 264,
         "min_n": 30,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Score against the previous place's score (in the order ranked), within cuisine, as the slope with a 95% interval (positive: a good place before lifts the next one).",
         "small_sample": false,
         "value": 0.079,
@@ -24131,7 +24148,7 @@
         "status": "ok",
         "n": 231,
         "min_n": 20,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Scores in my most-ranked city against everywhere else, within cuisine (a fixed effect for each), with a 95% interval; only cuisines tried both at home and away count.",
         "small_sample": false,
         "value": -0.568,
@@ -24150,7 +24167,7 @@
         "status": "not available from source",
         "n": 0,
         "min_n": 10,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "My scores against Beli's community score.",
         "missing": "a community score (Beli's ranking response has none)"
       },
@@ -24158,7 +24175,7 @@
         "status": "ok",
         "n": 11,
         "min_n": 1,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Cuisines I ranked for the first time, counted by month (counts only, never which place); Beli moves a ranking's date when a place is re-ranked.",
         "small_sample": false,
         "values": {
@@ -24214,7 +24231,7 @@
         "status": "ok",
         "n": 20,
         "min_n": 5,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For the 20 places I ranked most recently, in Beli's order, the percentile each sits at in my current ranking (1 = top): where a place just ranked sits is where it entered. The value is their median; there is no by-month table, since the archive keeps no ranked dates.",
         "small_sample": false,
         "value": 0.498,
@@ -24309,7 +24326,7 @@
         "status": "ok",
         "n": 149,
         "min_n": 15,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "For each cuisine with at least 15 ranked places, the interquartile range of my scores with the median and quartiles, narrowest first: a narrow band means a safe bet, a wide one a gamble. The value is the narrowest cuisine's range; n counts the places in the cuisines shown.",
         "small_sample": false,
         "value": 1.72,
@@ -24370,19 +24387,23 @@
     "cross": {
       "lifting_soundtrack": {
         "status": "ok",
-        "n": 192,
+        "n": 203,
         "min_n": 20,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Plays whose time falls between a workout's start and end: the most-played artists in workouts this month, and the artists played in sessions where a tracked lift's best e1RM was set.",
         "small_sample": false,
         "values": {
-          "plays_in_workouts": 192,
-          "workouts_with_music": 17,
-          "workouts_since_first_play": 26,
+          "plays_in_workouts": 203,
+          "workouts_with_music": 18,
+          "workouts_since_first_play": 27,
           "top_artists_this_month": [
             {
               "artist": "Baby Keem",
               "plays": 9
+            },
+            {
+              "artist": "SZA",
+              "plays": 5
             },
             {
               "artist": "The Weeknd",
@@ -24394,10 +24415,6 @@
             },
             {
               "artist": "Kanye West",
-              "plays": 3
-            },
-            {
-              "artist": "JPEGMAFIA",
               "plays": 3
             }
           ],
@@ -24450,17 +24467,17 @@
         ],
         "plays": {
           "status": "ok",
-          "n": 889,
+          "n": 924,
           "min_n": 50,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Plays by weekday (Monday first) and by hour, Pacific.",
           "small_sample": false,
           "values": {
             "by_weekday": [
               112,
               188,
-              160,
-              84,
+              194,
+              85,
               66,
               102,
               177
@@ -24474,8 +24491,8 @@
               0,
               0,
               0,
-              28,
-              124,
+              30,
+              132,
               26,
               32,
               33,
@@ -24483,9 +24500,9 @@
               25,
               42,
               70,
-              90,
-              135,
-              72,
+              92,
+              152,
+              78,
               77,
               66,
               7,
@@ -24495,16 +24512,16 @@
         },
         "workouts": {
           "status": "ok",
-          "n": 108,
+          "n": 109,
           "min_n": 8,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Workouts by weekday (Monday first), Pacific.",
           "small_sample": false,
           "values": {
             "by_weekday": [
               18,
               20,
-              17,
+              18,
               17,
               13,
               10,
@@ -24516,7 +24533,7 @@
           "status": "ok",
           "n": 291,
           "min_n": 10,
-          "as_of": "2026-11-11",
+          "as_of": "2026-11-12",
           "how": "Places ranked on Beli by weekday (Monday first), in the place's time zone; weekdays only, never a date.",
           "small_sample": false,
           "values": {
@@ -24536,7 +24553,7 @@
         "status": "ok",
         "n": 7,
         "min_n": 4,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Mean hours per week by weekday (Monday first, Pacific), each feed over its own window: from its first record or the start of the last 8 weeks to today. Watching counts dated episodes and films with a runtime, listening plays times track length, training workout durations.",
         "small_sample": false,
         "values": {
@@ -24550,39 +24567,39 @@
             "Sun"
           ],
           "weeks": 8,
-          "to": "2026-11-11",
+          "to": "2026-11-12",
           "feeds": {
             "watching": {
               "from": "2026-10-19",
-              "to": "2026-11-11",
+              "to": "2026-11-12",
               "weeks": 3,
               "status": "not enough data yet",
               "hours": null
             },
             "listening": {
               "from": "2026-10-11",
-              "to": "2026-11-11",
+              "to": "2026-11-12",
               "weeks": 4,
               "status": "ok",
               "hours": [
                 1.32,
                 2.36,
-                1.96,
-                1.27,
+                2.36,
+                1.03,
                 0.99,
                 1.62,
                 2.05
               ]
             },
             "training": {
-              "from": "2026-09-17",
-              "to": "2026-11-11",
+              "from": "2026-09-18",
+              "to": "2026-11-12",
               "weeks": 7,
               "status": "ok",
               "hours": [
                 0.83,
                 0.66,
-                0.62,
+                0.69,
                 0.64,
                 1.04,
                 0.96,
@@ -24595,8 +24612,8 @@
             "listening": [
               1.32,
               2.36,
-              1.96,
-              1.27,
+              2.36,
+              1.03,
               0.99,
               1.62,
               2.05
@@ -24604,7 +24621,7 @@
             "training": [
               0.83,
               0.66,
-              0.62,
+              0.69,
               0.64,
               1.04,
               0.96,
@@ -24620,7 +24637,7 @@
         "status": "ok",
         "n": 16,
         "min_n": 20,
-        "as_of": "2026-11-11",
+        "as_of": "2026-11-12",
         "how": "Every week's pre-game win chance against the result (a tie counts half), pooled over my teams: observed win rate per band of predicted chance, and the Brier score (mean squared error; 0.25 is what always saying 50% scores).",
         "small_sample": true,
         "value": 0.2184,
@@ -24675,7 +24692,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My playoff odds as they stood before each week, against where I finished; published once the regular season is over.",
             "values": {
               "first_unit": "a finished regular season"
@@ -24690,7 +24707,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My playoff odds as they stood before each week, against where I finished; published once the regular season is over.",
             "values": {
               "first_unit": "a finished regular season"
@@ -24705,7 +24722,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My playoff odds as they stood before each week, against where I finished; published once the regular season is over.",
             "values": {
               "first_unit": "a finished regular season"
@@ -24720,7 +24737,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My playoff odds as they stood before each week, against where I finished; published once the regular season is over.",
             "values": {
               "first_unit": "a finished regular season"
@@ -24735,7 +24752,7 @@
             "status": "not enough data yet",
             "n": 0,
             "min_n": 1,
-            "as_of": "2026-11-11",
+            "as_of": "2026-11-12",
             "how": "My playoff odds as they stood before each week, against where I finished; published once the regular season is over.",
             "values": {
               "first_unit": "a finished regular season"
